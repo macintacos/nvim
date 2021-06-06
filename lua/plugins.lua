@@ -1,9 +1,10 @@
 -- Bootstrap packer
-local install_path = vim.fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
+local install_path = vim.fn.stdpath("data") ..
+                         "/site/pack/packer/start/packer.nvim"
 
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-    vim.api.nvim_command("!git clone https://github.com/wbthomason/packer.nvim " ..
-                     install_path)
+    vim.api.nvim_command(
+        "!git clone https://github.com/wbthomason/packer.nvim " .. install_path)
     vim.api.nvim_command "packadd packer.nvim"
 end
 
@@ -13,12 +14,27 @@ vim.cmd "autocmd BufWritePost plugins.lua PackerCompile"
 -- Plugins specified here!
 return require("packer").startup(function(use)
     -- Get Packer to manage itself
-    use 'wbthomason/packer.nvim'
+    use "wbthomason/packer.nvim"
 
     -- Essential
+    -- TODO: Look into theming the highlight groups: https://github.com/nvim-telescope/telescope.nvim#how-to-change-telescope-highlights-group
+    -- TODO: For all Telescope stuff, need to make keymaps
+    -- Make sure to look at all of the available pickers: https://github.com/nvim-telescope/telescope.nvim#pickers
+    use {
+        "nvim-telescope/telescope.nvim",
+        requires = {{"nvim-lua/plenary.nvim"}, {"nvim-lua/popup.nvim"}}
+    }
+    use {"nvim-telescope/telescope-fzf-native.nvim", run = "make"}
+    use "nvim-telescope/telescope-github.nvim"
+    use "jvgrootveld/telescope-zoxide"
+    use "dhruvmanila/telescope-bookmarks.nvim"
+    use "crispgm/telescope-heading.nvim"
+
     -- Language Features
     -- Language specific
     -- Appearance
+    use "kyazdani42/nvim-web-devicons"
+
     -- Text Manipulation
     -- Git
     -- Utilities
