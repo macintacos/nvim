@@ -1,1 +1,2 @@
 -- neovim config
+require('plugins')
