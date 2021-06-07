@@ -19,7 +19,7 @@ opt.mouse = "a"
 opt.wrap = false
 opt.relativenumber = true
 opt.ruler = true
-opt.scrolloff = 20
+opt.scrolloff = 10
 opt.shiftwidth = 4
 opt.shortmess:append({a = true, c = true, s = true})
 opt.showcmd = true

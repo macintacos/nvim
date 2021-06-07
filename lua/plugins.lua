@@ -14,7 +14,7 @@ vim.cmd "autocmd BufWritePost plugins.lua PackerCompile"
 -- Plugins specified here!
 return require("packer").startup(function(use)
     -- Get Packer to manage itself
-    use "wbthomason/packer.nvim"
+    use {"wbthomason/packer.nvim"}
 
     -- Essential
     -- TODO: Look into theming the highlight groups: https://github.com/nvim-telescope/telescope.nvim#how-to-change-telescope-highlights-group
@@ -25,31 +25,22 @@ return require("packer").startup(function(use)
         requires = {{"nvim-lua/plenary.nvim"}, {"nvim-lua/popup.nvim"}}
     }
     use {"nvim-telescope/telescope-fzf-native.nvim", run = "make"}
-    use "nvim-telescope/telescope-github.nvim"
-    use "jvgrootveld/telescope-zoxide"
-    use "dhruvmanila/telescope-bookmarks.nvim"
-    use "crispgm/telescope-heading.nvim"
-    use "tpope/vim-sensible"
+    use {"crispgm/telescope-heading.nvim"}
+    use {"dhruvmanila/telescope-bookmarks.nvim"}
+    use {"jvgrootveld/telescope-zoxide"}
+    use {"nvim-telescope/telescope-github.nvim"}
+    use {"tpope/vim-sensible"}
 
     -- Language Features
-    -- use "neovim/nvim-lspconfig"
-    -- use "kabouzeid/nvim-lspinstall"
-    -- use "hrsh7th/nvim-compe"
-    -- use "onsails/lspkind-nvim"
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
-    -- use "nvim-treesitter/nvim-treesitter-refactor"
-    use "romgrk/nvim-treesitter-context"
-    -- use "glepnir/lspsaga.nvim" -- Can remove if navigator works out?
-    -- use {
-    --     "ray-x/navigator.lua",
-    --     requires = {"ray-x/guihua.lua", run = "cd lua/fzy && make"}
-    -- }
+    use {"romgrk/nvim-treesitter-context"}
     use {"neoclide/coc.nvim", branch = "release"}
+    use {"puremourning/vimspector"}
 
     -- Language specific
     -- Appearance
-    use "kyazdani42/nvim-web-devicons"
-    use "Mofiqul/dracula.nvim"
+    use {"kyazdani42/nvim-web-devicons"}
+    use {"Mofiqul/dracula.nvim"}
 
     -- Text Manipulation
     -- Git
