@@ -1,12 +1,13 @@
 local opt = vim.opt -- Meta-accessor - prefer this
 local nvim_command = vim.api.nvim_command
+local TERMINAL = vim.fn.expand("$TERMINAL")
 
 -- Use ``':help' to look at what the options mean
 opt.clipboard:prepend{"unnamedplus"}
+opt.completeopt = "menuone,noselect"
 opt.wildmode = {"longest:full", "full"}
 opt.autoindent = true
 opt.autoread = true
-opt.cmdheight = 2
 opt.confirm = true
 opt.cursorline = true
 opt.expandtab = true
@@ -32,9 +33,12 @@ opt.splitright = true
 opt.tabstop = 4
 opt.termguicolors = true
 opt.timeoutlen = 250 -- important for which-key
+opt.title = true
 opt.updatetime = 300 -- smaller updatetime for CursorHold & CursorHoldI
 opt.wildmenu = true
 
+-- Setting up the title, maybe
+nvim_command('let &titleold="'..TERMINAL..'"')
 
 -- For things that can't be cleanly set with neovim's lua API
 nvim_command([[

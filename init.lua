@@ -1,5 +1,26 @@
--- neovim config
+-- High-Level
+require("globals")
 require("settings")
-require("appearance")
 require("plugins")
+require("appearance")
+
+-- Plugin configs (in lua/)
 require("jt-telescope")
+require("jt-lspinstall")
+require("jt-compe")
+require("jt-treesitter")
+require("jt-lspkind")
+
+-- LSP
+require("lsp")
+require("lsp.css-ls")
+require("lsp.docker-ls")
+require("lsp.go-ls")
+require("lsp.graphql-ls")
+require("lsp.html-ls")
+require("lsp.js-ts-ls")
+require("lsp.json-ls")
+require("lsp.lua-ls")
+require("lsp.python-ls")
+require("lsp.ruby-ls")
+require("lsp.yaml-ls")

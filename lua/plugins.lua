@@ -32,12 +32,17 @@ return require("packer").startup(function(use)
     use "tpope/vim-sensible"
 
     -- Language Features
-    -- use "neovim/nvim-lspconfig"
-    -- use "hrsh7th/nvim-compe"
+    use "neovim/nvim-lspconfig"
+    use "kabouzeid/nvim-lspinstall"
+    use "hrsh7th/nvim-compe"
+    use "onsails/lspkind-nvim"
+    use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
+    use "nvim-treesitter/refactor"
 
     -- Language specific
     -- Appearance
     use "kyazdani42/nvim-web-devicons"
+    use "Mofiqul/dracula.nvim"
 
     -- Text Manipulation
     -- Git
