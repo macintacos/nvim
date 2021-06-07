@@ -29,8 +29,12 @@ return require("packer").startup(function(use)
     use "jvgrootveld/telescope-zoxide"
     use "dhruvmanila/telescope-bookmarks.nvim"
     use "crispgm/telescope-heading.nvim"
+    use "tpope/vim-sensible"
 
     -- Language Features
+    -- use "neovim/nvim-lspconfig"
+    -- use "hrsh7th/nvim-compe"
+
     -- Language specific
     -- Appearance
     use "kyazdani42/nvim-web-devicons"

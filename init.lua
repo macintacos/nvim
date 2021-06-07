@@ -1,3 +1,5 @@
 -- neovim config
-require('plugins')
-require('jt-telescope')
+require("settings")
+require("appearance")
+require("plugins")
+require("jt-telescope")
