@@ -1,35 +1,55 @@
+local actions = require("telescope.actions")
+
 require("telescope").setup {
     defaults = {
+        -- General Config
         vimgrep_arguments = {
             'rg', '--color=never', '--no-heading', '--with-filename',
             '--line-number', '--column', '--smart-case'
         },
-        prompt_position = "top",
-        prompt_prefix = "> ",
-        selection_caret = "> ",
-        entry_prefix = "  ",
         initial_mode = "insert",
         selection_strategy = "reset",
-        sorting_strategy = "ascending",
-        layout_strategy = "vertical",
-        layout_defaults = {
-            horizontal = {mirror = false},
-            vertical = {mirror = true}
-        },
         file_sorter = require'telescope.sorters'.get_fuzzy_file,
         file_ignore_patterns = {},
         generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
         shorten_path = true,
-        winblend = 0,
-        width = 0.75,
-        preview_cutoff = 120,
-        results_height = 0.8,
-        results_width = 0.8,
+
+        -- Appearance
         border = {},
         borderchars = {'─', '│', '─', '│', '╭', '╮', '╯', '╰'},
         color_devicons = true,
-        use_less = true,
+        entry_prefix = "  ",
+        layout_defaults = {
+            horizontal = {mirror = false},
+            vertical = {
+                mirror = true,
+                preview_height = 0.7
+            }
+        },
+        layout_strategy = "vertical",
+        preview_cutoff = 120,
+        prompt_position = "top",
+        prompt_prefix = "   ",
+        results_height = 1,
+        results_width = 0.8,
+        selection_caret = "-> ",
         set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
+        sorting_strategy = "ascending",
+        use_less = false,
+        width = 0.75,
+        winblend = 0,
+
+        -- Mappings
+        mappings = {
+            i = {
+                ["<C-n>"] = false,
+                ["<C-p>"] = false,
+                ["<C-j>"] = actions.move_selection_next,
+                ["<C-k>"] = actions.move_selection_previous
+            }
+        },
+
+        -- Previewers
         file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
         grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
         qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
@@ -54,7 +74,7 @@ require("telescope").setup {
                 layout_defaults = {
                     horizontal = {mirror = false},
                     vertical = {mirror = false}
-                },
+                }
             }
         }
     }
@@ -66,14 +86,3 @@ require("telescope").load_extension("gh")
 require("telescope").load_extension("zoxide")
 require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
-require("telescope").load_extension("frecency")
-
--- Extended Extension Settings
--- TODO: This should actually be how the command is shown, so you'd have to set this in the command/mapping itself
--- require('telescope').extensions.bookmarks.bookmarks(
---     require('telescope.themes').get_dropdown {
---         width = 0.8,
---         results_height = 0.8,
---         previewer = false
---     }
--- )
