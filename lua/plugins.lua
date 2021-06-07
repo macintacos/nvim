@@ -32,12 +32,19 @@ return require("packer").startup(function(use)
     use "tpope/vim-sensible"
 
     -- Language Features
-    use "neovim/nvim-lspconfig"
-    use "kabouzeid/nvim-lspinstall"
-    use "hrsh7th/nvim-compe"
-    use "onsails/lspkind-nvim"
+    -- use "neovim/nvim-lspconfig"
+    -- use "kabouzeid/nvim-lspinstall"
+    -- use "hrsh7th/nvim-compe"
+    -- use "onsails/lspkind-nvim"
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
-    use "nvim-treesitter/refactor"
+    -- use "nvim-treesitter/nvim-treesitter-refactor"
+    use "romgrk/nvim-treesitter-context"
+    -- use "glepnir/lspsaga.nvim" -- Can remove if navigator works out?
+    -- use {
+    --     "ray-x/navigator.lua",
+    --     requires = {"ray-x/guihua.lua", run = "cd lua/fzy && make"}
+    -- }
+    use {"neoclide/coc.nvim", branch = "release"}
 
     -- Language specific
     -- Appearance
