@@ -8,6 +8,14 @@ require("appearance")
 require("plug.telescope")
 require("plug.treesitter")
 require("plug.vimspector")
+require("plug.vim-doge")
+require("plug.colorizer")
+require("plug.galaxyline")
+require("plug.indent-blankline")
+require("plug.nvim-bufferline")
 
 -- CoC.nvim
 require("coc.python")
+
+-- Language-specific
+require("plug.vim-go")

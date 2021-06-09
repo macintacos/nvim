@@ -30,17 +30,29 @@ return require("packer").startup(function(use)
     use {"jvgrootveld/telescope-zoxide"}
     use {"nvim-telescope/telescope-github.nvim"}
     use {"tpope/vim-sensible"}
+    use {"tpope/vim-endwise"}
 
     -- Language Features
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
     use {"romgrk/nvim-treesitter-context"}
     use {"neoclide/coc.nvim", branch = "release"}
     use {"puremourning/vimspector"}
+    use {"kkoomen/vim-doge", run = ":call doge#install()"}
 
     -- Language specific
+    use {"fatih/vim-go", run = ":GoUpdateBinaries"}
+
     -- Appearance
     use {"kyazdani42/nvim-web-devicons"}
+    use {"norcalli/nvim-colorizer.lua"}
+    use {"glepnir/galaxyline.nvim"}
+    use {"lukas-reineke/indent-blankline.nvim", branch = "lua"} -- TODO: make a different highlight for Python, similar to indent rainbow?
+    use {"akinsho/nvim-bufferline.lua"}
+
+    use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua
     use {"Mofiqul/dracula.nvim"}
+    use {"shaunsingh/moonlight.nvim"}
+    use {"folke/tokyonight.nvim"}
 
     -- Text Manipulation
     -- Git

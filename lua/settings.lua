@@ -2,6 +2,8 @@ local opt = vim.opt -- Meta-accessor - prefer this
 local nvim_command = vim.api.nvim_command
 local TERMINAL = vim.fn.expand("$TERMINAL")
 
+vim.g.mapleader = " "
+
 -- Use ``':help' to look at what the options mean
 opt.clipboard:prepend{"unnamedplus"}
 opt.completeopt = "menuone,noselect"

@@ -15,6 +15,7 @@ let g:coc_global_extensions = [
   \  "coc-html",
   \  "coc-json",
   \  "coc-lists",
+  \  "coc-lua",
   \  "coc-markdownlint",
   \  "coc-marketplace",
   \  "coc-pairs",
@@ -76,9 +77,6 @@ function! s:show_documentation()
   endif
 endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
 " For formatting selected code (coc-format-selected)
 augroup mygroup
   autocmd!
@@ -111,8 +109,22 @@ command! -nargs=0 OR   :call CocAction('runCommand', 'editor.action.organizeImpo
 " fix for vim-endwise https://github.com/tpope/vim-endwise/issues/22
 " once there's a fix for that, remove this mapping
 let g:endwise_no_mappings = v:true
-inoremap <expr> <Plug>CustomCocCR pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <Plug>CustomCocCR pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 imap <CR> <Plug>CustomCocCR<Plug>DiscretionaryEnd
 
 " coc-go
-autocmd BufWritePre *.go :call CocAction('organizeImport')
+autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
+
+" symbols
+let g:coc_status_error_sign = " " " nf-fa-times_circle
+let g:coc_status_warning_sign = " " " nf-fa-exclamation_triangle
+
+" autocomplete menu styling
+func! s:dracula_colors_menu() abort
+  hi Pmenu guibg=#272941 guifg=#6272a4
+  hi PmenuSel guibg=#212337 guifg=#6272a4
+endfunc
+
+au ColorScheme * call s:dracula_colors_menu()
+
+" TODO: Theme errors and warnings so that the colors match the color scheme
