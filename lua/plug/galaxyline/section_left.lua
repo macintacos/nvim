@@ -6,7 +6,7 @@ local utils = require("utils")
 local mode_name = utils.mode_name
 local mode_hl = utils.mode_hl
 local ins_left = utils.ins_left
-local colors = require("colors")
+local colors = require("plug.global_colors")
 
 ins_left {
     ViMode = {

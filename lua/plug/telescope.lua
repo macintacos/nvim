@@ -1,4 +1,7 @@
 local actions = require("telescope.actions")
+local hi = vim.highlight.create
+
+-- api.nvim_set_hl_ns(ns)
 
 require("telescope").setup {
     defaults = {
@@ -79,6 +82,11 @@ require("telescope").setup {
         }
     }
 }
+
+-- Appearance
+hi("TelescopeNormal", {guibg = "#212337"}, false)
+hi("TelescopeSelection", {guibg = "#313452", guifg="#50fa7b"}, false)
+
 
 -- Extension Loading
 require("telescope").load_extension("fzf")

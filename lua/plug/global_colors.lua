@@ -1,6 +1,7 @@
--- Colors (based off of Dracula)
 local colors  = {
   section_bg  = '#292c45',
+  tabline_bg  = '#181a29',
+  comment     = '#6272a4',
   bg          = '#212337',
   fg          = '#f8f8f2',
   blue        = "#8be9fd",

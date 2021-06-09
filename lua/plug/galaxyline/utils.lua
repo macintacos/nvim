@@ -2,7 +2,7 @@
 local gls = require('galaxyline').section
 
 -- Local Imports
-local colors = require("colors")
+local colors = require("plug.global_colors")
 
 local utils = {} -- This gets exported
 

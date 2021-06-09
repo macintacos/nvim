@@ -47,7 +47,9 @@ return require("packer").startup(function(use)
     use {"norcalli/nvim-colorizer.lua"}
     use {"glepnir/galaxyline.nvim"}
     use {"lukas-reineke/indent-blankline.nvim", branch = "lua"} -- TODO: make a different highlight for Python, similar to indent rainbow?
-    use {"akinsho/nvim-bufferline.lua"}
+    -- use {"akinsho/nvim-bufferline.lua"}
+    use {"romgrk/barbar.nvim"}
+    use {"glepnir/dashboard-nvim"}
 
     use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua
     use {"Mofiqul/dracula.nvim"}

@@ -4,7 +4,7 @@ local condition = require("galaxyline.condition")
 
 -- Local Imports
 local utils = require("utils")
-local colors = require("colors")
+local colors = require("plug.global_colors")
 local ins_short_left = utils.ins_short_left
 local ins_short_right = utils.ins_short_right
 

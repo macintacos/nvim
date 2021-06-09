@@ -1,5 +1,5 @@
 -- Local Imports
-local colors = require("colors")
+local colors = require("plug.global_colors")
 local utils = require("utils")
 local cursor_position = utils.cursor_position
 local cursor_position_perc = utils.cursor_position_perc
@@ -21,9 +21,9 @@ ins_right {
       return require('galaxyline.provider_fileinfo').get_file_size() ~= ''
     end,
     provider = {function() return ' ' end, 'FileSize'},
-    highlight = {colors.fg, colors.bg},
+    highlight = {colors.fg, colors.section_bg},
     separator = ' |',
-    separator_highlight = {colors.fg, colors.section_bgg}
+    separator_highlight = {colors.fg, colors.section_bg}
   }
 }
 
