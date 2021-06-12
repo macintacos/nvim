@@ -66,7 +66,7 @@ function utils.mode_name()
   -- Make the string size constant.
   local mode_len = string.len(str)
   local delta = math.floor((8 - mode_len)/2)
-  local str = string.rep(" ", delta) .. str .. string.rep(" ", 8 - mode_len - delta)
+  str = string.rep(" ", delta) .. str .. string.rep(" ", 8 - mode_len - delta)
   return str
 end
 

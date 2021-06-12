@@ -1,8 +1,10 @@
 local opt = vim.opt -- Meta-accessor - prefer this
 local nvim_command = vim.api.nvim_command
+local gvar = vim.api.nvim_set_var
 local TERMINAL = vim.fn.expand("$TERMINAL")
 
 vim.g.mapleader = " "
+gvar("loaded_matchit", 1)
 
 -- Use ``':help' to look at what the options mean
 opt.clipboard:prepend{"unnamedplus"}
@@ -67,3 +69,5 @@ nvim_command([[
     autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=300}
 ]])
 
+-- Needs to be set before plugins are loaded
+gvar("ale_disable_lsp", 1)

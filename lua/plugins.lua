@@ -11,6 +11,9 @@ end
 -- Compile when there are changes to this file
 vim.cmd "autocmd BufWritePost plugins.lua PackerCompile"
 
+-- Because: https://github.com/wbthomason/packer.nvim/issues/202
+require("packer").init({max_jobs = 50})
+
 -- Plugins specified here!
 return require("packer").startup(function(use)
     -- Get Packer to manage itself
@@ -30,7 +33,6 @@ return require("packer").startup(function(use)
     use {"jvgrootveld/telescope-zoxide"}
     use {"nvim-telescope/telescope-github.nvim"}
     use {"tpope/vim-sensible"}
-    use {"tpope/vim-endwise"}
 
     -- Language Features
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
@@ -38,25 +40,78 @@ return require("packer").startup(function(use)
     use {"neoclide/coc.nvim", branch = "release"}
     use {"puremourning/vimspector"}
     use {"kkoomen/vim-doge", run = ":call doge#install()"}
+    use {"ludovicchabant/vim-gutentags"}
+    use("dense-analysis/ale")
+    use("preservim/vim-lexical")
+    use("preservim/vim-pencil")
 
     -- Language specific
     use {"fatih/vim-go", run = ":GoUpdateBinaries"}
+    use {"MTDL9/vim-log-highlighting"}
+    use {"SidOfc/mkdx"}
+    use {"iamcco/markdown-preview.nvim", run = "cd app && yarn install"}
 
     -- Appearance
     use {"kyazdani42/nvim-web-devicons"}
     use {"norcalli/nvim-colorizer.lua"}
     use {"glepnir/galaxyline.nvim"}
     use {"lukas-reineke/indent-blankline.nvim", branch = "lua"} -- TODO: make a different highlight for Python, similar to indent rainbow?
-    -- use {"akinsho/nvim-bufferline.lua"}
     use {"romgrk/barbar.nvim"}
-    use {"glepnir/dashboard-nvim"}
 
-    use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua
+    use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua - look into that more. See: ../TODO.md
     use {"Mofiqul/dracula.nvim"}
     use {"shaunsingh/moonlight.nvim"}
     use {"folke/tokyonight.nvim"}
 
-    -- Text Manipulation
-    -- Git
     -- Utilities
+    use {"kyazdani42/nvim-tree.lua"}
+    use {"airblade/vim-rooter"}
+    use {"rmagatti/auto-session"}
+    use {"kevinhwang91/nvim-hlslens"}
+    use {"liuchengxu/vista.vim"}
+    use {"nacro90/numb.nvim"}
+    use {"folke/trouble.nvim"}
+    use {
+        "folke/zen-mode.nvim",
+        config = function() require("zen-mode").setup {} end
+    }
+    use {"sudormrfbin/cheatsheet.nvim"}
+    use {"tpope/vim-repeat"}
+    use {"Asheq/close-buffers.vim"}
+    use {"mtth/scratch.vim"}
+    use {"t9md/vim-choosewin"}
+    use {"vim-ctrlspace/vim-ctrlspace"} -- TODO: Look into whether or not this is worth it... I'm thinking maybe not
+    use {"troydm/zoomwintab.vim"}
+    use {"psliwka/vim-smoothie"}
+    use {"jeffkreeftmeijer/vim-numbertoggle"}
+    use {"folke/todo-comments.nvim"}
+
+    -- Text Manipulation
+    use {"ervandew/supertab"}
+    use {"tpope/vim-endwise"}
+    use {"tpope/vim-commentary"}
+    use {"tpope/vim-eunuch"}
+    use {"tpope/vim-fugitive"}
+    use {"windwp/nvim-spectre"}
+    use {"lunarWatcher/auto-pairs"}
+    use {"mizlan/iswap.nvim", config = function() require("iswap").setup {} end}
+    use {"machakann/vim-sandwich"}
+    use {"junegunn/vim-easy-align"}
+    use {"AndrewRadev/splitjoin.vim"}
+    use {"andymass/vim-matchup"}
+    use {"easymotion/vim-easymotion"}
+    use {"mg979/vim-visual-multi", branch = "master"}
+    use {"rhysd/clever-f.vim"}
+    use {"svermeulen/vim-cutlass"}
+    use {"svermeulen/vim-yoink"}
+    use {"itchyny/vim-cursorword"}
+    use {"ntpeters/vim-better-whitespace"}
+    use {"wellle/targets.vim"}
+    use {"kana/vim-textobj-user"}
+    use {"preservim/vim-textobj-quote"}
+    use {"preservim/vim-textobj-sentence"}
+
+    -- Git
+    use {"lewis6991/gitsigns.nvim"}
+    use {"pwntester/octo.nvim"}
 end)

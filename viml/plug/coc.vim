@@ -5,12 +5,10 @@
 " can be found in ~/.config/coc/extensions/package.json
 let g:coc_global_extensions = [
   \  "coc-css",
-  \  "coc-diagnostic",
   \  "coc-dictionary",
   \  "coc-emmet",
   \  "coc-emoji",
   \  "coc-eslint",
-  \  "coc-git",
   \  "coc-go",
   \  "coc-html",
   \  "coc-json",
@@ -18,7 +16,6 @@ let g:coc_global_extensions = [
   \  "coc-lua",
   \  "coc-markdownlint",
   \  "coc-marketplace",
-  \  "coc-pairs",
   \  "coc-prettier",
   \  "coc-pyright",
   \  "coc-rust-analyzer",
@@ -30,28 +27,6 @@ let g:coc_global_extensions = [
   \  "coc-word",
   \  "coc-yaml"
   \ ]
-
-" Use tab for trigger completion with characters ahead and navigate.
-" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
-inoremap <silent><expr> <TAB>
-    \ pumvisible() ? "\<C-n>" :
-    \ <SID>check_back_space() ? "\<TAB>" :
-    \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
-" position. Coc only does snippet and additional edit on confirm.
-" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-if exists('*complete_info')
-  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-else
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-endif
 
 " Use <c-space> to trigger completion.
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -105,12 +80,6 @@ command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call CocAction('runCommand', 'editor.action.organizeImport')
-
-" fix for vim-endwise https://github.com/tpope/vim-endwise/issues/22
-" once there's a fix for that, remove this mapping
-let g:endwise_no_mappings = v:true
-inoremap <expr> <Plug>CustomCocCR pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-imap <CR> <Plug>CustomCocCR<Plug>DiscretionaryEnd
 
 " coc-go
 autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')

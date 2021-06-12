@@ -1,5 +1,5 @@
 " If you need to look into what's consuming so much startup time, consider using:
-" https://github.com/dstein64/vim-startuptime/tree/7a97baae32bedbf6f62d5a573777e4d1652787d1
+" https://github.com/dstein64/vim-startuptime/
 
 " $NVIM_HOME should be an env variable pointing to where your neovim config is located.
 " $PLUG_NVIM_HOME should be an env variable pointing to where your neovim plugin configs are located.
@@ -14,4 +14,10 @@ luafile $NVIM_HOME/lua/config.lua
 
 """ Vim-specific Configurations """
 
+" NOTE: Plugins are still installed in lua/plugins.lua
 source $PLUG_NVIM_HOME/coc.vim
+source $PLUG_NVIM_HOME/vim-visual-multi.vim
+source $PLUG_NVIM_HOME/vim-yoink.vim
+source $PLUG_NVIM_HOME/vim-lexical.vim
+source $PLUG_NVIM_HOME/vim-pencil.vim
+source $PLUG_NVIM_HOME/vim-textobj-user.vim

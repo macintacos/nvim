@@ -1,14 +1,13 @@
 -- Top-level config
 require("nvim-treesitter.configs").setup {
-    ensure_installed = "maintained",
-    highlight = {enable = true},
-    indent = {enable = true},
+    ensure_installed = "maintained", -- builtin
+    highlight = {enable = true}, -- builtin
+    indent = {enable = true}, -- builtin
+    matchup = {enable = true}, -- vim-matchup
 }
 
 -- romgrk/nvim-treesitter-context
-require("treesitter-context.config").setup {
-    enable = true
-}
+require("treesitter-context.config").setup {enable = true}
 
 -- We set up folding here because.... reasons. Not sure how I feel about it, maybe one day figure out how to enable conditionally?
 -- vim.opt.foldmethod = "expr"

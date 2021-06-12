@@ -7,6 +7,7 @@
     "markdown",
     "css"
   ],
+  "coc.preferences.useQuickfixForLocations": true,
   "diagnostic-languageserver.filetypes": {
     "go": "gopls",
     "markdown": ["write-good", "markdownlint"],
@@ -116,12 +117,6 @@
   "diagnostic.hintSign": "",
   "diagnostic.infoSign": "",
   "diagnostic.warningSign": "",
-  "explorer.file.showHiddenFiles": true,
-  "explorer.icon.enableNerdfont": true,
-  "explorer.keyMappings": {
-    ";": "actionMenu",
-    "<tab>": false
-  },
   "go.goplsOptions": {
     "gofumpt": true,
     "local": "github.com/10gen"

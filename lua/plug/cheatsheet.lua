@@ -1,0 +1,5 @@
+-- require("cheatsheet").setup({
+--     bundled_cheatsheets = {
+--         diabled = { "netrw-vim" }
+--     }
+-- })

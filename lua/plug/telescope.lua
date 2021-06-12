@@ -1,5 +1,6 @@
 local actions = require("telescope.actions")
 local hi = vim.highlight.create
+local colors = require("plug.global_colors")
 
 -- api.nvim_set_hl_ns(ns)
 
@@ -85,8 +86,9 @@ require("telescope").setup {
 
 -- Appearance
 hi("TelescopeNormal", {guibg = "#212337"}, false)
-hi("TelescopeSelection", {guibg = "#313452", guifg="#50fa7b"}, false)
-
+hi("TelescopeSelection", {guibg = "#313452", guifg=colors.green}, false)
+hi("TelescopeMatching", {guifg = colors.orange}, false)
+hi("TelescopePreviewMatch", {guifg = colors.orange}, false)
 
 -- Extension Loading
 require("telescope").load_extension("fzf")
