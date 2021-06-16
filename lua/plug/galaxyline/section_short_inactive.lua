@@ -8,7 +8,7 @@ local colors = require("plug.global_colors")
 local ins_short_left = utils.ins_short_left
 local ins_short_right = utils.ins_short_right
 
-gl.short_line_list = {'NvimTree', 'vista', 'dbui', 'packer'}
+gl.short_line_list = {'NvimTree', 'vista', 'dbui', 'packer', 'coc-explorer'}
 
 ins_short_left {
   ShortLineSeparator = {

@@ -9,7 +9,7 @@ require("telescope").setup {
         -- General Config
         vimgrep_arguments = {
             'rg', '--color=never', '--no-heading', '--with-filename',
-            '--line-number', '--column', '--smart-case'
+            '--line-number', '--column', '--smart-case', '--hidden'
         },
         initial_mode = "insert",
         selection_strategy = "reset",
@@ -17,6 +17,9 @@ require("telescope").setup {
         file_ignore_patterns = {},
         generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
         shorten_path = true,
+        find_command = {
+            "rg", "--ignore", "--hidden", "--files", "--smartcase"
+        },
 
         -- Appearance
         border = {},

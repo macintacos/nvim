@@ -6,3 +6,4 @@ I'm taking a second stab at trying a neovim config again, using Neovim nightly s
 - I couldn't find a great way to do this, but there's a lot of stuff in my previous configuration that I want to bring over to this config, so I'm still using an `init.vim`. Almost all new configuration takes place in the `lua/` folder, and where it's relatively straightforward, I'm converting old configurations over to Lua.
 
 I'll attach a screenshot at.... some point.
+

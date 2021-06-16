@@ -9,6 +9,7 @@ let g:coc_global_extensions = [
   \  "coc-emmet",
   \  "coc-emoji",
   \  "coc-eslint",
+  \  "coc-explorer",
   \  "coc-go",
   \  "coc-html",
   \  "coc-json",
@@ -29,7 +30,9 @@ let g:coc_global_extensions = [
   \ ]
 
 " Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <silent><expr> <C-space> coc#refresh()
+
+
 
 " Use `[c` and `]c` to navigate diagnostics
 nmap <silent> [c <Plug>(coc-diagnostic-prev)
@@ -37,7 +40,7 @@ nmap <silent> ]c <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gy <Plug>(co:c-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
@@ -96,4 +99,7 @@ endfunc
 
 au ColorScheme * call s:dracula_colors_menu()
 
-" TODO: Theme errors and warnings so that the colors match the color scheme
+" have vim start coc-explorer if vim started with folder
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'CocCommand explorer' argv()[0] | wincmd p | ene | exe 'cd '.argv()[0] | endif
+

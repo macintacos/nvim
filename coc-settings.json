@@ -117,6 +117,14 @@
   "diagnostic.hintSign": "",
   "diagnostic.infoSign": "",
   "diagnostic.warningSign": "",
+  "explorer.position": "right",
+  "explorer.root.strategies": ["cwd"],
+  "explorer.file.showHiddenFiles": true,
+  "explorer.icon.enableNerdfont": true,
+  "explorer.keyMappings": {
+    ";": "actionMenu",
+    "<tab>": false
+  },
   "go.goplsOptions": {
     "gofumpt": true,
     "local": "github.com/10gen"

@@ -6,9 +6,6 @@ require("nvim-treesitter.configs").setup {
     matchup = {enable = true}, -- vim-matchup
 }
 
--- romgrk/nvim-treesitter-context
-require("treesitter-context.config").setup {enable = true}
-
 -- We set up folding here because.... reasons. Not sure how I feel about it, maybe one day figure out how to enable conditionally?
 -- vim.opt.foldmethod = "expr"
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"

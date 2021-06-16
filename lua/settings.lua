@@ -3,10 +3,9 @@ local nvim_command = vim.api.nvim_command
 local gvar = vim.api.nvim_set_var
 local TERMINAL = vim.fn.expand("$TERMINAL")
 
-vim.g.mapleader = " "
 gvar("loaded_matchit", 1)
 
--- Use ``':help' to look at what the options mean
+-- Use ':help' to look at what the options mean
 opt.clipboard:prepend{"unnamedplus"}
 opt.completeopt = "menuone,noselect"
 opt.wildmode = {"longest:full", "full"}
@@ -32,8 +31,8 @@ opt.signcolumn = "yes"
 opt.smartcase = true
 opt.smartindent = true
 opt.softtabstop = 4
-opt.splitbelow = true
-opt.splitright = true
+-- opt.splitbelow = true
+-- opt.splitright = true
 opt.tabstop = 4
 opt.termguicolors = true
 opt.timeoutlen = 250 -- important for which-key
@@ -46,6 +45,7 @@ nvim_command('let &titleold="'..TERMINAL..'"')
 
 -- For things that can't be cleanly set with neovim's lua API
 nvim_command([[
+    set colorcolumn=9999
     set whichwrap+=<,>,[,],h,l
     set gcr=a:block
     set gcr+=o:hor50-Cursor
