@@ -48,7 +48,7 @@ wk.register({
     },
     e = {
         name = "errors/diagnostics",
-        l = {"<Cmd>CocList diagnostics", "List Diagnostics"},
+        l = {"<Cmd>CocList diagnostics<CR>", "List Diagnostics"},
         n = {"<Cmd>call CocAction('diagnosticNext')<CR>zz", "Next Diagnostic"},
         p = {"<Cmd>call CocAction('diagnosticPrevious')<CR>zz", "Prev Diagnostic"},
     },

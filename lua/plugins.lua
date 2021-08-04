@@ -63,9 +63,8 @@ return require("packer").startup(function(use)
     use {"kyazdani42/nvim-web-devicons"}
     use {"norcalli/nvim-colorizer.lua"}
     use {"glepnir/galaxyline.nvim"}
-    use {"lukas-reineke/indent-blankline.nvim", branch = "lua"} -- TODO: make a different highlight for Python, similar to indent rainbow?
+    use {"lukas-reineke/indent-blankline.nvim" } -- TODO: make a different highlight for Python, similar to indent rainbow?
     use {"romgrk/barbar.nvim"}
-
     -- use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua - look into that more. See: ../TODO.md
     use {"Mofiqul/dracula.nvim"}
     use {"shaunsingh/moonlight.nvim"}
@@ -110,13 +109,13 @@ return require("packer").startup(function(use)
     use {"windwp/nvim-spectre"}
     use {"lunarWatcher/auto-pairs"}
     use {"mizlan/iswap.nvim", config = function() require("iswap").setup {} end}
-    use {"machakann/vim-sandwich"}
+    use {"tpope/vim-surround"}
     use {"junegunn/vim-easy-align"}
     use {"AndrewRadev/splitjoin.vim"}
     use {"andymass/vim-matchup"}
     use {"easymotion/vim-easymotion"}
     use {"mg979/vim-visual-multi", branch = "master"}
-    use {"rhysd/clever-f.vim"}
+    use {"justinmk/vim-sneak"}
     use {"svermeulen/vim-cutlass"}
     use {"svermeulen/vim-yoink"}
     use {"itchyny/vim-cursorword"}

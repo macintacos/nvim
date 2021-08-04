@@ -136,6 +136,7 @@
     "MD046": false
   },
   "python.formatting.provider": "black",
+  "python.venvPath": "~/Library/Caches/pypoetry/virtualenvs/",
   "python.linting.pylintEnabled": true,
   "suggest.completionItemKindLabels": {
     "class": "",

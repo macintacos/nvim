@@ -16,7 +16,6 @@ require("telescope").setup {
         file_sorter = require'telescope.sorters'.get_fuzzy_file,
         file_ignore_patterns = {},
         generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
-        shorten_path = true,
         find_command = {
             "rg", "--ignore", "--hidden", "--files", "--smartcase"
         },
@@ -26,24 +25,21 @@ require("telescope").setup {
         borderchars = {'─', '│', '─', '│', '╭', '╮', '╯', '╰'},
         color_devicons = true,
         entry_prefix = "  ",
-        layout_defaults = {
+        layout_strategy = "vertical",
+        layout_config = {
             horizontal = {mirror = false},
             vertical = {
                 mirror = true,
                 preview_height = 0.7
-            }
+            },
+            width = 0.75,
+            prompt_position = "top",
         },
-        layout_strategy = "vertical",
-        preview_cutoff = 120,
-        prompt_position = "top",
         prompt_prefix = "   ",
-        results_height = 1,
-        results_width = 0.8,
         selection_caret = "-> ",
         set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
         sorting_strategy = "ascending",
         use_less = false,
-        width = 0.75,
         winblend = 0,
 
         -- Mappings

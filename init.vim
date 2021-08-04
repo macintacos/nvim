@@ -21,3 +21,4 @@ source $PLUG_NVIM_HOME/vim-pencil.vim
 source $PLUG_NVIM_HOME/vim-visual-multi.vim
 source $PLUG_NVIM_HOME/vim-yoink.vim
 source $PLUG_NVIM_HOME/vim-textobj-user.vim
+source $PLUG_NVIM_HOME/sneak.vim
