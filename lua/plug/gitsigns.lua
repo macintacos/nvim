@@ -1,5 +1,5 @@
 local hi = vim.highlight.create
-local colors = require("plug.global_colors") 
+local global_colors = require("plug.global_colors") 
 
 require("gitsigns").setup {
     current_line_blame = true,
@@ -26,4 +26,4 @@ require("gitsigns").setup {
 }
 
 -- Appearance
-hi("GitSignsCurrentLineBlame", {guifg = colors.comment}, false)
+hi("GitSignsCurrentLineBlame", {guifg = global_colors.comments}, false)

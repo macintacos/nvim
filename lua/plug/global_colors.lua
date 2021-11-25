@@ -1,20 +1,20 @@
-local colors  = {
-  section_bg  = '#292c45',
-  tabline_bg  = '#181a29',
-  comment     = '#6272a4',
-  bg          = '#212337',
-  fg          = '#f8f8f2',
-  blue        = "#8be9fd",
-  cyan        = "#8be9fd",
-  green       = "#50fa7b",
-  grey        = "#6272a4",
-  magenta     = "#ff79c6",
-  orange      = "#ffb86c",
-  purple      = "#bd93f9",
-  red         = "#ff5555",
-  violet      = "#bd93f9",
-  white       = "#f8f8f2",
-  yellow      = "#f1fa8c"
+local global_colors = {
+    background_lighter = "#393649",
+    background_light = "#2E2B3B",
+    background = "#22212C",
+    background_dark = "#17161D",
+    background_darker = "#0B0B0F",
+    foreground = "#F8F8F2",
+    comments = "#7970A9",
+    selection = "#454158",
+    subtle = "#424450",
+    cyan = "#80FFEA",
+    green = "#8AFF80",
+    orange = "#FFCA80",
+    pink = "#FF80BF",
+    purple = "#9580FF",
+    red = "#FF9580",
+    yellow = "#FFFF80"
 }
 
-return colors
+return global_colors

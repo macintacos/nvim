@@ -1,6 +1,4 @@
 local actions = require("telescope.actions")
-local hi = vim.highlight.create
-local colors = require("plug.global_colors")
 
 -- api.nvim_set_hl_ns(ns)
 
@@ -14,7 +12,7 @@ require("telescope").setup {
         initial_mode = "insert",
         selection_strategy = "reset",
         file_sorter = require'telescope.sorters'.get_fuzzy_file,
-        file_ignore_patterns = {},
+        file_ignore_patterns = {".git"},
         generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
         find_command = {
             "rg", "--ignore", "--hidden", "--files", "--smartcase"
@@ -83,15 +81,17 @@ require("telescope").setup {
     }
 }
 
--- Appearance
-hi("TelescopeNormal", {guibg = "#212337"}, false)
-hi("TelescopeSelection", {guibg = "#313452", guifg=colors.green}, false)
-hi("TelescopeMatching", {guifg = colors.orange}, false)
-hi("TelescopePreviewMatch", {guifg = colors.orange}, false)
-
 -- Extension Loading
 require("telescope").load_extension("fzf")
 require("telescope").load_extension("gh")
-require("telescope").load_extension("zoxide")
 require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
+
+-- Zoxide
+local z_utils = require("telescope._extensions.zoxide.utils")
+
+require("telescope._extensions.zoxide.config").setup({
+    mappings = {
+        default = { after_action = z_utils.create_basic_command("Prosession") }
+    }
+})

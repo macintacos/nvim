@@ -31,8 +31,8 @@ map("n", "<M-a>", "<Cmd>vertical resize -5<CR>", {noremap = true, silent = true}
 -- better indentation selection stuff
 map("v", "<", "<gv", {noremap = true})
 map("v", ">", ">gv", {noremap = true})
-map("v", "<S-TAB>", "<gv", {noremap = true})
-map("v", "<TAB>", ">gv", {noremap = true})
+-- map("v", "<S-TAB>", "<gv", {noremap = true})
+-- map("v", "<TAB>", ">gv", {noremap = true})
 
 -- Horizontal scrolling when wrapped
 map("n", "<C-l>", "20zl", {noremap = true})

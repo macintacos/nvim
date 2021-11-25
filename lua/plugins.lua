@@ -39,17 +39,14 @@ return require("packer").startup(function(use)
     use {"jvgrootveld/telescope-zoxide"}
     use {"nvim-telescope/telescope-github.nvim"}
     use {"tpope/vim-sensible"}
-    use {"junegunn/fzf", run = function()
-        vim.fn["fzf#install"]()
-    end}
-    use {"junegunn/fzf.vim"}
+    -- use {"junegunn/fzf", run = function()
+    --     vim.fn["fzf#install"]()
+    -- end}
+    -- use {"junegunn/fzf.vim"}
 
     -- Language Features
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
-    use {"neoclide/coc.nvim", branch = "release"}
     use {"kkoomen/vim-doge", run = ":call doge#install()"}
-    use {"ludovicchabant/vim-gutentags"}
-    use {"dense-analysis/ale"}
     use {"preservim/vim-lexical"}
     use {"preservim/vim-pencil"}
 
@@ -62,21 +59,23 @@ return require("packer").startup(function(use)
     -- Appearance
     use {"kyazdani42/nvim-web-devicons"}
     use {"norcalli/nvim-colorizer.lua"}
-    use {"glepnir/galaxyline.nvim"}
     use {"lukas-reineke/indent-blankline.nvim" } -- TODO: make a different highlight for Python, similar to indent rainbow?
     use {"romgrk/barbar.nvim"}
+    use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons"}}
+    use {"nvim-lualine/lualine.nvim", requires = {"kyazdani42/nvim-web-devicons", opt = true}}
+    use {"tjdevries/colorbuddy.nvim"}
     -- use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua - look into that more. See: ../TODO.md
     use {"Mofiqul/dracula.nvim"}
     use {"shaunsingh/moonlight.nvim"}
     use {"folke/tokyonight.nvim"}
 
     -- Utilities
+    use {"stevearc/stickybuf.nvim"}
     use {"folke/which-key.nvim"}
     use {"airblade/vim-rooter"}
     use {"tpope/vim-obsession"}
     use {"dhruvasagar/vim-prosession"}
     use {"kevinhwang91/nvim-hlslens"}
-    use {"liuchengxu/vista.vim"}
     use {"nacro90/numb.nvim"}
     use {"folke/trouble.nvim"}
     use {
@@ -85,7 +84,6 @@ return require("packer").startup(function(use)
     }
     use {"sudormrfbin/cheatsheet.nvim"}
     use {"tpope/vim-repeat"}
-    use {"Asheq/close-buffers.vim"}
     use {"mtth/scratch.vim"}
     use {"t9md/vim-choosewin"}
     use {"troydm/zoomwintab.vim"}
@@ -107,7 +105,8 @@ return require("packer").startup(function(use)
     use {"tpope/vim-eunuch"}
     use {"tpope/vim-fugitive"}
     use {"windwp/nvim-spectre"}
-    use {"lunarWatcher/auto-pairs"}
+    -- use {"lunarWatcher/auto-pairs"}
+    use {"windwp/nvim-autopairs"}
     use {"mizlan/iswap.nvim", config = function() require("iswap").setup {} end}
     use {"tpope/vim-surround"}
     use {"junegunn/vim-easy-align"}
@@ -115,7 +114,7 @@ return require("packer").startup(function(use)
     use {"andymass/vim-matchup"}
     use {"easymotion/vim-easymotion"}
     use {"mg979/vim-visual-multi", branch = "master"}
-    use {"justinmk/vim-sneak"}
+    use {"ggandor/lightspeed.nvim"}
     use {"svermeulen/vim-cutlass"}
     use {"svermeulen/vim-yoink"}
     use {"itchyny/vim-cursorword"}
@@ -127,5 +126,4 @@ return require("packer").startup(function(use)
 
     -- Git
     use {"lewis6991/gitsigns.nvim"}
-    use {"pwntester/octo.nvim"}
 end)

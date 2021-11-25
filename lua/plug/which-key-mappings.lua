@@ -43,33 +43,34 @@ wk.register({
         p = {"<Cmd>BufferPrevious<CR>", "New Empty Buffer"},
         y = {"<Cmd>%y<CR>", "Copy Buffer"},
         z = {"<Cmd>ZenMode<CR>", "Zen Mode"},
-        o = {"<Cmd>Vista coc<CR>", "Focus Outline"},
+        -- o = {"<Cmd>Vista coc<CR>", "Focus Outline"},
         s = {"<Cmd>Scratch<CR>", "Open Scratch Buffer"},
     },
     e = {
         name = "errors/diagnostics",
-        l = {"<Cmd>CocList diagnostics<CR>", "List Diagnostics"},
-        n = {"<Cmd>call CocAction('diagnosticNext')<CR>zz", "Next Diagnostic"},
-        p = {"<Cmd>call CocAction('diagnosticPrevious')<CR>zz", "Prev Diagnostic"},
+        -- l = {"<Cmd>CocList diagnostics<CR>", "List Diagnostics"},
+        -- n = {"<Cmd>call CocAction('diagnosticNext')<CR>zz", "Next Diagnostic"},
+        -- p = {"<Cmd>call CocAction('diagnosticPrevious')<CR>zz", "Prev Diagnostic"},
     },
     f = {
         name = "file",
         ['='] = {"<Cmd>Format<CR>", "Format File"},
         f = {"<Cmd>Telescope find_files find_command=rg,--ignore,--hidden,--files<CR>", "Find File"},
-        t = {"<Cmd>CocCommand explorer<CR>", "Toggle Explorer"},
+        -- t = {"<Cmd>CocCommand explorer<CR>", "Toggle Explorer"},
         e = {
             name = "edit",
-            c = {"<Cmd>CocConfig<CR>",                                                 "Edit CoC Config"},
+            -- c = {"<Cmd>CocConfig<CR>",                                                 "Edit CoC Config"},
             d = {"<Cmd>cd $DOTFILES_HOME<CR><Cmd>Prosession .<CR><Cmd>Telescope find_files find_command=rg,--ignore,--hidden,--files<CR>", "Edit Dotfiles"},
             p = {"<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plugins.lua<CR>",                              "Edit Plugins"},
             w = {"<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plug/which-key-mappings.lua<CR>",              "Edit Which-Key Config"},
             S = {"<Cmd>PackerSync<CR>",                                                "Sync Packer"}
         },
-        R = {"<Cmd>Move %<TAB>",             "Rename/Move Current File"},
+        R = {":Move %<TAB>",             "Rename/Move Current File"},
         s = {"<Cmd>w<CR>",                   "Save Current File"},
         S = {"<Cmd>wa<CR>",                  "Save All Open Files"},
         o = {"<Cmd>FloatermNew ranger<CR>",  "Open File Browser"},
-        O = {"<Cmd>Vista coc<CR>",           "Focus Symbol Outline"}
+        n = {"<Cmd>lua require'telescope.builtin'.file_browser{}<CR>", "Open File Browser"}
+        -- O = {"<Cmd>Vista coc<CR>",           "Focus Symbol Outline"}
     },
     g = {
         name = "git",
@@ -87,14 +88,15 @@ wk.register({
 
     h = {
         name = "help",
-        c = {"<Cmd>Cheatsheet<CR>",          "Search Cheatsheet"},
-        h = {"<Cmd>Telescope help_tags<CR>", "Search All Help Docs"},
-        m = {"<Cmd>Telescope keymaps<CR>",   "Search All Keymaps"}
+        c = {"<Cmd>Cheatsheet<CR>",                                  "Search Cheatsheet"},
+        h = {"<Cmd>Telescope help_tags<CR>",                         "Search All Help Docs"},
+        m = {"<Cmd>Telescope keymaps<CR>",                           "Search All Keymaps"},
+        H = {"<Cmd>lua require'telescope.builtin'.highlights{}<CR>", "Search all Highlights"}
     },
     j = {
         name = "jump/join",
-        i = {"<Cmd>Vista finder coc<CR>", "Jump to Symbol in File"},
-        I = {"<Cmd>Vista finder!<CR>",    "Jump to Symbol in Project"},
+        i = {"<Cmd>lua require'telescope.builtin'.lsp_document_symbols{}<CR>", "Jump to Symbol in File"},
+        I = {"<Cmd>lua require'telescope.builtin'.lsp__symbols{}<CR>", "Jump to Symbol in File"},
         s = {"<Cmd>SplitjoinSplit<CR>",   "Splitjoin Split"},
         j = {"<Cmd>SplitjoinJoin<CR>",    "Splitjoin Join"}
     },

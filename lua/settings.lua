@@ -47,15 +47,6 @@ nvim_command('let &titleold="'..TERMINAL..'"')
 nvim_command([[
     set colorcolumn=9999
     set whichwrap+=<,>,[,],h,l
-    set gcr=a:block
-    set gcr+=o:hor50-Cursor
-    set gcr+=n:Cursor
-    set gcr+=i-ci-sm:InsertCursor
-    set gcr+=i:ver100-iCursor
-    set gcr+=r-cr:ReplaceCursor-hor20
-    set gcr+=c:CommandCursor
-    set gcr+=v-ve:VisualCursor
-    set gcr+=a:blinkon0
 ]])
 
 -- Filetype-specific settings
@@ -69,5 +60,3 @@ nvim_command([[
     autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=300}
 ]])
 
--- Needs to be set before plugins are loaded
-gvar("ale_disable_lsp", 1)

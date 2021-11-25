@@ -1,34 +1,41 @@
 -- Use this file to make minor changes to the appearance of neovim, unrelated to any particular plugin
 local nvim_command = vim.api.nvim_command
--- local global = vim.api.nvim_set_var
+local colors = require("plug.global_colors")
+local api = vim.api
+local hi = api.nvim_set_hl
+local ns = api.nvim_create_namespace("macintacos")
+
+api.nvim__set_hl_ns(ns)
 
 -- Theme
 nvim_command([[colorscheme dracula]])
-nvim_command([[
-    hi Normal guibg=#212337
-    hi! link SignColumn LineNr
-]])
+vim.g.dracula_transparent_bg = true
 
+-- Telescope Appearance
+hi(ns, "TelescopeNormal", {bg = colors.background_darker})
+hi(ns, "TelescopeSelection", {bg = colors.background_dark, fg = colors.green})
+hi(ns, "TelescopeMatching", {fg = colors.orange, bg= colors.background_dark})
+hi(ns, "TelescopePreviewMatch", {fg = colors.orange, bg = colors.background_dark})
 
--- cursor-related changes
-nvim_command([[
-    hi CursorLine guibg=#292c45
-    hi Cursor  guifg=#ff79c6 guibg=#ff79c6
-    hi InsertCursor  guifg=#fdf6e3 guibg=#2aa198
-    hi VisualCursor  guifg=#fdf6e3 guibg=#ffb86c
-    hi ReplaceCursor guifg=#fdf6e3 guibg=#dc322f
-    hi CommandCursor guifg=#fdf6e3 guibg=#ff5555
-]])
+-- barbar.nvim Appearance
+hi(ns, "BufferInactive", {fg = colors.comments, bg = colors.background_dark})
+hi(ns, "BufferInactiveIndex", {fg = colors.comments, bg = colors.background_dark})
+hi(ns, "BufferInactiveSign", {fg = colors.comments, bg = colors.background_dark})
 
--- Visual styling
+-- Cursor-related changes
+hi(ns, "Cursor", {bg = colors.pink, fg = colors.pink})
+hi(ns, "CursorLine", {bg = colors.background_dark})
+hi(ns, "NvimTreeCursorLine", {bg = colors.background_dark})
+hi(ns, "CursorWord1", {bg = colors.background_light})
+hi(ns, "InsertCursor", {fg = colors.foreground, bg = colors.cyan})
+hi(ns, "VisualCursor", {fg = colors.background_dark, bg = colors.orange})
+hi(ns, "ReplaceCursor", {fg = colors.foreground, bg = colors.red})
+hi(ns, "CommandCursor", {fg = colors.foreground, bg = colors.pink})
+hi(ns, "Visual", {bg = colors.background})
 nvim_command([[
-    hi Visual guibg=#393d4f
-]])
-
--- Styling when entering/leaving INSERT
-nvim_command([[
-    autocmd InsertEnter * highlight CursorLine guibg=#212337
-    autocmd InsertEnter * highlight Cursor guifg=#ff79c6 guibg=#ff79c6
-    autocmd InsertLeave * highlight CursorLine guibg=#292c45
-    autocmd InsertLeave * highlight Cursor guifg=#ff79c6 guibg=#ff79c6
+    set guicursor=n-c:block-Cursor
+    set guicursor+=v:block-VisualCursor
+    set guicursor+=i:ver100-InsertCursor
+    set guicursor+=n-v-c:blinkon0
+    set guicursor+=i:blinkwait10
 ]])
