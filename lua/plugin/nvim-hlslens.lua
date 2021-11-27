@@ -13,3 +13,4 @@ map("n", "*", "*<Cmd>lua require('hlslens').start()<CR>", {})
 map("n", "g*", "g*<Cmd>lua require('hlslens').start()<CR>", {})
 map("n", "#", "#<Cmd>lua require('hlslens').start()<CR>", {})
 map("n", "g#", "g#<Cmd>lua require('hlslens').start()<CR>", {})
+

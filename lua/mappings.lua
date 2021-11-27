@@ -29,10 +29,8 @@ map("n", "<M-d>", "<Cmd>vertical resize +5<CR>", {noremap = true, silent = true}
 map("n", "<M-a>", "<Cmd>vertical resize -5<CR>", {noremap = true, silent = true})
 
 -- better indentation selection stuff
-map("v", "<", "<gv", {noremap = true})
-map("v", ">", ">gv", {noremap = true})
--- map("v", "<S-TAB>", "<gv", {noremap = true})
--- map("v", "<TAB>", ">gv", {noremap = true})
+map("v", "<S-TAB>", "<gv", {noremap = true})
+map("v", "<TAB>", ">gv", {noremap = true})
 
 -- Horizontal scrolling when wrapped
 map("n", "<C-l>", "20zl", {noremap = true})
@@ -40,12 +38,16 @@ map("n", "<C-h>", "20zh", {noremap = true})
 
 -- improved movements
 map("n", "G", "Gzz", {})
-map("n", "H", "^", {})
-map("n", "L", "$", {})
 
--- Moving lines
-map("n", "J", ":m .+1<CR>==", {})
-map("v", "K", ":m '<-2<CR>gv=gv", {})
-map("n", "K", ":m .-2<CR>==", {})
-map("v", "J", ":m '>+1<CR>gv=gv", {})
+-- move.nvim
+map('n', 'J', ":MoveLine(1)<CR>", { noremap = true, silent = true })
+map('n', 'K', ":MoveLine(-1)<CR>", { noremap = true, silent = true })
+map('v', 'J', ":MoveBlock(1)<CR>", { noremap = true, silent = true })
+map('v', 'K', ":MoveBlock(-1)<CR>", { noremap = true, silent = true })
+map('n', 'L', ":MoveHChar(1)<CR>", { noremap = true, silent = true })
+map('n', 'H', ":MoveHChar(-1)<CR>", { noremap = true, silent = true })
+map('v', 'L', ":MoveHBlock(1)<CR>", { noremap = true, silent = true })
+map('v', 'H', ":MoveHBlock(-1)<CR>", { noremap = true, silent = true })
+
+
 

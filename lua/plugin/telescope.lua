@@ -19,22 +19,6 @@ require("telescope").setup {
         },
 
         -- Appearance
-        border = {},
-        borderchars = {'─', '│', '─', '│', '╭', '╮', '╯', '╰'},
-        color_devicons = true,
-        entry_prefix = "  ",
-        layout_strategy = "vertical",
-        layout_config = {
-            horizontal = {mirror = false},
-            vertical = {
-                mirror = true,
-                preview_height = 0.7
-            },
-            width = 0.75,
-            prompt_position = "top",
-        },
-        prompt_prefix = "   ",
-        selection_caret = "-> ",
         set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
         sorting_strategy = "ascending",
         use_less = false,
@@ -57,6 +41,25 @@ require("telescope").setup {
 
         -- Developer configurations: Not meant for general override
         buffer_previewer_maker = require'telescope.previewers'.buffer_previewer_maker
+    },
+    pickers = {
+        buffers                   = { theme = "ivy" },
+        colorscheme               = { theme = "ivy" },
+        current_buffer_fuzzy_find = { theme = "ivy" },
+        file_browser              = { theme = "ivy" },
+        find_files                = { theme = "ivy" },
+        git_bcommits              = { theme = "ivy" },
+        git_commits               = { theme = "ivy" },
+        grep_string               = { theme = "ivy" },
+        heading                   = { theme = "ivy" },
+        help_tags                 = { theme = "ivy" },
+        highlights                = { theme = "ivy" },
+        keymaps                   = { theme = "ivy" },
+        live_grep                 = { theme = "ivy" },
+        lsp_document_symbols      = { theme = "ivy" },
+        lsp_workspace_symbols     = { theme = "ivy" },
+        man_pages                 = { theme = "ivy" },
+        zoxide                    = { theme = "ivy" },
     },
     extensions = {
         fzf = {
@@ -86,12 +89,20 @@ require("telescope").load_extension("fzf")
 require("telescope").load_extension("gh")
 require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
+require("telescope").load_extension("zoxide")
+require("telescope").load_extension("project")
 
--- Zoxide
-local z_utils = require("telescope._extensions.zoxide.utils")
-
+-- Zoxide-specific
 require("telescope._extensions.zoxide.config").setup({
     mappings = {
-        default = { after_action = z_utils.create_basic_command("Prosession") }
+        default = {
+            action = function(selection)
+                vim.cmd("cd " .. selection.path)
+            end,
+            after_action = function(selection)
+                vim.cmd("Prosession .")
+                print("Directory changed to " .. selection.path)
+            end
+        }
     }
 })

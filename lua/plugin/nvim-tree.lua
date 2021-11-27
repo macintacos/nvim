@@ -38,7 +38,9 @@ local list = {
 
 require("nvim-tree").setup {
     hijack_cursor = true,
+    update_cwd = true,
     view = {
+        side = "right",
         mappings = {
             list = list
         }

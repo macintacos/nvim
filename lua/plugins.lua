@@ -1,5 +1,4 @@
 ---@diagnostic disable: undefined-global
--- Bootstrap packer
 local install_path = vim.fn.stdpath("data") ..
                          "/site/pack/packer/start/packer.nvim"
 
@@ -26,23 +25,20 @@ return require("packer").startup(function(use)
     }}
 
     -- Essential
-    -- TODO: Look into theming the highlight groups: https://github.com/nvim-telescope/telescope.nvim#how-to-change-telescope-highlights-group
     -- TODO: For all Telescope stuff, need to make keymaps
+    -- TODO: Consider using snap? https://github.com/camspiers/snap
     -- Make sure to look at all of the available pickers: https://github.com/nvim-telescope/telescope.nvim#pickers
     use {
         "nvim-telescope/telescope.nvim",
         requires = {{"nvim-lua/plenary.nvim"}, {"nvim-lua/popup.nvim"}}
     }
     use {"nvim-telescope/telescope-fzf-native.nvim", run = "make"}
+    use {"nvim-telescope/telescope-github.nvim"}
+    use {"nvim-telescope/telescope-project.nvim"}
     use {"crispgm/telescope-heading.nvim"}
     use {"dhruvmanila/telescope-bookmarks.nvim"}
     use {"jvgrootveld/telescope-zoxide"}
-    use {"nvim-telescope/telescope-github.nvim"}
     use {"tpope/vim-sensible"}
-    -- use {"junegunn/fzf", run = function()
-    --     vim.fn["fzf#install"]()
-    -- end}
-    -- use {"junegunn/fzf.vim"}
 
     -- Language Features
     use {"nvim-treesitter/nvim-treesitter", run = ":TSUpdate"}
@@ -50,7 +46,7 @@ return require("packer").startup(function(use)
     use {"preservim/vim-lexical"}
     use {"preservim/vim-pencil"}
 
-    -- Language specific
+    -- Language
     use {"fatih/vim-go", run = ":GoUpdateBinaries"}
     use {"MTDL9/vim-log-highlighting"}
     use {"SidOfc/mkdx"}
@@ -63,21 +59,19 @@ return require("packer").startup(function(use)
     use {"romgrk/barbar.nvim"}
     use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons"}}
     use {"nvim-lualine/lualine.nvim", requires = {"kyazdani42/nvim-web-devicons", opt = true}}
-    use {"tjdevries/colorbuddy.nvim"}
-    -- use {"rktjmp/lush.nvim"} -- Configuration of Lush is in appearance.lua - look into that more. See: ../TODO.md
     use {"Mofiqul/dracula.nvim"}
-    use {"shaunsingh/moonlight.nvim"}
-    use {"folke/tokyonight.nvim"}
 
     -- Utilities
+    use {"pwntester/octo.nvim"}
     use {"stevearc/stickybuf.nvim"}
     use {"folke/which-key.nvim"}
     use {"airblade/vim-rooter"}
-    use {"tpope/vim-obsession"}
-    use {"dhruvasagar/vim-prosession"}
+    use {"dhruvasagar/vim-prosession", requires = {"tpope/vim-obsession"}}
     use {"kevinhwang91/nvim-hlslens"}
     use {"nacro90/numb.nvim"}
     use {"folke/trouble.nvim"}
+    use {"arthurxavierx/vim-caser"}
+    use {"kazhala/close-buffers.nvim"}
     use {
         "folke/zen-mode.nvim",
         config = function() require("zen-mode").setup {} end
@@ -92,38 +86,36 @@ return require("packer").startup(function(use)
     use {"folke/todo-comments.nvim"}
     use {"dstein64/vim-startuptime"}
     use {"marklcrns/vim-smartq"}
-    use {"inkarkat/vim-LineJuggler", requires = {"inkarkat/vim-ingo-library"}}
+    use {"fedepujol/move.nvim"}
     use {"inkarkat/vim-visualrepeat", requires = {"inkarkat/vim-ingo-library"}}
-    use {"voldikss/vim-floaterm"}
-    use {"qpkorr/vim-bufkill"}
     use {"justinmk/vim-gtfo"}
 
     -- Text Manipulation
     use {"ervandew/supertab"}
     use {"tpope/vim-endwise"}
-    use {"tpope/vim-commentary"}
+    use {"numToStr/Comment.nvim"}
     use {"tpope/vim-eunuch"}
-    use {"tpope/vim-fugitive"}
     use {"windwp/nvim-spectre"}
-    -- use {"lunarWatcher/auto-pairs"}
     use {"windwp/nvim-autopairs"}
     use {"mizlan/iswap.nvim", config = function() require("iswap").setup {} end}
     use {"tpope/vim-surround"}
     use {"junegunn/vim-easy-align"}
     use {"AndrewRadev/splitjoin.vim"}
     use {"andymass/vim-matchup"}
-    use {"easymotion/vim-easymotion"}
     use {"mg979/vim-visual-multi", branch = "master"}
     use {"ggandor/lightspeed.nvim"}
     use {"svermeulen/vim-cutlass"}
     use {"svermeulen/vim-yoink"}
     use {"itchyny/vim-cursorword"}
+    use {"inkarkat/vim-LineJuggler"}
     use {"ntpeters/vim-better-whitespace"}
     use {"wellle/targets.vim"}
     use {"kana/vim-textobj-user"}
     use {"preservim/vim-textobj-quote"}
     use {"preservim/vim-textobj-sentence"}
+    use {"gelguy/wilder.nvim", requires = {"romgrk/fzy-lua-native", run = "make"}}
 
     -- Git
     use {"lewis6991/gitsigns.nvim"}
+    use {"tpope/vim-fugitive"}
 end)

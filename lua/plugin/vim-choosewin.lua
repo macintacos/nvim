@@ -1,6 +1,6 @@
 local map = vim.api.nvim_set_keymap
 local gvar = vim.api.nvim_set_var
-local global_colors = require("plug.global_colors")
+local global_colors = require("plugin.global_colors")
 
 -- Options
 gvar("choosewin_overlay_enable", 1) -- TODO: Figure out how to get rid of the blanklines: https://github.com/lukas-reineke/indent-blankline.nvim/issues/123

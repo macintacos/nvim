@@ -13,11 +13,7 @@
 
 luafile $NVIM_HOME/lua/config.lua
 
-source $PLUG_NVIM_HOME/mappings.vim " Mappings that aren't easy to do in lua
-source $PLUG_NVIM_HOME/fzf.vim " Mappings that aren't easy to do in lua
-source $PLUG_NVIM_HOME/vim-lexical.vim
-source $PLUG_NVIM_HOME/vim-pencil.vim
-source $PLUG_NVIM_HOME/vim-visual-multi.vim
-source $PLUG_NVIM_HOME/vim-yoink.vim
-source $PLUG_NVIM_HOME/vim-textobj-user.vim
-source $PLUG_NVIM_HOME/vim-smoothie.vim
+for file in split(globpath($PLUG_NVIM_HOME, "*.vim", "\n"))
+    execute("source ".file)
+endfor
+
