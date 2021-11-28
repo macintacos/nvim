@@ -23,14 +23,20 @@ require("telescope").setup {
         sorting_strategy = "ascending",
         use_less = false,
         winblend = 0,
+        prompt_prefix = "  ",
+        selection_caret = " ",
 
         -- Mappings
         mappings = {
             i = {
-                ["<C-n>"] = false,
-                ["<C-p>"] = false,
-                ["<C-j>"] = actions.move_selection_next,
-                ["<C-k>"] = actions.move_selection_previous
+                ["<C-n>"]   = false,
+                ["<C-p>"]   = false,
+                ["<C-j>"]   = actions.move_selection_next,
+                ["<C-k>"]   = actions.move_selection_previous,
+                ["<Tab>"]   = actions.move_selection_next,
+                ["<S-Tab>"] = actions.move_selection_previous,
+                ["K"]       = actions.toggle_selection + actions.move_selection_worse,
+                ["J"]       = actions.toggle_selection + actions.move_selection_better,
             }
         },
 

@@ -5,22 +5,22 @@ local wk = require("which-key")
 -- NORMAL Mappings
 wk.register({
     -- Buffer switching
-    ["1"] = {"<Cmd>BufferGoto 1<CR>", "which_key_ignore"},
-    ["2"] = {"<Cmd>BufferGoto 2<CR>", "which_key_ignore"},
-    ["3"] = {"<Cmd>BufferGoto 3<CR>", "which_key_ignore"},
-    ["4"] = {"<Cmd>BufferGoto 4<CR>", "which_key_ignore"},
-    ["5"] = {"<Cmd>BufferGoto 5<CR>", "which_key_ignore"},
-    ["6"] = {"<Cmd>BufferGoto 6<CR>", "which_key_ignore"},
-    ["7"] = {"<Cmd>BufferGoto 7<CR>", "which_key_ignore"},
-    ["8"] = {"<Cmd>BufferGoto 8<CR>", "which_key_ignore"},
+    ["1"] = {"<Cmd>BufferLineGoToBuffer 1<CR>", "which_key_ignore"},
+    ["2"] = {"<Cmd>BufferLineGoToBuffer 2<CR>", "which_key_ignore"},
+    ["3"] = {"<Cmd>BufferLineGoToBuffer 3<CR>", "which_key_ignore"},
+    ["4"] = {"<Cmd>BufferLineGoToBuffer 4<CR>", "which_key_ignore"},
+    ["5"] = {"<Cmd>BufferLineGoToBuffer 5<CR>", "which_key_ignore"},
+    ["6"] = {"<Cmd>BufferLineGoToBuffer 6<CR>", "which_key_ignore"},
+    ["7"] = {"<Cmd>BufferLineGoToBuffer 7<CR>", "which_key_ignore"},
+    ["8"] = {"<Cmd>BufferLineGoToBuffer 8<CR>", "which_key_ignore"},
     ["9"] = {"<Cmd>BufferLast<CR>",   "which_key_ignore"},
 
     -- Common actions
     ["!"]     = {":normal goT<CR>",              "Open PWD in iTerm"},
     ["/"]     = {"<Cmd>Telescope live_grep<CR>", "Project Search"},
     [";"]     = {"<Cmd>Commentary<CR>",          "Toggle Comment"},
-    ["`"]     = {"<Cmd>bn<CR>",                  "Next Buffer"},
-    ["~"]     = {"<Cmd>bp<CR>",                  "Previous Buffer"},
+    ["`"]     = {"<Cmd>BufferLineCycleNext<CR>", "Next Buffer"},
+    ["~"]     = {"<Cmd>BufferLineCyclePrev<CR>", "Previous Buffer"},
     ["<TAB>"] = {"<Cmd>edit #<CR>",              "Previously Edited Buffer"},
 
     -- Everything Else
@@ -28,22 +28,26 @@ wk.register({
         name = "buffer",
         b = {"<Cmd>Telescope buffers<CR>",      "List Buffers"},
         c = {"<Cmd>Telescope git_bcommits<CR>", "List Buffers"},
+
         d = {
             name = "delete",
-            a = {"<Cmd>BDelete all<CR>",     "Delete All Buffers"},
-            d = {"<Cmd>BDelete this<CR>",    "Delete Current Buffer"},
-            h = {"<Cmd>BDelete! hidden<CR>", "Delete Hidden Buffers"},
-            o = {"<Cmd>BDelete other<CR>",   "Delete Other Buffers"},
-            n = {"<Cmd>BDelete nameless<CR>","Delete All Nameless Buggers" },
-            w = {"<Cmd>bufdo Bw<CR>",        "Delete All Buffers, Keep Windows"},
+            a = {"<Cmd>BDelete all<CR>",         "Delete All Buffers"},
+            c = {"<Cmd>BufferLinePickClose<CR>", "Choose Buffer to Delete"},
+            d = {"<Cmd>BDelete this<CR>",        "Delete Current Buffer"},
+            h = {"<Cmd>BDelete! hidden<CR>",     "Delete Hidden Buffers"},
+            n = {"<Cmd>BDelete nameless<CR>",    "Delete All Nameless Buggers" },
+            o = {"<Cmd>BDelete other<CR>",       "Delete Other Buffers"},
+            w = {"<Cmd>bufdo Bw<CR>",            "Delete All Buffers, Keep Windows"},
         },
-        m = {"<Cmd>messages<CR>",       "Show 'messages' Buffer"},
-        n = {"<Cmd>BufferNext<CR>",     "Next Buffer"},
-        N = {"<Cmd>enew<CR>",           "New Empty Buffer"},
-        p = {"<Cmd>BufferPrevious<CR>", "New Empty Buffer"},
-        y = {"<Cmd>%y<CR>",             "Copy Buffer"},
-        z = {"<Cmd>ZenMode<CR>",        "Zen Mode"},
-        s = {"<Cmd>Scratch<CR>",        "Open Scratch Buffer"},
+
+        m = {"<Cmd>messages<CR>",              "Show 'messages' Buffer"},
+        n = {"<Cmd>BufferLineCycleNext<CR>",   "Next Buffer"},
+        N = {"<Cmd>enew<CR>",                  "New Empty Buffer"},
+        p = {"<Cmd>BufferLineCyclePrev<CR>",   "New Empty Buffer"},
+        y = {"<Cmd>%y<CR>",                    "Copy Buffer"},
+        z = {"<Cmd>ZenMode<CR>",               "Zen Mode"},
+        s = {"<Cmd>Scratch<CR>",               "Open Scratch Buffer"},
+        S = {":BufferLineSortByDirectory<CR>", "Sort Bufferline"},
     },
 
     e = {

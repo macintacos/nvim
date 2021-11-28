@@ -56,12 +56,14 @@ return require("packer").startup(function(use)
     use {"kyazdani42/nvim-web-devicons"}
     use {"norcalli/nvim-colorizer.lua"}
     use {"lukas-reineke/indent-blankline.nvim" } -- TODO: make a different highlight for Python, similar to indent rainbow?
-    use {"romgrk/barbar.nvim"}
-    use {"kyazdani42/nvim-tree.lua", requires = {"kyazdani42/nvim-web-devicons"}}
+    -- use {"romgrk/barbar.nvim"}
+    use {'akinsho/bufferline.nvim', requires = 'kyazdani42/nvim-web-devicons'}
+    use {"kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons"}
     use {"nvim-lualine/lualine.nvim", requires = {"kyazdani42/nvim-web-devicons", opt = true}}
     use {"Mofiqul/dracula.nvim"}
 
     -- Utilities
+    use {"TimUntersberger/neogit", requires = "nvim-lua/plenary.nvim"}
     use {"pwntester/octo.nvim"}
     use {"stevearc/stickybuf.nvim"}
     use {"folke/which-key.nvim"}
