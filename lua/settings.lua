@@ -3,7 +3,7 @@ local nvim_command = vim.api.nvim_command
 local gvar = vim.api.nvim_set_var
 local TERMINAL = vim.fn.expand("$TERMINAL")
 
-gvar("loaded_matchit", 1)
+gvar("loaded_matchit", true)
 
 -- Use ':help' to look at what the options mean
 opt.clipboard:prepend{"unnamedplus"}
@@ -32,14 +32,13 @@ opt.signcolumn = "yes"
 opt.smartcase = true
 opt.smartindent = true
 opt.softtabstop = 4
--- opt.splitbelow = true
--- opt.splitright = true
 opt.tabstop = 4
 opt.termguicolors = true
 opt.timeoutlen = 250 -- important for which-key
 opt.title = true
 opt.updatetime = 300 -- smaller updatetime for CursorHold & CursorHoldI
 opt.wildmenu = true
+opt.inccommand = "split" -- preview '%/s/replace/this' commands
 
 -- Setting up the title, maybe
 nvim_command('let &titleold="'..TERMINAL..'"')

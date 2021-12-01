@@ -1,9 +1,20 @@
+local global_colors = require("plugin.global_colors")
+
 -- Top-level config
 require("nvim-treesitter.configs").setup {
     ensure_installed = "maintained", -- builtin
     highlight = {enable = true}, -- builtin
     indent = {enable = true}, -- builtin
     matchup = {enable = true}, -- vim-matchup
+
+    -- rainbow = {
+    --     enable = true,
+    --     extended_mode = true,
+    --     colors = {
+    --         global_colors.cyan
+    --     }
+    -- },
+
     incremental_selection = {
         enable = true,
         keymaps = {

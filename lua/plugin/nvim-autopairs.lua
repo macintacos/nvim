@@ -1,6 +1,7 @@
-require("nvim-autopairs").setup({
-    map_cr = true
-})
+require("nvim-autopairs").setup{
+    map_cr = true,
+    disable_filetype = {"TelescopePrompt", "guihua", "guihua_rust", "clap_input"}
+}
 
 local npairs = require'nvim-autopairs'
 local Rule   = require'nvim-autopairs.rule'

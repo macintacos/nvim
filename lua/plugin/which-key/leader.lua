@@ -1,8 +1,6 @@
 local wk = require("which-key")
 
--- TODO: Add keybindings for visualmulti - right now they show up in which-key but they don't have great labels
-
--- NORMAL Mappings
+-- NORMAL
 wk.register({
     -- Buffer switching
     ["1"] = {"<Cmd>BufferLineGoToBuffer 1<CR>", "which_key_ignore"},
@@ -13,11 +11,12 @@ wk.register({
     ["6"] = {"<Cmd>BufferLineGoToBuffer 6<CR>", "which_key_ignore"},
     ["7"] = {"<Cmd>BufferLineGoToBuffer 7<CR>", "which_key_ignore"},
     ["8"] = {"<Cmd>BufferLineGoToBuffer 8<CR>", "which_key_ignore"},
-    ["9"] = {"<Cmd>BufferLast<CR>",   "which_key_ignore"},
+    ["9"] = {"<Cmd>BufferLineGoToBuffer 9<CR>", "which_key_ignore"},
 
     -- Common actions
     ["!"]     = {":normal goT<CR>",              "Open PWD in iTerm"},
-    ["/"]     = {"<Cmd>Telescope live_grep<CR>", "Project Search"},
+    ["?"]     = {":normal goT<CR>",              "Open PWD in iTerm"},
+    ["/"]     = {"<Cmd>Cheatsheet<CR>",          "Search Cheatsheet"},
     [";"]     = {"<Cmd>Commentary<CR>",          "Toggle Comment"},
     ["`"]     = {"<Cmd>BufferLineCycleNext<CR>", "Next Buffer"},
     ["~"]     = {"<Cmd>BufferLineCyclePrev<CR>", "Previous Buffer"},
@@ -26,12 +25,13 @@ wk.register({
     -- Everything Else
     b = {
         name = "buffer",
+        ['<'] = {"<Cmd>edit #<CR>", "Previous Buffer"},
         b = {"<Cmd>Telescope buffers<CR>",      "List Buffers"},
         c = {"<Cmd>Telescope git_bcommits<CR>", "List Buffers"},
 
         d = {
             name = "delete",
-            a = {"<Cmd>BDelete all<CR>",         "Delete All Buffers"},
+            a = {"<Cmd>BDelete all<CR>",         "Delete All Buffers376"},
             c = {"<Cmd>BufferLinePickClose<CR>", "Choose Buffer to Delete"},
             d = {"<Cmd>BDelete this<CR>",        "Delete Current Buffer"},
             h = {"<Cmd>BDelete! hidden<CR>",     "Delete Hidden Buffers"},
@@ -42,8 +42,9 @@ wk.register({
 
         m = {"<Cmd>messages<CR>",              "Show 'messages' Buffer"},
         n = {"<Cmd>BufferLineCycleNext<CR>",   "Next Buffer"},
+        p = {"<Cmd>BufferLineCyclePrev<CR>",   "Prev Buffer"},
+        P = {"<Cmd>BufferLinePick<CR>",        "Pick Buffer in Line"},
         N = {"<Cmd>enew<CR>",                  "New Empty Buffer"},
-        p = {"<Cmd>BufferLineCyclePrev<CR>",   "New Empty Buffer"},
         y = {"<Cmd>%y<CR>",                    "Copy Buffer"},
         z = {"<Cmd>ZenMode<CR>",               "Zen Mode"},
         s = {"<Cmd>Scratch<CR>",               "Open Scratch Buffer"},
@@ -52,12 +53,15 @@ wk.register({
 
     e = {
         name = "errors/diagnostics",
+        b = {"<Cmd>lua require('navigator.diagnostics').show_buf_diagnostics()<CR>", "Buffer Diagnostics"},
+        l = {"<Cmd>lua require('navigator.diagnostics').show_diagnostics()<CR>", "Current Line Diagnostics"},
     },
 
     f = {
         name = "file",
-        ['='] = {"<Cmd>Format<CR>", "Format File"},
+        ['='] = {"<Cmd>lua vim.lsp.buf.formatting()<CR>", "Format File"},
         f = {"<Cmd>Telescope find_files find_command=rg,--ignore,--hidden,--files<CR>", "Find File"},
+
         e = {
             name = "edit",
             d = {"<Cmd>cd $DOTFILES_HOME<CR><Cmd>Prosession .<CR><Cmd>Telescope find_files find_command=rg,--ignore,--hidden,--files<CR>", "Edit Dotfiles"},
@@ -65,6 +69,7 @@ wk.register({
             w = {"<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plugin/which-key-mappings.lua<CR>", "Edit Which-Key Config"},
             S = {"<Cmd>PackerSync<CR>",                                                                              "Sync Packer"}
         },
+
         R = {":NvimTreeFindFile<CR>:NvimTreeRefresh<CR>:normal r<CR>", "Rename/Move Current File"},
         s = {"<Cmd>w<CR>",                                             "Save Current File"},
         S = {"<Cmd>wa<CR>",                                            "Save All Open Files"},
@@ -76,11 +81,13 @@ wk.register({
 
     g = {
         name = "git",
-        B = {"<Cmd>!smerge blame %<CR>",       "Blame Current Buffer in Sublime Merge"},
-        b = {"<Cmd>Git blame<CR>",             "Blame Current Buffer"},
-        c = {"<Cmd>Git commit<CR>",            "Commit Staged Changes"},
-        d = {"<Cmd>Gdiffsplit<CR>",            "Diff Current Buffer in Split"},
-        f = {"<Cmd>Git fetch<CR>",             "Fetch"},
+        B = {"<Cmd>!smerge blame %<CR>", "Blame Current Buffer in Sublime Merge"},
+        b = {"<Cmd>Git blame<CR>",       "Blame Current Buffer"},
+        c = {"<Cmd>Git commit<CR>",      "Commit Staged Changes"},
+        d = {"<Cmd>DiffInlineFile<CR>",  "Diff Current Buffer"}, -- Custom command in diffview.vim
+        D = {"<Cmd>DiffviewOpen<CR>",    "Diff Working Tree"},
+        f = {"<Cmd>Git fetch<CR>",       "Fetch"},
+
         G = {
             name = "GitHub",
             b = {"<Cmd>Octo repo browser<CR>", "Open repo in browser"},
@@ -89,9 +96,10 @@ wk.register({
             p = {"<Cmd>Octo pr list<CR>",      "List PRs in Current Repository"},
             P = {"<Cmd>Octo pr browser<CR>",   "List PRs in Current Repository"},
         },
-        l = {"<Cmd>Git pull<CR>",              "Pull"},
-        l = {"<Cmd>Git push<CR>",              "Push"},
-        s = {"<Cmd>!smerge .<CR><CR>",         "Status in Sublime Merge"},
+
+        l = {"<Cmd>Git pull<CR>", "Pull"},
+        l = {"<Cmd>Git push<CR>", "Push"},
+        s = {"<Cmd>Neogit<CR>",   "Status in Sublime Merge"},
         S = {"<Cmd>Telescope git_commits<CR>", "Search Git Commit History"}
     },
 
@@ -107,14 +115,14 @@ wk.register({
     j = {
         name = "jump/join",
         i = {"<Cmd>Telescope lsp_document_symbols<CR>", "Jump to Symbol in File"},
-        I = {"<Cmd>Telescope lsp_workspace_symbols<CR>", "Jump to Symbol in File"},
+        I = {"<Cmd>lua vim.lsp.buf.workspace_symbol()<CR><CR>", "Jump to Symbol in Workspace"},
         s = {"<Cmd>SplitjoinSplit<CR>",   "Splitjoin Split"},
         j = {"<Cmd>SplitjoinJoin<CR>",    "Splitjoin Join"}
     },
 
     o = {
         name = "open",
-        d = {"<Cmd>TodoTrouble<CR>",  "Open TODO List"},
+        d = {"<Cmd>TodoTelescope<CR>",  "Open TODO List"},
         f = {":normal gof<CR>",       "Open File in Finder"},
         F = {":normal goF<CR>",       "Open PWD in Finder"},
         t = {":normal got<CR>",       "Open File Dir in iTerm"},
@@ -168,8 +176,11 @@ wk.register({
         K = {"<Cmd>wincmd K<CR>",                   "Move Window to Top"},
         s = {"<Cmd>rightbelow sb<CR>",              "Split Window Horizontal"},
         t = {"<Cmd>enew<CR>",                       "New Empty Buffer"},
+        T = {
+            name = "tabs",
+            d = {"<Cmd>tabclose<CR>", "Close Current Tab"}
+        },
         v = {"<Cmd>vertical rightbelow sb<CR>",     "Split Window Vertical"},
-        w = {"<Cmd>ChooseWin<CR>",                  "Choose Window"},
 
         f = {
             name = "file new window",
@@ -195,77 +206,21 @@ wk.register({
     }
 }, { prefix = "<leader>" })
 
--- VISUAL Mappings
+-- VISUAL
 wk.register({
     c = {
         name = "case change",
+        [" "] = {"<Plug>CaserVSpaceCase",      "space case"},
+        ["."] = {"<Plug>CaserVDotCase",        "dot.case"},
         m     = {"<Plug>CaserVMixedCase",      "MixedCase"},
         c     = {"<Plug>CaserVCamelCase",      "camelCase"},
         s     = {"<Plug>CaserVSnakeCase",      "snake_case"},
         t     = {"<Plug>CaserVTitleCase",      "Title Case"},
         S     = {"<Plug>CaserVSnakeCase",      "Sentence case"},
-        [" "] = {"<Plug>CaserVSpaceCase",      "space case"},
         k     = {"<Plug>CaserVKebabCase",      "kebab-case"},
         K     = {"<Plug>CaserVTitleKebabCase", "Title-Kebab-Case"},
-        ["."] = {"<Plug>CaserVDotCase",        "dot.case"},
         u     = {"<Plug>CaserVUpperCase",      "UPPERCASE"},
         l     = {"u",                          "lowercase"},
     }
 }, {mode = "v", prefix = "<leader>"})
 
-vim.cmd([[
-    autocmd FileType markdown lua which_key_markdown()
-]])
-
-_G.which_key_markdown = function()
-    local buf = vim.api.nvim_get_current_buf()
-
-    -- Normal Mappings
-    wk.register({
-        m = {
-            name = "markdown",
-            v = {"<Plug>MarkdownPreview",               "Markdown Preview Start"},
-            ["-"] = {"<Plug>(mkdx-checkbox-prev-n)",    "Previous Checkbox State"},
-            [","] = {"<Plug>(mkdx-tableize)",           "CSV to Table"},
-            ["="] = {"<Plug>(mkdx-checkbox-next-n)",    "Next Checkbox State"},
-            ["["] = {"<Plug>(mkdx-demote-header)",      "Demote Header"},
-            ["]"] = {"<Plug>(mkdx-promote-header)",     "Promote Header"},
-            ["{"] = {"<Plug>(mkdx-prev-section)",       "Previous Section"},
-            ["}"] = {"<Plug>(mkdx-next-section)",       "Next Section"},
-            ["`"] = {"<Plug>(mkdx-text-inline-code-n)", "Inline Code"},
-            ["'"] = {"<Plug>(mkdx-toggle-quote-n)",     "Toggle Quotes"},
-            T = {"<Plug>(mkdx-gen-or-upd-toc)",         "Generate/Update ToC"},
-            b = {"<Plug>(mkdx-text-bold-n)",            "Bold Text"},
-            i = {"<Plug>(mkdx-text-italic-n)",          "Italicize Text"},
-            j = {"<Cmd>Telescope heading<CR>",          "Jump to Header"},
-            k = {"<Plug>(mkdx-wrap-link-n)",            "Link Text"},
-            t = {"<Plug>(mkdx-toggle-checkbox-n)",      "Toggle Checkbox"},
-            l = {
-                name = "lists",
-                l = {"<Plug>(mkdx-toggle-list-n)",      "Toggle List Item"},
-                c = {"<Plug>(mkdx-toggle-checklist-n)", "Toggle Checklist Item"},
-            }
-        }
-    },{ prefix = "<localleader>", buffer = buf, noremap = false })
-
-    -- Visual Mappings
-    wk.register({
-        m = {
-            ["'"] = {"<Plug>(mkdx-toggle-quote-v)",     "Toggle Quotes"},
-            [","] = {"<Plug>(mkdx-tableize)",           "CSV to Table"},
-            ["-"] = {"<Plug>(mkdx-checkbox-prev-v)",    "Previous Checkbox State"},
-            ["="] = {"<Plug>(mkdx-checkbox-next-v)",    "Next Checkbox State"},
-            ["`"] = {"<Plug>(mkdx-text-inline-code-v)", "Wrap Code Inline"},
-            k = {"<Plug>(mkdx-wrap-link-v)",            "Link Text"},
-            b = {"<Plug>(mkdx-text-bold-v)",            "Bold Text"},
-            i = {"<Plug>(mkdx-text-italic-v)",          "Italicize Text"},
-            t = {"<Plug>(mkdx-toggle-checkbox-v)",      "Toggle Checkbox"},
-            t = {"<Plug>(mkdx-toggle-checkbox-v)",      "Toggle Checkbox"},
-            l = {
-                name = "lists",
-                l = {"<Plug>(mkdx-toggle-list-v)",      "Toggle List Item"},
-                c = {"<Plug>(mkdx-toggle-checklist-v)", "Toggle Checklist Item"},
-            }
-        }
-    }, { prefix = "<localleader>", buffer = buf, mode = "v", noremap = false})
-end

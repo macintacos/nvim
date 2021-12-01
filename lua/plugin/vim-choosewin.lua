@@ -1,3 +1,4 @@
+-- More in viml/plug/choosewin
 local map = vim.api.nvim_set_keymap
 local gvar = vim.api.nvim_set_var
 local global_colors = require("plugin.global_colors")

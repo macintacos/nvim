@@ -1,3 +1,9 @@
+-- VIM Options (must be set beforehand!)
+local gvar = vim.api.nvim_set_var
+
+gvar("nvim_tree_window_picker_exclude", {filetype = {"minimap", "packer", "quickfix"}})
+gvar("nvim_tree_group_empty", 1)
+
 -- Mappings
 local tree_cb = require'nvim-tree.config'.nvim_tree_callback
 
@@ -44,5 +50,17 @@ require("nvim-tree").setup {
         mappings = {
             list = list
         }
-    }
+    },
+
 }
+
+-- Appearance
+local colors = require("plugin.global_colors")
+local api = vim.api
+local hi = api.nvim_set_hl
+local ns = api.nvim_create_namespace("macintacos")
+
+hi(ns, "NvimTreeCursorLine", {bg = colors.background_darker})
+hi(ns, "NvimTreeNormal", {bg = colors.background_dark})
+hi(ns, "NvimTreeRootFolder", {bg = colors.background_dark, fg = colors.background_dark})
+

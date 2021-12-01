@@ -1,0 +1,2 @@
+require("lua-dev").setup()
+

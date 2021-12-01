@@ -31,27 +31,3 @@ nvim_command([[
     set guicursor+=i:blinkwait10
 ]])
 
--- Whichkey
-hi(ns, "WhichKeyFloat", {fg = colors.background_dark, bg = colors.background_dark})
-
--- Telescope Appearance
-hi(ns, "TelescopeNormal", {bg = colors.background_darker})
-hi(ns, "TelescopeSelection", {bg = colors.background_dark, fg = colors.green})
-hi(ns, "TelescopeMatching", {fg = colors.orange, bg= colors.background_dark})
-hi(ns, "TelescopePreviewMatch", {fg = colors.orange, bg = colors.background_dark})
-hi(ns, "TelescopeMultiSelection", {fg = colors.orange, bg = colors.background_dark})
-hi(ns, "TelescopePromptPrefix", {fg = colors.green})
-hi(ns, "TelescopeSelection", {fg = colors.purple})
-
--- barbar.nvim Appearance
-hi(ns, "BufferInactive", {fg = colors.comments, bg = colors.background_dark})
-hi(ns, "BufferInactiveIndex", {fg = colors.comments, bg = colors.background_dark})
-hi(ns, "BufferInactiveSign", {fg = colors.comments, bg = colors.background_dark})
-
--- NvimTree
-hi(ns, "NvimTreeCursorLine", {bg = colors.background_darker})
-hi(ns, "NvimTreeNormal", {bg = colors.background_dark})
-hi(ns, "NvimTreeRootFolder", {bg = colors.background_dark, fg = colors.background_dark})
-
--- bufferline.nvim
-hi(ns, "BufferLineSeparator", {fg = colors.background_light})

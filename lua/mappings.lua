@@ -4,10 +4,6 @@ local gvar = vim.api.nvim_set_var
 gvar("mapleader", " ")
 gvar("maplocalleader", ",")
 
--- get me out
-map("i", "jj", "<ESC>", {})
-map("i", "kk", "<ESC>", {})
-
 -- make j/k behave properly
 map("n", "<C-s>", "<Cmd>w<CR>", {noremap = true})
 map("i", "<C-s>", "<Cmd>w<CR>", {noremap = true})
@@ -18,9 +14,9 @@ map("x", "<C-s>", "<Cmd>w<CR>", {noremap = true})
 map("", "Y", "y$", {})
 map("v", "y", "ygv<ESC>", {})
 
--- navigate splits with 'TAB'
-map("n", "<TAB>", "<C-w>w", {noremap = true, silent = true})
-map("n", "<S-TAB>", "<C-w>W", {noremap = true, silent = true})
+-- -- navigate splits with 'TAB'
+-- map("n", "<TAB>", "<C-w>w", {noremap = true, silent = true})
+-- map("n", "<S-TAB>", "<C-w>W", {noremap = true, silent = true})
 
 -- increase/decrease window size
 map("n", "<M-w>", "<Cmd>resize +5<CR>", {noremap = true, silent = true})
