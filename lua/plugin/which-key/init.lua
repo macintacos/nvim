@@ -2,7 +2,7 @@ package.path = PLUG_PATH .. "/which-key/?.lua;" .. package.path
 
 -- Main
 require("leader")
-require("lang.init")
+require("localleader.init")
 
 -- Plugins
 require("diffview")

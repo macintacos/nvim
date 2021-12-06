@@ -6,9 +6,9 @@ local TERMINAL = vim.fn.expand("$TERMINAL")
 gvar("loaded_matchit", true)
 
 -- Use ':help' to look at what the options mean
-opt.clipboard:prepend{"unnamedplus"}
+opt.clipboard:prepend({ "unnamedplus" })
 opt.completeopt = "menuone,noselect"
-opt.wildmode = {"longest:full", "full"}
+opt.wildmode = { "longest:full", "full" }
 opt.autoindent = true
 opt.autoread = true
 opt.confirm = true
@@ -23,9 +23,9 @@ opt.wrap = false
 opt.relativenumber = false
 opt.number = true
 opt.ruler = true
-opt.scrolloff = 10
+opt.scrolloff = 5
 opt.shiftwidth = 4
-opt.shortmess:append({a = true, c = true, s = true})
+opt.shortmess:append({ a = true, c = true, s = true })
 opt.showcmd = true
 opt.showmode = false
 opt.signcolumn = "yes"
@@ -39,9 +39,11 @@ opt.title = true
 opt.updatetime = 300 -- smaller updatetime for CursorHold & CursorHoldI
 opt.wildmenu = true
 opt.inccommand = "split" -- preview '%/s/replace/this' commands
+opt.undofile = true
+opt.undodir = vim.fn.expand("$HOME") .. "/.vim/undo"
 
 -- Setting up the title, maybe
-nvim_command('let &titleold="'..TERMINAL..'"')
+nvim_command('let &titleold="' .. TERMINAL .. '"')
 
 -- For things that can't be cleanly set with neovim's lua API
 nvim_command([[
@@ -59,4 +61,3 @@ nvim_command([[
 nvim_command([[
     autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=300}
 ]])
-

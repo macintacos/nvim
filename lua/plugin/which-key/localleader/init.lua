@@ -1,4 +1,4 @@
-package.path = PLUG_PATH .. '/which-key/lang/?.lua;' .. package.path
+package.path = PLUG_PATH .. '/which-key/localleader/?.lua;' .. package.path
 
 require("markdown")
 

@@ -15,7 +15,7 @@ require("telescope").setup({
         initial_mode = "insert",
         selection_strategy = "reset",
         file_sorter = require("telescope.sorters").get_fuzzy_file,
-        file_ignore_patterns = { ".git" },
+        file_ignore_patterns = { ".git", ".vim/undo", "node_modules", "venv" },
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
         find_command = {
             "rg",
@@ -56,28 +56,28 @@ require("telescope").setup({
         buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
     },
 
-    -- stylua: ignore start
     pickers = {
-        buffers                   = { theme = "ivy" },
-        colorscheme               = { theme = "ivy" },
-        lsp_references            = { theme = "ivy" },
+        aerial = { theme = "ivy" },
+        buffers = { theme = "dropdown" },
+        colorscheme = { theme = "ivy" },
+        lsp_references = { theme = "cursor" },
+        lsp_definitions = { theme = "cursor" },
         current_buffer_fuzzy_find = { theme = "ivy" },
-        file_browser              = { theme = "ivy" },
-        find_files                = { theme = "ivy" },
-        git_bcommits              = { theme = "ivy" },
-        git_commits               = { theme = "ivy" },
-        grep_string               = { theme = "ivy" },
-        heading                   = { theme = "ivy" },
-        help_tags                 = { theme = "ivy" },
-        highlights                = { theme = "ivy" },
-        keymaps                   = { theme = "ivy" },
-        live_grep                 = { theme = "ivy" },
-        lsp_document_symbols      = { theme = "ivy" },
-        lsp_workspace_symbols     = { theme = "ivy" },
-        man_pages                 = { theme = "ivy" },
-        zoxide                    = { theme = "ivy" },
+        file_browser = { theme = "ivy" },
+        find_files = { theme = "ivy" },
+        git_bcommits = { theme = "ivy" },
+        git_commits = { theme = "ivy" },
+        grep_string = { theme = "ivy" },
+        heading = { theme = "dropdown" },
+        help_tags = { theme = "ivy" },
+        highlights = { theme = "ivy" },
+        keymaps = { theme = "ivy" },
+        live_grep = { theme = "ivy" },
+        lsp_document_symbols = { theme = "ivy" },
+        lsp_workspace_symbols = { theme = "ivy" },
+        man_pages = { theme = "ivy" },
+        zoxide = { theme = "ivy" },
     },
-    -- stylua: ignore end
 
     extensions = {
         fzf = {
@@ -109,6 +109,7 @@ require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
 require("telescope").load_extension("zoxide")
 require("telescope").load_extension("project")
+require("telescope").load_extension("aerial")
 
 -- Zoxide-specific
 require("telescope._extensions.zoxide.config").setup({

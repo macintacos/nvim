@@ -28,22 +28,3 @@ require("navigator").setup({
     },
 })
 
-local map = vim.api.nvim_set_keymap
-local map_opts = { noremap = true, silent = true }
-
-map("i", "<M-k>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>", map_opts)
-map("n", "<C-LeftMouse>", "<Cmd>lua vim.lsp.buf.definition()<CR>", map_opts)
-map("n", "[d", "<Cmd>lua vim.lsp.diagnostic.goto_prev({ border = 'rounded', max_width = 80})<CR>", map_opts)
-map("n", "[r", "<Cmd>lua require('navigator.treesitter').goto_previous_usage()<CR>", map_opts)
-map("n", "]d", "<Cmd>lua vim.lsp.diagnostic.goto_next({ border = 'rounded', max_width = 80})<CR>", map_opts)
-map("n", "]r", "<Cmd>lua require('navigator.treesitter').goto_next_usage()<CR>", map_opts)
-map("n", "g0", "<Cmd>Telescope lsp_document_symbols<CR>", map_opts)
-map("n", "g<C-LeftMouse>", "<Cmd>lua vim.lsp.buf.implementation()<CR>", map_opts)
-map("n", "gD", "<Cmd>lua vim.lsp.buf.declaration({ border = 'rounded', max_width = 80 })<CR>", map_opts)
-map("n", "gT", "<Cmd>lua require('navigator.treesitter').buf_ts()<CR>", map_opts)
-map("n", "gW", "<Cmd>Telescope lsp_workspace_symbols<CR>", map_opts)
-map("n", "gd", "<Cmd>lua require('navigator.definition').definition()<CR>", map_opts)
-map("n", "gh", "<Cmd>lua vim.lsp.buf.hover({ popup_opts = { border = single, max_width = 80 }})<CR>", map_opts)
-map("n", "gi", "<Cmd>Telescope lsp_implementations<CR>", map_opts)
-map("n", "gp", "<Cmd>lua require('navigator.treesitter').definition_preview()<CR>", map_opts)
-map("n", "gr", "<Cmd>Telescope lsp_references<CR>", map_opts)

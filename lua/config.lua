@@ -1,22 +1,24 @@
 -- High-Level
 require("globals")
 require("mappings")
-require("plugins")
 require("settings")
 require("appearance")
+require("plugins")
 require("plugin.which-key")
+
+vim.g.python3_host_prog = "~/.pyenv/versions/nvim/bin/python3"
 
 -- Plugin configs (in lua/plugin) -- TODO: Figure out how to source everything at once in a runtime dir
 require("plugin.lsp")
 require("plugin.treesitter")
 require("plugin.nvim-hlslens")
-require("plugin.lualine")
+require("plugin.windline")
 require("plugin.numb")
 require("plugin.nvim-tree")
 require("plugin.nvim-cmp")
 require("plugin.nvim-autopairs")
 require("plugin.nvim-ts-autotag")
-require("plugin.navigator")
+require("plugin.aerial")
 require("plugin.null-ls")
 require("plugin.vim-easy-align")
 require("plugin.vim-matchup")

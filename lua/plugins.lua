@@ -61,13 +61,6 @@ return require("packer").startup(function(use)
     use({ "ray-x/lsp_signature.nvim" })
     use({ "ray-x/guihua.lua" })
     use({
-        "ray-x/navigator.lua",
-        requires = {
-            "ray-x/guihua.lua",
-            run = "cd lua/fzy && make",
-        },
-    })
-    use({
         "jose-elias-alvarez/null-ls.nvim",
         requres = {
             "nvim-lua/plenary.nvim",
@@ -82,6 +75,7 @@ return require("packer").startup(function(use)
     use({ "kkoomen/vim-doge", run = ":call doge#install()" })
     use({ "preservim/vim-lexical" })
     use({ "preservim/vim-pencil" })
+    use({ "stevearc/aerial.nvim" })
 
     -- Language
     use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
@@ -95,9 +89,8 @@ return require("packer").startup(function(use)
     use({ "norcalli/nvim-colorizer.lua" })
     use({ "lukas-reineke/indent-blankline.nvim" }) -- TODO: make a different highlight for Python, similar to indent rainbow?
     use({ "akinsho/bufferline.nvim", requires = "kyazdani42/nvim-web-devicons" })
-    -- use {"kdheepak/tabline.nvim"}
     use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" })
-    use({ "nvim-lualine/lualine.nvim", requires = { "kyazdani42/nvim-web-devicons", opt = true } })
+    use({ "windwp/windline.nvim" })
     use({ "Mofiqul/dracula.nvim" })
     use({ "onsails/lspkind-nvim" })
 
@@ -126,7 +119,6 @@ return require("packer").startup(function(use)
     use({ "sudormrfbin/cheatsheet.nvim" })
     use({ "tpope/vim-repeat" })
     use({ "mtth/scratch.vim" })
-    -- use {"t9md/vim-choosewin"}
     use({ "troydm/zoomwintab.vim" }) -- or: dhruvasagar/vim-zoom
     use({ "karb94/neoscroll.nvim" })
     use({ "jeffkreeftmeijer/vim-numbertoggle" })
@@ -171,6 +163,7 @@ return require("packer").startup(function(use)
     use({ "preservim/vim-textobj-quote" })
     use({ "preservim/vim-textobj-sentence" })
     use({ "gelguy/wilder.nvim", requires = { "romgrk/fzy-lua-native", run = "make" } })
+    use({ "simnalamburt/vim-mundo" })
 
     -- Git
     use({

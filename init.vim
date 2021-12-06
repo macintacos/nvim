@@ -13,11 +13,11 @@
 
 luafile $NVIM_HOME/lua/config.lua
 
-for file in split(globpath($NVIM_HOME + "/viml", "*.vim", "\n"))
-    execute("source ".file)
+for file in split(globpath($NVIM_HOME + '/viml', '*.vim', '\n'))
+    execute('source '.file)
 endfor
 
-for file in split(globpath($PLUG_NVIM_HOME, "*.vim", "\n"))
-    execute("source ".file)
+for file in split(globpath($PLUG_NVIM_HOME, '*.vim', '\n'))
+    execute('source '.file)
 endfor
 
