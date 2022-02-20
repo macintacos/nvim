@@ -3,7 +3,6 @@ local global_colors = require("plugin.global_colors")
 
 require("gitsigns").setup {
     current_line_blame = true,
-    current_line_blame_delay = 500,
     current_line_blame_formatter = function(name, blame_info)
           if blame_info.author == name then
             blame_info.author = 'You'

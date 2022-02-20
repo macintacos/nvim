@@ -26,16 +26,20 @@ local sources = {
     null_ls.builtins.diagnostics.shellcheck,
     null_ls.builtins.diagnostics.stylelint,
     null_ls.builtins.diagnostics.vint,
-    null_ls.builtins.diagnostics.write_good,
     null_ls.builtins.diagnostics.yamllint,
 }
 
-local on_attach = function(client)
-    if client.resolved_capabilities.document_formatting then
-        vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
+null_ls.setup({
+    sources = sources,
+    on_attach = function (client)
+        if client.resolved_capabilities.document_formatting then
+            vim.cmd([[
+            augroup LspFormatting
+                autocmd! * <buffer>
+                autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+            augroup END
+            ]])
+        end
     end
-end
+})
 
-require("null-ls").config({ sources = sources })
-
-require("lspconfig")["null-ls"].setup({ on_attach = on_attach })

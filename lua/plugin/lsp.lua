@@ -1,6 +1,17 @@
--- @diagnostic
 local lsp_installer = require("nvim-lsp-installer")
 
+-- Cusomized Options
+local enhance_server_opts = {
+    ["yamlls"] = function(opts)
+        opts.settings = {
+            format = {
+                enable = true
+            }
+        }
+    end,
+}
+
+-- Initialize things
 lsp_installer.on_server_ready(function(server)
     local opts = {}
     local aerial = require("aerial")
@@ -21,6 +32,10 @@ lsp_installer.on_server_ready(function(server)
         opts.settings = require("lua-dev").setup().settings
     end
 
+    if enhance_server_opts[server.name] then
+        enhance_server_opts[server.name](opts)
+    end
+
     server:setup(opts)
 end)
 
@@ -32,7 +47,7 @@ map("i", "<M-k>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>", map_opts)
 map("n", "<C-LeftMouse>", "<Cmd>lua vim.lsp.buf.definition()<CR>", map_opts)
 map("n", "[d", "<Cmd>lua vim.diagnostic.goto_prev({ border = 'rounded', max_width = 80})<CR>", map_opts)
 map("n", "]d", "<Cmd>lua vim.diagnostic.goto_next({ border = 'rounded', max_width = 80})<CR>", map_opts)
-map("n", "g0", "<Cmd>Telescope lsp_document_symbols<CR>", map_opts)
+map("n", "g0", "<Cmd>Telescope lsp_document_symbols<CR>", map_opts )
 map("n", "g<C-LeftMouse>", "<Cmd>lua vim.lsp.buf.implementation()<CR>", map_opts)
 map("n", "gD", "<Cmd>lua vim.lsp.buf.declaration({ border = 'rounded', max_width = 80 })<CR>", map_opts)
 map("n", "gW", "<Cmd>Telescope lsp_workspace_symbols<CR>", map_opts)

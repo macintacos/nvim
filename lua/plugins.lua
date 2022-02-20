@@ -29,6 +29,7 @@ return require("packer").startup(function(use)
     -- TODO: Check out https://github.com/nvim-treesitter/nvim-treesitter-refactor
     -- TODO: For all Telescope stuff, need to make keymaps
     -- TODO: Consider using snap? https://github.com/camspiers/snap
+    -- TODO: Rethink what you actually need
     -- Make sure to look at all of the available pickers: https://github.com/nvim-telescope/telescope.nvim#pickers
     use({
         "nvim-telescope/telescope.nvim",
@@ -52,7 +53,7 @@ return require("packer").startup(function(use)
     use({ "hrsh7th/cmp-buffer" })
     use({ "hrsh7th/cmp-nvim-lua" })
     use({ "hrsh7th/cmp-emoji" })
-    use({ "octaltree/cmp-look" })
+    use({ "octaltree/cmp-look" }) -- TODO: Figure out how to only get this to run in txt/markdown/whatever, and then only in comments as well.
     use({ "mtoohey31/cmp-fish", ft = "fish" })
     use({ "ray-x/cmp-treesitter" })
     use({ "williamboman/nvim-lsp-installer" })
@@ -76,21 +77,21 @@ return require("packer").startup(function(use)
     use({ "preservim/vim-lexical" })
     use({ "preservim/vim-pencil" })
     use({ "stevearc/aerial.nvim" })
+    -- use({ "j-hui/fidget.nvim", config = function() require("fidget").setup{} end })
 
     -- Language
     use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
     use({ "MTDL9/vim-log-highlighting" })
     use({ "SidOfc/mkdx" })
     use({ "iamcco/markdown-preview.nvim", run = "cd app && yarn install" })
-    use({ "ellisonleao/glow.nvim" })
 
     -- Appearance
     use({ "kyazdani42/nvim-web-devicons" })
     use({ "norcalli/nvim-colorizer.lua" })
     use({ "lukas-reineke/indent-blankline.nvim" }) -- TODO: make a different highlight for Python, similar to indent rainbow?
     use({ "akinsho/bufferline.nvim", requires = "kyazdani42/nvim-web-devicons" })
-    use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" })
-    use({ "windwp/windline.nvim" })
+    use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" }) -- TODO: Why is this so slow?
+    use({ "nvim-lualine/lualine.nvim" })
     use({ "Mofiqul/dracula.nvim" })
     use({ "onsails/lspkind-nvim" })
 
@@ -103,6 +104,7 @@ return require("packer").startup(function(use)
         end,
     })
     use({ "folke/which-key.nvim" })
+    -- use({ "mrjones2014/legendary.nvim" }) -- TODO: Turn this on wh enwe're on 0.7.0+
     use({ "airblade/vim-rooter" })
     use({ "dhruvasagar/vim-prosession", requires = { "tpope/vim-obsession" } })
     use({ "kevinhwang91/nvim-hlslens" })
@@ -120,7 +122,6 @@ return require("packer").startup(function(use)
     use({ "tpope/vim-repeat" })
     use({ "mtth/scratch.vim" })
     use({ "troydm/zoomwintab.vim" }) -- or: dhruvasagar/vim-zoom
-    use({ "karb94/neoscroll.nvim" })
     use({ "jeffkreeftmeijer/vim-numbertoggle" })
     use({ "folke/todo-comments.nvim" })
     use({ "dstein64/vim-startuptime" })

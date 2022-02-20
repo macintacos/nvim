@@ -31,7 +31,7 @@ wk.register({
 
         d = {
             name = "delete",
-            a = { "<Cmd>BDelete all<CR>", "Delete All Buffers376" },
+            a = { "<Cmd>BDelete all<CR>", "Delete All Buffers" },
             c = { "<Cmd>BufferLinePickClose<CR>", "Choose Buffer to Delete" },
             d = { "<Cmd>BDelete this<CR>", "Delete Current Buffer" },
             h = { "<Cmd>BDelete! hidden<CR>", "Delete Hidden Buffers" },
@@ -110,7 +110,7 @@ wk.register({
         },
 
         l = { "<Cmd>Git pull<CR>", "Pull" },
-        l = { "<Cmd>Git push<CR>", "Push" },
+        P = { "<Cmd>Git push<CR>", "Push" },
         s = { "<Cmd>!smerge .<CR>", "Status in Sublime Merge" },
         S = { "<Cmd>Telescope git_commits<CR>", "Search Git Commit History" },
     },
@@ -126,7 +126,7 @@ wk.register({
 
     j = {
         name = "jump/join",
-        i = { "<Cmd>Telescope aerial theme=ivy<CR>", "Jump to Symbol in File" },
+        i = { "<Cmd>Telescope lsp_document_symbols<CR>", "Jump to Symbol in File" },
         I = { "<Cmd>lua vim.lsp.buf.workspace_symbol()<CR><CR>", "Jump to Symbol in Workspace" },
         s = { "<Cmd>SplitjoinSplit<CR>", "Splitjoin Split" },
         j = { "<Cmd>SplitjoinJoin<CR>", "Splitjoin Join" },

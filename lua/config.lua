@@ -1,3 +1,4 @@
+---@diagnostic disable: different-requires
 -- High-Level
 require("globals")
 require("mappings")
@@ -12,7 +13,7 @@ vim.g.python3_host_prog = "~/.pyenv/versions/nvim/bin/python3"
 require("plugin.lsp")
 require("plugin.treesitter")
 require("plugin.nvim-hlslens")
-require("plugin.windline")
+require("plugin.lualine")
 require("plugin.numb")
 require("plugin.nvim-tree")
 require("plugin.nvim-cmp")
@@ -45,7 +46,6 @@ require("plugin.vim-smartq")
 require("plugin.vim-LineJuggler")
 require("plugin.neogit")
 require("plugin.diffview")
-require("plugin.neoscroll")
 require("plugin.tabout")
 require("plugin.lua-dev")
 require("plugin.specs")
