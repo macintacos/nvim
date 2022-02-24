@@ -3,9 +3,9 @@
 require("globals")
 require("mappings")
 require("settings")
-require("appearance")
 require("plugins")
 require("plugin.which-key")
+require("appearance")
 
 vim.g.python3_host_prog = "~/.pyenv/versions/nvim/bin/python3"
 

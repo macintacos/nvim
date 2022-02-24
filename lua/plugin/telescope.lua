@@ -80,12 +80,6 @@ require("telescope").setup({
     },
 
     extensions = {
-        fzf = {
-            fuzzy = true,
-            override_generic_sorter = false,
-            override_file_sorter = true,
-            case_mode = "smart_case",
-        },
         bookmarks = {
             selected_browser = "google_chrome",
             url_open_command = "open",
@@ -103,7 +97,6 @@ require("telescope").setup({
 })
 
 -- Extension Loading
-require("telescope").load_extension("fzf")
 require("telescope").load_extension("gh")
 require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
