@@ -1,7 +1,11 @@
 local wk = require("which-key")
 
+-- Need to set up legendary before we register
+require("legendary").setup()
+
 -- NORMAL
 wk.register({
+
     -- Buffer switching
     ["1"] = { "<Cmd>BufferLineGoToBuffer 1<CR>", "which_key_ignore" },
     ["2"] = { "<Cmd>BufferLineGoToBuffer 2<CR>", "which_key_ignore" },
@@ -14,6 +18,7 @@ wk.register({
     ["9"] = { "<Cmd>BufferLineGoToBuffer 9<CR>", "which_key_ignore" },
 
     -- Common actions
+    [" "] = { "<Cmd>Legendary<CR>", "Search All Commands" },
     ["!"] = { ":normal goT<CR>", "Open PWD in iTerm" },
     ["?"] = { ":normal goT<CR>", "Open PWD in iTerm" },
     ["/"] = { "<Cmd>Cheatsheet<CR>", "Search Cheatsheet" },
@@ -54,13 +59,17 @@ wk.register({
     e = {
         name = "errors/diagnostics",
         b = { "<Cmd>lua require('navigator.diagnostics').show_buf_diagnostics()<CR>", "Buffer Diagnostics" },
-        l = { "<Cmd>lua require('navigator.diagnostics').show_diagnostics()<CR>", "Current Line Diagnostics" },
+        l = { "<Cmd>TroubleToggle document_diagnostics<CR>", "List current file Diagnostics" },
+        L = { "<Cmd>TroubleToggle<CR>", "List CWD Diagnstics" },
     },
 
     f = {
         name = "file",
         ["="] = { "<Cmd>lua vim.lsp.buf.formatting()<CR>", "Format File" },
-        f = { "<Cmd>Telescope find_files find_command=rg,--ignore,--hidden,--files<CR>", "Find File" },
+        f = {
+            "<Cmd>Telescope find_files find_command=rg,--ignore-file-case-insensitive,--hidden,--files<CR>",
+            "Find File",
+        },
 
         e = {
             name = "edit",
@@ -73,7 +82,7 @@ wk.register({
                 "Edit Plugins",
             },
             w = {
-                "<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plugin/which-key-mappings.lua<CR>",
+                "<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plugin/which-key/leader.lua<CR>",
                 "Edit Which-Key Config",
             },
             S = {
@@ -177,6 +186,7 @@ wk.register({
         ["-"] = { "<Cmd>rightbelow sb<CR>", "Split Window Horizontal" },
         ["/"] = { "<Cmd>vertical rightbelow sb<CR>", "Split Window Vertical" },
         d = { "<Cmd>q<CR>", "Close Window" },
+        D = { "<Cmd>only<CR>", "Close All Other Windows" },
         m = { "<Cmd>ZoomWinTabToggle<CR>", "Maximize Buffer in Tab" },
         h = { "<C-w>h", "Focus Window to Left" },
         l = { "<C-w>l", "Focus Window to Right" },

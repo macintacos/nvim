@@ -6,7 +6,7 @@ if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
     vim.api.nvim_command("packadd packer.nvim")
 end
 
--- Compile when there are changes to this file
+--
 vim.cmd("autocmd BufWritePost plugins.lua PackerCompile")
 
 -- Because: https://github.com/wbthomason/packer.nvim/issues/202
@@ -34,7 +34,9 @@ return require("packer").startup(function(use)
     use({
         "nvim-telescope/telescope.nvim",
         requires = { { "nvim-lua/plenary.nvim" }, { "nvim-lua/popup.nvim" } },
+        config = function() end,
     })
+
     use({ "nvim-telescope/telescope-github.nvim" })
     use({ "nvim-telescope/telescope-project.nvim" })
     use({ "crispgm/telescope-heading.nvim" })
@@ -43,7 +45,6 @@ return require("packer").startup(function(use)
     use({ "tpope/vim-sensible" })
 
     -- Completion / LSP
-    use({ "neovim/nvim-lspconfig" })
     use({ "hrsh7th/nvim-cmp" })
     use({ "hrsh7th/vim-vsnip" })
     use({ "hrsh7th/cmp-nvim-lsp" })
@@ -56,6 +57,7 @@ return require("packer").startup(function(use)
     use({ "mtoohey31/cmp-fish", ft = "fish" })
     use({ "ray-x/cmp-treesitter" })
     use({ "williamboman/nvim-lsp-installer" })
+    use({ "neovim/nvim-lspconfig" })
     use({ "folke/lsp-colors.nvim" })
     use({ "folke/lua-dev.nvim" })
     use({ "ray-x/lsp_signature.nvim" })
@@ -76,19 +78,19 @@ return require("packer").startup(function(use)
     use({ "preservim/vim-lexical" })
     use({ "preservim/vim-pencil" })
     use({ "stevearc/aerial.nvim" })
-    -- use({ "j-hui/fidget.nvim", config = function() require("fidget").setup{} end })
 
-    -- Language
-    use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
+    -- Languages
+    use({ "fatih/vim-go", run = ":silent :GoUpdateBinaries" })
     use({ "MTDL9/vim-log-highlighting" })
     use({ "SidOfc/mkdx" })
     use({ "iamcco/markdown-preview.nvim", run = "cd app && yarn install" })
 
     -- Appearance
+    use({ "stevearc/dressing.nvim" })
     use({ "kyazdani42/nvim-web-devicons" })
     use({ "norcalli/nvim-colorizer.lua" })
     use({ "lukas-reineke/indent-blankline.nvim" }) -- TODO: make a different highlight for Python, similar to indent rainbow?
-    use({ "akinsho/bufferline.nvim", requires = "kyazdani42/nvim-web-devicons" })
+    use({ "akinsho/bufferline.nvim", tag = "*", requires = "kyazdani42/nvim-web-devicons" })
     use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" }) -- TODO: Why is this so slow?
     use({ "nvim-lualine/lualine.nvim" })
     use({ "Mofiqul/dracula.nvim" })
@@ -103,8 +105,7 @@ return require("packer").startup(function(use)
         end,
     })
     use({ "folke/which-key.nvim" })
-    -- use({ "mrjones2014/legendary.nvim" }) -- TODO: Turn this on wh enwe're on 0.7.0+
-    use({ "airblade/vim-rooter" })
+    use({ "mrjones2014/legendary.nvim" }) -- TODO: Turn this on wh enwe're on 0.7.0+
     use({ "dhruvasagar/vim-prosession", requires = { "tpope/vim-obsession" } })
     use({ "kevinhwang91/nvim-hlslens" })
     use({ "nacro90/numb.nvim" })
@@ -117,7 +118,6 @@ return require("packer").startup(function(use)
             require("zen-mode").setup({})
         end,
     })
-    use({ "sudormrfbin/cheatsheet.nvim" })
     use({ "tpope/vim-repeat" })
     use({ "mtth/scratch.vim" })
     use({ "troydm/zoomwintab.vim" }) -- or: dhruvasagar/vim-zoom
@@ -131,6 +131,7 @@ return require("packer").startup(function(use)
     use({ "justinmk/vim-gtfo" })
     use({ "luukvbaal/stabilize.nvim" })
     use({ "edluffy/specs.nvim" })
+    use({ "Mofiqul/trld.nvim" })
 
     -- Text Manipulation
     use({ "ervandew/supertab" })

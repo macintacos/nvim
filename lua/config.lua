@@ -1,13 +1,12 @@
 ---@diagnostic disable: different-requires
+vim.g.python3_host_prog = "~/.pyenv/versions/nvim/bin/python3"
+
 -- High-Level
 require("globals")
 require("mappings")
 require("settings")
 require("plugins")
 require("plugin.which-key")
-require("appearance")
-
-vim.g.python3_host_prog = "~/.pyenv/versions/nvim/bin/python3"
 
 -- Plugin configs (in lua/plugin) -- TODO: Figure out how to source everything at once in a runtime dir
 require("plugin.lsp")
@@ -27,6 +26,7 @@ require("plugin.vim-cutlass")
 require("plugin.lightspeed")
 require("plugin.Comment")
 require("plugin.telescope")
+require("plugin.dressing")
 require("plugin.nvim-gps")
 require("plugin.neogit")
 require("plugin.bufferline")
@@ -34,10 +34,8 @@ require("plugin.vim-doge")
 require("plugin.colorizer")
 require("plugin.indent-blankline")
 require("plugin.supertab")
-require("plugin.vim-rooter")
 require("plugin.gutentag")
 require("plugin.trouble")
-require("plugin.cheatsheet")
 require("plugin.mkdx")
 require("plugin.spectre")
 require("plugin.todo-comments")
@@ -49,7 +47,10 @@ require("plugin.diffview")
 require("plugin.tabout")
 require("plugin.lua-dev")
 require("plugin.specs")
+require("plugin.trld")
 
 -- Language-specific
 require("plugin.vim-go")
 require("plugin.glow")
+
+require("appearance")

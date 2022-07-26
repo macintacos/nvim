@@ -1,4 +1,4 @@
--- Ref: https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md#stylua
+-- Ref: https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 local null_ls = require("null-ls")
 
 local sources = {
@@ -21,7 +21,9 @@ local sources = {
 
     -- Diagnostics
     null_ls.builtins.diagnostics.eslint,
-    null_ls.builtins.diagnostics.luacheck,
+    null_ls.builtins.diagnostics.luacheck.with({
+        extra_args = { "--globals", "vim" },
+    }),
     null_ls.builtins.diagnostics.pylint,
     null_ls.builtins.diagnostics.shellcheck,
     null_ls.builtins.diagnostics.stylelint,
@@ -31,7 +33,7 @@ local sources = {
 
 null_ls.setup({
     sources = sources,
-    on_attach = function (client)
+    on_attach = function(client)
         if client.resolved_capabilities.document_formatting then
             vim.cmd([[
             augroup LspFormatting
@@ -40,6 +42,5 @@ null_ls.setup({
             augroup END
             ]])
         end
-    end
+    end,
 })
-

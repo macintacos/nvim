@@ -7,15 +7,14 @@ local ns = api.nvim_create_namespace("macintacos")
 
 api.nvim__set_hl_ns(ns)
 
--- Theme
-nvim_command([[colorscheme dracula]])
+-- Theme Settings
+-- NOTE: Needs to be called _before_ the colorscheme is loaded
 vim.g.dracula_transparent_bg = true
 
--- Transparent Background?
--- Do this until https://github.com/Mofiqul/dracula.nvim/issues/15 is fixed
-hi(ns, "Normal", { fg = colors.foreground, bg = colors.background_dark })
-hi(ns, "SignColumn", { fg = colors.foreground, bg = colors.background_dark })
+-- Load the theme
+vim.cmd([[colorscheme dracula]])
 
+-- Other colors
 -- General Things
 hi(ns, "IncSearch", { fg = colors.orange, bg = colors.background_light })
 

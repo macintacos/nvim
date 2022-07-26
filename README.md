@@ -7,3 +7,4 @@ I'm taking a second stab at trying a neovim config again, using Neovim nightly s
 
 I'll attach a screenshot at.... some point.
 
+NOTE: this repository is meant to be symlinked to `~/.config/nvim`

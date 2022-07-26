@@ -4,6 +4,9 @@ local gvar = vim.api.nvim_set_var
 gvar("mapleader", " ")
 gvar("maplocalleader", ",")
 
+-- misc. things
+map("n", ";", ":", { noremap = true })
+
 -- make j/k behave properly
 map("n", "<C-s>", "<Cmd>w<CR>", { noremap = true })
 map("i", "<C-s>", "<Cmd>w<CR>", { noremap = true })
@@ -46,4 +49,4 @@ map("v", "L", ":MoveHBlock(1)<CR>", { noremap = true, silent = true })
 map("v", "H", ":MoveHBlock(-1)<CR>", { noremap = true, silent = true })
 
 -- vim-mundo
-map("n", "U", "<Cmd>MundoOpen<CR>", { noremap = true })
+map("n", "U", "<Cmd>MundoShow<CR>", { noremap = true })

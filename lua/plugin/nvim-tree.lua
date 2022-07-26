@@ -1,9 +1,3 @@
--- VIM Options (must be set beforehand!)
-local gvar = vim.api.nvim_set_var
-
-gvar("nvim_tree_window_picker_exclude", { filetype = { "minimap", "packer", "quickfix" } })
-gvar("nvim_tree_group_empty", 1)
-
 -- Mappings
 local tree_cb = require("nvim-tree.config").nvim_tree_callback
 
@@ -45,11 +39,24 @@ local list = {
 require("nvim-tree").setup({
     hijack_cursor = true,
     update_cwd = true,
+
+    actions = {
+        open_file = {
+            window_picker = {
+                exclude = { filetype = { "minimap", "packer", "quickfix" } },
+            },
+        },
+    },
+
     view = {
         side = "right",
         mappings = {
             list = list,
         },
+    },
+
+    renderer = {
+        group_empty = true,
     },
 })
 

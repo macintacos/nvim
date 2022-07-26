@@ -25,29 +25,29 @@ cmp.setup({
             vim.fn["vsnip#anonymous"](args.body)
         end,
     },
+
     completion = {
         completeopt = "menu,menuone,noinsert",
     },
+
     mapping = {
         ["<C-b>"] = cmp.mapping(cmp.mapping.scroll_docs(-4), { "i", "c" }),
         ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(4), { "i", "c" }),
         ["<C-Space>"] = cmp.mapping(cmp.mapping.complete(), { "i", "c" }),
         ["<C-y>"] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+
         ["<C-e>"] = cmp.mapping({
             i = cmp.mapping.abort(),
             c = cmp.mapping.close(),
         }),
+
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
+
         ["<Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
-            elseif vim.fn["vsnip#available"](1) == 1 then
-                feedkey("<Plug>(vsnip-expand-or-jump)", "")
-            elseif has_words_before() then
-                feedkey("<Plug>(Tabout)", "")
-                -- cmp.complete()
             else
-                fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
+                fallback()
             end
         end, { "i", "s" }),
 
@@ -59,6 +59,7 @@ cmp.setup({
             end
         end, { "i", "s" }),
     },
+
     sources = cmp.config.sources({
         { name = "nvim_lsp" },
         { name = "vsnip" }, -- For vsnip users.
@@ -66,13 +67,14 @@ cmp.setup({
         { name = "fish" },
         { name = "treesitter" },
         { name = "path" },
-        { name = "nvim_lua" },
+    }, {
         { name = "buffer" },
     }),
+
     formatting = {
         format = lspkind.cmp_format({
             with_text = false,
-            maxwidth = 50,
+            maxwidth = 70,
             menu = {
                 buffer = "[Buffer]",
                 nvim_lsp = "[LSP]",
@@ -85,9 +87,13 @@ cmp.setup({
             },
         }),
     },
+
+    view = {
+        entries = "native",
+    },
 })
 
-cmp.setup.filetype({ "markdown", "txt" }, {
+cmp.setup.filetype("markdown", {
     sources = {
         {
             name = "look",
@@ -97,8 +103,7 @@ cmp.setup.filetype({ "markdown", "txt" }, {
                 loud = true,
             },
         },
-        { name = "emoji", insert = true },
-    },
+    }, -- { { name = "emoji", insert = true } },
 })
 
 -- For navigator.lua
