@@ -1,4 +1,3 @@
-require("Comment").setup {
-    ignore = "^$" -- ignore empty lines
-}
-
+-- require("Comment").setup {
+--     ignore = "^$" -- ignore empty lines
+-- }

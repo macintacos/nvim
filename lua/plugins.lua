@@ -12,6 +12,20 @@ vim.cmd("autocmd BufWritePost plugins.lua PackerCompile")
 -- Because: https://github.com/wbthomason/packer.nvim/issues/202
 require("packer").init({ max_jobs = 50 })
 
+local function scandir(directory)
+    local i, t, popen = 0, {}, io.popen
+    local pfile = popen("find " .. directory .. " -maxdepth 1 -iname '*.lua' -execdir basename -s '.lua' {} +")
+    for filename in pfile:lines() do
+        i = i + 1
+        t[i] = filename
+    end
+    pfile:close()
+    return t
+end
+
+local path_to_plugins = vim.fn.stdpath("config") .. "/lua/plugins"
+local plugin_files = scandir(path_to_plugins)
+
 -- Plugins specified here!
 return require("packer").startup(function(use)
     -- Get Packer to manage itself
@@ -25,39 +39,13 @@ return require("packer").startup(function(use)
         },
     })
 
-    -- Essential
-    -- TODO: Check out https://github.com/nvim-treesitter/nvim-treesitter-refactor
-    -- TODO: For all Telescope stuff, need to make keymaps
-    -- TODO: Consider using snap? https://github.com/camspiers/snap
-    -- TODO: Rethink what you actually need
-    -- Make sure to look at all of the available pickers: https://github.com/nvim-telescope/telescope.nvim#pickers
-    use({
-        "nvim-telescope/telescope.nvim",
-        requires = { { "nvim-lua/plenary.nvim" }, { "nvim-lua/popup.nvim" } },
-        config = function() end,
-    })
-
-    use({ "nvim-telescope/telescope-github.nvim" })
-    use({ "nvim-telescope/telescope-project.nvim" })
-    use({ "crispgm/telescope-heading.nvim" })
-    use({ "dhruvmanila/telescope-bookmarks.nvim" })
-    use({ "jvgrootveld/telescope-zoxide" })
-    use({ "tpope/vim-sensible" })
+    for _, file in pairs(plugin_files) do
+        use(require("plugins." .. file))
+    end
 
     -- Completion / LSP
-    use({ "hrsh7th/nvim-cmp" })
-    use({ "hrsh7th/vim-vsnip" })
-    use({ "hrsh7th/cmp-nvim-lsp" })
-    use({ "hrsh7th/cmp-vsnip" })
-    use({ "hrsh7th/cmp-path" })
-    use({ "hrsh7th/cmp-buffer" })
-    use({ "hrsh7th/cmp-nvim-lua" })
-    use({ "hrsh7th/cmp-emoji" })
-    use({ "octaltree/cmp-look" }) -- TODO: Figure out how to only get this to run in txt/markdown/whatever, and then only in comments as well.
-    use({ "mtoohey31/cmp-fish", ft = "fish" })
-    use({ "ray-x/cmp-treesitter" })
-    use({ "williamboman/nvim-lsp-installer" })
-    use({ "neovim/nvim-lspconfig" })
+    -- use({ "williamboman/nvim-lsp-installer" })
+    -- use({ "neovim/nvim-lspconfig" })
     use({ "folke/lsp-colors.nvim" })
     use({ "folke/lua-dev.nvim" })
     use({ "ray-x/lsp_signature.nvim" })
@@ -92,7 +80,7 @@ return require("packer").startup(function(use)
     use({ "lukas-reineke/indent-blankline.nvim" }) -- TODO: make a different highlight for Python, similar to indent rainbow?
     use({ "akinsho/bufferline.nvim", tag = "*", requires = "kyazdani42/nvim-web-devicons" })
     use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" }) -- TODO: Why is this so slow?
-    use({ "nvim-lualine/lualine.nvim" })
+    -- use({ "nvim-lualine/lualine.nvim" })
     use({ "Mofiqul/dracula.nvim" })
     use({ "onsails/lspkind-nvim" })
 
@@ -107,7 +95,6 @@ return require("packer").startup(function(use)
     use({ "folke/which-key.nvim" })
     use({ "mrjones2014/legendary.nvim" }) -- TODO: Turn this on wh enwe're on 0.7.0+
     use({ "dhruvasagar/vim-prosession", requires = { "tpope/vim-obsession" } })
-    use({ "kevinhwang91/nvim-hlslens" })
     use({ "nacro90/numb.nvim" })
     use({ "folke/trouble.nvim" })
     use({ "arthurxavierx/vim-caser" })
@@ -136,7 +123,7 @@ return require("packer").startup(function(use)
     -- Text Manipulation
     use({ "ervandew/supertab" })
     use({ "tpope/vim-endwise" })
-    use({ "numToStr/Comment.nvim" })
+    -- use({ "numToStr/Comment.nvim" })
     use({ "tpope/vim-eunuch" })
     use({ "windwp/nvim-spectre" })
     use({ "windwp/nvim-autopairs" })

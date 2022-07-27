@@ -1,0 +1,151 @@
+local actions = require("telescope.actions")
+local sorters = require("telescope.sorters")
+local previewers = require("telescope.previewers")
+local themes = require("telescope.themes")
+
+local ext_config = {
+    "nvim-telescope/telescope.nvim",
+    requires = {
+        { "nvim-lua/plenary.nvim" },
+        { "nvim-lua/popup.nvim" },
+        { "nvim-telescope/telescope-github.nvim" },
+        { "nvim-telescope/telescope-project.nvim" },
+        { "crispgm/telescope-heading.nvim" },
+        { "dhruvmanila/telescope-bookmarks.nvim" },
+        { "jvgrootveld/telescope-zoxide" },
+    },
+    config = function() end,
+}
+
+require("telescope").setup({
+    defaults = {
+        -- General Config
+        vimgrep_arguments = {
+            "rg",
+            "--line-number",
+            "--column",
+            "--smart-case",
+            "--hidden",
+        },
+        initial_mode = "insert",
+        selection_strategy = "reset",
+        file_sorter = sorters.get_fuzzy_file,
+        file_ignore_patterns = { ".git", ".vim/undo", "node_modules", "venv" },
+        generic_sorter = sorters.get_generic_fuzzy_sorter,
+        find_command = {
+            "rg",
+            "--ignore",
+            "--hidden",
+            "--files",
+            "--smartcase",
+        },
+
+        -- Appearance
+        set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+        sorting_strategy = "ascending",
+        use_less = false,
+        winblend = 0,
+        prompt_prefix = "  ",
+        selection_caret = " ",
+
+        -- Mappings
+        mappings = {
+            i = {
+                ["<C-n>"] = false,
+                ["<C-p>"] = false,
+                ["<C-j>"] = actions.move_selection_next,
+                ["<C-k>"] = actions.move_selection_previous,
+                ["<Tab>"] = actions.move_selection_next,
+                ["<S-Tab>"] = actions.move_selection_previous,
+                ["K"] = actions.toggle_selection + actions.move_selection_worse,
+                ["J"] = actions.toggle_selection + actions.move_selection_better,
+            },
+        },
+
+        -- Previewers
+        file_previewer = previewers.vim_buffer_cat.new,
+        grep_previewer = previewers.vim_buffer_vimgrep.new,
+        qflist_previewer = previewers.vim_buffer_qflist.new,
+
+        -- Developer configurations: Not meant for general override
+        buffer_previewer_maker = previewers.buffer_previewer_maker,
+    },
+
+    pickers = {
+        aerial = { theme = "ivy" },
+        buffers = { theme = "dropdown" },
+        colorscheme = { theme = "ivy" },
+        lsp_references = { theme = "cursor" },
+        lsp_definitions = { theme = "cursor" },
+        current_buffer_fuzzy_find = { theme = "ivy" },
+        file_browser = { theme = "ivy" },
+        find_files = { theme = "ivy" },
+        git_bcommits = { theme = "ivy" },
+        git_commits = { theme = "ivy" },
+        grep_string = { theme = "ivy" },
+        heading = { theme = "dropdown" },
+        help_tags = { theme = "ivy" },
+        highlights = { theme = "ivy" },
+        keymaps = { theme = "ivy" },
+        live_grep = { theme = "ivy" },
+        lsp_document_symbols = { theme = "ivy" },
+        lsp_workspace_symbols = { theme = "ivy" },
+        man_pages = { theme = "ivy" },
+        zoxide = { theme = "ivy" },
+    },
+
+    extensions = {
+        bookmarks = {
+            selected_browser = "google_chrome",
+            url_open_command = "open",
+            bookmarks = themes.get_dropdown({
+                width = 0.8,
+                results_height = 0.8,
+                sorting_strategy = "descending",
+                layout_defaults = {
+                    horizontal = { mirror = false },
+                    vertical = { mirror = false },
+                },
+            }),
+        },
+    },
+})
+
+-- Extension Loading
+require("telescope").load_extension("gh")
+require("telescope").load_extension("bookmarks")
+require("telescope").load_extension("heading")
+require("telescope").load_extension("zoxide")
+require("telescope").load_extension("project")
+require("telescope").load_extension("aerial")
+
+-- Zoxide-specific
+require("telescope._extensions.zoxide.config").setup({
+    mappings = {
+        default = {
+            action = function(selection)
+                vim.cmd("cd " .. selection.path)
+            end,
+            after_action = function(selection)
+                vim.cmd("Prosession .")
+                print("Directory changed to " .. selection.path)
+            end,
+        },
+    },
+})
+
+-- Appearance
+local colors = require("plugin.global_colors")
+local api = vim.api
+local hi = api.nvim_set_hl
+local ns = api.nvim_create_namespace("macintacos")
+
+hi(ns, "TelescopeNormal", { bg = colors.background_darker })
+hi(ns, "TelescopeSelection", { bg = colors.background_dark, fg = colors.green })
+hi(ns, "TelescopeMatching", { fg = colors.orange, bg = colors.background_dark })
+hi(ns, "TelescopePreviewMatch", { fg = colors.orange, bg = colors.background_dark })
+hi(ns, "TelescopeMultiSelection", { fg = colors.orange, bg = colors.background_dark })
+hi(ns, "TelescopePromptPrefix", { fg = colors.green })
+hi(ns, "TelescopeSelection", { fg = colors.purple })
+
+return ext_config
