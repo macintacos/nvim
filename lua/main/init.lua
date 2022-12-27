@@ -1,4 +1,4 @@
--- Import other things
+-- Top-level Imports
 require("main.remap")
 require("main.opts")
 require("main.autocmds")
