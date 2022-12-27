@@ -2,7 +2,7 @@ require("navigator").setup({
     default_mapping = false,
     lsp_installer = true,
     on_attach = function(client, bufnr)
-        if client.resolved_capabilities.document_formatting then
+        if client.server_capabilities.document_formatting then
             vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()")
         end
     end,
@@ -27,4 +27,3 @@ require("navigator").setup({
         -- {key = "<Space>la", mode = "n", func = "require('navigator.codelens').run_action()"},
     },
 })
-

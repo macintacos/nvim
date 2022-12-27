@@ -7,10 +7,9 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 
 for _, server in ipairs(lspinstaller.get_installed_servers()) do
     local opts = {}
-    local aerial = require("aerial")
 
     if server.name == "sumneko_lua" then
-        opts.settings = require("lua-dev").setup().settings
+        opts.settings = require("neodev").setup().settings
     elseif server.name == "yamlls" then
         opts.settings = {
             format = {
@@ -24,8 +23,9 @@ for _, server in ipairs(lspinstaller.get_installed_servers()) do
         on_attach = function(client)
             if server.name == "sumneko_lua" then
                 -- Turn off sumneko_lua trying to format, just let null_ls do it.
-                client.resolved_capabilities.document_formatting = false
-                client.resolved_capabilities.document_range_formatting = false
+                client.server_capabilities.document_formatting = false
+                client.server_capabilities.document_range_formatting = false
+
             end
             require("lsp_signature").on_attach({
                 floating_window_above_cur_line = true,
@@ -35,13 +35,12 @@ for _, server in ipairs(lspinstaller.get_installed_servers()) do
                 transparency = 1,
             })
 
-            aerial.on_attach(client)
-
             -- Mappings
             local map = vim.api.nvim_set_keymap
             local map_opts = { noremap = true }
 
             map("i", "<M-k>", "<Cmd>lua vim.lsp.buf.signature_help()<CR>", map_opts)
+            map("n", "<space>f=", "<Cmd>lua vim.lsp.buf.formatting()<CR>", map_opts)
             map("n", "<C-LeftMouse>", "<Cmd>lua vim.lsp.buf.definition()<CR>", map_opts)
             map("n", "[d", "<Cmd>lua vim.diagnostic.goto_prev({ border = 'rounded', max_width = 80})<CR>", map_opts)
             map("n", "]d", "<Cmd>lua vim.diagnostic.goto_next({ border = 'rounded', max_width = 80})<CR>", map_opts)
@@ -78,6 +77,6 @@ for _, server in ipairs(lspinstaller.get_installed_servers()) do
             debounce_text_changes = 150,
         },
 
-        capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities),
+        capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities),
     })
 end

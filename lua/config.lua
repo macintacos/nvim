@@ -6,10 +6,10 @@ require("globals")
 require("mappings")
 require("settings")
 require("plugins")
+require("plugin.lsp")
 require("plugin.which-key")
 
 -- Plugin configs (in lua/plugin) -- TODO: Figure out how to source everything at once in a runtime dir
-require("plugin.lsp")
 require("plugin.treesitter")
 require("plugin.nvim-hlslens")
 require("plugin.lualine")
