@@ -21,7 +21,8 @@ require("incline").setup({
   debounce_threshold = { falling = 500, rising = 250 },
 
   ignore = {
-      buftypes = { "nofile" }
+      buftypes = { "nofile" },
+      unlisted_buffers = false,
   },
 
   render = function(props)
