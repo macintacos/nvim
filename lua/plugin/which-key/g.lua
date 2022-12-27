@@ -1,2 +1,0 @@
--- Overrides for the "g" operator
--- TODO: Remember to finish adding a which-key configuration for various operators.

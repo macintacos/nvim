@@ -1,1 +1,0 @@
-require('tabout').setup {}
