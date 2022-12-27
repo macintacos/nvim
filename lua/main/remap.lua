@@ -1,55 +1,67 @@
-vim.g.mapleader = " " -- SPC as leader key
 
---[[ HELPER FUNCTIONS ]]
+local helpers = require("main.helpers")
 
----@alias mode
----| '"n"' # Normal mode
----| '"i"' # Insert mode
----| '"x"' # Visual (alone) mode
----| '"s"' # Select (alone) mode
----| '"v"' # Visual _and_ Select modes
----| '"c"' # Command-line mode
----| '"o"' # Operator-pending mode
-
----@param mode mode|mode[] The mode to map.
----@param map string The mapping to set.
----@param cmd string The command to execute when the mapping is used.
----@param opts? table Options to pass. These are the same options as for `vim.api.nvim_set_keymap`.
-local function noremap(mode, map, cmd, opts)
-	-- Default values
-	mode = mode or "n"
-	opts = opts or { noremap = true, silent = true }
-
-	vim.api.nvim_set_keymap(mode, map, cmd, opts)
-end
+local noremap = helpers.noremap
+local nnoremap = helpers.nnoremap
+local inoremap = helpers.inoremap
+local vnoremap = helpers.vnoremap
+local xnoremap = helpers.xnoremap
+local onoremap = helpers.onoremap
+local flexnoremap = helpers.flexnoremap
 
 --[[ REMAPS ]]
 
 -- C-s saves in all modes
-noremap("n", "<C-s>", "<Cmd>w<CR>")
-noremap("i", "<C-s>", "<Cmd>w<CR>")
-noremap("v", "<C-s>", "<Cmd>w<CR>")
-noremap("x", "<C-s>", "<Cmd>w<CR>")
+nnoremap("<C-s>", "<Cmd>w<CR>")
+inoremap("<C-s>", "<Cmd>w<CR>")
+vnoremap("<C-s>", "<Cmd>w<CR>")
+xnoremap("<C-s>", "<Cmd>w<CR>")
+
+-- Move to window using the arrow keys
+nnoremap("<left>", "<C-w>h")
+nnoremap("<down>", "<C-w>j")
+nnoremap("<up>", "<C-w>k")
+nnoremap("<right>", "<C-w>l")
+
+-- Resize window using shift+arrow keys
+nnoremap("<S-Up>", "<cmd>resize +3<CR>")
+nnoremap("<S-Down>", "<cmd>resize -3<CR>")
+nnoremap("<S-Left>", "<cmd>vertical resize -3<CR>")
+nnoremap("<S-Right>", "<cmd>vertical resize +3<CR>")
 
 -- j/k moves visually up and down lines, until you want to jump lines.
 -- This is more intuitive than the default behavior.
-noremap("", "j", "( v:count? 'j': 'gj')", { expr = true, noremap = true })
-noremap("", "k", "( v:count? 'k': 'gk')", { expr = true, noremap = true })
+noremap("j", "( v:count? 'j': 'gj')", { expr = true, noremap = true })
+noremap("k", "( v:count? 'k': 'gk')", { expr = true, noremap = true })
 
 -- make 'Y' yank from current character to end of line
-noremap("", "Y", "y$", {})
-noremap("v", "y", "ygv<ESC>", {})
+noremap("Y", "y$")
+vnoremap("y", "ygv<ESC>")
 
 -- Horizontal scrolling when wrapped
-noremap("n", "<C-l>", "20zl")
-noremap("n", "<C-h>", "20zh")
+nnoremap("<C-l>", "20zl")
+nnoremap("<C-h>", "20zh")
 
 -- 'zz'-based mappings - center after performing an action
-noremap("n", "G", "Gzz")
-noremap("n", "<C-d>", "<C-d>zz")
-noremap("n", "<C-u>", "<C-u>zz")
-noremap("n", "n", "nzzzv") 
-noremap("n", "N", "Nzzzv")
+nnoremap("G", "Gzz")
+nnoremap("<C-d>", "<C-d>zz")
+nnoremap("<C-u>", "<C-u>zz")
+nnoremap("n", "nzzzv") 
+nnoremap("N", "Nzzzv")
 
+-- Clear search with <esc>
+flexnoremap("<esc>", "<Cmd>noh<cr><esc>", { "i", "n" })
+nnoremap("gw", "*N")
+xnoremap("gw", "*N")
 
+-- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
+nnoremap("n", "'Nn'[v:searchforward]", { expr = true })
+xnoremap("n", "'Nn'[v:searchforward]", { expr = true })
+onoremap("n", "'Nn'[v:searchforward]", { expr = true })
+nnoremap("N", "'nN'[v:searchforward]", { expr = true })
+xnoremap("N", "'nN'[v:searchforward]", { expr = true })
+onoremap("N", "'nN'[v:searchforward]", { expr = true })
 
+-- Better indenting
+vnoremap("<", "<gv")
+vnoremap(">", ">gv")
