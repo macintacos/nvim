@@ -1,3 +1,9 @@
+--[[ TODOS
+
+TODO: Add some languages to the default set that are downloaded by default (if possible with lsp-zero)
+
+--]]
+
 require("neodev").setup()
 
 local lsp = require('lsp-zero')
