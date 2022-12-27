@@ -1,5 +1,3 @@
-local global_colors = require("plugin.global_colors")
-
 -- Top-level config
 require("nvim-treesitter.configs").setup({
     ensure_installed = {
@@ -34,14 +32,6 @@ require("nvim-treesitter.configs").setup({
     indent = { enable = true }, -- builtin
     matchup = { enable = true }, -- vim-matchup
 
-    -- rainbow = {
-    --     enable = true,
-    --     extended_mode = true,
-    --     colors = {
-    --         global_colors.cyan
-    --     }
-    -- },
-
     incremental_selection = {
         enable = true,
         keymaps = {
@@ -52,7 +42,3 @@ require("nvim-treesitter.configs").setup({
         },
     },
 })
-
--- We set up folding here because.... reasons. Not sure how I feel about it, maybe one day figure out how to enable conditionally?
--- vim.opt.foldmethod = "expr"
--- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"

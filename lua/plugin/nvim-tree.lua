@@ -59,13 +59,3 @@ require("nvim-tree").setup({
         group_empty = true,
     },
 })
-
--- Appearance
-local colors = require("plugin.global_colors")
-local api = vim.api
-local hi = api.nvim_set_hl
-local ns = api.nvim_create_namespace("macintacos")
-
-hi(ns, "NvimTreeCursorLine", { fg = colors.foreground })
-hi(ns, "NvimTreeNormal", { fg = colors.foreground })
-hi(ns, "NvimTreeRootFolder", { bg = colors.background_darker, fg = colors.background_darker })

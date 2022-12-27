@@ -39,6 +39,7 @@ return require("packer").startup(function(use)
 
     use({ "nvim-telescope/telescope-github.nvim" })
     use({ "nvim-telescope/telescope-project.nvim" })
+    use({ "nvim-telescope/telescope-file-browser.nvim" })
     use({ "crispgm/telescope-heading.nvim" })
     use({ "dhruvmanila/telescope-bookmarks.nvim" })
     use({ "jvgrootveld/telescope-zoxide" })
@@ -59,7 +60,7 @@ return require("packer").startup(function(use)
     use({ "williamboman/nvim-lsp-installer" })
     use({ "neovim/nvim-lspconfig" })
     use({ "folke/lsp-colors.nvim" })
-    use({ "folke/lua-dev.nvim" })
+    use({ "folke/neodev.nvim" })
     use({ "ray-x/lsp_signature.nvim" })
     use({ "ray-x/guihua.lua" })
     use({
@@ -93,8 +94,14 @@ return require("packer").startup(function(use)
     use({ "akinsho/bufferline.nvim", tag = "*", requires = "kyazdani42/nvim-web-devicons" })
     use({ "kyazdani42/nvim-tree.lua", requires = "kyazdani42/nvim-web-devicons" }) -- TODO: Why is this so slow?
     use({ "nvim-lualine/lualine.nvim" })
-    use({ "Mofiqul/dracula.nvim" })
     use({ "onsails/lspkind-nvim" })
+    use({ "f-person/auto-dark-mode.nvim" })
+
+    -- Themes
+    use({ "sonph/onehalf", rtp = "vim/" }) -- light
+    use({ "NLKNguyen/papercolor-theme" }) -- light
+    use({ "NLKNguyen/papercolor-theme" }) -- light
+    use({ "Mofiqul/dracula.nvim" }) -- dark
 
     -- Utilities
     use({ "pwntester/octo.nvim" })

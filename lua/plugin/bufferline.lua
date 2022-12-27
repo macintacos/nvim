@@ -16,11 +16,3 @@ require("bufferline").setup({
         },
     },
 })
-
--- Appearance
-local colors = require("plugin.global_colors")
-local api = vim.api
-local hi = api.nvim_set_hl
-local ns = api.nvim_create_namespace("macintacos")
-
-hi(ns, "BufferLineSeparator", { fg = colors.background_light })
