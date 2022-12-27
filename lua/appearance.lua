@@ -61,3 +61,26 @@ end
 -- Setup themes
 require("lualine").setup({ options = { theme = "auto" } })
 
+local auto_dark_mode = require("auto-dark-mode")
+
+auto_dark_mode.setup({
+    update_interval = 1000,
+    set_dark_mode = function()
+        local dracula = require("dracula")
+        dracula.setup({
+            transparent_bg = true,
+            lualine_bg_color = require("plugin.global_colors").dark.background_darker,
+        })
+
+        vim.cmd([[colorscheme dracula]])
+        set_highlights("dark")
+    end,
+    set_light_mode = function()
+        vim.api.nvim_set_option("background", "light")
+
+        vim.cmd([[colorscheme onehalflight]])
+        set_highlights("light")
+    end,
+})
+
+auto_dark_mode.init()
