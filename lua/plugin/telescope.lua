@@ -80,6 +80,10 @@ require("telescope").setup({
     },
 
     extensions = {
+        file_browser = {
+            theme = "ivy",
+            hijack_netrw = true,
+        },
         bookmarks = {
             selected_browser = "google_chrome",
             url_open_command = "open",
@@ -97,12 +101,13 @@ require("telescope").setup({
 })
 
 -- Extension Loading
-require("telescope").load_extension("gh")
-require("telescope").load_extension("bookmarks")
-require("telescope").load_extension("heading")
-require("telescope").load_extension("zoxide")
-require("telescope").load_extension("project")
 require("telescope").load_extension("aerial")
+require("telescope").load_extension("bookmarks")
+require("telescope").load_extension("file_browser")
+require("telescope").load_extension("gh")
+require("telescope").load_extension("heading")
+require("telescope").load_extension("project")
+require("telescope").load_extension("zoxide")
 
 -- Zoxide-specific
 require("telescope._extensions.zoxide.config").setup({
@@ -118,17 +123,3 @@ require("telescope._extensions.zoxide.config").setup({
         },
     },
 })
-
--- Appearance
-local colors = require("plugin.global_colors")
-local api = vim.api
-local hi = api.nvim_set_hl
-local ns = api.nvim_create_namespace("macintacos")
-
-hi(ns, "TelescopeNormal", { bg = colors.background_darker })
-hi(ns, "TelescopeSelection", { bg = colors.background_dark, fg = colors.green })
-hi(ns, "TelescopeMatching", { fg = colors.orange, bg = colors.background_dark })
-hi(ns, "TelescopePreviewMatch", { fg = colors.orange, bg = colors.background_dark })
-hi(ns, "TelescopeMultiSelection", { fg = colors.orange, bg = colors.background_dark })
-hi(ns, "TelescopePromptPrefix", { fg = colors.green })
-hi(ns, "TelescopeSelection", { fg = colors.purple })

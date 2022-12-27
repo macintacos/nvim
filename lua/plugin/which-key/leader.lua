@@ -84,7 +84,7 @@ wk.register({
             w = {
                 "<Cmd>cd $NVIM_HOME<CR><Cmd>Prosession .<CR><Cmd>e $NVIM_HOME/lua/plugin/which-key/leader.lua<CR>",
                 "Edit Which-Key Config",
-            },
+           },
             S = {
                 "<Cmd>PackerSync<CR>",
                 "Sync Packer",
@@ -94,8 +94,7 @@ wk.register({
         R = { ":NvimTreeFindFile<CR>:NvimTreeRefresh<CR>:normal r<CR>", "Rename/Move Current File" },
         s = { "<Cmd>w<CR>", "Save Current File" },
         S = { "<Cmd>wa<CR>", "Save All Open Files" },
-        o = { "<Cmd>FloatermNew ranger<CR>", "Open File Browser" },
-        n = { "<Cmd>lua require'telescope.builtin'.file_browser{}<CR>", "Open File Browser" },
+        n = { "<Cmd>Telescope file_browser<CR>", "Open File Browser" },
         t = { "<Cmd>NvimTreeToggle<CR>NvimTreeRefresh<CR>", "Open Nvim Tree" },
         T = { "<Cmd>NvimTreeFindFile<CR>NvimTreeRefresh<CR>", "Open Nvim Tree" },
     },
