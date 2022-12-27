@@ -1,51 +1,51 @@
--- Global Options
-local opt = vim.opt -- Meta-accessor - prefer this
-local TERMINAL = vim.fn.expand("$TERMINAL")
+--[[ TODOS
+
+TODO: move the FileType commands to their own dedicated files (after/ftplugin? idk)
+
+--]]
 
 -- Use ':help' to look at what the options mean
-opt.autoindent = true
-opt.autoread = true
-opt.clipboard:prepend({ "unnamedplus" })
-opt.colorcolumn = "9999"
-opt.completeopt = "menuone,noselect"
-opt.confirm = true
-opt.cursorline = true
-opt.expandtab = true
-opt.hidden = true
-opt.ignorecase = true
-opt.inccommand = "split" -- preview '%/s/replace/this' commands
-opt.laststatus = 2
-opt.linebreak = true
-opt.mouse = "nvi"
-opt.number = true
-opt.pumblend = 15
-opt.relativenumber = true
-opt.ruler = true
-opt.scrolloff = 5
-opt.shiftwidth = 4
-opt.shortmess:append({ a = true, c = true, s = true })
-opt.showcmd = true
-opt.showmode = false
-opt.signcolumn = "yes"
-opt.smartcase = true
-opt.smartindent = true
-opt.softtabstop = 4
-opt.splitbelow = true
-opt.splitright = true
-opt.tabstop = 4
-opt.termguicolors = true
-opt.timeoutlen = 250 -- important for which-key
-opt.title = true
-opt.undodir = vim.fn.expand("$HOME") .. "/.vim/undo"
-opt.undofile = true
-opt.updatetime = 50 -- smaller updatetime for CursorHold & CursorHoldI
-opt.wildmenu = true
-opt.wildmode = { "longest:full", "full" }
-opt.wildoptions = "pum"
-opt.wrap = false
-
--- Setting up the title, maybe
-vim.cmd('let &titleold="' .. TERMINAL .. '"')
+vim.opt.autoindent = true
+vim.opt.autoread = true
+vim.opt.clipboard:prepend({ "unnamedplus" })
+vim.opt.colorcolumn = "9999"
+vim.opt.completeopt = "menuone,noselect"
+vim.opt.confirm = true
+vim.opt.cursorline = true
+vim.opt.expandtab = true
+vim.opt.hidden = true
+vim.opt.ignorecase = true
+vim.opt.inccommand = "split" -- preview '%/s/replace/this' commands
+vim.opt.laststatus = 2
+vim.opt.linebreak = true
+vim.opt.mouse = "nvi"
+vim.opt.number = true
+vim.opt.pumblend = 15
+vim.opt.relativenumber = true
+vim.opt.ruler = true
+vim.opt.scrolloff = 5
+vim.opt.shiftwidth = 4
+vim.opt.shortmess:append({ a = true, c = true, s = true })
+vim.opt.showcmd = true
+vim.opt.showmode = false
+vim.opt.signcolumn = "yes"
+vim.opt.smartcase = true
+vim.opt.smartindent = true
+vim.opt.softtabstop = 4
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.tabstop = 4
+vim.opt.termguicolors = true
+vim.opt.timeout = true
+vim.opt.timeoutlen = 250 -- important for which-key
+vim.opt.title = true
+vim.opt.undodir = vim.fn.expand("$HOME") .. "/.vim/undo"
+vim.opt.undofile = true
+vim.opt.updatetime = 50 -- smaller updatetime for CursorHold & CursorHoldI
+vim.opt.wildmenu = true
+vim.opt.wildmode = { "longest:full", "full" }
+vim.opt.wildoptions = "pum"
+vim.opt.wrap = false
 
 -- Filetype-specific settings
 vim.cmd([[
