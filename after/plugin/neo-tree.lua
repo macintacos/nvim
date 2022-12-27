@@ -17,6 +17,7 @@ vim.fn.sign_define("DiagnosticSignHint",
 -- in the form "LspDiagnosticsSignWarning"
 
 require("neo-tree").setup({
+
     close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
     popup_border_style = "rounded",
     enable_git_status = true,
@@ -30,6 +31,24 @@ require("neo-tree").setup({
     --           return a.type > b.type
     --       end
     --   end , -- this sorts files and directories descendantly
+    event_handlers = {
+        {
+            event = "neo_tree_window_after_open",
+            handler = function(args)
+                if args.position == "left" or args.position == "right" then
+                    vim.cmd("wincmd =")
+                end
+            end
+        },
+        {
+            event = "neo_tree_window_after_close",
+            handler = function(args)
+                if args.position == "left" or args.position == "right" then
+                    vim.cmd("wincmd =")
+                end
+            end
+        }
+    },
     default_component_configs = {
         container = {enable_character_fade = true},
         indent = {
@@ -82,10 +101,6 @@ require("neo-tree").setup({
         width = 40,
         mapping_options = {noremap = true, nowait = true},
         mappings = {
-            ["<space>"] = {
-                "toggle_node",
-                nowait = false -- disable `nowait` if you have existing combos starting with this char that you want to use
-            },
             ["<2-LeftMouse>"] = "open",
             ["<cr>"] = "open",
             ["<esc>"] = "revert_preview",
@@ -147,16 +162,18 @@ require("neo-tree").setup({
                 -- "*/src/*/tsconfig.json",
             },
             always_show = { -- remains visible even if other settings would normally hide it
-                -- ".gitignored",
+                ".gitignore",
+                ".git",
+                ".vscode"
             },
             never_show = { -- remains hidden even if visible is toggled to true, this overrides always_show
-                -- ".DS_Store",
-                -- "thumbs.db"
+                ".DS_Store",
             },
             never_show_by_pattern = { -- uses glob style patterns
                 -- ".null-ls_*",
             }
         },
+        find_by_full_path_words = ".*",
         follow_current_file = false, -- This will find and focus the file in the active buffer every
         -- time the current file is changed while the tree is open.
         group_empty_dirs = true, -- when true, empty folders will be grouped together
