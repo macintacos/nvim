@@ -75,6 +75,7 @@ require("lazy").setup({
     { "Mofiqul/trld.nvim" }, -- show diagnostic info @ top-left
     { "b0o/incline.nvim" },
     { "lukas-reineke/indent-blankline.nvim" },
+    { "folke/noice.nvim" },
 
     -- Utilities
     { "stevearc/aerial.nvim" },
