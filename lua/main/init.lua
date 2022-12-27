@@ -82,6 +82,7 @@ require("lazy").setup({
     { "tpope/vim-surround" },
     { "tpope/vim-repeat" },
     { "windwp/nvim-autopairs" },
+    { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } },
     { "akinsho/bufferline.nvim", version = "^3.0.0" },
     { "mrjones2014/legendary.nvim" }, -- a picker for finding commands defined in the environment
