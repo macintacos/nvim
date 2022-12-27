@@ -1,4 +1,13 @@
+--[[ TODOS
+
+TODO: Pin versions for as many projects that support it.
+TODO: For repositories that don't use release tagging with semver - open an issue in their repo to request that they add it (so that it works well with folke/lazy.nvim)
+
+--]]
+
+
 -- Top-level Imports
+
 require("main.remap")
 require("main.opts")
 require("main.autocmds")
@@ -68,13 +77,13 @@ require("lazy").setup({
     -- Appearance Plugins
     { "kyazdani42/nvim-web-devicons" },
     { "nvim-lualine/lualine.nvim" },
-    { "nyoom-engineering/oxocarbon.nvim", lazy = false }, -- theme
-    { "challenger-deep-theme/vim", lazy = false }, -- theme
+    { "nyoom-engineering/oxocarbon.nvim" }, -- theme
+    { "challenger-deep-theme/vim" }, -- theme
     { "onsails/lspkind-nvim" }, -- adds icons to autocomplete menu
-    { "j-hui/fidget.nvim", config = function() require("fidget").setup() end }, -- adds loading indicators for LSP
     { "Mofiqul/trld.nvim" }, -- show diagnostic info @ top-left
     { "b0o/incline.nvim" },
     { "lukas-reineke/indent-blankline.nvim" },
+    { "petertriho/nvim-scrollbar", config = function() require("scrollbar").setup() end },
     { "folke/noice.nvim" },
 
     -- Utilities
@@ -82,11 +91,15 @@ require("lazy").setup({
     { "folke/which-key.nvim" },
     { "tpope/vim-surround" },
     { "tpope/vim-repeat" },
-    { "windwp/nvim-autopairs" },
+    { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } },
     { "akinsho/bufferline.nvim", version = "^3.0.0" },
-    { "mrjones2014/legendary.nvim" }, -- a picker for finding commands defined in the environment
+    {
+        "mrjones2014/legendary.nvim",
+        version = "^2.1.0",
+        config = function() require("legendary").setup() end
+    }, -- a picker for finding commands defined in the environment
     { "ggandor/leap.nvim", config = function() require('leap').set_default_keymaps() end }, -- a way to navigate your code better
     { "ggandor/flit.nvim", config = function() require("flit").setup() end }, -- enhanced f/F/t/T motions, built on leap.nvim
     {
@@ -120,4 +133,9 @@ require("lazy").setup({
             }
         }
     },
+}, {
+    checker = {
+        enabled = true,
+        notify = false,
+    }
 })
