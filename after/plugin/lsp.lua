@@ -6,6 +6,13 @@ TODO: Add some languages to the default set that are downloaded by default (if p
 
 require("neodev").setup()
 
+-- Mason Settings
+require('mason.settings').set({
+  ui = {
+    border = 'rounded'
+  }
+})
+
 local lsp = require('lsp-zero')
 
 -- LSP-specific settings
@@ -19,7 +26,7 @@ end)
 lsp.preset('recommended')
 
 -- nvim-cmp settings
-local cmp = require('cmp')
+local cmp          = require('cmp')
 local cmp_mappings = lsp.defaults.cmp_mappings()
 
 -- For mapping <CR> {{{
@@ -117,4 +124,3 @@ cmp.setup.filetype({ "markdown", "txt" }, {
 })
 
 lsp.setup()
-
