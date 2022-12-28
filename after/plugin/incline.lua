@@ -8,42 +8,47 @@ local function get_diagnostic_label(props)
 
     local label = {}
     for severity, icon in pairs(icons) do
-        local n = #vim.diagnostic.get(props.buf, {severity = vim.diagnostic.severity[string.upper(severity)]})
+        local n = #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity[string.upper(severity)] })
         if n > 0 then
-            local fg = "#" .. string.format("%06x", vim.api.nvim_get_hl_by_name("DiagnosticSign" .. severity, true)["foreground"])
-            table.insert(label, {icon .. " " .. n .. " ", guifg = fg})
+            local fg = "#" ..
+                string.format("%06x", vim.api.nvim_get_hl_by_name("DiagnosticSign" .. severity, true)["foreground"])
+            table.insert(label, { icon .. " " .. n .. " ", guifg = fg })
         end
     end
     return label
 end
 
 require("incline").setup({
-  debounce_threshold = { falling = 500, rising = 250 },
+    debounce_threshold = { falling = 500, rising = 250 },
 
-  ignore = {
-      buftypes = { "nofile" },
-      unlisted_buffers = false,
-  },
+    ignore = {
+        buftypes = { "nofile" },
+        unlisted_buffers = false,
+    },
 
-  render = function(props)
-    local bufname = vim.api.nvim_buf_get_name(props.buf)
-    local filename = vim.fn.fnamemodify(bufname, ":t")
-    local diagnostics = get_diagnostic_label(props)
-    local modified = vim.api.nvim_buf_get_option(props.buf, "modified") and "bold,italic" or "None"
-    local filetype_icon, color = require("nvim-web-devicons").get_icon_color(filename)
+    hide = {
+        cursorline = true
+    },
 
-    local buffer = {
-        { filetype_icon, guifg = color },
-        { " " },
-        { filename, gui = modified },
-    }
+    render = function(props)
+        local bufname = vim.api.nvim_buf_get_name(props.buf)
+        local filename = vim.fn.fnamemodify(bufname, ":t")
+        local diagnostics = get_diagnostic_label(props)
+        local modified = vim.api.nvim_buf_get_option(props.buf, "modified") and "bold,italic" or "None"
+        local filetype_icon, color = require("nvim-web-devicons").get_icon_color(filename)
 
-    if #diagnostics > 0 then
-        table.insert(diagnostics, { "| ", guifg = "grey" })
-    end
-    for _, buffer_ in ipairs(buffer) do
-        table.insert(diagnostics, buffer_)
-    end
-    return diagnostics
-  end,
+        local buffer = {
+            { filetype_icon, guifg = color },
+            { " " },
+            { filename, gui = modified },
+        }
+
+        if #diagnostics > 0 then
+            table.insert(diagnostics, { "| ", guifg = "grey" })
+        end
+        for _, buffer_ in ipairs(buffer) do
+            table.insert(diagnostics, buffer_)
+        end
+        return diagnostics
+    end,
 })
