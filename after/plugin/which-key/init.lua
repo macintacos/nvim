@@ -48,6 +48,7 @@ require("which-key").setup({
     ignore_missing = false, -- enable this to hide mappings for which you didn't specify a label
     hidden = { "<silent>", "<cmd>", "<Cmd>", "<CR>", "call", "lua", "^:", "^ " }, -- hide mapping boilerplate
     show_help = true, -- show help message on the command line when the popup is visible
+    show_keys = false, -- don't show keys as they are typed (better interaction with noice.nvim)
     triggers = "auto", -- automatically setup triggers
     -- triggers = {"<leader>"}, -- or specify a list manually
     triggers_blacklist = {
