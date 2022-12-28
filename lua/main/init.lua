@@ -84,13 +84,15 @@ require("lazy").setup({
     { "b0o/incline.nvim" },
     { "lukas-reineke/indent-blankline.nvim" },
     { "petertriho/nvim-scrollbar", config = function() require("scrollbar").setup() end },
-    { "folke/noice.nvim" },
+    { "folke/noice.nvim", version = "^1.0.0" }, -- adds a bunch of new UI elements
+    { "stevearc/dressing.nvim" },
 
     -- Utilities
     { "stevearc/aerial.nvim" },
     { "folke/which-key.nvim" },
     { "tpope/vim-surround" },
     { "tpope/vim-repeat" },
+    { "folke/trouble.nvim" },
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } },
