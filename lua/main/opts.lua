@@ -25,7 +25,7 @@ vim.opt.relativenumber = true
 vim.opt.ruler = true
 vim.opt.scrolloff = 5
 vim.opt.shiftwidth = 4
-vim.opt.shortmess:append({ a = true, c = true, s = true })
+vim.opt.shortmess:append({ a = true, c = true, s = true, I = true })
 vim.opt.showcmd = true
 vim.opt.showmode = false
 vim.opt.signcolumn = "yes"
