@@ -13,9 +13,9 @@ Hydra({
     mode = "n",
     body = "<leader>wz",
     heads = {
-        { "<left>", cmd("vertical resize +5") },
-        { "<right>", cmd("vertical resize -5") },
-        { "<up>", cmd("resize +5") },
-        { "<down>", cmd("resize -5"), { desc = "+/-" } },
+        { "<left>", cmd("vertical resize -5") },
+        { "<right>", cmd("vertical resize +5") },
+        { "<down>", cmd("resize -5") },
+        { "<up>", cmd("resize +5"), { desc = "+/-" } },
     },
 })
