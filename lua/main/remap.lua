@@ -1,13 +1,12 @@
-
 local helpers = require("main.helpers")
 
+local nmap = helpers.nmap
 local noremap = helpers.noremap
 local nnoremap = helpers.nnoremap
 local inoremap = helpers.inoremap
 local vnoremap = helpers.vnoremap
 local xnoremap = helpers.xnoremap
 local onoremap = helpers.onoremap
-local flexnoremap = helpers.flexnoremap
 
 --[[ REMAPS ]]
 
@@ -22,12 +21,6 @@ nnoremap("<left>", "<C-w>h")
 nnoremap("<down>", "<C-w>j")
 nnoremap("<up>", "<C-w>k")
 nnoremap("<right>", "<C-w>l")
-
--- Resize window using shift+arrow keys
-nnoremap("<S-Up>", "<cmd>resize +3<CR>")
-nnoremap("<S-Down>", "<cmd>resize -3<CR>")
-nnoremap("<S-Left>", "<cmd>vertical resize -3<CR>")
-nnoremap("<S-Right>", "<cmd>vertical resize +3<CR>")
 
 -- j/k moves visually up and down lines, until you want to jump lines.
 -- This is more intuitive than the default behavior.
@@ -46,11 +39,12 @@ nnoremap("<C-h>", "20zh")
 nnoremap("G", "Gzz")
 nnoremap("<C-d>", "<C-d>zz")
 nnoremap("<C-u>", "<C-u>zz")
-nnoremap("n", "nzzzv") 
+nnoremap("n", "nzzzv")
 nnoremap("N", "Nzzzv")
 
 -- Clear search with <esc>
-flexnoremap("<esc>", "<Cmd>noh<cr><esc>", { "i", "n" })
+nnoremap("<esc>", "<Cmd>noh<cr><esc>")
+inoremap("<esc>", "<Cmd>noh<cr><esc>")
 nnoremap("gw", "*N")
 xnoremap("gw", "*N")
 
@@ -63,5 +57,33 @@ xnoremap("N", "'nN'[v:searchforward]", { expr = true })
 onoremap("N", "'nN'[v:searchforward]", { expr = true })
 
 -- Better indenting
-vnoremap("<", "<gv")
-vnoremap(">", ">gv")
+nmap("<", "V<gv")
+nmap(">", "V>gv")
+xnoremap("<", "<gv")
+xnoremap(">", ">gv")
+
+-- 'm/M' actually "cuts" text and copies it to your clipboard.
+-- Everything else should be blackhole'd.
+nnoremap("m", "d")
+xnoremap("m", "d")
+nnoremap("mm", "dd")
+nnoremap("M", "D")
+
+xnoremap("c", '"_c')
+nnoremap("cc", '"_S')
+nnoremap("c", '"_c')
+nnoremap("C", '"_C')
+xnoremap("C", '"_C')
+nnoremap("d", '"_d')
+xnoremap("d", '"_d')
+nnoremap("dd", '"_dd')
+nnoremap("D", '"_D')
+xnoremap("D", '"_D')
+nnoremap("x", '"_x')
+xnoremap("x", '"_x')
+nnoremap("X", '"_X')
+xnoremap("X", '"_X')
+
+-- "SHIFT+ENTER" will continue comments, but regular "ENTER" won't
+inoremap("<S-Enter>", "<C-\\><C-O>:setl fo+=r<CR><CR><C-\\><C-O>:setl fo-=r<CR>")
+
