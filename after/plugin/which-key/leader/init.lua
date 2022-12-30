@@ -199,6 +199,10 @@ wk.register({
             k = { "<Cmd>new<CR>", "New In Split Above" },
         },
     },
+    u = {
+        name = "undo",
+        u = { "<Cmd>UndotreeToggle<CR>" }
+    },
     x = {
         name = "text",
         r = {
