@@ -201,7 +201,7 @@ wk.register({
     },
     u = {
         name = "undo",
-        u = { "<Cmd>UndotreeToggle<CR>" }
+        t = { "<Cmd>UndotreeShow<CR><Cmd>UndotreeFocus<CR>", "Toggle Undotree" }
     },
     x = {
         name = "text",
