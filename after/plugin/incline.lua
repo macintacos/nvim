@@ -51,4 +51,12 @@ require("incline").setup({
         end
         return diagnostics
     end,
+
+    window = {
+        zindex = 1,
+        margin = {
+            vertical = 2,
+            horizontal = 2
+        }
+    },
 })
