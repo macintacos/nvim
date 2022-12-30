@@ -5,14 +5,22 @@
 vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
 
 -- If you want icons for diagnostic errors, you'll need to define them somewhere:
-vim.fn.sign_define("DiagnosticSignError",
-                   {text = " ", texthl = "DiagnosticSignError"})
-vim.fn.sign_define("DiagnosticSignWarn",
-                   {text = " ", texthl = "DiagnosticSignWarn"})
-vim.fn.sign_define("DiagnosticSignInfo",
-                   {text = " ", texthl = "DiagnosticSignInfo"})
-vim.fn.sign_define("DiagnosticSignHint",
-                   {text = "", texthl = "DiagnosticSignHint"})
+vim.fn.sign_define(
+    "DiagnosticSignError",
+    { text = " ", texthl = "DiagnosticSignError" }
+)
+vim.fn.sign_define(
+    "DiagnosticSignWarn",
+    { text = " ", texthl = "DiagnosticSignWarn" }
+)
+vim.fn.sign_define(
+    "DiagnosticSignInfo",
+    { text = " ", texthl = "DiagnosticSignInfo" }
+)
+vim.fn.sign_define(
+    "DiagnosticSignHint",
+    { text = "", texthl = "DiagnosticSignHint" }
+)
 -- NOTE: this is changed from v1.x, which used the old style of highlight groups
 -- in the form "LspDiagnosticsSignWarning"
 
@@ -24,13 +32,7 @@ require("neo-tree").setup({
     enable_diagnostics = true,
     sort_case_insensitive = false, -- used when sorting files and directories in the tree
     sort_function = nil, -- use a custom function for sorting files and directories in the tree
-    -- sort_function = function (a,b)
-    --       if a.type == b.type then
-    --           return a.path > b.path
-    --       else
-    --           return a.type > b.type
-    --       end
-    --   end , -- this sorts files and directories descendantly
+
     event_handlers = {
         {
             event = "neo_tree_window_after_open",
@@ -38,7 +40,7 @@ require("neo-tree").setup({
                 if args.position == "left" or args.position == "right" then
                     vim.cmd("wincmd =")
                 end
-            end
+            end,
         },
         {
             event = "neo_tree_window_after_close",
@@ -46,11 +48,11 @@ require("neo-tree").setup({
                 if args.position == "left" or args.position == "right" then
                     vim.cmd("wincmd =")
                 end
-            end
-        }
+            end,
+        },
     },
     default_component_configs = {
-        container = {enable_character_fade = true},
+        container = { enable_character_fade = true },
         indent = {
             indent_size = 2,
             padding = 1, -- extra padding on left hand side
@@ -63,7 +65,7 @@ require("neo-tree").setup({
             with_expanders = nil, -- if nil and file nesting is enabled, will enable expanders
             expander_collapsed = "",
             expander_expanded = "",
-            expander_highlight = "NeoTreeExpander"
+            expander_highlight = "NeoTreeExpander",
         },
         icon = {
             folder_closed = "",
@@ -72,13 +74,13 @@ require("neo-tree").setup({
             -- The next two settings are only a fallback, if you use nvim-web-devicons and configure default icons there
             -- then these will never be used.
             default = "*",
-            highlight = "NeoTreeFileIcon"
+            highlight = "NeoTreeFileIcon",
         },
-        modified = {symbol = "[+]", highlight = "NeoTreeModified"},
+        modified = { symbol = "[+]", highlight = "NeoTreeModified" },
         name = {
             trailing_slash = false,
             use_git_status_colors = true,
-            highlight = "NeoTreeFileName"
+            highlight = "NeoTreeFileName",
         },
         git_status = {
             symbols = {
@@ -92,37 +94,32 @@ require("neo-tree").setup({
                 ignored = "",
                 unstaged = "",
                 staged = "",
-                conflict = ""
-            }
-        }
+                conflict = "",
+            },
+        },
     },
     window = {
         position = "right",
         width = 40,
-        mapping_options = {noremap = true, nowait = true},
+        mapping_options = { noremap = true, nowait = true },
         mappings = {
             ["<2-LeftMouse>"] = "open",
             ["<cr>"] = "open",
             ["<esc>"] = "revert_preview",
-            ["P"] = {"toggle_preview", config = {use_float = true}},
-            -- ["S"] = "open_split",
-            -- ["s"] = "open_vsplit",
+            ["P"] = { "toggle_preview", config = { use_float = true } },
             ["S"] = "split_with_window_picker",
             ["s"] = "vsplit_with_window_picker",
             ["t"] = "open_tabnew",
-            -- ["<cr>"] = "open_drop",
-            -- ["t"] = "open_tab_drop",
             ["w"] = "open_with_window_picker",
-            -- ["P"] = "toggle_preview", -- enter preview mode, which shows the current node without focusing
             ["C"] = "close_node",
             ["z"] = "close_all_nodes",
-            -- ["Z"] = "expand_all_nodes",
+            ["Z"] = "expand_all_nodes",
             ["a"] = {
                 "add",
                 -- some commands may take optional config options, see `:h neo-tree-mappings` for details
                 config = {
-                    show_path = "relative" -- "none", "relative", "absolute"
-                }
+                    show_path = "relative", -- "none", "relative", "absolute"
+                },
             },
             ["A"] = "add_directory", -- also accepts the optional config.show_path option like "add".
             ["d"] = "delete",
@@ -131,12 +128,6 @@ require("neo-tree").setup({
             ["x"] = "cut_to_clipboard",
             ["p"] = "paste_from_clipboard",
             ["c"] = "copy", -- takes text input for destination, also accepts the optional config.show_path option like "add":
-            -- ["c"] = {
-            --  "copy",
-            --  config = {
-            --    show_path = "none" -- "none", "relative", "absolute"
-            --  }
-            -- }
             ["m"] = "move", -- takes text input for destination, also accepts the optional config.show_path option like "add".
             ["q"] = "close_window",
             ["R"] = "refresh",
@@ -144,14 +135,14 @@ require("neo-tree").setup({
             ["l"] = "open",
             ["h"] = "close_node",
             ["<"] = "prev_source",
-            [">"] = "next_source"
-        }
+            [">"] = "next_source",
+        },
     },
     nesting_rules = {},
     filesystem = {
         filtered_items = {
-            visible = false, -- when true, they will just be displayed differently than normal items
-            hide_dotfiles = true,
+            visible = true, -- when true, they will just be displayed differently than normal items
+            hide_dotfiles = false,
             hide_gitignored = true,
             hide_hidden = true, -- only works on Windows for hidden files/directories
             hide_by_name = {
@@ -164,14 +155,17 @@ require("neo-tree").setup({
             always_show = { -- remains visible even if other settings would normally hide it
                 ".gitignore",
                 ".git",
-                ".vscode"
+                ".vscode",
+                ".envrc",
+                ".env",
+                ".luacheckrc",
             },
             never_show = { -- remains hidden even if visible is toggled to true, this overrides always_show
                 ".DS_Store",
             },
             never_show_by_pattern = { -- uses glob style patterns
                 -- ".null-ls_*",
-            }
+            },
         },
         find_by_full_path_words = ".*",
         follow_current_file = false, -- This will find and focus the file in the active buffer every
@@ -194,9 +188,9 @@ require("neo-tree").setup({
                 ["f"] = "filter_on_submit",
                 ["<c-x>"] = "clear_filter",
                 ["[g"] = "prev_git_modified",
-                ["]g"] = "next_git_modified"
-            }
-        }
+                ["]g"] = "next_git_modified",
+            },
+        },
     },
     buffers = {
         follow_current_file = true, -- This will find and focus the file in the active buffer every
@@ -207,9 +201,9 @@ require("neo-tree").setup({
             mappings = {
                 ["bd"] = "buffer_delete",
                 ["<bs>"] = "navigate_up",
-                ["."] = "set_root"
-            }
-        }
+                ["."] = "set_root",
+            },
+        },
     },
     git_status = {
         window = {
@@ -221,10 +215,10 @@ require("neo-tree").setup({
                 ["gr"] = "git_revert_file",
                 ["gc"] = "git_commit",
                 ["gp"] = "git_push",
-                ["gg"] = "git_commit_and_push"
-            }
-        }
-    }
+                ["gg"] = "git_commit_and_push",
+            },
+        },
+    },
 })
 
 vim.cmd([[nnoremap \ :Neotree reveal<cr>]])
