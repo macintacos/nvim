@@ -51,5 +51,8 @@ vim.opt.wrap = false
 vim.cmd([[
     autocmd FileType css setlocal shiftwidth=2 softtabstop=2 tabstop=2
     autocmd FileType markdown setlocal textwidth=90
+
+    " when pressing <enter> in a comment, don't continue the comment (see the shift+enter binding in remap.lua)
+    autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 ]])
 
