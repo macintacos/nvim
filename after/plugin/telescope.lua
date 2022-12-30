@@ -15,15 +15,15 @@ require("telescope").setup({
         initial_mode = "insert",
         selection_strategy = "reset",
         file_sorter = require("telescope.sorters").get_fuzzy_file,
-        file_ignore_patterns = { ".git", ".vim/undo", "node_modules", "venv" },
+        file_ignore_patterns = { ".git", ".vim/undo", "node_modules", "venv", ".venv" },
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-        find_command = {
-            "rg",
-            "--ignore",
-            "--hidden",
-            "--files",
-            "--smartcase",
-        },
+        -- find_command = {
+        --     "rg",
+        --     "--ignore",
+        --     "--hidden",
+        --     "--files",
+        --     "--smartcase",
+        -- },
 
         -- Appearance
         set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
@@ -67,6 +67,7 @@ require("telescope").setup({
         find_files = { theme = "ivy" },
         git_bcommits = { theme = "ivy" },
         git_commits = { theme = "ivy" },
+        git_files = { theme = "ivy" },
         grep_string = { theme = "ivy" },
         heading = { theme = "dropdown" },
         help_tags = { theme = "ivy" },
@@ -102,7 +103,8 @@ require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
 require("telescope").load_extension("zoxide")
 require("telescope").load_extension("project")
-require("telescope").load_extension("aerial")
+require("telescope").load_extension("file_browser")
+-- require("telescope").load_extension("aerial")
 
 -- Zoxide-specific
 require("telescope._extensions.zoxide.config").setup({
