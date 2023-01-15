@@ -150,7 +150,7 @@ require("lazy").setup({
     { "andymass/vim-matchup" }, -- better %
     { "anuvyklack/hydra.nvim" }, -- hydra, but for neovim!
     { "arthurxavierx/vim-caser" }, -- add commands to change case of things
-    { "fedepujol/move.nvim" }, -- moving lines/blocks of code around
+    { "eraserhd/parinfer-rust", build = "cargo build --release" }, -- better parenthesis management
     { "folke/which-key.nvim" }, -- indispensible
     { "ggandor/flit.nvim", config = { labeled_modes = "nv" } },
     { "ggandor/leap.nvim", config = function() require("leap").add_default_mappings() end }, -- code navigation
@@ -169,7 +169,7 @@ require("lazy").setup({
 
     ---Enhanced Editor Behavior
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
-    { "echasnovski/mini.nvim", branch = "stable" }, -- library of interesting modules for better editor behavior
+    { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
     { "iamcco/markdown-preview.nvim", build = function() vim.fn["mkdp#util#install"]() end }, -- markdown previews
     { "jeffkreeftmeijer/vim-numbertoggle" }, -- change line numbers for unfocused buffers
     { "justinmk/vim-gtfo" }, -- commands that let you invoke other applications
