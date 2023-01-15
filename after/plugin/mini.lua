@@ -1,8 +1,27 @@
+-- Modules w/ default configs
 require("mini.ai").setup() -- more text objects
--- require("mini.cursorword").setup() -- underline current word
 require("mini.indentscope").setup() -- show scope of current cursor
 require("mini.trailspace").setup() -- highlight trailing spaces
 
+-- Modules w/ custom configs
+
+--- Move things up, down, and around.
+require("mini.move").setup({
+    mappings = {
+        left = "<S-h>",
+        right = "<S-l>",
+        down = "<S-j>",
+        up = "<S-k>",
+
+        -- Move current line in Normal mode
+        line_left = "<S-h>",
+        line_right = "<S-l>",
+        line_down = "<S-j>",
+        line_up = "<S-k>",
+    },
+})
+
+--- Mess with alignment in selected code
 require("mini.align").setup({
     -- Module mappings. Use `''` (empty string) to disable one.
     mappings = {
