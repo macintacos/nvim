@@ -132,7 +132,7 @@ wk.register({
         s = { "<Cmd>SymbolsOutline<CR>", "Show Symbols Outline" },
         t = { ":normal got<CR>", "Open File Dir in iTerm" },
         T = { ":normal goT<CR>", "Open PWD in iTerm" },
-        q = { "<Cmd>Trouble quickfix", "Open Quickfix" },
+        q = { "<Cmd>Trouble quickfix<CR>", "Open Quickfix" },
     },
     q = {
         name = "quit",
