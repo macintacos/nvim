@@ -46,6 +46,16 @@ vim.opt.wildmode = { "longest:full", "full" }
 vim.opt.wildoptions = "pum"
 vim.opt.wrap = false
 
+-- Python things for neovim's usage
+--[[
+    NOTE: to get this done, do the following:
+        - Install `pyenv` (and the `virtualenv` subcommand if it isn't there already)
+        - Run `pyenv virtualenv 3.9.10 neovim3` (can be the latest stable version, try to keep a version behind)
+        - Run `pyenv activate neovim 3 && pip install neovim`
+        - To get the string below, run `pyenv which python`
+]]
+vim.g.python3_host_prog = "/Users/macinburrito/.pyenv/versions/neovim3/bin/python"
+
 -- Filetype-specific settings
 vim.cmd([[
     autocmd FileType css setlocal shiftwidth=2 softtabstop=2 tabstop=2
@@ -54,4 +64,3 @@ vim.cmd([[
     " when pressing <enter> in a comment, don't continue the comment (see the shift+enter binding in remap.lua)
     autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 ]])
-
