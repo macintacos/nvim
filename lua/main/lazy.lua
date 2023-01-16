@@ -39,8 +39,15 @@ require("lazy").setup({
 
     --[[ ESSENTIAL: START ]]
 
+    ---Libraries
     { "nvim-lua/plenary.nvim" }, -- library that basically all plugins seem to use for whatever reason
+
+    ---Language Features
+    { "folke/neodev.nvim" }, -- makes building your own config/lua plugins significantly easier
+    { "jayp0521/mason-null-ls.nvim" }, -- bridge for mason to null-ls
+    { "jose-elias-alvarez/null-ls.nvim" }, -- used for managing linters/formatters/etc. in lieu of direct Mason config
     { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- pretty/efficient highlighting
+    { "NoahTheDuke/vim-just" },
     {
         "VonHeikemen/lsp-zero.nvim", -- configure LSPs for me. I hate that this isn't default behavior, but here we are.
         dependencies = {
@@ -64,25 +71,6 @@ require("lazy").setup({
             { "rafamadriz/friendly-snippets" }, -- another snipper manager
         },
     },
-    { "folke/neodev.nvim" }, -- makes building your own config/lua plugins significantly easier
-    { "jose-elias-alvarez/null-ls.nvim" }, -- used for managing linters/formatters/etc. in lieu of direct Mason config
-    { "jayp0521/mason-null-ls.nvim" }, -- bridge for mason to null-ls
-    { "ibhagwan/fzf-lua" }, -- fzf picker, for things where telescope falls down
-    { -- default picker UI for many, many things
-        "nvim-telescope/telescope.nvim",
-        dependencies = { "nvim-lua/popup.nvim" },
-    },
-    { "nvim-telescope/telescope-github.nvim" }, -- integration with the GitHub CLI
-    { "nvim-telescope/telescope-file-browser.nvim" }, -- file browser in telescope
-    { "crispgm/telescope-heading.nvim" }, -- add ability to navigate by headers in a Markdown/RST document
-    { "dhruvmanila/telescope-bookmarks.nvim" }, -- add ability to jump to bookmarks using Telescope
-    { "jvgrootveld/telescope-zoxide" }, -- integrate zoxide into the Telescope picker
-    { "nvim-telescope/telescope-project.nvim" }, -- project management
-    {
-        "nvim-telescope/telescope-fzf-native.nvim", -- use fzf as the sorting algorithm for telescope
-        build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
-    },
-    { "tpope/vim-sensible" }, -- sensible vim defaults
 
     --[[ ESSENTIAL: END ]]
 
@@ -111,8 +99,8 @@ require("lazy").setup({
     { "nvim-lualine/lualine.nvim" }, -- status line plugin
     { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
     { "petertriho/nvim-scrollbar", config = true }, -- adds a scrollbar, similar to vscode
-    -- { "rcarriga/nvim-notify" }, -- adds decent-looking notification banners for common operations
     { "lewis6991/gitsigns.nvim" }, -- git integration with the editor to provide better line-by-line info
+    -- { "rcarriga/nvim-notify" }, -- adds decent-looking notification banners for common operations
 
     --[[ APPEARANCE: END ]]
 
@@ -122,18 +110,32 @@ require("lazy").setup({
     { "romgrk/fzy-lua-native" }, -- fzf library for lua
 
     ---Interactive UIs
-    -- { "akinsho/bufferline.nvim", version = "^3.0.0" }, -- a nice bufferline
-    { "noib3/nvim-cokeline" }, -- a nice bufferline
+    { "crispgm/telescope-heading.nvim" }, -- add ability to navigate by headers in a Markdown/RST document
+    { "dhruvmanila/telescope-bookmarks.nvim" }, -- add ability to jump to bookmarks using Telescope
     { "folke/todo-comments.nvim" }, -- adds nicer TODO-style comment behavior
     { "folke/trouble.nvim" }, -- fancier quickfix
     { "folke/zen-mode.nvim", config = true }, -- focus on a single buffer
+    { "ibhagwan/fzf-lua" }, -- fzf picker, for things where telescope falls down. Preferred.
+    { "jvgrootveld/telescope-zoxide" }, -- integrate zoxide into the Telescope picker
     { "kdheepak/lazygit.nvim" }, -- lazygit in neovim
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
     { "mbbill/undotree" }, -- undo manager
     { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
+    { "noib3/nvim-cokeline" }, -- a nice bufferline
     { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
     { "simrat39/symbols-outline.nvim", config = true }, -- outline for symbols
+    { -- picker UI for many, many things
+        "nvim-telescope/telescope.nvim",
+        dependencies = { "nvim-lua/popup.nvim" },
+    },
+    { "nvim-telescope/telescope-github.nvim" }, -- integration with the GitHub CLI
+    { "nvim-telescope/telescope-file-browser.nvim" }, -- file browser in telescope
+    { "nvim-telescope/telescope-project.nvim" }, -- project management
+    {
+        "nvim-telescope/telescope-fzf-native.nvim", -- use fzf as the sorting algorithm for telescope
+        build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
+    },
     {
         "nvim-neo-tree/neo-tree.nvim",
         version = "^2.0.0",
@@ -145,6 +147,7 @@ require("lazy").setup({
             },
         },
     },
+    -- { "akinsho/bufferline.nvim", version = "^3.0.0" }, -- a nice bufferline
 
     ---Navigation/Text Manipulation
     { "andymass/vim-matchup" }, -- better %
@@ -153,7 +156,12 @@ require("lazy").setup({
     { "eraserhd/parinfer-rust", build = "cargo build --release" }, -- better parenthesis management
     { "folke/which-key.nvim" }, -- indispensible
     { "ggandor/flit.nvim", config = { labeled_modes = "nv" } },
-    { "ggandor/leap.nvim", config = function() require("leap").add_default_mappings() end }, -- code navigation
+    {
+        "ggandor/leap.nvim",
+        config = function()
+            require("leap").add_default_mappings()
+        end,
+    }, -- code navigation
     { "inkarkat/vim-LineJuggler" }, -- duplicating lines and stuff like that
     { "mg979/vim-visual-multi", branch = "master" }, -- multiple cursors in neovim
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
@@ -168,9 +176,15 @@ require("lazy").setup({
     { "RRethy/vim-illuminate" }, -- highlight words under the cursor
 
     ---Enhanced Editor Behavior
+    { "tpope/vim-sensible" }, -- sensible vim defaults
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
     { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
-    { "iamcco/markdown-preview.nvim", build = function() vim.fn["mkdp#util#install"]() end }, -- markdown previews
+    {
+        "iamcco/markdown-preview.nvim",
+        build = function()
+            vim.fn["mkdp#util#install"]()
+        end,
+    }, -- markdown previews
     { "jeffkreeftmeijer/vim-numbertoggle" }, -- change line numbers for unfocused buffers
     { "justinmk/vim-gtfo" }, -- commands that let you invoke other applications
     { "kazhala/close-buffers.nvim", config = true }, -- mo' better buffer deletion

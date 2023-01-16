@@ -88,6 +88,7 @@
   "vim-gtfo": { "branch": "master", "commit": "c5fb3560222da71d96b8d4d792ba1d46466044da" },
   "vim-illuminate": { "branch": "master", "commit": "da80f3877896adcf77f59fb0bf74e9601615d372" },
   "vim-ingo-library": { "branch": "master", "commit": "097b1c729ee0f334a40eddfbd84d77161287f2f1" },
+  "vim-just": { "branch": "master", "commit": "838c9096d4c5d64d1000a6442a358746324c2123" },
   "vim-matchup": { "branch": "master", "commit": "db5120dd9887c988de7cd973ddb951e465d413e5" },
   "vim-numbertoggle": { "branch": "main", "commit": "075b7478777e694fbac330ee34a74590dad0fee1" },
   "vim-obsession": { "branch": "master", "commit": "fe9d3e1a9a50171e7d316a52e1e56d868e4c1fe5" },
