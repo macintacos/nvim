@@ -125,7 +125,7 @@ wk.register({
         name = "jump/join",
         i = { cmd("FzfLua lsp_document_symbols"), "Jump to Symbol in File" },
         I = {
-            cmd("FzfLua lsp_dynamic_workspace_symbols"),
+            cmd("FzfLua lsp_live_workspace_symbols"),
             "Jump to Symbol in Workspace",
         },
         s = { cmd("SplitjoinSplit"), "Splitjoin Split" },
