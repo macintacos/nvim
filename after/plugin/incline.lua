@@ -8,10 +8,16 @@ local function get_diagnostic_label(props)
 
     local label = {}
     for severity, icon in pairs(icons) do
-        local n = #vim.diagnostic.get(props.buf, { severity = vim.diagnostic.severity[string.upper(severity)] })
+        local n = #vim.diagnostic.get(
+            props.buf,
+            { severity = vim.diagnostic.severity[string.upper(severity)] }
+        )
         if n > 0 then
-            local fg = "#" ..
-                string.format("%06x", vim.api.nvim_get_hl_by_name("DiagnosticSign" .. severity, true)["foreground"])
+            local fg = "#"
+                .. string.format(
+                    "%06x",
+                    vim.api.nvim_get_hl_by_name("DiagnosticSign" .. severity, true)["foreground"]
+                )
             table.insert(label, { icon .. " " .. n .. " ", guifg = fg })
         end
     end
@@ -27,15 +33,18 @@ require("incline").setup({
     },
 
     hide = {
-        cursorline = true
+        cursorline = true,
     },
 
     render = function(props)
         local bufname = vim.api.nvim_buf_get_name(props.buf)
         local filename = vim.fn.fnamemodify(bufname, ":t")
         local diagnostics = get_diagnostic_label(props)
-        local modified = vim.api.nvim_buf_get_option(props.buf, "modified") and "bold,italic" or "None"
-        local filetype_icon, color = require("nvim-web-devicons").get_icon_color(filename)
+        local modified = vim.api.nvim_buf_get_option(props.buf, "modified")
+                and "bold,italic"
+            or "None"
+        local filetype_icon, color =
+            require("nvim-web-devicons").get_icon_color(filename)
 
         local buffer = {
             { filetype_icon, guifg = color },
@@ -56,7 +65,7 @@ require("incline").setup({
         zindex = 1,
         margin = {
             vertical = 2,
-            horizontal = 2
-        }
+            horizontal = 2,
+        },
     },
 })

@@ -12,4 +12,3 @@ require("main.opts")
 require("main.autocmds")
 require("main.remap")
 require("main.lazy") -- plugins here
-

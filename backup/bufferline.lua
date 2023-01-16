@@ -8,7 +8,8 @@ require("bufferline").setup({
                 filetype = "neo-tree",
                 text = function()
                     local cwd = vim.fn.getcwd()
-                    local name = vim.api.nvim_call_function("fnamemodify", { cwd, ":t" })
+                    local name =
+                        vim.api.nvim_call_function("fnamemodify", { cwd, ":t" })
                     return " " .. name
                 end,
                 highlight = "Directory",
@@ -19,15 +20,15 @@ require("bufferline").setup({
             {
                 event = "neo_tree_buffer_enter",
                 handler = function()
-                    vim.cmd 'highlight! Cursor blend=100'
-                end
+                    vim.cmd("highlight! Cursor blend=100")
+                end,
             },
             {
                 event = "neo_tree_buffer_leave",
                 handler = function()
-                    vim.cmd 'highlight! Cursor guibg=#5f87af blend=0'
-                end
-            }
+                    vim.cmd("highlight! Cursor guibg=#5f87af blend=0")
+                end,
+            },
         },
     },
 })

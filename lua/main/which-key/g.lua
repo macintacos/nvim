@@ -12,12 +12,12 @@ wk.register({
     n = {
         name = "next",
         n = { "gn", "Search Forwards and Select" },
-        s = { cmd("AerialNext"), "Go to Next Symbol" }
+        s = { cmd("AerialNext"), "Go to Next Symbol" },
     },
     N = {
         name = "prev",
         n = { "gN", "Search Backwards and Select" },
-        s = { cmd("AerialPrev"), "Go to Prev Symbol" }
+        s = { cmd("AerialPrev"), "Go to Prev Symbol" },
     },
     o = { cmd("lua vim.lsp.buf.type_definition()"), "Go to Type Definition" },
     r = { cmd("TroubleToggle lsp_references"), "Go to References" },

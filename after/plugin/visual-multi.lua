@@ -25,5 +25,3 @@ nmap("<C-n>", "<Plug>(VM-Find-Under)")
 
 nnoremap("<C-k>", ":call vm#commands#add_cursor_up(0, v:count1)<cr>")
 nnoremap("<C-j>", ":call vm#commands#add_cursor_down(0, v:count1)<cr>")
-
-

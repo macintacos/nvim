@@ -22,4 +22,3 @@ hi(0, "CursorLine", { bg = palette.bg1 }) -- don't show the cursor line
 
 -- Window Borders
 hi(0, "VertSplit", { fg = palette.sel0 })
-

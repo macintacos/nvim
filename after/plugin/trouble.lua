@@ -27,7 +27,7 @@ require("trouble").setup({
         open_folds = { "zR", "zr" }, -- open all folds
         toggle_fold = { "zA", "za" }, -- toggle fold of current file
         previous = "k", -- previous item
-        next = "j" -- next item
+        next = "j", -- next item
     },
     indent_lines = true, -- add an indent guide below the fold icons
     auto_open = false, -- automatically open the list when you have diagnostics
@@ -41,7 +41,7 @@ require("trouble").setup({
         warning = "",
         hint = "",
         information = "",
-        other = "﫠"
+        other = "﫠",
     },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+    use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
 })

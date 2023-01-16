@@ -68,4 +68,3 @@ require("which-key").setup({
         v = { "j", "k" },
     },
 })
-

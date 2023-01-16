@@ -1,6 +1,6 @@
 require("lualine").setup({
     options = {
-        globalstatus = true
+        globalstatus = true,
     },
     sections = {
         lualine_x = {

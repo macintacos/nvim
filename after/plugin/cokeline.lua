@@ -183,4 +183,3 @@ require("cokeline").setup({
         components.right_half_circle,
     },
 })
-

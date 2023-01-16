@@ -23,7 +23,7 @@ local cmp_mappings = lsp.defaults.cmp_mappings({
     ["<C-k>"] = cmp.config.disable,
 
     ["<Tab>"] = cmp.mapping(function(fallback)
-        -- Tab will only 
+        -- Tab will only
         if cmp.visible() then
             cmp.select_next_item()
         elseif require("luasnip").expand_or_jumpable() then

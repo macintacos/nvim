@@ -15,7 +15,13 @@ require("telescope").setup({
         initial_mode = "insert",
         selection_strategy = "reset",
         file_sorter = require("telescope.sorters").get_fuzzy_file,
-        file_ignore_patterns = { ".git", ".vim/undo", "node_modules", "venv", ".venv" },
+        file_ignore_patterns = {
+            ".git",
+            ".vim/undo",
+            "node_modules",
+            "venv",
+            ".venv",
+        },
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
         -- find_command = {
         --     "rg",
@@ -120,4 +126,3 @@ require("telescope._extensions.zoxide.config").setup({
         },
     },
 })
-

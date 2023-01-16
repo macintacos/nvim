@@ -30,8 +30,8 @@ vim.g.smartq_q_buftypes = { "quickfix", "nofile" }
 --
 -- Wipe buffers using :bw command. Wiped buffers are removed from jumplist
 -- Default :bd
-vim.g.smartq_bw_filetypes = {""}
-vim.g.smartq_bw_buftypes = {""}
+vim.g.smartq_bw_filetypes = { "" }
+vim.g.smartq_bw_buftypes = { "" }
 
 -- Automatically wipe empty (with no changes) buffer(s)
 vim.g.smartq_auto_wipe_emtpy = 1
@@ -50,4 +50,3 @@ vim.g.smartq_goyo_integration = 1
 
 -- Enable Zen-mode
 vim.g.smartq_zenmode_integration = 1
-

@@ -30,7 +30,7 @@ require("noice").setup({
         },
         popupmenu = {
             relative = "editor",
-            position = "auto"
+            position = "auto",
         },
     },
 
