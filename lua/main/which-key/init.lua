@@ -1,3 +1,13 @@
+--- Configs defined at "this level"
+require("main.which-key.g")
+require("main.which-key.leader")
+require("main.which-key.brackets")
+
+--- Collections
+require("main.which-key.leader")
+require("main.which-key.localleader")
+
+--- Setup which-key
 require("which-key").setup({
     plugins = {
         marks = true, -- shows a list of your marks on ' and `
@@ -58,3 +68,4 @@ require("which-key").setup({
         v = { "j", "k" },
     },
 })
+

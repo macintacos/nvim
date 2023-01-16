@@ -1,5 +1,10 @@
 local wk = require("which-key")
 
+-- Load configs at this level
+require("main.which-key.leader.visual")
+require("main.which-key.leader.neo-tree")
+
+-- "General" <leader> maps
 wk.register({
     -- Buffer switching
     ["1"] = { "<Plug>(cokeline-focus-1)", "which_key_ignore" },
