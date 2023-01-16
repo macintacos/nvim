@@ -14,9 +14,9 @@ autocmd("TextYankPost", {
     end,
 })
 
--- Set lazygit file to yaml
-autocmd({"BufRead", "BufEnter"}, {
-    pattern = "*lazygit*",
+-- Set a bunch of config files to yaml
+autocmd({ "BufRead", "BufEnter" }, {
+    pattern = { "*lazygit*", "*yamlfmt*", "*yamllint*" },
     callback = function()
         vim.opt_local.filetype = "yaml"
     end,

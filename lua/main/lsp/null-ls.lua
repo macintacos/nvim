@@ -53,5 +53,7 @@ mason_null_ls.setup({
     },
 })
 
+-- Following: https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTIN_CONFIG.md
 null_ls.setup()
+
 mason_null_ls.setup_handlers({})
