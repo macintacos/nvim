@@ -23,14 +23,14 @@ wk.register({
     ["?"] = { ":normal goT<CR>", "Open PWD in iTerm" },
     ["/"] = { "<Cmd>FzfLua live_grep<CR>", "Search Project" },
     [";"] = { ":normal gcc<CR>", "Toggle Comment" },
-    ["`"] = { "<Plug>(cokeline-focus-next)", "Next Buffer" },
-    ["~"] = { "<Plug>(cokeline-focus-prev)", "Prev Buffer" },
+    ["`"] = { "<Plug>(cokeline-focus-next)", "Go to Next Buffer" },
+    ["~"] = { "<Plug>(cokeline-focus-prev)", "Go to Prev Buffer" },
     ["<TAB>"] = { "<Cmd>edit #<CR>", "Previously Edited Buffer" },
 
     -- Everything else
     b = {
         name = "buffer",
-        ["<"] = { "<Cmd>edit #<CR>", "Last Buffer" },
+        ["<"] = { "<Cmd>edit #<CR>", "Go to Last Buffer" },
         b = { "<Cmd>FzfLua buffers<CR>", "List Buffers" },
         c = { "<Cmd>FzfLua git_bcommits<CR>", "List Commits for Buffer" },
         d = {
