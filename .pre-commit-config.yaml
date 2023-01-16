@@ -1,0 +1,15 @@
+---
+repos:
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v0.16.0
+    hooks:
+      - id: stylua # or stylua-system / stylua-github
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.7.1
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
