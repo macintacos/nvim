@@ -1,13 +1,14 @@
 local wk = require("which-key")
+local cmd = require("main.helpers").cmd
 
 wk.register({
     -- Common actions
-    [";"] = { ":normal gcc<CR>", "Toggle Comment" },
+    [";"] = { cmd("normal gcc"), "Toggle Comment" },
 
     -- Everything else
     f = {
         name = "file",
-        ["="] = { "<Cmd>LspZeroFormat<CR>", "Format Range/File" },
+        ["="] = { cmd("LspZeroFormat"), "Format Range/File" },
     },
     x = {
         name = "text",

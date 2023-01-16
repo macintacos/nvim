@@ -1,10 +1,11 @@
 local wk = require("which-key")
+local cmd = require("main.helpers").cmd
 
 wk.register({
-    ["]d"] = { "<Cmd>lua vim.diagnostic.goto_next<CR>", "Next Diagnostic" },
-    ["[d"] = { "<Cmd>lua vim.diagnostic.goto_prev<CR>", "Prev Diagnostic" },
-    ["]t"] = { "<Cmd>require('todo-comments').jump_next()<CR>", "Next TODO" },
-    ["[t"] = { "<Cmd>require('todo-comments').jump_prev()<CR>", "Prev TODO" },
+    ["]d"] = { cmd("lua vim.diagnostic.goto_next"), "Next Diagnostic" },
+    ["[d"] = { cmd("lua vim.diagnostic.goto_prev"), "Prev Diagnostic" },
+    ["]t"] = { cmd("require('todo-comments').jump_next()"), "Next TODO" },
+    ["[t"] = { cmd("require('todo-comments').jump_prev()"), "Prev TODO" },
     ["]p"] = { "]p", "<Plug>(YankyPutIndentAfterFilter)" },
     ["[p]"] = { "[p", "<Plug>(YankyPutIndentBeforeFilter)" },
 })

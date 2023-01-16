@@ -1,4 +1,5 @@
 local wk = require("which-key")
+local cmd = require("main.helpers").cmd
 
 -- <leader> keybinds for specific
 vim.cmd([[
@@ -10,7 +11,7 @@ function WhichKeyMarkdown()
     wk.register({
         name = "markdown",
         v = { "<Plug>MarkdownPreview", "Markdown Preview Start" },
-        V = { "<Cmd>Glow %<CR>", "Glow Preview" },
+        V = { cmd("Glow %"), "Glow Preview" },
         ["-"] = { "<Plug>(mkdx-checkbox-prev-n)", "Previous Checkbox State" },
         [","] = { "<Plug>(mkdx-tableize)", "CSV to Table" },
         ["="] = { "<Plug>(mkdx-checkbox-next-n)", "Next Checkbox State" },
@@ -23,7 +24,7 @@ function WhichKeyMarkdown()
         T = { "<Plug>(mkdx-gen-or-upd-toc)", "Generate/Update ToC" },
         b = { "<Plug>(mkdx-text-bold-n)", "Bold Text" },
         i = { "<Plug>(mkdx-text-italic-n)", "Italicize Text" },
-        j = { "<Cmd>Telescope heading<CR>", "Jump to Header" },
+        j = { cmd("Telescope heading"), "Jump to Header" },
         k = { "<Plug>(mkdx-wrap-link-n)", "Link Text" },
         t = { "<Plug>(mkdx-toggle-checkbox-n)", "Toggle Checkbox" },
 
