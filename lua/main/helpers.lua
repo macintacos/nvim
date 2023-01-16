@@ -46,4 +46,11 @@ M.vnoremap = bind("v")
 M.cnoremap = bind("c")
 M.onoremap = bind("o")
 
+---Convenience function that wraps the given string with `<Cmd>` and `<CR>`
+---@param command string The command to wrap.
+M.cmd = function (command)
+    return "<Cmd>" .. command .. "<CR>"
+end
+
 return M
+
