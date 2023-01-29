@@ -12,6 +12,7 @@ lsp.preset("recommended")
 
 -- To choose more, see: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 lsp.ensure_installed({
+    "astro",
     "bashls",
     "cmake",
     "cssls",
@@ -19,7 +20,6 @@ lsp.ensure_installed({
     "eslint",
     "gopls",
     "html",
-    "jqls",
     "jsonls",
     "marksman",
     "nimls",

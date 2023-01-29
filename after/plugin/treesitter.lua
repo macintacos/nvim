@@ -1,12 +1,15 @@
 require("nvim-treesitter.configs").setup({
     -- A list of parser names, or "all"
     ensure_installed = {
+        "astro",
+        "c",
+        "css",
         "help",
         "javascript",
-        "typescript",
-        "c",
         "lua",
         "rust",
+        "tsx",
+        "typescript",
         "vim",
     },
 
