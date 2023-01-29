@@ -16,7 +16,6 @@ repos:
       - id: trailing-whitespace
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: "v3.0.0-alpha.4"
-    types: [file, js, json, ts, tsx, jsx, javascript, markdown, md]
     hooks:
       - id: prettier
         additional_dependencies:
