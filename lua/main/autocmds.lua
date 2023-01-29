@@ -21,3 +21,11 @@ autocmd({ "BufRead", "BufEnter" }, {
         vim.opt_local.filetype = "yaml"
     end,
 })
+
+-- Set a bunch of config files to toml
+autocmd({ "BufRead", "BufEnter" }, {
+    pattern = { "*jakrc*", "*xbarrc*" },
+    callback = function()
+        vim.opt_local.filetype = "toml"
+    end,
+})
