@@ -84,5 +84,11 @@ xnoremap("x", '"_x')
 nnoremap("X", '"_X')
 xnoremap("X", '"_X')
 
+-- Don't copy things that you've pasted over
+xnoremap("p", '"_dp')
+nnoremap("p", '"_dp')
+xnoremap("P", '"_dP')
+nnoremap("P", '"_dP')
+
 -- "SHIFT+ENTER" will continue comments, but regular "ENTER" won't
 inoremap("<S-Enter>", "<C-\\><C-O>:setl fo+=r<CR><CR><C-\\><C-O>:setl fo-=r<CR>")
