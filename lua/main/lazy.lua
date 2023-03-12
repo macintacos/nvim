@@ -121,7 +121,7 @@ require("lazy").setup({
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
     { "mbbill/undotree" }, -- undo manager
     { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
-    { "noib3/nvim-cokeline" }, -- a nice bufferline
+    -- { "noib3/nvim-cokeline" }, -- a nice bufferline
     { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
     { "simrat39/symbols-outline.nvim", config = true }, -- outline for symbols
