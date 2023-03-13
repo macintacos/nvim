@@ -67,6 +67,10 @@
     "branch": "main",
     "commit": "4c1739137acd3e7f03e2065a7be8a4dc41c7e461"
   },
+  "fold-preview.nvim": {
+    "branch": "main",
+    "commit": "b7920cb0aba2b48a6b679bff45f98c3ebc0f0b89"
+  },
   "friendly-snippets": {
     "branch": "main",
     "commit": "2f5b8a41659a19bd602497a35da8d81f1e88f6d9"

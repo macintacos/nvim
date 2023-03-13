@@ -199,7 +199,8 @@ require("lazy").setup({
     { "stevearc/stickybuf.nvim" }, -- makes it so that certain filetypes don't accidentally buffers stuffed in them
     { "tpope/vim-eunuch" }, -- access common shell commands
     { "tpope/vim-fugitive" }, -- git functionality basically everywhere
-    { "SidOfc/mkdx" },
+    { "SidOfc/mkdx" }, -- markdown helper stuff
+    { "anuvyklack/fold-preview.nvim" }, -- shows previews of folds
 
     --[[ UTILITY: END ]]
 }, lazy_options)
