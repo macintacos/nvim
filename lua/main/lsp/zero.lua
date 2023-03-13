@@ -24,7 +24,7 @@ lsp.ensure_installed({
     "nimls",
     "pyright",
     "rust_analyzer",
-    "sumneko_lua",
+    "lua_ls",
     "tailwindcss",
     "terraformls",
     "tflint",
@@ -37,7 +37,7 @@ lsp.set_preferences({
     set_lsp_keymaps = { omit = { "K", "<C-k>" } },
 })
 
-lsp.configure("sumneko_lua", {
+lsp.configure("lua_ls", {
     settings = {
         Lua = {
             workspace = {
