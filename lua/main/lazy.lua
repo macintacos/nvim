@@ -180,11 +180,11 @@ require("lazy").setup({
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
     { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
     {
-        "iamcco/markdown-preview.nvim",
+        "iamcco/markdown-preview.nvim", -- markdown previews
         build = function()
             vim.fn["mkdp#util#install"]()
         end,
-    }, -- markdown previews
+    },
     { "jeffkreeftmeijer/vim-numbertoggle" }, -- change line numbers for unfocused buffers
     { "justinmk/vim-gtfo" }, -- commands that let you invoke other applications
     { "kazhala/close-buffers.nvim", config = true }, -- mo' better buffer deletion

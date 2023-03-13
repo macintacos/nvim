@@ -17,7 +17,6 @@ lsp.ensure_installed({
     "cmake",
     "cssls",
     "dockerls",
-    "eslint",
     "gopls",
     "html",
     "jsonls",

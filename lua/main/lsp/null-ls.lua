@@ -1,59 +1,66 @@
--- From: https://github.com/VonHeikemen/lsp-zero.nvim/blob/2a90604fcbf4bee9e3407a8ee1b224bb2cbb6563/advance-usage.md?plain=1#L420
-
+-- Following: https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTIN_CONFIG.md
 local null_ls = require("null-ls")
-local mason_null_ls = require("mason-null-ls")
+local actions = null_ls.builtins.code_actions
+local diag = null_ls.builtins.diagnostics
+local fmt = null_ls.builtins.formatting
+local hover = null_ls.builtins.hover
+local cmp = null_ls.builtins.completion
 
-mason_null_ls.setup({
-    automatic_installation = false,
-    automatic_setup = true,
+null_ls.setup({
+    sources = {
+        -- Formatters
+        fmt.black,
+        fmt.fish_indent,
+        fmt.gofumpt,
+        fmt.goimports,
+        fmt.golines,
+        fmt.just,
+        fmt.nimpretty,
+        fmt.prettier.with({
+            args = { "--no-prose-wrap" },
+        }),
+        fmt.ruff,
+        fmt.rustfmt,
+        fmt.rustywind,
+        fmt.shfmt,
+        fmt.stylua,
+        fmt.taplo,
+        fmt.terrafmt,
+        fmt.trim_whitespace,
+        fmt.yamlfmt,
 
-    ensure_installed = {
-        "black",
-        "commitlint",
-        "dictionary",
-        "dotenv_linter",
-        "eslint",
-        "fish",
-        "fish_indent",
-        "gitsigns",
-        "gofumpt",
-        "goimports",
-        "golines",
-        "hadolint",
-        "isort",
-        "isort",
-        "jq",
-        "just",
-        "luacheck",
-        "markdownlint",
-        "mypy",
-        "nimpretty",
-        "prettier",
-        "printenv",
-        "pydocstyle",
-        "pylint",
-        "refactoring",
-        "remark",
-        "rustfmt",
-        "rustywind",
-        "shellcheck",
-        "shellharden",
-        "shfmt",
-        "spell",
-        "stylelint",
-        "stylua",
-        "taplo",
-        "terrafmt",
-        "terraform_fmt",
-        "trim_whitespace",
-        "vint",
-        "vulture",
-        "yamlfmt",
-        "yamllint",
+        -- Diagnostics
+        diag.commitlint,
+        diag.dotenv_linter,
+        diag.eslint,
+        diag.fish,
+        diag.hadolint,
+        diag.luacheck,
+        diag.markdownlint,
+        diag.mypy,
+        diag.ruff,
+        diag.shellcheck,
+        diag.stylelint,
+        diag.vint,
+        diag.vulture,
+        diag.yamllint,
+
+        -- Hovers
+        hover.dictionary,
+        hover.printenv,
+
+        -- Actions
+        actions.gitsigns,
+        actions.refactoring,
+        actions.shellcheck,
+
+        -- Completions
+        cmp.spell,
     },
 })
 
--- Following: https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTIN_CONFIG.md
-null_ls.setup()
-
-mason_null_ls.setup_handlers({})
+require("mason-null-ls").setup({
+    automatic_installation = true,
+    automatic_setup = false,
+    ensure_installed = nil,
+})
