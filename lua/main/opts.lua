@@ -54,12 +54,11 @@ vim.opt.wrap = false
         - Run `pyenv activate neovim 3 && pip install neovim`
         - To get the string below, run `pyenv which python`
 ]]
-vim.g.python3_host_prog = "/Users/macinburrito/.pyenv/versions/neovim3/bin/python"
+vim.g.python3_host_prog = vim.fn.expand("~/.pyenv/versions/neovim3/bin/python")
 
 -- Filetype-specific settings
 vim.cmd([[
     autocmd FileType css setlocal shiftwidth=2 softtabstop=2 tabstop=2
-    autocmd FileType markdown setlocal textwidth=90
 
     " when pressing <enter> in a comment, don't continue the comment (see the shift+enter binding in remap.lua)
     autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
