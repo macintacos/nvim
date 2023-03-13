@@ -100,6 +100,7 @@ require("lazy").setup({
     { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
     { "petertriho/nvim-scrollbar", config = true }, -- adds a scrollbar, similar to vscode
     { "lewis6991/gitsigns.nvim" }, -- git integration with the editor to provide better line-by-line info
+    { "mvllow/modes.nvim" },
     -- { "rcarriga/nvim-notify" }, -- adds decent-looking notification banners for common operations
 
     --[[ APPEARANCE: END ]]
@@ -170,7 +171,7 @@ require("lazy").setup({
     { "ray-x/lsp_signature.nvim", config = true }, -- nicer signatures when writing code
     { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "tpope/vim-repeat" }, -- repeat functionality integration for plugins
-    { "tpope/vim-surround" }, -- indispensible text surrounding helper functions
+    { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
     { "wellle/targets.vim" }, -- more text objects
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     { "RRethy/vim-illuminate" }, -- highlight words under the cursor

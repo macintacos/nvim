@@ -211,6 +211,10 @@
     "branch": "main",
     "commit": "75210c554e935740448cfb532d8a671ae544bb1b"
   },
+  "nvim-surround": {
+    "branch": "main",
+    "commit": "177c95c12542cf20a422b19a87ba1ae80254445a"
+  },
   "nvim-treesitter": {
     "branch": "master",
     "commit": "5b505f565816bc7e8c08605285ab78ecd7ca5945"
@@ -386,10 +390,6 @@
   "vim-smartq": {
     "branch": "main",
     "commit": "5d863e4c6b1467d5831e14e078a614fab6836a08"
-  },
-  "vim-surround": {
-    "branch": "master",
-    "commit": "3d188ed2113431cf8dac77be61b842acb64433d9"
   },
   "vim-textobj-sentence": {
     "branch": "master",
