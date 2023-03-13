@@ -9,6 +9,9 @@ require("lualine").setup({
                 cond = require("lazy.status").has_updates,
                 color = { fg = "#ff9e64" },
             },
+            {
+                require("recorder").recordingStatus(),
+            },
         },
     },
 })

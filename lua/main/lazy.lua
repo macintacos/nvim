@@ -175,6 +175,7 @@ require("lazy").setup({
     { "wellle/targets.vim" }, -- more text objects
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     { "RRethy/vim-illuminate" }, -- highlight words under the cursor
+    { "chrisgrieser/nvim-recorder" }, -- simplify using macros
 
     ---Enhanced Editor Behavior
     { "tpope/vim-sensible" }, -- sensible vim defaults

@@ -215,6 +215,10 @@
     "branch": "master",
     "commit": "4bb0f1845c5cc6465aecedc773fc2d619fcd8faf"
   },
+  "nvim-recorder": {
+    "branch": "main",
+    "commit": "89c1fb1139fac0a4b42faf54beaf363be104550b"
+  },
   "nvim-scrollbar": {
     "branch": "main",
     "commit": "75210c554e935740448cfb532d8a671ae544bb1b"
