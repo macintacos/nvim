@@ -2,6 +2,7 @@
 require("mini.ai").setup() -- more text objects
 require("mini.indentscope").setup() -- show scope of current cursor
 require("mini.trailspace").setup() -- highlight trailing spaces
+require("mini.bracketed").setup() -- use brackets to navigate around
 
 -- Modules w/ custom configs
 
