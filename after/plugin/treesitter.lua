@@ -34,4 +34,11 @@ require("nvim-treesitter.configs").setup({
         -- Instead of true it can also be a list of languages
         additional_vim_regex_highlighting = false,
     },
+
+    -- https://github.com/HiPhish/nvim-ts-rainbow2
+    rainbow = {
+        enable = true,
+        query = "rainbow-parens",
+        strategy = require("ts-rainbow.strategy.global"),
+    },
 })

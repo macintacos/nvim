@@ -231,6 +231,10 @@
     "branch": "master",
     "commit": "5b505f565816bc7e8c08605285ab78ecd7ca5945"
   },
+  "nvim-ts-rainbow2": {
+    "branch": "master",
+    "commit": "7711a873d1f16a9f3049715b63cdd71973108871"
+  },
   "nvim-web-devicons": {
     "branch": "master",
     "commit": "4ee637e0b1873efe1e901380f232799fa0764879"
