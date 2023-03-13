@@ -151,6 +151,10 @@
     "branch": "master",
     "commit": "fe7862463624e5fb186551ede702605d8d9322e3"
   },
+  "modes.nvim": {
+    "branch": "main",
+    "commit": "d65260b8b41fdaf6ceba8d569588ecd145e6a772"
+  },
   "neo-tree.nvim": {
     "branch": "v2.x",
     "commit": "205184aa0e0f08e8a1249d9bb37b45bae85f01b9"
