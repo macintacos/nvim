@@ -42,34 +42,8 @@ require("lazy").setup({
     { "nvim-lua/plenary.nvim" }, -- library that basically all plugins seem to use for whatever reason
 
     ---Language Features
-    { "folke/neodev.nvim" }, -- makes building your own config/lua plugins significantly easier
-    { "jayp0521/mason-null-ls.nvim" }, -- bridge for mason to null-ls
-    { "jose-elias-alvarez/null-ls.nvim" }, -- used for managing linters/formatters/etc. in lieu of direct Mason config
     { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- pretty/efficient highlighting
     { "NoahTheDuke/vim-just" },
-    {
-        "VonHeikemen/lsp-zero.nvim", -- configure LSPs for me. I hate that this isn't default behavior, but here we are.
-        dependencies = {
-            -- LSP Support
-            { "neovim/nvim-lspconfig" }, -- LSP configuration repository
-            { "williamboman/mason.nvim" }, -- A kind-of package manager for LSPs/DAPs/Linters/etc.
-            { "williamboman/mason-lspconfig.nvim" }, -- bridge for mason and lspconfig
-
-            -- Autocompletion
-            { "hrsh7th/nvim-cmp" }, -- handles completion
-            { "hrsh7th/cmp-buffer" }, -- gathers potential completion results from the buffer
-            { "hrsh7th/cmp-path" }, -- gathers potential completion results from paths
-            { "saadparwaiz1/cmp_luasnip" }, -- gathers potential completion results from luasnip snippets
-            { "hrsh7th/cmp-nvim-lsp" }, -- gathers potential completion results from the LSP
-            { "hrsh7th/cmp-nvim-lua" }, -- gathers potential completion results from lua
-            { "ray-x/cmp-treesitter" }, -- gathers potential completion results from treesitter
-            { "mtoohey31/cmp-fish", ft = "fish" }, -- gathers potential completion results for fish files
-
-            -- Snippets
-            { "L3MON4D3/LuaSnip" }, -- snippet manager
-            { "rafamadriz/friendly-snippets" }, -- another snipper manager
-        },
-    },
 
     --[[ ESSENTIAL: END ]]
 
@@ -82,20 +56,18 @@ require("lazy").setup({
     { "Mofiqul/dracula.nvim" },
     { "EdenEast/nightfox.nvim" },
     { "Yazeed1s/minimal.nvim" },
+    { "2nthony/vitesse.nvim" },
 
     ---Libraries (used by other plugins)
     { "MunifTanjim/nui.nvim" }, -- UI library, used in other plugins
     { "kyazdani42/nvim-web-devicons" }, -- adds icons to the neovim UI
-    { "onsails/lspkind-nvim" }, -- adds icons to autocomplete menu
     { "stevearc/dressing.nvim" }, -- UI library, used in other plugins
 
     ---Everything Else
     { "Mofiqul/trld.nvim" }, -- show diagnostic info @ top-left
     { "b0o/incline.nvim" }, -- adds the title of the file to the winbar
-    { "folke/lsp-colors.nvim", config = true }, -- adds some missing highlight groups for LSP diagnostics
     { "folke/noice.nvim", version = "^1.0.0" }, -- adds a bunch of new UI elements
     { "folke/paint.nvim" }, -- define arbitrary highlights in the editor
-    { "j-hui/fidget.nvim", config = true }, -- adds loading indicators for LSP
     { "nvim-lualine/lualine.nvim" }, -- status line plugin
     { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
     { "petertriho/nvim-scrollbar", config = true }, -- adds a scrollbar, similar to vscode
@@ -125,7 +97,6 @@ require("lazy").setup({
     { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
     { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
-    { "simrat39/symbols-outline.nvim", config = true }, -- outline for symbols
     {
         -- picker UI for many, many things
         "nvim-telescope/telescope.nvim",
@@ -133,7 +104,6 @@ require("lazy").setup({
     },
     { "nvim-telescope/telescope-github.nvim" }, -- integration with the GitHub CLI
     { "nvim-telescope/telescope-file-browser.nvim" }, -- file browser in telescope
-    { "nvim-telescope/telescope-project.nvim" }, -- project management
     {
         "nvim-telescope/telescope-fzf-native.nvim", -- use fzf as the sorting algorithm for telescope
         build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
@@ -156,19 +126,12 @@ require("lazy").setup({
     { "arthurxavierx/vim-caser" }, -- add commands to change case of things
     { "eraserhd/parinfer-rust", build = "cargo build --release" }, -- better parenthesis management
     { "folke/which-key.nvim" }, -- indispensible
-    { "ggandor/flit.nvim", config = { labeled_modes = "nv" } },
-    {
-        "ggandor/leap.nvim", -- code navigation
-        config = function()
-            require("leap").add_default_mappings()
-        end,
-    },
+    { "ggandor/flit.nvim", opts = { labeled_modes = "nv" } },
     { "inkarkat/vim-LineJuggler" }, -- duplicating lines and stuff like that
     { "mg979/vim-visual-multi", branch = "master" }, -- multiple cursors in neovim
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "numToStr/Comment.nvim", config = true }, -- code commenting plugin
     { "preservim/vim-textobj-sentence" }, -- text objects for sentences
-    { "ray-x/lsp_signature.nvim", config = true }, -- nicer signatures when writing code
     { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "tpope/vim-repeat" }, -- repeat functionality integration for plugins
     { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
@@ -176,6 +139,29 @@ require("lazy").setup({
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     { "gaoDean/autolist.nvim" }, -- list continuation stuff
     { "chrisgrieser/nvim-recorder" }, -- simplify using macros
+    {
+        "folke/flash.nvim",
+        event = "VeryLazy",
+        ---@type Flash.Config
+        opts = {},
+        keys = {
+            {
+                "s",
+                mode = { "n", "x", "o" },
+                function()
+                    -- default options: exact mode, multi window, all directions, with a backdrop
+                    require("flash").jump()
+                end,
+            },
+            {
+                "S",
+                mode = { "n", "o", "x" },
+                function()
+                    require("flash").treesitter()
+                end,
+            },
+        },
+    },
 
     ---Enhanced Editor Behavior
     { "RRethy/vim-illuminate" }, -- highlight words under the cursor

@@ -23,13 +23,6 @@ require("telescope").setup({
             ".venv",
         },
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-        -- find_command = {
-        --     "rg",
-        --     "--ignore",
-        --     "--hidden",
-        --     "--files",
-        --     "--smartcase",
-        -- },
 
         -- Appearance
         set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
@@ -108,9 +101,7 @@ require("telescope").load_extension("gh")
 require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
 require("telescope").load_extension("zoxide")
-require("telescope").load_extension("project")
 require("telescope").load_extension("file_browser")
--- require("telescope").load_extension("aerial")
 
 -- Zoxide-specific
 require("telescope._extensions.zoxide.config").setup({
