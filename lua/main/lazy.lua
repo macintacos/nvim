@@ -189,6 +189,7 @@ require("lazy").setup({
     { "tpope/vim-fugitive" }, -- git functionality basically everywhere
     { "SidOfc/mkdx" }, -- markdown helper stuff
     { "anuvyklack/fold-preview.nvim" }, -- shows previews of folds
+    { "anuvyklack/keymap-amend.nvim" }, -- keymaps for previews of folds
     { "NvChad/nvim-colorizer.lua" }, -- shows colors for valid sequences in open buffers
     { "HiPhish/nvim-ts-rainbow2" }, -- rainbow colors with treesitter
     { "anuvyklack/windows.nvim", config = true }, -- helps resize windows automatically
