@@ -50,13 +50,13 @@ require("lazy").setup({
     --[[ APPEARANCE: START ]]
 
     ---Themes
+    { "2nthony/vitesse.nvim" },
+    { "EdenEast/nightfox.nvim" },
+    { "Mofiqul/dracula.nvim" },
+    { "Yazeed1s/minimal.nvim" },
     { "challenger-deep-theme/vim" },
     { "folke/tokyonight.nvim" },
     { "nyoom-engineering/oxocarbon.nvim" },
-    { "Mofiqul/dracula.nvim" },
-    { "EdenEast/nightfox.nvim" },
-    { "Yazeed1s/minimal.nvim" },
-    { "2nthony/vitesse.nvim" },
 
     ---Libraries (used by other plugins)
     { "MunifTanjim/nui.nvim" }, -- UI library, used in other plugins
@@ -68,19 +68,19 @@ require("lazy").setup({
     { "b0o/incline.nvim" }, -- adds the title of the file to the winbar
     { "folke/noice.nvim", version = "^1.0.0" }, -- adds a bunch of new UI elements
     { "folke/paint.nvim" }, -- define arbitrary highlights in the editor
-    { "nvim-lualine/lualine.nvim" }, -- status line plugin
     { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
-    { "petertriho/nvim-scrollbar", config = true }, -- adds a scrollbar, similar to vscode
     { "lewis6991/gitsigns.nvim" }, -- git integration with the editor to provide better line-by-line info
     { "mvllow/modes.nvim" }, -- colors the cursor and highlights lines depending on mode you're in
+    { "nvim-lualine/lualine.nvim" }, -- status line plugin
+    { "petertriho/nvim-scrollbar", config = true }, -- adds a scrollbar, similar to vscode
 
     --[[ APPEARANCE: END ]]
 
     --[[ UTILITY: START]]
     ---Libraries
+    { "anuvyklack/middleclass" }, -- OOP library for lua
     { "inkarkat/vim-ingo-library" },
     { "romgrk/fzy-lua-native" }, -- fzf library for lua
-    { "anuvyklack/middleclass" }, -- OOP library for lua
 
     ---Interactive UIs
     { "crispgm/telescope-heading.nvim" }, -- add ability to navigate by headers in a Markdown/RST document
@@ -94,9 +94,9 @@ require("lazy").setup({
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
     { "mbbill/undotree" }, -- undo manager
     { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
+    { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
     { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
-    { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
     {
         -- picker UI for many, many things
         "nvim-telescope/telescope.nvim",
@@ -124,21 +124,21 @@ require("lazy").setup({
     { "andymass/vim-matchup" }, -- better %
     { "anuvyklack/hydra.nvim" }, -- hydra, but for neovim!
     { "arthurxavierx/vim-caser" }, -- add commands to change case of things
+    { "chrisgrieser/nvim-recorder" }, -- simplify using macros
     { "eraserhd/parinfer-rust", build = "cargo build --release" }, -- better parenthesis management
     { "folke/which-key.nvim" }, -- indispensible
+    { "gaoDean/autolist.nvim" }, -- list continuation stuff
+    { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "ggandor/flit.nvim", opts = { labeled_modes = "nv" } },
     { "inkarkat/vim-LineJuggler" }, -- duplicating lines and stuff like that
+    { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
     { "mg979/vim-visual-multi", branch = "master" }, -- multiple cursors in neovim
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "numToStr/Comment.nvim", config = true }, -- code commenting plugin
     { "preservim/vim-textobj-sentence" }, -- text objects for sentences
-    { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "tpope/vim-repeat" }, -- repeat functionality integration for plugins
-    { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
     { "wellle/targets.vim" }, -- more text objects
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
-    { "gaoDean/autolist.nvim" }, -- list continuation stuff
-    { "chrisgrieser/nvim-recorder" }, -- simplify using macros
     {
         "folke/flash.nvim",
         event = "VeryLazy",
@@ -164,8 +164,14 @@ require("lazy").setup({
     },
 
     ---Enhanced Editor Behavior
+    { "Bekaboo/deadcolumn.nvim", config = true },
+    { "HiPhish/nvim-ts-rainbow2" }, -- rainbow colors with treesitter
+    { "NvChad/nvim-colorizer.lua" }, -- shows colors for valid sequences in open buffers
     { "RRethy/vim-illuminate" }, -- highlight words under the cursor
-    { "tpope/vim-sensible" }, -- sensible vim defaults
+    { "SidOfc/mkdx" }, -- markdown helper stuff
+    { "anuvyklack/fold-preview.nvim" }, -- shows previews of folds
+    { "anuvyklack/keymap-amend.nvim" }, -- keymaps for previews of folds
+    { "anuvyklack/windows.nvim", config = true }, -- helps resize windows automatically
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
     { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
     {
@@ -180,6 +186,7 @@ require("lazy").setup({
     { "kevinhwang91/nvim-hlslens" }, -- better highlighting when searching
     { "luukvbaal/stabilize.nvim", config = true }, -- predictable split creation. TODO: Remove when neovim 0.9.0 is released (ref: https://github.com/neovim/neovim/pull/19243)
     { "marklcrns/vim-smartq" }, -- 'q' now does better things
+    { "mong8se/actually.nvim" }, -- helps you open the files you meant to open
     { "nacro90/numb.nvim", config = true }, -- peek line numbers when using ":#"
     { "ojroques/nvim-bufdel" }, -- better buffer deletion
     { "rhysd/committia.vim" }, -- better commit interface
@@ -187,13 +194,7 @@ require("lazy").setup({
     { "stevearc/stickybuf.nvim" }, -- makes it so that certain filetypes don't accidentally buffers stuffed in them
     { "tpope/vim-eunuch" }, -- access common shell commands
     { "tpope/vim-fugitive" }, -- git functionality basically everywhere
-    { "SidOfc/mkdx" }, -- markdown helper stuff
-    { "anuvyklack/fold-preview.nvim" }, -- shows previews of folds
-    { "anuvyklack/keymap-amend.nvim" }, -- keymaps for previews of folds
-    { "NvChad/nvim-colorizer.lua" }, -- shows colors for valid sequences in open buffers
-    { "HiPhish/nvim-ts-rainbow2" }, -- rainbow colors with treesitter
-    { "anuvyklack/windows.nvim", config = true }, -- helps resize windows automatically
-    { "mong8se/actually.nvim" }, -- helps you open the files you meant to open
+    { "tpope/vim-sensible" }, -- sensible vim defaults
 
     --[[ UTILITY: END ]]
 }, lazy_options)
