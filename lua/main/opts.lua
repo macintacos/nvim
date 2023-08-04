@@ -8,7 +8,7 @@ TODO: move the FileType commands to their own dedicated files (after/ftplugin? i
 vim.opt.autoindent = true
 vim.opt.autoread = true
 vim.opt.clipboard:prepend({ "unnamedplus" })
-vim.opt.colorcolumn = "9999"
+vim.opt.colorcolumn = "88"
 vim.opt.completeopt = "menuone,noselect"
 vim.opt.confirm = true
 vim.opt.cursorline = true
