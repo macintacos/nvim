@@ -84,7 +84,6 @@ require("lazy").setup({
 
     ---Interactive UIs
     { "crispgm/telescope-heading.nvim" }, -- add ability to navigate by headers in a Markdown/RST document
-    { "dhruvmanila/telescope-bookmarks.nvim" }, -- add ability to jump to bookmarks using Telescope
     { "folke/todo-comments.nvim" }, -- adds nicer TODO-style comment behavior
     { "folke/trouble.nvim" }, -- fancier quickfix
     { "folke/zen-mode.nvim", config = true }, -- focus on a single buffer
@@ -94,7 +93,6 @@ require("lazy").setup({
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
     { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
     { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
-    { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
     {
         -- picker UI for many, many things
@@ -124,14 +122,12 @@ require("lazy").setup({
     { "anuvyklack/hydra.nvim" }, -- hydra, but for neovim!
     { "arthurxavierx/vim-caser" }, -- add commands to change case of things
     { "chrisgrieser/nvim-recorder" }, -- simplify using macros
-    { "eraserhd/parinfer-rust", build = "cargo build --release" }, -- better parenthesis management
     { "folke/which-key.nvim" }, -- indispensible
     { "gaoDean/autolist.nvim" }, -- list continuation stuff
     { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "ggandor/flit.nvim", opts = { labeled_modes = "nv" } },
     { "inkarkat/vim-LineJuggler" }, -- duplicating lines and stuff like that
     { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
-    { "mg979/vim-visual-multi", branch = "master" }, -- multiple cursors in neovim
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "numToStr/Comment.nvim", config = true }, -- code commenting plugin
     { "preservim/vim-textobj-sentence" }, -- text objects for sentences
@@ -142,7 +138,9 @@ require("lazy").setup({
         "folke/flash.nvim",
         event = "VeryLazy",
         ---@type Flash.Config
-        opts = {},
+        opts = {
+            hint_config = false,
+        },
         keys = {
             {
                 "s",
@@ -173,12 +171,6 @@ require("lazy").setup({
     { "anuvyklack/windows.nvim", config = true }, -- helps resize windows automatically
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
     { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
-    {
-        "iamcco/markdown-preview.nvim", -- markdown previews
-        build = function()
-            vim.fn["mkdp#util#install"]()
-        end,
-    },
     { "jeffkreeftmeijer/vim-numbertoggle" }, -- change line numbers for unfocused buffers
     { "justinmk/vim-gtfo" }, -- commands that let you invoke other applications
     { "kazhala/close-buffers.nvim", config = true }, -- mo' better buffer deletion
