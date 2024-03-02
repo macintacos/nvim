@@ -44,7 +44,7 @@ vim.opt.updatetime = 50 -- smaller updatetime for CursorHold & CursorHoldI
 vim.opt.wildmenu = true
 vim.opt.wildmode = { "longest:full", "full" }
 vim.opt.wildoptions = "pum"
-vim.opt.wrap = false
+vim.opt.wrap = true
 
 -- Python things for neovim's usage
 --[[
