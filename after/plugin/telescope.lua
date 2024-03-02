@@ -79,26 +79,11 @@ require("telescope").setup({
         zoxide = { theme = "ivy" },
     },
 
-    extensions = {
-        bookmarks = {
-            selected_browser = "google_chrome",
-            url_open_command = "open",
-            bookmarks = require("telescope.themes").get_dropdown({
-                width = 0.8,
-                results_height = 0.8,
-                sorting_strategy = "descending",
-                layout_defaults = {
-                    horizontal = { mirror = false },
-                    vertical = { mirror = false },
-                },
-            }),
-        },
-    },
+    extensions = {},
 })
 
 -- Extension Loading
 require("telescope").load_extension("gh")
-require("telescope").load_extension("bookmarks")
 require("telescope").load_extension("heading")
 require("telescope").load_extension("zoxide")
 require("telescope").load_extension("file_browser")
