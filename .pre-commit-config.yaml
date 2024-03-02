@@ -1,9 +1,9 @@
 ---
 repos:
   - repo: https://github.com/JohnnyMorganz/StyLua
-    rev: v0.16.0
+    rev: v0.20.0
     hooks:
-      - id: stylua # or stylua-system / stylua-github
+      - id: stylua-github
         args: ["--config-path", "stylua.toml"]
   - repo: https://github.com/google/yamlfmt
     rev: v0.7.1
