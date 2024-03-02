@@ -12,12 +12,8 @@ vim.keymap.set("n", "<CR>", "<cmd>AutolistToggleCheckbox<cr><CR>")
 vim.keymap.set("n", "<C-r>", "<cmd>AutolistRecalculate<cr>")
 
 -- cycle list types with dot-repeat
-vim.keymap.set("n", "<leader>cn", require("autolist").cycle_next_dr, { expr = true })
-vim.keymap.set("n", "<leader>cp", require("autolist").cycle_prev_dr, { expr = true })
-
--- if you don't want dot-repeat
--- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
--- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
+vim.keymap.set("n", "<leader>cn", autolist.cycle_next_dr, { expr = true })
+vim.keymap.set("n", "<leader>cp", autolist.cycle_prev_dr, { expr = true })
 
 -- functions to recalculate list on edit
 vim.keymap.set("n", ">>", ">><cmd>AutolistRecalculate<cr>")

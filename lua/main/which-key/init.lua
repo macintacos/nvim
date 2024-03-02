@@ -1,7 +1,7 @@
 --- Configs defined at "this level"
 require("main.which-key.g")
+require("main.which-key.leader")
 require("main.which-key.brackets")
-require("main.which-key.vmm") -- vim-visual-multi
 
 --- Collections
 require("main.which-key.leader")

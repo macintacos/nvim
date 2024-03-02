@@ -43,7 +43,6 @@ vim.g.smartq_no_exit = 0
 vim.g.smartq_auto_close_splits = 0
 
 --[[ PLUGIN INTEGRATIONS ]]
--- When a plugin is disabled, use built-in fallbacks
 
 -- Enable Goyo
 vim.g.smartq_goyo_integration = 1

@@ -1,9 +1,9 @@
 local function get_diagnostic_label(props)
     local icons = {
-        Error = "",
-        Warn = "",
-        Info = "",
-        Hint = "",
+        Error = " ",
+        Warn = " ",
+        Info = " ",
+        Hint = "󰟶 ",
     }
 
     local label = {}

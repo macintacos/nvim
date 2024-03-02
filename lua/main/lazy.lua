@@ -44,6 +44,14 @@ require("lazy").setup({
     ---Language Features
     { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- pretty/efficient highlighting
     { "NoahTheDuke/vim-just" },
+    {
+        -- snippet manager
+        "L3MON4D3/LuaSnip",
+        build = "make install_jsregexp",
+        dependencies = {
+            "rafamadriz/friendly-snippets",
+        },
+    },
 
     --[[ ESSENTIAL: END ]]
 
@@ -66,7 +74,7 @@ require("lazy").setup({
     ---Everything Else
     { "Mofiqul/trld.nvim" }, -- show diagnostic info @ top-left
     { "b0o/incline.nvim" }, -- adds the title of the file to the winbar
-    { "folke/noice.nvim", version = "^1.0.0" }, -- adds a bunch of new UI elements
+    { "folke/noice.nvim", version = "^1.0" }, -- adds a bunch of new UI elements
     { "folke/paint.nvim" }, -- define arbitrary highlights in the editor
     { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
     { "lewis6991/gitsigns.nvim" }, -- git integration with the editor to provide better line-by-line info
@@ -78,72 +86,110 @@ require("lazy").setup({
 
     --[[ UTILITY: START]]
     ---Libraries
-    { "anuvyklack/middleclass" }, -- OOP library for lua
     { "inkarkat/vim-ingo-library" },
     { "romgrk/fzy-lua-native" }, -- fzf library for lua
+    { "anuvyklack/middleclass" }, -- OOP library for lua
 
     ---Interactive UIs
     { "crispgm/telescope-heading.nvim" }, -- add ability to navigate by headers in a Markdown/RST document
     { "folke/todo-comments.nvim" }, -- adds nicer TODO-style comment behavior
     { "folke/trouble.nvim" }, -- fancier quickfix
     { "folke/zen-mode.nvim", config = true }, -- focus on a single buffer
-    { "ibhagwan/fzf-lua" }, -- fzf picker, for things where telescope falls down. Preferred.
+    {
+        -- fzf picker, for things where telescope falls down. Preferred.
+        "ibhagwan/fzf-lua",
+        config = function()
+            require("fzf-lua").setup({
+                fzf_colors = {
+                    ["bg"] = { "bg", "CursorLine" },
+                },
+                file_ignore_patterns = { "neodev.nvim", "~/.local", "/opt/homebrew" },
+            })
+        end,
+    },
     { "jvgrootveld/telescope-zoxide" }, -- integrate zoxide into the Telescope picker
     { "kdheepak/lazygit.nvim" }, -- lazygit in neovim
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
-    { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
-    { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
+    { "mrjones2014/legendary.nvim", version = "^2.1", config = true }, -- a picker for finding neovim commands
     { "pwntester/octo.nvim" }, -- GitHub UI/command library
+    { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
+
+    -- Telescope
     {
-        -- picker UI for many, many things
         "nvim-telescope/telescope.nvim",
         dependencies = { "nvim-lua/popup.nvim" },
     },
     { "nvim-telescope/telescope-github.nvim" }, -- integration with the GitHub CLI
     { "nvim-telescope/telescope-file-browser.nvim" }, -- file browser in telescope
+    { "nvim-telescope/telescope-project.nvim" }, -- project management
     {
         "nvim-telescope/telescope-fzf-native.nvim", -- use fzf as the sorting algorithm for telescope
         build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
     },
     {
         "nvim-neo-tree/neo-tree.nvim",
-        version = "^2.0.0",
+        version = "^2.0",
         dependencies = {
             {
                 -- Allows use of the commands with "_with_window_picker" suffix
                 "s1n7ax/nvim-window-picker",
-                version = "^1.0.0",
+                version = "^1.0",
             },
         },
     },
 
     ---Navigation/Text Manipulation
-    { "andymass/vim-matchup" }, -- better %
+    {
+        "andymass/vim-matchup", -- better %
+        config = function()
+            -- Additional config is in treesitter.lua
+            vim.g.matchup_matchparen_offscreen = { method = "popup" }
+        end,
+    },
     { "anuvyklack/hydra.nvim" }, -- hydra, but for neovim!
     { "arthurxavierx/vim-caser" }, -- add commands to change case of things
-    { "chrisgrieser/nvim-recorder" }, -- simplify using macros
+    {
+        "chrisgrieser/nvim-recorder", -- simplify using macros
+        config = function()
+            require("recorder").setup({
+                mapping = {
+                    startStopRecording = "r",
+                    playMacro = "R",
+                    editMacro = "cr",
+                    yankMacro = "yr",
+                },
+            })
+        end,
+    },
     { "folke/which-key.nvim" }, -- indispensible
-    { "gaoDean/autolist.nvim" }, -- list continuation stuff
-    { "gbprod/yanky.nvim" }, -- better copying/pasting
-    { "ggandor/flit.nvim", opts = { labeled_modes = "nv" } },
     { "inkarkat/vim-LineJuggler" }, -- duplicating lines and stuff like that
-    { "kylechui/nvim-surround" }, -- indispensible text surrounding helper functions
     { "monaqa/dial.nvim" }, -- better '<C-a>'/etc. bindings
     { "numToStr/Comment.nvim", config = true }, -- code commenting plugin
     { "preservim/vim-textobj-sentence" }, -- text objects for sentences
+    { "gbprod/yanky.nvim" }, -- better copying/pasting
     { "tpope/vim-repeat" }, -- repeat functionality integration for plugins
+    { "kylechui/nvim-surround", config = true }, -- indispensible text surrounding helper functions
     { "wellle/targets.vim" }, -- more text objects
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     {
+        "gaoDean/autolist.nvim",
+        ft = {
+            "markdown",
+            "text",
+            "tex",
+            "plaintex",
+            "norg",
+        },
+    }, -- list continuation stuff
+    {
         "folke/flash.nvim",
         event = "VeryLazy",
-        ---@type Flash.Config
         opts = {
             hint_config = false,
         },
         keys = {
             {
-                "s",
+                "f",
                 mode = { "n", "x", "o" },
                 function()
                     -- default options: exact mode, multi window, all directions, with a backdrop
@@ -151,7 +197,7 @@ require("lazy").setup({
                 end,
             },
             {
-                "S",
+                "F",
                 mode = { "n", "o", "x" },
                 function()
                     require("flash").treesitter()
@@ -164,25 +210,69 @@ require("lazy").setup({
     { "Bekaboo/deadcolumn.nvim", config = true },
     { "HiPhish/nvim-ts-rainbow2" }, -- rainbow colors with treesitter
     { "NvChad/nvim-colorizer.lua" }, -- shows colors for valid sequences in open buffers
-    { "RRethy/vim-illuminate" }, -- highlight words under the cursor
+    {
+        "RRethy/vim-illuminate", -- highlight words under the cursor
+        config = function()
+            require("illuminate").configure({
+                delay = 200,
+                under_cursor = false,
+            })
+        end,
+    },
     { "SidOfc/mkdx" }, -- markdown helper stuff
-    { "anuvyklack/fold-preview.nvim" }, -- shows previews of folds
-    { "anuvyklack/keymap-amend.nvim" }, -- keymaps for previews of folds
+    {
+        -- shows previews of folds
+        "anuvyklack/fold-preview.nvim",
+        config = function()
+            require("fold-preview").setup({
+                auto = 400,
+            })
+        end,
+        dependencies = { "anuvyklack/keymap-amend.nvim" },
+    },
     { "anuvyklack/windows.nvim", config = true }, -- helps resize windows automatically
     { "dhruvasagar/vim-prosession", dependencies = { "tpope/vim-obsession" } }, -- better session management
     { "echasnovski/mini.nvim" }, -- library of interesting modules for better editor behavior
+    {
+        "iamcco/markdown-preview.nvim", -- markdown previews
+        build = function()
+            vim.fn["mkdp#util#install"]()
+        end,
+    },
     { "jeffkreeftmeijer/vim-numbertoggle" }, -- change line numbers for unfocused buffers
-    { "justinmk/vim-gtfo" }, -- commands that let you invoke other applications
+    {
+        "justinmk/vim-gtfo", -- commands that let you invoke other applications
+        config = function()
+            vim.cmd([[ let g:gtfo#terminals = { 'mac': 'iterm' } ]])
+        end,
+    },
     { "kazhala/close-buffers.nvim", config = true }, -- mo' better buffer deletion
     { "kevinhwang91/nvim-hlslens" }, -- better highlighting when searching
     { "luukvbaal/stabilize.nvim", config = true }, -- predictable split creation. TODO: Remove when neovim 0.9.0 is released (ref: https://github.com/neovim/neovim/pull/19243)
     { "marklcrns/vim-smartq" }, -- 'q' now does better things
     { "mong8se/actually.nvim" }, -- helps you open the files you meant to open
     { "nacro90/numb.nvim", config = true }, -- peek line numbers when using ":#"
-    { "ojroques/nvim-bufdel" }, -- better buffer deletion
+    {
+        -- better buffer deletion
+        "ojroques/nvim-bufdel",
+        config = function()
+            require("bufdel").setup({
+                quit = false,
+            })
+        end,
+    },
     { "rhysd/committia.vim" }, -- better commit interface
     { "smjonas/inc-rename.nvim", config = true },
-    { "stevearc/stickybuf.nvim" }, -- makes it so that certain filetypes don't accidentally buffers stuffed in them
+    {
+        "stevearc/stickybuf.nvim", -- makes it so that certain filetypes don't accidentally buffers stuffed in them
+        config = function()
+            require("stickybuf").setup({
+                get_auto_pin = function(bufnr)
+                    return require("stickybuf").should_auto_pin(bufnr)
+                end,
+            })
+        end,
+    },
     { "tpope/vim-eunuch" }, -- access common shell commands
     { "tpope/vim-fugitive" }, -- git functionality basically everywhere
     { "tpope/vim-sensible" }, -- sensible vim defaults
