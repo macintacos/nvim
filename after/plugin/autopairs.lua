@@ -38,7 +38,7 @@ npairs.add_rules({
         :use_key("]"),
 
     -- Add a space after and before "=" _unless_ we are in a specific filetype
-    Rule("=", "", { "-bash", "-sh", "-zsh", "-fish" })
+    Rule("=", "", { "-bash", "-sh", "-zsh", "-fish", "-yaml" })
         :with_pair(cond.not_inside_quote())
         :with_pair(function(opts)
             local last_char = opts.line:sub(opts.col - 1, opts.col - 1)
