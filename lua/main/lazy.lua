@@ -92,7 +92,6 @@ require("lazy").setup({
     { "jvgrootveld/telescope-zoxide" }, -- integrate zoxide into the Telescope picker
     { "kdheepak/lazygit.nvim" }, -- lazygit in neovim
     { "kevinhwang91/nvim-bqf", ft = "qf", config = true }, -- enhancements to the quickfix menu
-    { "mbbill/undotree" }, -- undo manager
     { "mrjones2014/legendary.nvim", version = "^2.1.0", config = true }, -- a picker for finding neovim commands
     { "nvim-colortils/colortils.nvim", config = true }, -- color GUI helper tool
     { "nvim-treesitter/playground", build = ":TSInstall query" }, -- playground for treesitter, just because
