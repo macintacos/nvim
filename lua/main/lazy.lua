@@ -60,11 +60,9 @@ require("lazy").setup({
     ---Themes
     { "2nthony/vitesse.nvim" },
     { "EdenEast/nightfox.nvim" },
-    { "Mofiqul/dracula.nvim" },
-    { "Yazeed1s/minimal.nvim" },
     { "challenger-deep-theme/vim" },
-    { "folke/tokyonight.nvim" },
     { "nyoom-engineering/oxocarbon.nvim" },
+    { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 
     ---Libraries (used by other plugins)
     { "MunifTanjim/nui.nvim" }, -- UI library, used in other plugins
@@ -76,7 +74,15 @@ require("lazy").setup({
     { "b0o/incline.nvim" }, -- adds the title of the file to the winbar
     { "folke/noice.nvim", version = "^1.0" }, -- adds a bunch of new UI elements
     { "folke/paint.nvim" }, -- define arbitrary highlights in the editor
-    { "levouh/tint.nvim" }, -- tinting windows other than the current buffer
+    {
+        "levouh/tint.nvim", -- tinting windows other than the current buffer
+        config = function()
+            transforms = {
+                require("tint.transforms").tint_with_threshold(-100, "#10121E", 150), -- Try to tint by `-100`, but keep all colors at least `150` away from `#10121E`
+                require("tint.transforms").saturate(0.5),
+            }
+        end,
+    },
     { "lewis6991/gitsigns.nvim" }, -- git integration with the editor to provide better line-by-line info
     { "mvllow/modes.nvim" }, -- colors the cursor and highlights lines depending on mode you're in
     { "nvim-lualine/lualine.nvim" }, -- status line plugin
@@ -209,7 +215,7 @@ require("lazy").setup({
     ---Enhanced Editor Behavior
     { "Bekaboo/deadcolumn.nvim", config = true },
     { "HiPhish/nvim-ts-rainbow2" }, -- rainbow colors with treesitter
-    { "NvChad/nvim-colorizer.lua" }, -- shows colors for valid sequences in open buffers
+    { "brenoprata10/nvim-highlight-colors", config = true }, -- shows colors for valid sequences in open buffers
     {
         "RRethy/vim-illuminate", -- highlight words under the cursor
         config = function()

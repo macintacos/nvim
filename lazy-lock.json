@@ -15,6 +15,10 @@
     "branch": "main",
     "commit": "5f70a5f99e96c8fe3069de042abd2a8ed2deb855"
   },
+  "catppuccin": {
+    "branch": "main",
+    "commit": "c0de3b46811fe1ce3912e2245a9dfbea6b41c300"
+  },
   "close-buffers.nvim": {
     "branch": "master",
     "commit": "3acbcad1211572342632a6c0151f839e7dead27f"
@@ -34,10 +38,6 @@
   "dial.nvim": {
     "branch": "master",
     "commit": "27eb570085db2ef44bff4f620d3806039184651c"
-  },
-  "dracula.nvim": {
-    "branch": "main",
-    "commit": "8d8bddb8814c3e7e62d80dda65a9876f97eb699c"
   },
   "dressing.nvim": {
     "branch": "master",
@@ -111,10 +111,6 @@
     "branch": "main",
     "commit": "b4215b3be270e01efd07110bd6970f7445cf12f2"
   },
-  "minimal.nvim": {
-    "branch": "main",
-    "commit": "22d837b814d3bd22625640ef63cc73b8507f291d"
-  },
   "mkdx": {
     "branch": "master",
     "commit": "ee667cad506954b706c3fa972fbaaad46b1bf028"
@@ -155,9 +151,9 @@
     "branch": "main",
     "commit": "523d58e94e7212fff3e05c247b962dc8f93bcfde"
   },
-  "nvim-colorizer.lua": {
-    "branch": "master",
-    "commit": "85855b38011114929f4058efc97af1059ab3e41d"
+  "nvim-highlight-colors": {
+    "branch": "main",
+    "commit": "f89156fdadd24f35dc16f03102654d72094af1be"
   },
   "nvim-hlslens": {
     "branch": "main",
@@ -258,10 +254,6 @@
   "todo-comments.nvim": {
     "branch": "main",
     "commit": "833d8dd8b07eeda37a09e99460f72a02616935cb"
-  },
-  "tokyonight.nvim": {
-    "branch": "main",
-    "commit": "610179f7f12db3d08540b6cc61434db2eaecbcff"
   },
   "trld.nvim": {
     "branch": "main",
