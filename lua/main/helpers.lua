@@ -2,7 +2,7 @@ local M = {}
 
 --[[ MAPPING HELPERS ]]
 
----@alias mode string|table The mode to map.
+---@alias mode string The mode to map.
 ---| '""' # Regular noremap (all modes)
 ---| '"n"' # Normal mode
 ---| '"i"' # Insert mode
@@ -13,35 +13,47 @@ local M = {}
 ---| '"o"' # Operator-pending mode
 
 ---Convenience function that binds a mode to a `vim.keymap.set`.
----@param op mode
----@param outer_opts table? Optional take of options to pass when binding.
-local function bind(op, outer_opts)
+---@param mode mode
+---@param lhs string The mapping to set.
+---@param rhs string The command to execute when the mapping is used.
+---@param opts table? Optional take of options to pass when binding.
+local function map(mode, lhs, rhs, opts)
     -- Defaults
-    outer_opts = outer_opts or { noremap = true, silent = true }
-
-    ---Convenience function to create a keymap for mode that has been bound: "{mode}"
-    ---     FYI: DO NOT CHANGE THE FUNCTION SIGNATURE OF THIS! It will break in weird ways, since
-    ---     it expects things to be named "op"/"lhs"/"rhs"/"opts". Fun!
-    ---@param lhs string The mapping to set.
-    ---@param rhs string|function The command to execute when the mapping is used.
-    ---@param opts? table Options to pass. These are the same options as for `vim.api.nvim_set_keymap`.
-    return function(lhs, rhs, opts)
-        -- Defaults
-        opts = vim.tbl_extend("force", outer_opts, opts or {})
-
-        vim.keymap.set(op, lhs, rhs, opts)
+    local options = { noremap = true, silent = true }
+    if opts then
+        options = vim.tbl_extend("force", options, opts)
     end
+
+    vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
 
-M.nmap = bind("n", { noremap = false, silent = true })
-M.vmap = bind("v", { noremap = false, silent = true })
-M.noremap = bind("")
-M.nnoremap = bind("n")
-M.inoremap = bind("i")
-M.xnoremap = bind("x")
-M.vnoremap = bind("v")
-M.cnoremap = bind("c")
-M.onoremap = bind("o")
+function M.nmap(lhs, rhs, opts)
+    map("n", lhs, rhs, { noremap = false, silent = true })
+end
+function M.vmap(lhs, rhs, opts)
+    map("v", lhs, rhs, { noremap = false, silent = true })
+end
+function M.noremap(lhs, rhs, opts)
+    map("", lhs, rhs, opts)
+end
+function M.nnoremap(lhs, rhs, opts)
+    map("n", lhs, rhs, opts)
+end
+function M.inoremap(lhs, rhs, opts)
+    map("i", lhs, rhs, opts)
+end
+function M.xnoremap(lhs, rhs, opts)
+    map("x", lhs, rhs, opts)
+end
+function M.vnoremap(lhs, rhs, opts)
+    map("v", lhs, rhs, opts)
+end
+function M.cnoremap(lhs, rhs, opts)
+    map("c", lhs, rhs, opts)
+end
+function M.onoremap(lhs, rhs, opts)
+    map("o", lhs, rhs, opts)
+end
 
 ---Convenience function that wraps the given string with `<Cmd>` and `<CR>`
 ---@param command string The command to wrap.
