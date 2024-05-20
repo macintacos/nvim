@@ -178,16 +178,6 @@ require("lazy").setup({
     { "wellle/targets.vim" }, -- more text objects
     { "windwp/nvim-autopairs" }, -- auto-close pairs, also handles small text insertions
     {
-        "gaoDean/autolist.nvim",
-        ft = {
-            "markdown",
-            "text",
-            "tex",
-            "plaintex",
-            "norg",
-        },
-    }, -- list continuation stuff
-    {
         "folke/flash.nvim",
         event = "VeryLazy",
         opts = {
