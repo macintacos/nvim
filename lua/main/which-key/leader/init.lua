@@ -63,24 +63,24 @@ wk.register({
         y = { cmd("%y"), "Copy Buffer" },
         z = { cmd("ZenMode"), "Zen Mode" },
     },
-    c = {
-        name = "code actions",
-        s = { cmd("lua vim.lsp.buf.code_action()"), "Show Code Actions" },
-    },
-    e = {
-        name = "errors/diagnostics",
-        h = { cmd("lua vim.diagnostic.open_float()"), "Show Hover Diagnostic" },
-        l = {
-            cmd("TroubleToggle document_diagnostics"),
-            "List current file Diagnostics",
-        },
-        n = { cmd("lua vim.diagnostic.goto_next()"), "Go to Next Diagnostic" },
-        p = { cmd("lua vim.diagnostic.goto_prev()"), "Go to Prev Diagnostic" },
-        L = { cmd("TroubleToggle workspace_diagnostics"), "List CWD Diagnstics" },
-    },
+    -- c = {
+    --     name = "code actions",
+    --     s = { cmd("lua vim.lsp.buf.code_action()"), "Show Code Actions" },
+    -- },
+    -- e = {
+    --     name = "errors/diagnostics",
+    --     h = { cmd("lua vim.diagnostic.open_float()"), "Show Hover Diagnostic" },
+    --     l = {
+    --         cmd("TroubleToggle document_diagnostics"),
+    --         "List current file Diagnostics",
+    --     },
+    --     n = { cmd("lua vim.diagnostic.goto_next()"), "Go to Next Diagnostic" },
+    --     p = { cmd("lua vim.diagnostic.goto_prev()"), "Go to Prev Diagnostic" },
+    --     L = { cmd("TroubleToggle workspace_diagnostics"), "List CWD Diagnstics" },
+    -- },
     f = {
         name = "file",
-        ["="] = { cmd("LspZeroFormat"), "Format Range/File" },
+        -- ["="] = { cmd("LspZeroFormat"), "Format Range/File" },
         f = { cmd("FzfLua files"), "Find File" },
         s = { cmd("w"), "Save Current File" },
         S = { cmd("wa"), "Save All Open Files" },
@@ -123,11 +123,11 @@ wk.register({
     },
     j = {
         name = "jump/join",
-        i = { cmd("FzfLua lsp_document_symbols"), "Jump to Symbol in File" },
-        I = {
-            cmd("FzfLua lsp_live_workspace_symbols"),
-            "Jump to Symbol in Workspace",
-        },
+        -- i = { cmd("FzfLua lsp_document_symbols"), "Jump to Symbol in File" },
+        -- I = {
+        --     cmd("FzfLua lsp_live_workspace_symbols"),
+        --     "Jump to Symbol in Workspace",
+        -- },
         s = { cmd("SplitjoinSplit"), "Splitjoin Split" },
         j = { cmd("SplitjoinJoin"), "Splitjoin Join" },
     },
@@ -219,12 +219,13 @@ wk.register({
     },
     x = {
         name = "text",
-        r = {
-            function()
-                return ":IncRename " .. vim.fn.expand("<cword>")
-            end,
-            "Rename Symbol",
-            expr = true,
-        },
+        -- r = {
+        --     function()
+        --         return ":IncRename " .. vim.fn.expand("<cword>")
+        --     end,
+        --     "Rename Symbol",
+        --     expr = true,
+        -- },
+        -- },
     },
 }, { prefix = "<leader>" })
