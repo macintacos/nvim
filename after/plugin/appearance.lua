@@ -4,14 +4,14 @@
 vim.opt.background = "dark" -- set this to dark or light
 
 -- Theme
-vim.cmd.colorscheme("catppuccin")
+-- vim.cmd.colorscheme("catppuccin")
 
 -- Nightfox palette: https://github.com/EdenEast/nightfox.nvim/blob/main/lua/nightfox/palette/nightfox.lua
 local hi = vim.api.nvim_set_hl
 local palette = require("catppuccin.palettes").get_palette("mocha")
 
 -- Window Borders
-hi(0, "VertSplit", { fg = palette.sel0 })
+hi(0, "WinSeparator", { fg = "#171827" })
 
 -- Background
 hi(0, "Normal", { bg = "#10121E" })

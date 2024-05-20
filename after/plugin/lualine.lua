@@ -1,6 +1,7 @@
 require("lualine").setup({
     options = {
         globalstatus = true,
+        theme = "catppuccin",
     },
     sections = {
         lualine_x = {
