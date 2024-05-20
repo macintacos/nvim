@@ -7,7 +7,6 @@ I am messing with my configuration, which is less than ideal.
 
 TODOs
 
-TODO: Command all plugins with a small description about what they are for.
 TODO: For hlslens, check on the other plugin integrations in the README.
 
 --]]
@@ -44,14 +43,21 @@ require("lazy").setup({
     ---Language Features
     { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- pretty/efficient highlighting
     { "NoahTheDuke/vim-just" },
-    {
-        -- snippet manager
-        "L3MON4D3/LuaSnip",
-        build = "make install_jsregexp",
-        dependencies = {
-            "rafamadriz/friendly-snippets",
-        },
-    },
+
+    -- Completions
+    { "hrsh7th/nvim-cmp" },
+    { "hrsh7th/cmp-buffer" },
+    { "hrsh7th/cmp-path" },
+    { "hrsh7th/cmp-cmdline" },
+    { "hrsh7th/cmp-nvim-lua" },
+    { "ray-x/cmp-treesitter" },
+    { "rasulomaroff/cmp-bufname" },
+    { "mtoohey31/cmp-fish", ft = "fish" },
+    { "PhilippFeO/cmp-csv" },
+    { "dmitmel/cmp-cmdline-history" },
+    { "davidsierradz/cmp-conventionalcommits" },
+    { "petertriho/cmp-git", requires = "nvim-lua/plenary.nvim" },
+    { url = "https://codeberg.org/FelipeLema/cmp-async-path.git" },
 
     --[[ ESSENTIAL: END ]]
 
@@ -93,7 +99,6 @@ require("lazy").setup({
     --[[ UTILITY: START]]
     ---Libraries
     { "inkarkat/vim-ingo-library" },
-    { "romgrk/fzy-lua-native" }, -- fzf library for lua
     { "anuvyklack/middleclass" }, -- OOP library for lua
 
     ---Interactive UIs
@@ -104,14 +109,7 @@ require("lazy").setup({
     {
         -- fzf picker, for things where telescope falls down. Preferred.
         "ibhagwan/fzf-lua",
-        config = function()
-            require("fzf-lua").setup({
-                fzf_colors = {
-                    ["bg"] = { "bg", "CursorLine" },
-                },
-                file_ignore_patterns = { "neodev.nvim", "~/.local", "/opt/homebrew" },
-            })
-        end,
+        dependencies = { "nvim-tree/nvim-web-devicons" },
     },
     { "jvgrootveld/telescope-zoxide" }, -- integrate zoxide into the Telescope picker
     { "kdheepak/lazygit.nvim" }, -- lazygit in neovim
@@ -183,22 +181,13 @@ require("lazy").setup({
         opts = {
             hint_config = false,
         },
+        -- stylua: ignore
         keys = {
-            {
-                "f",
-                mode = { "n", "x", "o" },
-                function()
-                    -- default options: exact mode, multi window, all directions, with a backdrop
-                    require("flash").jump()
-                end,
-            },
-            {
-                "F",
-                mode = { "n", "o", "x" },
-                function()
-                    require("flash").treesitter()
-                end,
-            },
+            { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+            { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+            { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+            { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+            { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
         },
     },
 
@@ -244,7 +233,6 @@ require("lazy").setup({
     },
     { "kazhala/close-buffers.nvim", config = true }, -- mo' better buffer deletion
     { "kevinhwang91/nvim-hlslens" }, -- better highlighting when searching
-    { "luukvbaal/stabilize.nvim", config = true }, -- predictable split creation. TODO: Remove when neovim 0.9.0 is released (ref: https://github.com/neovim/neovim/pull/19243)
     { "marklcrns/vim-smartq" }, -- 'q' now does better things
     { "mong8se/actually.nvim" }, -- helps you open the files you meant to open
     { "nacro90/numb.nvim", config = true }, -- peek line numbers when using ":#"
