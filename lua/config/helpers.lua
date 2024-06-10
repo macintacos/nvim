@@ -17,7 +17,7 @@ local M = {}
 ---@param lhs string The mapping to set.
 ---@param rhs string The command to execute when the mapping is used.
 ---@param opts table? Optional take of options to pass when binding.
-local function map(mode, lhs, rhs, opts)
+local function _map(mode, lhs, rhs, opts)
   -- Defaults
   local options = { noremap = true, silent = true }
   if opts then
@@ -28,34 +28,40 @@ local function map(mode, lhs, rhs, opts)
 end
 
 function M.nmap(lhs, rhs, opts)
-  map("n", lhs, rhs, { noremap = false, silent = true })
+  _map("n", lhs, rhs, { noremap = false, silent = true })
 end
 function M.vmap(lhs, rhs, opts)
-  map("v", lhs, rhs, { noremap = false, silent = true })
+  _map("v", lhs, rhs, { noremap = false, silent = true })
 end
 function M.imap(lhs, rhs, opts)
-  map("i", lhs, rhs, { noremap = false, silent = true })
+  _map("i", lhs, rhs, { noremap = false, silent = true })
+end
+function M.xmap(lhs, rhs, opts)
+  _map("x", lhs, rhs, { noremap = false, silent = true })
+end
+function M.omap(lhs, rhs, opts)
+  _map("o", lhs, rhs, { noremap = false, silent = true })
 end
 function M.noremap(lhs, rhs, opts)
-  map("", lhs, rhs, opts)
+  _map("", lhs, rhs, opts)
 end
 function M.nnoremap(lhs, rhs, opts)
-  map("n", lhs, rhs, opts)
+  _map("n", lhs, rhs, opts)
 end
 function M.inoremap(lhs, rhs, opts)
-  map("i", lhs, rhs, opts)
+  _map("i", lhs, rhs, opts)
 end
 function M.xnoremap(lhs, rhs, opts)
-  map("x", lhs, rhs, opts)
+  _map("x", lhs, rhs, opts)
 end
 function M.vnoremap(lhs, rhs, opts)
-  map("v", lhs, rhs, opts)
+  _map("v", lhs, rhs, opts)
 end
 function M.cnoremap(lhs, rhs, opts)
-  map("c", lhs, rhs, opts)
+  _map("c", lhs, rhs, opts)
 end
 function M.onoremap(lhs, rhs, opts)
-  map("o", lhs, rhs, opts)
+  _map("o", lhs, rhs, opts)
 end
 
 ---Convenience function that wraps the given string with `<Cmd>` and `<CR>`
