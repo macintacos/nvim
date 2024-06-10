@@ -8,7 +8,8 @@ local helpers = require("config.helpers")
 
 local nmap = helpers.nmap
 local vmap = helpers.vmap
-local imap = helpers.imap
+local xmap = helpers.xmap
+local omap = helpers.omap
 local noremap = helpers.noremap
 local nnoremap = helpers.nnoremap
 local inoremap = helpers.inoremap
@@ -16,31 +17,12 @@ local vnoremap = helpers.vnoremap
 local xnoremap = helpers.xnoremap
 local onoremap = helpers.onoremap
 
-if vim.g.vscode then
-  -- In VSCode, don't delete mappings that don't matter.
-  local vscode = require("vscode")
-
-  vim.keymap.set({ "n", "x", "v" }, "<space>", function()
-    vscode.call("vspacecode.space")
-  end)
-else
-  -- Delete keymaps that are there by default.
+-- Delete which-key keymaps that are there by default.
+-- Cannot be done in vscode.
+if not vim.g.vscode then
   del("n", "<leader>w|") -- default for splitting windows vertically
   del("n", "<leader>|") -- default for splitting windows vertically
   del("n", "<leader>h") -- default for showing harpoon
-
-  -- Remove default movements
-  del("n", "<A-j>")
-  del("n", "<A-k>")
-  del("i", "<A-j>")
-  del("i", "<A-k>")
-  del("v", "<A-j>")
-  del("v", "<A-k>")
-
-  nmap("J", "<cmd>m .+1<cr>==") -- "Move Down"
-  nmap("K", "<cmd>m .-2<cr>==") -- "Move Up"
-  vmap("J", ":m '>+1<cr>gv=gv") -- "Move Down"
-  vmap("K", ":m '<-2<cr>gv=gv") -- "Move Up"
 
   -- Which-key is separate, becuase organization matters.
   require("config/which-keymaps")
@@ -50,6 +32,26 @@ end
 
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
+
+-- Use `<C-{h,j,k,l}>` for other things
+del("n", "<C-h>")
+del("n", "<C-j>")
+del("n", "<C-k>")
+del("n", "<C-l>")
+
+-- Make 'J'/'K' move lines
+del("n", "<A-j>")
+del("n", "<A-k>")
+del("i", "<A-j>")
+del("i", "<A-k>")
+del("v", "<A-j>")
+del("v", "<A-k>")
+
+nmap("J", "<cmd>m .+1<cr>==") -- "Move Down"
+nmap("K", "<cmd>m .-2<cr>==") -- "Move Up"
+vmap("J", ":m '>+1<cr>gv=gv") -- "Move Down"
+vmap("K", ":m '<-2<cr>gv=gv") -- "Move Up"
+
 -- C-s saves in all modes
 nnoremap("<C-s>", "<Cmd>w<CR>")
 inoremap("<C-s>", "<Cmd>w<CR>")
@@ -98,26 +100,11 @@ xnoremap("<", "<gv")
 xnoremap(">", ">gv")
 
 -- 'm/M' actually "cuts" text and copies it to your clipboard.
--- Everything else should be blackhole'd.
+-- Everything else should be blackhole'd because of cutlass.nvim
 nnoremap("m", "d")
 xnoremap("m", "d")
 nnoremap("mm", "dd")
 nnoremap("M", "D")
-
-xnoremap("c", '"_c')
-nnoremap("cc", '"_S')
-nnoremap("c", '"_c')
-nnoremap("C", '"_C')
-xnoremap("C", '"_C')
-nnoremap("d", '"_d')
-xnoremap("d", '"_d')
-nnoremap("dd", '"_dd')
-nnoremap("D", '"_D')
-xnoremap("D", '"_D')
-nnoremap("x", '"_x')
-xnoremap("x", '"_x')
-nnoremap("X", '"_X')
-xnoremap("X", '"_X')
 
 -- Don't copy things that you've pasted over
 xnoremap("p", '"0p')
@@ -133,3 +120,20 @@ nmap("<A-k>", "<Plug>(LineJugglerDupOverUp)")
 nmap("<A-j>", "<Plug>(LineJugglerDupOverDown)")
 vmap("<A-k>", "<Plug>(LineJugglerDupOverUp):normal! gv<CR>")
 vmap("<A-j>", "<Plug>(LineJugglerDupOverDown):normal! gv<CR>")
+
+-- [[ VSCODE KEYMAPS ]]
+if vim.g.vscode then
+  -- In VSCode, don't delete mappings that don't matter.
+  local vscode = require("vscode")
+
+  -- Configuring VSpaceCode
+  vim.keymap.set({ "n", "x", "v" }, "<space>", function()
+    vscode.call("vspacecode.space")
+  end)
+
+  -- Commenting
+  xmap("gc", "<Plug>VSCodeCommentary")
+  nnoremap("gc", "<Plug>VSCodeCommentary")
+  omap("gc", "<Plug>VSCodeCommentary")
+  nmap("gcc", "<Plug>VSCodeCommentaryLine")
+end
