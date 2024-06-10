@@ -1,7 +1,3 @@
-# Lua-forward Neovim Config
+# A Neovim Config 💤
 
-NOTE: this repository is meant to be symlinked (or directly cloned) to `~/.config/nvim`
-
-This is very much a work in progress.
-
-![neovim configuration](./screenshots/neovim-config%20-%20CleanShot%202022-12-30%20at%2015.41.38%402x.png)
+It's a neovim config. There are many like it, but this one is mine. Well, mostly folke's , but I'd like to imagine that putting this configuration on the internet might give me some internet points or whatever.

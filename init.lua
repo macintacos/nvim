@@ -1,5 +1,4 @@
--- Set leader keys as eary as possible.
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
 
-require("main")
+-- TODO: Come up with a way to replace GitUi with LazyGit, like you had in the old config
