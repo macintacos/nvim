@@ -48,6 +48,8 @@ end
 
 --[[ REMAPS ]]
 
+-- Remove some LSP things, which will be set later in `plugins/lsp.lua`
+del("n", "gh")
 -- C-s saves in all modes
 nnoremap("<C-s>", "<Cmd>w<CR>")
 inoremap("<C-s>", "<Cmd>w<CR>")
