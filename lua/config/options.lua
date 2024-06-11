@@ -41,10 +41,10 @@ vim.opt.wildoptions = "pum"
 
 -- Python things for neovim's usage
 --[[
-    NOTE: to get this done, do the following:
-        - Install `pyenv` (and the `virtualenv` subcommand if it isn't there already)
-        - Run `pyenv virtualenv 3.9.10 neovim3` (can be the latest stable version, try to keep a version behind)
-        - Run `pyenv activate neovim 3 && pip install neovim`
-        - To get the string below, run `pyenv which python`
+NOTE: to get this to work properly, it is expecting that you do the following:
+    - Install `pyenv` (and the `virtualenv` subcommand if it isn't there already)
+    - Run `pyenv virtualenv 3.9.10 neovim3` (can be the latest stable version, try to keep a version behind)
+    - Run `pyenv activate neovim 3 && pip install neovim`
+    - To get the string below, run `pyenv which python`
 ]]
 vim.g.python3_host_prog = vim.fn.expand("~/.pyenv/versions/neovim3/bin/python")
