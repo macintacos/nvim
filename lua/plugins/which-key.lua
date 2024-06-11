@@ -9,17 +9,17 @@ The best keymapping system in the land.
 
 return {
   "folke/which-key.nvim",
-  opts = {
-    defaults = {
-      ["<leader>h"] = nil,
-    },
-  },
   config = function(_, opts)
     local wk = require("which-key")
     local Cmd = require("config.helpers").Cmd
+    local del = vim.keymap.del
 
     wk.setup(opts)
     wk.register(opts.defaults)
+
+    -- Delete top-level menu items here that you want to get overridden
+    del("n", "<leader>h")
+
     wk.register({
       -- Buffers
       b = {

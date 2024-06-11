@@ -18,14 +18,9 @@ local xnoremap = helpers.xnoremap
 local onoremap = helpers.onoremap
 
 -- Delete which-key keymaps that are there by default.
--- Cannot be done in vscode.
-if not vim.g.vscode then
+if not vim.g.vscode then -- Cannot be done in vscode.
   del("n", "<leader>w|") -- default for splitting windows vertically
   del("n", "<leader>|") -- default for splitting windows vertically
-  del("n", "<leader>h") -- default for showing harpoon
-
-  -- Which-key is separate, becuase organization matters.
-  require("config/which-keymaps")
 end
 
 --[[ REMAPS ]]
