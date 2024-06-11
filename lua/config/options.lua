@@ -3,11 +3,6 @@
 -- Add any additional options here
 local opt = vim.opt
 
-if vim.g.vscode then
-  -- We do this to allow VSpaceCode to work properly
-  opt.timeoutlen = 0
-end
-
 -- Use ':help' to look at what the options mean
 vim.opt.autoread = true
 vim.opt.colorcolumn = "88"
@@ -27,11 +22,9 @@ vim.opt.showmode = false
 vim.opt.signcolumn = "yes"
 vim.opt.smartcase = true
 vim.opt.smartindent = true
-vim.opt.softtabstop = 4
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.swapfile = false
-vim.opt.tabstop = 4
 vim.opt.termguicolors = true
 vim.opt.timeout = true
 vim.opt.title = true

@@ -17,13 +17,11 @@ local vnoremap = helpers.vnoremap
 local xnoremap = helpers.xnoremap
 local onoremap = helpers.onoremap
 
--- Delete which-key keymaps that are there by default.
-if not vim.g.vscode then -- Cannot be done in vscode.
-  del("n", "<leader>w|") -- default for splitting windows vertically
-  del("n", "<leader>|") -- default for splitting windows vertically
-end
-
 --[[ REMAPS ]]
+
+-- Delete which-key keymaps that are there by default.
+del("n", "<leader>w|") -- default for splitting windows vertically
+del("n", "<leader>|") -- default for splitting windows vertically
 
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
@@ -115,20 +113,3 @@ nmap("<A-k>", "<Plug>(LineJugglerDupOverUp)")
 nmap("<A-j>", "<Plug>(LineJugglerDupOverDown)")
 vmap("<A-k>", "<Plug>(LineJugglerDupOverUp):normal! gv<CR>")
 vmap("<A-j>", "<Plug>(LineJugglerDupOverDown):normal! gv<CR>")
-
--- [[ VSCODE KEYMAPS ]]
-if vim.g.vscode then
-  -- In VSCode, don't delete mappings that don't matter.
-  local vscode = require("vscode")
-
-  -- Configuring VSpaceCode
-  vim.keymap.set({ "n", "x", "v" }, "<space>", function()
-    vscode.call("vspacecode.space")
-  end)
-
-  -- Commenting
-  xmap("gc", "<Plug>VSCodeCommentary")
-  nnoremap("gc", "<Plug>VSCodeCommentary")
-  omap("gc", "<Plug>VSCodeCommentary")
-  nmap("gcc", "<Plug>VSCodeCommentaryLine")
-end
