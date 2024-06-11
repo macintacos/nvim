@@ -9,7 +9,6 @@ if vim.g.vscode then
 end
 
 -- Use ':help' to look at what the options mean
-vim.opt.autoindent = true
 vim.opt.autoread = true
 vim.opt.colorcolumn = "88"
 vim.opt.confirm = true
@@ -20,7 +19,6 @@ vim.opt.inccommand = "split" -- preview '%/s/replace/this' commands
 vim.opt.relativenumber = true
 vim.opt.ruler = true
 vim.opt.scrolloff = 5
-vim.opt.shiftwidth = 4
 vim.opt.shortmess:append({ a = true, c = true, s = true, I = true })
 vim.opt.showcmd = true
 vim.opt.showmode = false
