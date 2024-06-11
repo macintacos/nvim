@@ -15,7 +15,7 @@ return {
     { url = "https://codeberg.org/FelipeLema/cmp-async-path.git" },
   },
 
-  ---@param opts cmp.ConfigSchema
+  ---@class opts cmp.ConfigSchema
   opts = function(_, opts)
     -- Add new sources
     opts.sources = vim.tbl_extend("force", opts.sources, {
@@ -31,6 +31,12 @@ return {
 
     local cmp = require("cmp")
 
+    opts.window = {
+      completion = cmp.config.window.bordered(),
+      documentation = cmp.config.window.bordered(),
+    }
+
+    -- Add cmdline sources
     cmp.setup.cmdline(":", {
       mapping = cmp.mapping.preset.cmdline(),
       sources = cmp.config.sources({
