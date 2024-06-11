@@ -17,6 +17,7 @@ vim.opt.expandtab = true
 vim.opt.hidden = true
 vim.opt.inccommand = "split" -- preview '%/s/replace/this' commands
 vim.opt.list = false -- remove characters from things like tabs, trailing spaces, etc.
+vim.opt.pumblend = 0
 vim.opt.relativenumber = true
 vim.opt.ruler = true
 vim.opt.scrolloff = 5
@@ -34,6 +35,7 @@ vim.opt.tabstop = 4
 vim.opt.termguicolors = true
 vim.opt.timeout = true
 vim.opt.title = true
+vim.opt.winblend = 0
 vim.opt.wildmenu = true
 vim.opt.wildoptions = "pum"
 
