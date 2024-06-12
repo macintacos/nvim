@@ -80,12 +80,10 @@ return {
     wk.setup(opts)
 
     -- [[ MAPPINGS ]]
-    -- wk.register(opts.defaults) -- TODO: maybe doesn't need to be here? Seems to get set anyway
+    wk.register(opts.defaults) -- TODO: maybe doesn't need to be here? Seems to get set anyway
 
     -- Delete top-level menu items here that you want to get overridden
     del("n", "<leader>h")
-    del("n", "<leader>e")
-    del("n", "<leader>E")
 
     wk.register({
       -- Buffers
