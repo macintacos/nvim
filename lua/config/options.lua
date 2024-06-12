@@ -4,33 +4,33 @@
 local opt = vim.opt
 
 -- Use ':help' to look at what the options mean
-vim.opt.autoread = true
-vim.opt.colorcolumn = "88"
-vim.opt.confirm = true
-vim.opt.cursorline = true
-vim.opt.expandtab = true
-vim.opt.hidden = true
-vim.opt.inccommand = "split" -- preview '%/s/replace/this' commands
-vim.opt.list = false -- remove characters from things like tabs, trailing spaces, etc.
-vim.opt.pumblend = 0
-vim.opt.relativenumber = true
-vim.opt.ruler = true
-vim.opt.scrolloff = 5
-vim.opt.shortmess:append({ a = true, c = true, s = true, I = true })
-vim.opt.showcmd = true
-vim.opt.showmode = false
-vim.opt.signcolumn = "yes"
-vim.opt.smartcase = true
-vim.opt.smartindent = true
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-vim.opt.swapfile = false
-vim.opt.termguicolors = true
-vim.opt.timeout = true
-vim.opt.title = true
-vim.opt.winblend = 0
-vim.opt.wildmenu = true
-vim.opt.wildoptions = "pum"
+opt.autoread = true
+opt.colorcolumn = "88"
+opt.confirm = true
+opt.cursorline = true
+opt.expandtab = true
+opt.hidden = true
+opt.inccommand = "split" -- preview '%/s/replace/this' commands
+opt.list = false -- remove characters from things like tabs, trailing spaces, etc.
+opt.pumblend = 0
+opt.relativenumber = true
+opt.ruler = true
+opt.scrolloff = 5
+opt.shortmess:append({ a = true, c = true, s = true, I = true })
+opt.showcmd = true
+opt.showmode = false
+opt.signcolumn = "yes"
+opt.smartcase = true
+opt.smartindent = true
+opt.splitbelow = true
+opt.splitright = true
+opt.swapfile = false
+opt.termguicolors = true
+opt.timeout = true
+opt.title = true
+opt.winblend = 0
+opt.wildmenu = true
+opt.wildoptions = "pum"
 
 -- Python things for neovim's usage
 --[[
