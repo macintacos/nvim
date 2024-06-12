@@ -97,7 +97,7 @@
   },
   "dashboard-nvim": {
     "branch": "master",
-    "commit": "5346d023afc4bfc7ff63d05c70bcdb0784bb657a"
+    "commit": "b88c997f468a1bacb1e9b13ff3b567638caa06e6"
   },
   "deadcolumn.nvim": {
     "branch": "master",
@@ -249,7 +249,7 @@
   },
   "noice.nvim": {
     "branch": "main",
-    "commit": "e5cb20c6e14305d24025ecb77d7d4dd9d61f1a64"
+    "commit": "a9fa1a2ace124fcb752e356b3c52e962c3dcb8b8"
   },
   "nui.nvim": {
     "branch": "main",
@@ -333,7 +333,7 @@
   },
   "nvim-treesitter": {
     "branch": "master",
-    "commit": "9a7ad2ff7a7ea81016aca2fc89c9b2c1a5365421"
+    "commit": "26171d8f105d97746371d1b6c07c8d88bf13fec2"
   },
   "nvim-treesitter-context": {
     "branch": "master",
@@ -369,7 +369,7 @@
   },
   "persistence.nvim": {
     "branch": "main",
-    "commit": "5fe077056c821aab41f87650bd6e1c48cd7dd047"
+    "commit": "95d03ad5450389ad7dc2a0fab14ebb3d46bc2c96"
   },
   "plenary.nvim": {
     "branch": "master",
@@ -405,15 +405,15 @@
   },
   "todo-comments.nvim": {
     "branch": "main",
-    "commit": "a9acb02e858fe5495857bd82b6b706dec56355aa"
+    "commit": "51e10f838e84b4756c16311d0b1ef0972c6482d2"
   },
   "tokyonight.nvim": {
     "branch": "main",
-    "commit": "024621763d91bb48f2b486df529c7aaeb8d6d355"
+    "commit": "771f7cd1e6a32ba435305e4576aa9094137568ea"
   },
   "tree-sitter-nu": {
     "branch": "main",
-    "commit": "fae35745e32c015dc342136802f63b8456ccec7f"
+    "commit": "8b0affeefdc62e968067017c846a39e3ae2ec826"
   },
   "trld.nvim": {
     "branch": "main",
@@ -421,7 +421,7 @@
   },
   "trouble.nvim": {
     "branch": "main",
-    "commit": "5e45bb78f8da3444d35616934c180fce3742c439"
+    "commit": "3609bb9a82bbab1ef95cf2c27ce7e52267a7d40d"
   },
   "ts-comments.nvim": {
     "branch": "main",
