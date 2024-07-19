@@ -19,9 +19,9 @@ local onoremap = helpers.onoremap
 
 --[[ REMAPS ]]
 
--- Delete which-key keymaps that are there by default.
-del("n", "<leader>w|") -- default for splitting windows vertically
-del("n", "<leader>|") -- default for splitting windows vertically
+-- -- Delete which-key keymaps that are there by default.
+-- del("n", "<leader>w|") -- default for splitting windows vertically
+-- del("n", "<leader>|") -- default for splitting windows vertically
 
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
@@ -85,12 +85,6 @@ onoremap("n", "'Nn'[v:searchforward]", { expr = true })
 nnoremap("N", "'nN'[v:searchforward]", { expr = true })
 xnoremap("N", "'nN'[v:searchforward]", { expr = true })
 onoremap("N", "'nN'[v:searchforward]", { expr = true })
-
--- Better indenting
-nmap("<", "V<gv")
-nmap(">", "V>gv")
-xnoremap("<", "<gv")
-xnoremap(">", ">gv")
 
 -- 'm/M' actually "cuts" text and copies it to your clipboard.
 -- Everything else should be blackhole'd because of cutlass.nvim
