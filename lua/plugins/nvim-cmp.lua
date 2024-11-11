@@ -17,7 +17,11 @@ return {
 
   ---@class opts cmp.ConfigSchema
   opts = function(_, opts)
+    local cmp = require("cmp")
+    local luasnip = require("luasnip")
+
     -- Add new sources
+    opts.sources = opts.sources or {}
     opts.sources = vim.tbl_extend("force", opts.sources, {
       { name = "nvim_lua" },
       { name = "treesitter" },
@@ -27,9 +31,8 @@ return {
       { name = "git" },
       { name = "fish" },
       { name = "cmp_csv" },
+      { name = "lazydev", group_index = 0 },
     })
-
-    local cmp = require("cmp")
 
     opts.window = {
       completion = cmp.config.window.bordered(),
@@ -46,7 +49,12 @@ return {
       }),
     })
 
-    -- Set up super-tab
+    -- Set up supertab (https://github.com/ervandew/supertab)
+    opts.preselect = cmp.PreselectMode.None
+    opts.completion = {
+      completeopt = "menu,menuone,noinsert,noselect",
+    }
+
     local has_words_before = function()
       unpack = unpack or table.unpack
       local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -61,12 +69,11 @@ return {
     opts.mapping = vim.tbl_extend("force", opts.mapping, {
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
-          -- You could replace select_next_item() with confirm({ select = true }) to get VS Code autocompletion behavior
           cmp.select_next_item()
-        elseif vim.snippet.active({ direction = 1 }) then
-          vim.schedule(function()
-            vim.snippet.jump(1)
-          end)
+          -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
+          -- they way you will only jump inside the snippet region
+        elseif luasnip.expand_or_jumpable() then
+          luasnip.expand_or_jump()
         elseif has_words_before() then
           cmp.complete()
         else
@@ -76,14 +83,25 @@ return {
       ["<S-Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_prev_item()
-        elseif vim.snippet.active({ direction = -1 }) then
-          vim.schedule(function()
-            vim.snippet.jump(-1)
-          end)
+        elseif luasnip.jumpable(-1) then
+          luasnip.jump(-1)
         else
           fallback()
         end
       end, { "i", "s" }),
+
+      -- This makes sure "<CR>" with nothing selected just inserts a newline if you haven't selected anything.
+      ["<CR>"] = cmp.mapping({
+        i = function(fallback)
+          if cmp.visible() and cmp.get_active_entry() then
+            cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+          else
+            fallback()
+          end
+        end,
+        s = cmp.mapping.confirm({ select = true }),
+        c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+      }),
     })
   end,
 }
