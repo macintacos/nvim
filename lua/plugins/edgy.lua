@@ -4,6 +4,9 @@ return {
   "folke/edgy.nvim",
   opts = {
     animate = { enabled = false },
+    bottom = {
+      { title = "Grug Far", ft = "grug-far", size = { height = 0.6 } },
+    },
     left = {
       {
         title = "Neo-Tree Git",
