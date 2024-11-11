@@ -19,9 +19,8 @@ local onoremap = helpers.onoremap
 
 --[[ REMAPS ]]
 
--- -- Delete which-key keymaps that are there by default.
--- del("n", "<leader>w|") -- default for splitting windows vertically
--- del("n", "<leader>|") -- default for splitting windows vertically
+-- Remove things that we will remap later in which-key
+del("n", "<leader><leader>")
 
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
@@ -94,10 +93,7 @@ nnoremap("mm", "dd")
 nnoremap("M", "D")
 
 -- Don't copy things that you've pasted over
-xnoremap("p", '"0p')
-nnoremap("p", '"0p')
-xnoremap("P", '"0P')
-nnoremap("P", '"0P')
+vnoremap("p", '"_dP')
 
 -- "SHIFT+ENTER" will continue comments, but regular "ENTER" won't
 inoremap("<S-Enter>", "<C-\\><C-O>:setl fo+=r<CR><CR><C-\\><C-O>:setl fo-=r<CR>")
