@@ -1,4 +1,7 @@
 -- Filetree
+local Cmd = require("config.helpers").Cmd
+local LazyVim = require("lazyvim.util")
+
 return {
   "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
@@ -30,5 +33,17 @@ return {
         },
       },
     },
+  },
+  keys = {
+    { "<leader>fe", false },
+    { "<leader>ft", false },
+    {
+      "<leader>ft",
+      function()
+        require("neo-tree.command").execute({ toggle = true, dir = LazyVim.root() })
+      end,
+      desc = "Explorer NeoTree (Root Dir)",
+    },
+    { "<leader>fu", Cmd("Neotree reveal"), desc = "Unveil in Neotree" },
   },
 }
