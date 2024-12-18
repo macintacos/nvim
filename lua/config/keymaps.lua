@@ -21,6 +21,10 @@ local onoremap = helpers.onoremap
 
 -- Remove things that we will remap later in which-key
 del("n", "<leader><leader>")
+-- del("n", "<leader>fr") -- Recent files
+-- del("n", "<leader>fe") -- Show Neotree
+-- del("n", "<leader>ft") -- Show terminal
+-- del("n", "<leader>sg") -- Search project
 
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
