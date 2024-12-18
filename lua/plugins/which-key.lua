@@ -8,11 +8,11 @@ The best keymapping system in the land.
 --]]
 
 local Cmd = require("config.helpers").Cmd
+local Snacks = require("snacks")
 
 return {
   "folke/which-key.nvim",
   opts = {
-    -- stylua: ignore start
     spec = {
       -- Buffers
       { "<leader>bz", Cmd("ZenMode"), desc = "Zen Mode" },
@@ -24,6 +24,22 @@ return {
       { "<leader>fu", Cmd("Neotree reveal"), desc = "Unveil in Neotree" },
       { "<leader>f=", Cmd("Format"), desc = "Format Current File" },
       { "<leader>fd", Cmd("DeleteFile"), desc = "Delete Current File", icon = "" },
+      {
+        "<leader>fr",
+        function()
+          Snacks.rename.rename_file()
+        end,
+        desc = "Rename File",
+        icon = "󰑕",
+      },
+      {
+        "<leader>ft",
+        function()
+          require("neo-tree.command").execute({ toggle = true, dir = LazyVim.root() })
+        end,
+        desc = "Explorer NeoTree (Root Dir)",
+        icon = "",
+      },
 
       -- Help
       { "<leader>h", group = "help", icon = "?" },
@@ -74,6 +90,5 @@ return {
         desc = "New File Split Below",
       },
     },
-    -- stylua: ignore end
   },
 }
