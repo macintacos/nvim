@@ -175,6 +175,10 @@
     "branch": "main",
     "commit": "c7a4b1b383606832aab150902719bd5eb5cdb2b0"
   },
+  "multicursor.nvim": {
+    "branch": "main",
+    "commit": "f454cac9d03ccaf20008f4793f05b159f5547e78"
+  },
   "neo-tree.nvim": {
     "branch": "main",
     "commit": "a9f8943b4c31f8460d25c71e0f463d65e9775f1c"

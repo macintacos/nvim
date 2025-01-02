@@ -29,12 +29,6 @@ del("n", "<leader><leader>")
 -- Remove some LSP things, which will be set later in `plugins/lsp.lua`
 del("n", "gh")
 
--- Use `<C-{h,j,k,l}>` for other things
-del("n", "<C-h>")
-del("n", "<C-j>")
-del("n", "<C-k>")
-del("n", "<C-l>")
-
 -- Make 'J'/'K' move lines
 del("n", "<A-j>")
 del("n", "<A-k>")
@@ -74,12 +68,6 @@ nnoremap("<C-d>", "<C-d>zz")
 nnoremap("<C-u>", "<C-u>zz")
 nnoremap("n", "nzzzv")
 nnoremap("N", "Nzzzv")
-
--- Clear search with <esc>
-nnoremap("<esc>", "<Cmd>noh<cr><esc>")
-inoremap("<esc>", "<Cmd>noh<cr><esc>")
-nnoremap("gw", "*N")
-xnoremap("gw", "*N")
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 nnoremap("n", "'Nn'[v:searchforward]", { expr = true })
