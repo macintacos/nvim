@@ -295,6 +295,10 @@
     "branch": "main",
     "commit": "41cfaa428577c53552200a404ae9b3a0b5719706"
   },
+  "obsidian.nvim": {
+    "branch": "main",
+    "commit": "14e0427bef6c55da0d63f9a313fd9941be3a2479"
+  },
   "octo.nvim": {
     "branch": "master",
     "commit": "48fb9a2efe06d6b57c64ca1ebc540fc1b8722272"
