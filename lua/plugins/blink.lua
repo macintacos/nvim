@@ -3,7 +3,10 @@ return {
   opts = {
     completion = {
       list = {
-        selection = "auto_insert",
+        selection = {
+          auto_insert = false,
+          preselect = false,
+        },
       },
     },
     keymap = {
