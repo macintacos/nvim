@@ -72,7 +72,16 @@ return {
           elseif mc.hasCursors() then
             mc.clearCursors()
           else
-            -- Default <esc> handler.
+            -- We do this to account for Flash's cursor weirdness
+            require("flash.repeat").get_state("jump"):hide()
+                local c = require("flash.plugins.char")
+                c.jumping = false
+                if c.state then
+                    c.state:hide()
+                end
+                c.state = nil
+                c.jump_labels = false
+                vim.cmd.noh()
           end
         end,
         mode = { "n", "v" },
