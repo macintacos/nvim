@@ -12,8 +12,11 @@ return {
   opts = {
     -- stylua: ignore
     spec = {
+      -- Top-level Things
       { "<leader>?", function() require("which-key").show({ global = false }) end,
         desc = "Buffer Local Keymaps (which-key)" },
+      { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep Project" },
+      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
 
       -- Buffers
       { "<leader>b", group = "buffers" },
@@ -23,6 +26,7 @@ return {
       { "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete Buffer" } },
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text" },
+      { "<leader>bs", function () Snacks.picker.lines() end, desc = "Search Buffer Lines"},
       { "<leader>bz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Files
@@ -83,15 +87,19 @@ return {
         end,
         mode = { "n", "v" },
         desc = "Search and Replace" },
+      { "<leader>ss", function () Snacks.picker.lines() end, desc = "Buffer Lines"},
+      { "<leader>sp", function () Snacks.picker.grep() end, desc = "Grep Project"},
+      { "<leader>sb", function () Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers"},
+
       -- Tabs
-      {"<leader><tab><tab>", Cmd("tabnew"), { desc = "New Tab" }},
-      {"<leader><tab>[", Cmd("tabprevious"), { desc = "Previous Tab" }},
-      {"<leader><tab>]", Cmd("tabnext"), { desc = "Next Tab" }},
-      {"<leader><tab>d", Cmd("tabclose"), { desc = "Close Tab" }},
-      {"<leader><tab>f", Cmd("tabfirst"), { desc = "First Tab" }},
-      {"<leader><tab>l", Cmd("tablast"), { desc = "Last Tab" }},
-      {"<leader><tab>n", Cmd("tabnew"), { desc = "New Tab" }},
-      {"<leader><tab>o", Cmd("tabonly"), { desc = "Close Other Tabs" }},
+      {"<leader><tab><tab>", Cmd("tabnew"), desc = "New Tab" },
+      {"<leader><tab>[", Cmd("tabprevious"), desc = "Previous Tab" },
+      {"<leader><tab>]", Cmd("tabnext"), desc = "Next Tab" },
+      {"<leader><tab>d", Cmd("tabclose"), desc = "Close Tab" },
+      {"<leader><tab>f", Cmd("tabfirst"), desc = "First Tab" },
+      {"<leader><tab>l", Cmd("tablast"), desc = "Last Tab" },
+      {"<leader><tab>n", Cmd("tabnew"), desc = "New Tab" },
+      {"<leader><tab>o", Cmd("tabonly"), desc = "Close Other Tabs" },
 
       -- Toggles
       { "<leader>T", group = "ui/toggles" },
