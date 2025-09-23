@@ -1,10 +1,15 @@
+-- github.com/nvim-neo-tree/neo-tree.nvim
 -- Filetree
-local Cmd = require("config.helpers").Cmd
-local LazyVim = require("lazyvim.util")
 
+---@module "lazy"
+---@type LazySpec
 return {
   "nvim-neo-tree/neo-tree.nvim",
+  lazy = false,
   dependencies = {
+    "nvim-lua/plenary.nvim",
+    "MunifTanjim/nui.nvim",
+    "nvim-tree/nvim-web-devicons", -- optional, but recommended
     {
       "s1n7ax/nvim-window-picker",
       opts = {
@@ -22,7 +27,27 @@ return {
       },
     },
   },
+  init = function()
+    -- FIX: use `autocmd` for lazy-loading neo-tree instead of directly requiring it,
+    -- because `cwd` is not set up properly.
+    vim.api.nvim_create_autocmd("BufEnter", {
+      group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
+      desc = "Start Neo-tree with directory",
+      once = true,
+      callback = function()
+        if package.loaded["neo-tree"] then
+          return
+        else
+          local stats = vim.uv.fs_stat(vim.fn.argv(0))
+          if stats and stats.type == "directory" then
+            require("neo-tree")
+          end
+        end
+      end,
+    })
+  end,
   opts = {
+    open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
     filesystem = {
       filtered_items = {
         visible = true, -- when true, they will just be displayed differently than normal items
@@ -33,8 +58,48 @@ return {
         },
       },
     },
+    window = {
+      mappings = {
+        ["l"] = "open",
+        ["h"] = "close_node",
+        ["<space>"] = "none",
+        ["Y"] = {
+          function(state)
+            local node = state.tree:get_node()
+            local path = node:get_id()
+            vim.fn.setreg("+", path, "c")
+          end,
+          desc = "Copy Path to Clipboard",
+        },
+        ["O"] = {
+          function(state)
+            require("lazy.util").open(state.tree:get_node().path, { system = true })
+          end,
+          desc = "Open with System Application",
+        },
+        ["P"] = { "toggle_preview", config = { use_float = false } },
+      }
+    }
   },
-  keys = {
-    { "<leader>fu", Cmd("Neotree reveal"), desc = "Unveil in Neotree" },
-  },
+  config = function(_, opts)
+    local function on_move(data)
+      Snacks.rename.on_rename_file(data.source, data.destination)
+    end
+
+    local events = require("neo-tree.events")
+    opts.event_handlers = opts.event_handlers or {}
+    vim.list_extend(opts.event_handlers, {
+      { event = events.FILE_MOVED, handler = on_move },
+      { event = events.FILE_RENAMED, handler = on_move },
+    })
+    require("neo-tree").setup(opts)
+    vim.api.nvim_create_autocmd("TermClose", {
+      pattern = "*lazygit",
+      callback = function()
+        if package.loaded["neo-tree.sources.git_status"] then
+          require("neo-tree.sources.git_status").refresh()
+        end
+      end,
+    })
+  end,
 }

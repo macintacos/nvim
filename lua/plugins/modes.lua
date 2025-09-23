@@ -1,15 +1,11 @@
+-- github.com/mvllow/modes.nvim
 -- Colors for the different modes on the cursorline
+
+---@module "lazy"
+---@type LazySpec
 return {
   "mvllow/modes.nvim",
   opts = {
-    -- colors = {
-    --   bg = "", -- Optional bg param, defaults to Normal hl group
-    --   copy = "#f5c359",
-    --   delete = "#c75c6a",
-    --   insert = "#78ccc5",
-    --   visual = "#9745be",
-    -- },
-
     -- Set opacity for cursorline and number background
     line_opacity = 0.30,
 
@@ -25,6 +21,6 @@ return {
 
     -- Disable modes highlights in specified filetypes
     -- Please PR commonly ignored filetypes
-    ignore_filetypes = { "Neotree", "TelescopePrompt" },
+    ignore = { "Neotree", "TelescopePrompt" },
   },
 }

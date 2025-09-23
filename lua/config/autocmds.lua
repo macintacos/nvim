@@ -1,72 +1,137 @@
--- Autocmds are automatically loaded on the VeryLazy event
--- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
--- Add any additional autocmds here
+-- Much inspiration taken from the default LazyVim configuration
 
--- Filetype-specific settings
-local autocmd = vim.api.nvim_create_autocmd
+local function augroup(name)
+  return vim.api.nvim_create_augroup("__personal_" .. name, { clear = true })
+end
 
-vim.cmd([[
-    autocmd FileType css setlocal shiftwidth=2 softtabstop=2 tabstop=2
-]])
 
--- Set a bunch of config files to yaml
-autocmd({ "BufRead", "BufEnter" }, {
-  pattern = { "*lazygit*", "*yamlfmt*", "*yamllint*" },
+-- 'Enter' will no longer continue the comment
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "*",
   callback = function()
-    vim.opt_local.filetype = "yaml"
+    vim.opt_local.formatoptions:remove({ "r", "o", "c" })
   end,
 })
 
--- Set a bunch of config files to toml
-autocmd({ "BufRead", "BufEnter" }, {
-  pattern = { "*jakrc*", "*xbarrc*" },
+
+-- Check if we need to reload the file when it changed
+vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+  group = augroup("checktime"),
   callback = function()
-    vim.opt_local.filetype = "toml"
+    if vim.o.buftype ~= "nofile" then
+      vim.cmd("checktime")
+    end
   end,
 })
 
--- USER COMMANDS
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+  group = augroup("highlight_yank"),
+  callback = function()
+    (vim.hl or vim.highlight).on_yank()
+  end,
+})
 
--- "Format" - formats the current buffer using confirm.nvim
-vim.api.nvim_create_user_command("Format", function(args)
-  local range = nil
-  if args.count ~= -1 then
-    local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
-    range = {
-      start = { args.line1, 0 },
-      ["end"] = { args.line2, end_line:len() },
-    }
-  end
-  require("conform").format({ async = true, lsp_format = "fallback", range = range })
-end, { range = true })
+-- resize splits if window got resized
+vim.api.nvim_create_autocmd({ "VimResized" }, {
+  group = augroup("resize_splits"),
+  callback = function()
+    local current_tab = vim.fn.tabpagenr()
+    vim.cmd("tabdo wincmd =")
+    vim.cmd("tabnext " .. current_tab)
+  end,
+})
 
--- "DeleteFile" - attempt to delete the file in the current buffer.
-vim.api.nvim_create_user_command("DeleteFile", function()
-  local current_buf = vim.api.nvim_get_current_buf()
-  local filepath = vim.api.nvim_buf_get_name(current_buf)
-  local Snacks = require("snacks")
+-- go to last loc when opening a buffer
+vim.api.nvim_create_autocmd("BufReadPost", {
+  group = augroup("last_loc"),
+  callback = function(event)
+    local exclude = { "gitcommit" }
+    local buf = event.buf
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].lazyvim_last_loc then
+      return
+    end
+    vim.b[buf].lazyvim_last_loc = true
+    local mark = vim.api.nvim_buf_get_mark(buf, '"')
+    local lcount = vim.api.nvim_buf_line_count(buf)
+    if mark[1] > 0 and mark[1] <= lcount then
+      pcall(vim.api.nvim_win_set_cursor, 0, mark)
+    end
+  end,
+})
 
-  -- Check if buffer has a valid file path
-  if filepath == "" then
-    Snacks.notify.error("No file associated with current buffer")
-    return
-  end
+-- close some filetypes with <q>
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("close_with_q"),
+  pattern = {
+    "PlenaryTestPopup",
+    "checkhealth",
+    "dbout",
+    "gitsigns-blame",
+    "grug-far",
+    "help",
+    "lspinfo",
+    "neotest-output",
+    "neotest-output-panel",
+    "neotest-summary",
+    "notify",
+    "qf",
+    "spectre_panel",
+    "startuptime",
+    "tsplayground",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.schedule(function()
+      vim.keymap.set("n", "q", function()
+        vim.cmd("close")
+        pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
+      end, {
+        buffer = event.buf,
+        silent = true,
+        desc = "Quit buffer",
+      })
+    end)
+  end,
+})
 
-  -- Confirm with user before deletion using confirm() for single-keystroke input
-  local choice = vim.fn.confirm(string.format("Delete %s?", filepath), "&Yes\n&No", 2)
+-- make it easier to close man-files when opened inline
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("man_unlisted"),
+  pattern = { "man" },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+  end,
+})
 
-  if choice ~= 1 then -- 1 corresponds to "Yes"
-    Snacks.notify.info("File deletion cancelled")
-    return
-  end
+-- wrap and check for spell in text filetypes
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("wrap_spell"),
+  pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.spell = true
+  end,
+})
 
-  -- Attempt to delete the file
-  local success, err = os.remove(filepath)
+-- Fix conceallevel for json files
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  group = augroup("json_conceal"),
+  pattern = { "json", "jsonc", "json5" },
+  callback = function()
+    vim.opt_local.conceallevel = 0
+  end,
+})
 
-  if success then
-    Snacks.bufdelete.delete()
-    Snacks.notify.info(string.format("'%s' deleted.", filepath))
-  else
-    Snacks.notify.error(string.format("Failed to delete file: %s", err))
-  end
-end, {})
+-- Auto create dir when saving a file, in case some intermediate directory does not exist
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  group = augroup("auto_create_dir"),
+  callback = function(event)
+    if event.match:match("^%w%w+:[\\/][\\/]") then
+      return
+    end
+    local file = vim.uv.fs_realpath(event.match) or event.match
+    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+  end,
+})
+

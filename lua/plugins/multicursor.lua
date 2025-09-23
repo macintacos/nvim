@@ -1,3 +1,5 @@
+-- github.com/jake-stewart/multicursor.nvim
+-- Enables multicursor in neovim, the way that makes sense in my brain
 return {
   "jake-stewart/multicursor.nvim",
   config = function()

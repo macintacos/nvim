@@ -1,5 +1,6 @@
+-- github.com/jakewvincent/mkdnflow.nvim
 -- Conveniences for dealing with Markdown and links
-return {
-  "jakewvincent/mkdnflow.nvim",
-  config = true,
-}
+
+---@module "lazy"
+---@type LazySpec
+return { "jakewvincent/mkdnflow.nvim", config = true }

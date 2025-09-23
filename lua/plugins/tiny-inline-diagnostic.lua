@@ -1,5 +1,10 @@
+-- github.com/rachartier/tiny-inline-diagnostic.nvim
+-- Tiny inline diagnostics
+
 vim.diagnostic.config({ virtual_text = false })
 
+---@module "lazy"
+---@type LazySpec
 return {
   {
     "rachartier/tiny-inline-diagnostic.nvim",

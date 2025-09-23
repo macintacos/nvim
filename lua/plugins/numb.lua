@@ -1,5 +1,6 @@
+-- github.com/nacro90/numb.nvim
 -- Peek while searching by numbers
-return {
-  "nacro90/numb.nvim",
-  config = true,
-}
+
+---@module "lazy"
+---@type LazySpec
+return { "nacro90/numb.nvim", config = true }

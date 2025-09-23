@@ -1,8 +1,13 @@
+-- github.com/gbprod/cutlass.nvim
+-- Better cutting and pasting
+
+---@module "lazy"
+---@type LazySpec
 return {
   "gbprod/cutlass.nvim",
   opts = {
-    cut_key = nil,
-    override_del = nil,
+    cut_key = "m",
+    override_del = true,
     exclude = {},
     registers = {
       select = "_",
