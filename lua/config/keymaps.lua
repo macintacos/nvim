@@ -95,5 +95,5 @@ vim.keymap.set("n", "<C-\\>", neo_tree_focus_toggle, { noremap = true, silent = 
 
 -- Join the next/prev line with the current
 map("n", "<A-J>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
-map("n", "<A-K>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
+map("n", "<A-K>", Cmd(".-1,.join"), { desc = "Join Current Line w/ Prev" })
 
