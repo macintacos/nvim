@@ -12,20 +12,14 @@ map("n", "Y", "y$", { desc = "Yank to Line End" })
 map("v", "y", "ygv<ESC>")
 
 -- better up/down
-map({"n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({"n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({"n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({"n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({"n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({"n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({"n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({"n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-
--- Move window using <C-{h,j,k,l}>
-map("n", "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
-map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
-map("n", "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
-map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
+map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 
 -- Resize windows using Alt+WASD
 map("n", "<A-w>", Cmd("resize +2"), { desc = "Increase Window Height" })
@@ -36,8 +30,6 @@ map("n", "<A-d>", Cmd("vertical resize +2"), { desc = "Increase Window Width" })
 -- Move Lines
 map("n", "J", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
 map("n", "K", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
-map("i", "J", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
-map("i", "K", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
 map("v", "J", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
 map("v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
 
@@ -53,11 +45,9 @@ end, { expr = true, desc = "Escape and Clear hlsearch" })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 map("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
-map("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
-map("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
 map("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
-map("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
-map("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
+map({ "x", "o" }, "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
+map({ "x", "o" }, "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
 -- Add undo break-points
 map("i", ",", ",<c-g>u")
@@ -69,6 +59,41 @@ map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
 
 -- Dupe lines up/down
 map("n", "<A-j>", Cmd("t."), { desc = "Copy line down" })
-map("n", "<A-k>", Cmd("t-1"),{ desc = "Copy line up" })
+map("n", "<A-k>", Cmd("t-1"), { desc = "Copy line up" })
 map("v", "<A-j>", "y`>pgv", { desc = "Copy lines down" })
 map("v", "<A-k>", "y`<Pgv", { desc = "Copy line up" })
+
+-- Terminal
+map("n", "<C-'>", function()
+  Snacks.terminal()
+end, { desc = "Terminal" })
+map("t", "<C-'>", function()
+  Snacks.terminal()
+end, { desc = "Terminal" })
+
+-- Focus Neotree using CTRL-\
+local function neo_tree_focus_toggle()
+  local ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
+  if ft == "neo-tree" then
+    vim.cmd("Neotree close")
+    return
+  end
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local bft = vim.api.nvim_get_option_value("filetype", { buf = buf })
+    if bft == "neo-tree" then
+      vim.cmd("Neotree focus right")
+      return
+    end
+  end
+
+  vim.cmd("Neotree focus right")
+end
+
+vim.keymap.set("n", "<C-\\>", neo_tree_focus_toggle, { noremap = true, silent = true })
+
+-- Join the next/prev line with the current
+map("n", "<A-J>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
+map("n", "<A-K>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
+

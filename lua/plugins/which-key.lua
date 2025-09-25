@@ -34,9 +34,10 @@ return {
       ---@diagnostic disable-next-line: undefined-field
       { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
-      { "<leader>fe", Cmd("Neotree reveal right"), desc = "Show Explorer" },
-      { "<leader>fu", Cmd("Neotree focus right"), desc = "Unveil in Neotree" },
+      { "<leader>fe", Cmd("Neotree focus right"), desc = "Show Explorer" },
+      { "<leader>fu", Cmd("Neotree reveal right"), desc = "Unveil in Neotree" },
       { "<leader>fR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
+      { "<leader>f=", function() vim.lsp.buf.format() end, desc = "Format File" },
 
       -- Git
       { "<leader>g", group = "git" },
@@ -72,6 +73,12 @@ return {
             vim.notify(err, vim.log.levels.ERROR)
           end
         end, desc = "Quickfix List" },
+      { "<leader>on", group = "Noice" },
+      { "<leader>onl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
+      { "<leader>onh", function() require("noice").cmd("history") end, desc = "Noice History" },
+      { "<leader>ona", function() require("noice").cmd("all") end, desc = "Noice All" },
+      { "<leader>ond", function() require("noice").cmd("dismiss") end, desc = "Dismiss All" },
+      { "<leader>ont", function() require("noice").cmd("pick") end, desc = "Noice Picker" },
 
       -- Search
       { "<leader>sr",

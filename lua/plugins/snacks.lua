@@ -9,14 +9,19 @@ return {
     explorer = { enabled = true },
     indent = { enabled = true },
     input = { enabled = true },
-    notifier = { enabled = true },
+    lazygit = { enabled = true },
+    notifier = { enabled = true, top_down = false },
     picker = { enabled = true },
     quickfile = { enabled = true },
     scope = { enabled = true },
     scroll = { enabled = true },
     statuscolumn = { enabled = true },
+    terminal = { enabled = true },
     words = { enabled = true },
-    lazygit = { enabled = true },
-    zen = { enabled = true },
+
+    zen = {
+      enabled = true,
+      show = { statusline = true },
+    },
   },
 }

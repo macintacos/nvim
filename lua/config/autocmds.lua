@@ -4,7 +4,6 @@ local function augroup(name)
   return vim.api.nvim_create_augroup("__personal_" .. name, { clear = true })
 end
 
-
 -- 'Enter' will no longer continue the comment
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "*",
@@ -12,7 +11,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.formatoptions:remove({ "r", "o", "c" })
   end,
 })
-
 
 -- Check if we need to reload the file when it changed
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
@@ -134,4 +132,3 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })
-
