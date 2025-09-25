@@ -14,101 +14,53 @@ return {
     hl(0, "MultiCursorDisabledCursor", { link = "Visual" })
     hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
     hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
-  end,
-  keys = function()
-    local mc = require("multicursor-nvim")
 
-    return {
-      -- stylua: ignore start
+    -- Keymaps
+    local map = vim.keymap.set
 
-      -- Add cursors above or below
-      { "<C-k>", function() mc.lineAddCursor(-1) end, mode = { "n", "v" } },
-      { "<C-j>", function() mc.lineAddCursor(1)  end, mode = { "n", "v" } },
+    -- Add cursors above/below current 'main cursior' line
+    -- stylua: ignore start
+    map({ "n", "x" }, "<C-k>", function() mc.lineAddCursor(-1) end, { desc = "Add Cursor Above" })
+    map({ "n", "x" }, "<C-S-k>", function() mc.lineAddCursor(-1) end, { desc = "Add Cursor Above" })
+    map({ "n", "x" }, "<C-j>", function() mc.lineAddCursor(1) end, { desc = "Add Cursor Below" })
+    map({ "n", "x" }, "<C-S-j>", function() mc.lineAddCursor(1) end, { desc = "Add Cursor Below" })
 
-      -- Add or skip cursor above/below the main cursor
-      { "<C-S-j>", function() mc.lineAddCursor(1)  end, mode = { "n", "v" } },
-      { "<C-S-k>", function() mc.lineAddCursor(-1)  end, mode = { "n", "v" } },
+    -- Add cursors to match
+    map({ "n", "x" }, "<C-n>", function() mc.matchAddCursor(1) end, { desc = "Add Cursor to Next Match" })
+    map({ "n", "x" }, "gn", function() mc.matchAddCursor(1) end, { desc = "Add Cursor to Next Match" })
+    map({ "n", "x" }, "<C-S-n>", function() mc.matchAddCursor(-1) end, { desc = "Add Cursor to Prev Match" })
+    map({ "n", "x" }, "gN", function() mc.matchAddCursor(-1) end, { desc = "Add Cursor to Prev Match" })
+    map({ "n", "x" }, "gA", function() mc.matchAllAddCursors() end, { desc = "Add Cursor to All Matches" })
 
-      -- Add cursors to match
-      { "<C-n>",   function() mc.matchAddCursor(1)  end, mode = { "n", "v" } },
-      { "<C-S-n>", function() mc.matchAddCursor(-1) end, mode = { "n", "v" } },
-      { "gn",      function() mc.matchAddCursor(1)  end, mode = { "n", "v" } },
-      { "gN",      function() mc.matchAddCursor(-1) end, mode = { "n", "v" } },
+    -- Add and remove cusrors with control + left click
+    map("n", "<C-leftmouse>", mc.handleMouse)
+    map("n", "<C-leftdrag>", mc.handleMouseDrag)
+    map("n", "<C-leftrelease>", mc.handleMouseRelease)
+
+    -- Enable and Disable Cursors
+    map({ "n", "x" }, "<C-q>", mc.toggleCursor, { desc = "Toggle Multicursor" })
+
+    -- Keymaps for when in multicursor mode
+    mc.addKeymapLayer(function(layerMap)
+      -- Move to a different cursor than the main one
+      layerMap({ "n", "x" }, "<left>", mc.prevCursor, { desc = "Move to Prev Cursor" })
+      layerMap({ "n", "x" }, "<right>", mc.nextCursor, { desc = "Move to Next Cursor" })
+
+      -- Delete the main cursor
+      layerMap({ "n", "x" }, "<leader>x", mc.deleteCursor, { desc = "Delete Main Cursor" })
 
       -- Align all cursors
-      { "ga", function() mc.alignCursors() end, mode = { "n" } },
+      layerMap({ "n", "x" }, "<leader>a", mc.alignCursors, { desc = "Align Cursors" })
 
-      -- All all matches in the document
-      { "gA", function() mc.matchAllAddCursors() end, mode = { "n", "v" } },
-
-      -- Rotate the main cursor.
-      { "<C-l>", function() mc.nextCursor() end , mode = { "n", "v" } },
-      { "<C-h>", function() mc.prevCursor() end , mode = { "n", "v" } },
-
-      -- Add and remove cursors with control + left click.
-      { "<C-leftmouse>", function() mc.handleMouse() end , mode = { "n", "v" } },
-
-      -- Easy way to add and remove cursors using the main cursor.
-      { "gb", function() mc.toggleCursor() end , mode = { "n", "v" } },
-
-      -- Clone every cursor and disable the originals.
-      { "gB", function() mc.duplicateCursors() end , mode = { "n", "v" } },
-
-      -- Append/insert for each line of visual selections.
-      { "I", function() mc.insertVisual() end , mode = { "v" } },
-      { "A", function() mc.appendVisual() end , mode = { "v" } },
-
-      -- Bring back cursors if you accidentally clear them
-      { "gV", function() mc.restoreCursors() end, mode = { "n" } },
-
-      -- Jumplist support
-      { "<c-i>", function() mc.jumpForward()  end, mode = { "v", "n" } },
-      { "<c-o>", function() mc.jumpBackward() end, mode = { "v", "n" } },
-
-      -- Use ESC to handle cursor clearing
-      {
-        "<Esc>",
-        function()
-          if not mc.cursorsEnabled() then
-            mc.enableCursors()
-          elseif mc.hasCursors() then
-            mc.clearCursors()
-          else
-            -- We do this to account for Flash's cursor weirdness
-            require("flash.repeat").get_state("jump"):hide()
-                local c = require("flash.plugins.char")
-                c.jumping = false
-                if c.state then
-                    c.state:hide()
-                end
-                c.state = nil
-                c.jump_labels = false
-                vim.cmd.noh()
-          end
-        end,
-        mode = { "n", "v" },
-      },
-
-      --[[ Disabled functionality, kept for reference ]]
-
-      -- You can also add cursors with any motion you prefer:
-      -- { "<Right>",         function() mc.addCurosor("w")  end, mode = { "n" } },
-      -- { "<Leader><Right>", function() mc.skipCurosor("w") end, mode = { "n" } },
-
-      -- Delete the main cursor.
-      -- { "<leader>x", mc.deleteCursor() end, mode = { "n", "v" } }
-
-      -- Split visual selections by regex.
-      -- { S", function() mc.splitCursors() end, mode = { "v" } }
-
-      -- match new cursors within visual selections by regex.
-      -- { "M", function() mc.matchCursors() end, mode = { "v" } }
-
-      -- Rotate visual selection contents.
-      -- { "<leader>t", function() mc.transposeCursors(1) end, mode = { "v" } }
-      -- { "<leader>T", function() mc.transposeCursors(-1) end, mode = { "v" } }
-
-      -- stylua: ignore end
-    }
+      -- Clear cursors using escape.
+      layerMap("n", "<Esc>", function()
+        if not mc.cursorsEnabled() then
+          mc.enableCursors()
+        else
+          mc.clearCursors()
+        end
+      end)
+    end)
+    -- stylua: ignore end
   end,
 }
