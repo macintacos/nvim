@@ -3,4 +3,13 @@
 
 ---@module "lazy"
 ---@type LazySpec
-return { "jakewvincent/mkdnflow.nvim", config = true }
+return {
+  "jakewvincent/mkdnflow.nvim",
+  config = function()
+    require("mkdnflow").setup({
+      mappings = {
+        MkdnNewListItem = { "i", "<CR>" },
+      },
+    })
+  end,
+}

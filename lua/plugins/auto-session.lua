@@ -14,5 +14,6 @@ return {
   ---@type AutoSession.Config
   opts = {
     suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+    pre_save_cmds = { require("config.helpers").close_all_floating_wins }
   },
 }

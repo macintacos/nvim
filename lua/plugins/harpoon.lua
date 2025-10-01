@@ -1,5 +1,6 @@
 -- github.com/ThePrimeagen/harpoon
 -- Keep your favorite files easily accessible per-project
+-- TODO: Actually figure out how this works :)
 
 ---@module "lazy"
 ---@type LazySpec

@@ -1,3 +1,8 @@
+-- github.com/b0o/incline.nvim
+-- Adds a winbar component for the name of the file or whatever
+
+---@module "lazy"
+---@type LazySpec
 return {
   "b0o/incline.nvim",
   opts = {
