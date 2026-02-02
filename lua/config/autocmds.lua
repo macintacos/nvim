@@ -134,7 +134,7 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   end,
 })
 
--- Watch chezmoi directories and apply things
+-- Watch chezmoi directories and apply things - requires https://github.com/xvzc/chezmoi.nvim
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { os.getenv("HOME") .. "/.local/share/chezmoi/*" },
   callback = function(ev)
