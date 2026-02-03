@@ -23,12 +23,13 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
 })
 
 -- Highlight on yank
-vim.api.nvim_create_autocmd("TextYankPost", {
-  group = augroup("highlight_yank"),
-  callback = function()
-    (vim.hl or vim.highlight).on_yank()
-  end,
-})
+-- Keeping this around, but this is now handled by tiny-glimmer.lua
+-- vim.api.nvim_create_autocmd("TextYankPost", {
+--   group = augroup("highlight_yank"),
+--   callback = function()
+--     (vim.hl or vim.highlight).on_yank()
+--   end,
+-- })
 
 -- resize splits if window got resized
 vim.api.nvim_create_autocmd({ "VimResized" }, {
@@ -133,7 +134,7 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   end,
 })
 
--- Watch chezmoi directories and apply things
+-- Watch chezmoi directories and apply things - requires https://github.com/xvzc/chezmoi.nvim
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { os.getenv("HOME") .. "/.local/share/chezmoi/*" },
   callback = function(ev)

@@ -16,6 +16,15 @@ map("n", "gi", vim.lsp.buf.implementation, noremap("Goto Implementation"))
 map("n", "gy", vim.lsp.buf.type_definition, noremap("Goto T[y]pe Definition"))
 map("i", "<C-k>", vim.lsp.buf.signature_help, noremap("Show Signature Help"))
 
+-- LSP config for languages
+vim.lsp.config("jsonnet_ls", {
+  -- Ref: https://github.com/grafana/jsonnet-language-server/tree/main/editor/vim
+  settings = { formatting = { StringStyle = "double", },
+  },
+})
+
+---@module "lazy"
+---@type LazySpec
 return {
   "mason-org/mason-lspconfig.nvim",
   opts = {},
@@ -24,8 +33,16 @@ return {
       "mason-org/mason.nvim",
       opts = {
         ensure_installed = {
-          "stylua",
+          "bash-language-server",
+          "jsonnet-language-server",
+          "lua-language-server",
+          "markdownlint-cli2",
+          "selene",
+          "shellcheck",
           "shfmt",
+          "stylua",
+          "taplo",
+          "yamlfmt",
         },
       },
     },
