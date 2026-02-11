@@ -5,7 +5,8 @@
 ---@type LazySpec
 return {
   "Saghen/blink.cmp",
-  build = "cargo build --release",
+  -- Change this to 'cargo build --release' once this is resolved: https://github.com/saghen/blink.cmp/issues/2376
+  build = "cargo +nightly-2025-09-30 build --release",
 
   ---@module 'blink.cmp'
   ---@type blink.cmp.Config
