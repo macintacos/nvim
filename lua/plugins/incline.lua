@@ -5,10 +5,14 @@
 ---@type LazySpec
 return {
   "b0o/incline.nvim",
+  dependencies = {
+    "nvim-tree/nvim-web-devicons",
+  },
   opts = {
     window = {
       padding = 0,
       margin = { horizontal = 0 },
+      placement = { vertical = "bottom", horizontal = "right" },
     },
     ignore = {
       -- Support the zen mode from Snacks.nvim
