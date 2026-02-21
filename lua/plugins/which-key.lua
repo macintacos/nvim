@@ -34,8 +34,12 @@ return {
       ---@diagnostic disable-next-line: undefined-field
       { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
-      { "<leader>fe", Cmd("Neotree focus right"), desc = "Show Explorer" },
-      { "<leader>fu", Cmd("Neotree reveal right"), desc = "Unveil in Neotree" },
+      { "<leader>fe", function() MiniFiles.open() end, desc = "Show Explorer" },
+      { "<leader>fu", 
+        function()
+          MiniFiles.open(vim.api.nvim_buf_get_name(0), true)
+        end,
+        desc = "Unveil in Explorer" },
       { "<leader>fR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
       { "<leader>f=", function() vim.lsp.buf.format() end, desc = "Format File" },
 
