@@ -81,18 +81,31 @@ vim.api.nvim_create_autocmd('User', {
     local buf = args.data.buf_id
     local files = require('mini.files')
 
+    -- Enter file (closing explorer) or expand directory inline
     vim.keymap.set('n', '<CR>', function()
       files.go_in({ close_on_file = true })
     end, { buffer = buf, desc = 'Open file or expand directory' })
 
+    -- Reset navigation to the working directory root
     vim.keymap.set('n', 'H', function()
       files.open(vim.uv.cwd(), false)
     end, { buffer = buf, desc = 'Go to cwd root' })
 
+    -- Write pending filesystem changes, then close the explorer
     vim.keymap.set('n', 'q', function()
       files.synchronize()
       files.close()
     end, { buffer = buf, desc = 'Sync and close' })
+
+    -- Toggle the preview pane on/off by trimming and re-syncing the branch
+    vim.keymap.set('n', '<M-p>', function()
+      files.config.windows.preview = not files.config.windows.preview
+      local state = files.get_explorer_state()
+      if state then
+        local branch = vim.list_slice(state.branch, 1, state.depth_focus)
+        files.set_branch(branch, { depth_focus = state.depth_focus })
+      end
+    end, { buffer = buf, desc = 'Toggle preview pane' })
   end,
 })
 
