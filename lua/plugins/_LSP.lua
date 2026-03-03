@@ -19,8 +19,24 @@ map("i", "<C-k>", vim.lsp.buf.signature_help, noremap("Show Signature Help"))
 -- LSP config for languages
 vim.lsp.config("jsonnet_ls", {
   -- Ref: https://github.com/grafana/jsonnet-language-server/tree/main/editor/vim
-  settings = { formatting = { StringStyle = "double", },
+  settings = { formatting = { StringStyle = "double" } },
+})
+
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      diagnostics = { globals = { "vim" } },
+      completion = { callSnippet = "Replace" },
+      hint = { enable = true },
+    },
   },
+})
+
+vim.lsp.enable({
+  "bashls",
+  "jsonnet_ls",
+  "lua_ls",
+  "taplo",
 })
 
 ---@module "lazy"
