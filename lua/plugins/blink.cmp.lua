@@ -40,7 +40,7 @@ return {
       completion = {
         list = { selection = { preselect = false } },
         menu = {
-          auto_show = function(ctx)
+          auto_show = function(_ctx)
             return vim.fn.getcmdtype() == ":"
           end,
         },
