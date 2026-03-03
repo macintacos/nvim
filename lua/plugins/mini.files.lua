@@ -16,16 +16,39 @@ vim.api.nvim_create_autocmd('VimResized', {
   end,
 })
 
--- Cap window height at 70% of screen
+-- Cap window height at 70% of screen; fit directory preview width to content
 vim.api.nvim_create_autocmd('User', {
   pattern = 'MiniFilesWindowUpdate',
   callback = function(args)
-    local config = vim.api.nvim_win_get_config(args.data.win_id)
+    local win_id = args.data.win_id
+    local buf_id = args.data.buf_id
+    local config = vim.api.nvim_win_get_config(win_id)
+
+    -- Height cap for all windows
     local max_height = math.floor(vim.o.lines * 0.7)
     if config.height > max_height then
       config.height = max_height
-      vim.api.nvim_win_set_config(args.data.win_id, config)
     end
+
+    -- For preview windows showing directories, fit width to content
+    local files = require('mini.files')
+    if config.width == files.config.windows.width_preview then
+      local first_line = vim.api.nvim_buf_get_lines(buf_id, 0, 1, false)[1] or ''
+      if first_line:match('^/%d+/') then
+        local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+        local max_width = 0
+        for _, line in ipairs(lines) do
+          local icon, name = line:match('^/%d+/(.-)/(.*)')
+          if icon then
+            local w = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(name)
+            if w > max_width then max_width = w end
+          end
+        end
+        config.width = math.max(max_width + 1, 1)
+      end
+    end
+
+    vim.api.nvim_win_set_config(win_id, config)
   end,
 })
 
