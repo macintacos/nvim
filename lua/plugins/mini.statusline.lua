@@ -14,5 +14,5 @@ set_statusline_highlights()
 return {
   "nvim-mini/mini.statusline",
   version = "*",
-  opts = { },
+  opts = {},
 }

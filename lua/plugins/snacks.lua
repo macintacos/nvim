@@ -12,7 +12,7 @@ return {
     explorer = { enabled = true },
     indent = { enabled = true },
     input = { enabled = true },
-    image = {enabled = true},
+    image = { enabled = true },
     lazygit = { enabled = true },
     notifier = { enabled = true, top_down = false },
     picker = { enabled = true },

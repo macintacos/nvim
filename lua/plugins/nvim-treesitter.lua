@@ -59,9 +59,9 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = langs_to_install,
   callback = function()
     vim.treesitter.start() -- syntax highlighting
-    vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()' -- folds
+    vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- folds
     vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-  end
+  end,
 })
 
 ---@module "lazy"

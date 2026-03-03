@@ -20,7 +20,7 @@ return {
     },
     preview = {
       show_file_info = true,
-    }
+    },
   },
   -- No need to lazy-load with lazy.nvim, this plugin initializes itself lazily.
   lazy = false,

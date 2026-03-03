@@ -1,5 +1,5 @@
 ---@module "lazy"
 ---@type LazySpec
 return {
-  "sindrets/diffview.nvim"
+  "sindrets/diffview.nvim",
 }

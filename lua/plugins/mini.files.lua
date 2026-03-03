@@ -1,7 +1,7 @@
 -- github.com/nvim-mini/mini.files
 -- Interactive column-view file explorer
 
-local augroup = vim.api.nvim_create_augroup('mini_files_config', { clear = true })
+local augroup = vim.api.nvim_create_augroup("mini_files_config", { clear = true })
 
 ---@return integer
 local function preview_width()
@@ -18,22 +18,26 @@ local function directory_content_width(buf_id)
   local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
   local max_width, found = 0, false
   for _, line in ipairs(lines) do
-    local icon, name = line:match('^/%d+/(.-)/(.*)')
+    local icon, name = line:match("^/%d+/(.-)/(.*)")
     if icon then
       found = true
       local w = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(name)
-      if w > max_width then max_width = w end
+      if w > max_width then
+        max_width = w
+      end
     end
   end
   return found and max_width or nil
 end
 
 -- Resize preview pane when terminal dimensions change
-vim.api.nvim_create_autocmd('VimResized', {
+vim.api.nvim_create_autocmd("VimResized", {
   group = augroup,
   callback = function()
-    local ok, files = pcall(require, 'mini.files')
-    if not ok then return end
+    local ok, files = pcall(require, "mini.files")
+    if not ok then
+      return
+    end
     local width = preview_width()
     files.config.windows.width_preview = width
     pcall(files.refresh, { windows = { width_preview = width } })
@@ -41,9 +45,9 @@ vim.api.nvim_create_autocmd('VimResized', {
 })
 
 -- Cap window height at 70% of screen; fit directory preview width to content
-vim.api.nvim_create_autocmd('User', {
+vim.api.nvim_create_autocmd("User", {
   group = augroup,
-  pattern = 'MiniFilesWindowUpdate',
+  pattern = "MiniFilesWindowUpdate",
   ---@param args { data: { win_id: integer, buf_id: integer } }
   callback = function(args)
     local win_id = args.data.win_id
@@ -57,7 +61,7 @@ vim.api.nvim_create_autocmd('User', {
       changed = true
     end
 
-    local files = require('mini.files')
+    local files = require("mini.files")
     if config.width == files.config.windows.width_preview then
       local content_width = directory_content_width(buf_id)
       if content_width then
@@ -73,39 +77,39 @@ vim.api.nvim_create_autocmd('User', {
 })
 
 -- Buffer-local keymaps for the file explorer
-vim.api.nvim_create_autocmd('User', {
+vim.api.nvim_create_autocmd("User", {
   group = augroup,
-  pattern = 'MiniFilesBufferCreate',
+  pattern = "MiniFilesBufferCreate",
   ---@param args { data: { buf_id: integer } }
   callback = function(args)
     local buf = args.data.buf_id
-    local files = require('mini.files')
+    local files = require("mini.files")
 
     -- Enter file (closing explorer) or expand directory inline
-    vim.keymap.set('n', '<CR>', function()
+    vim.keymap.set("n", "<CR>", function()
       files.go_in({ close_on_file = true })
-    end, { buffer = buf, desc = 'Open file or expand directory' })
+    end, { buffer = buf, desc = "Open file or expand directory" })
 
     -- Reset navigation to the working directory root
-    vim.keymap.set('n', 'H', function()
+    vim.keymap.set("n", "H", function()
       files.open(vim.uv.cwd(), false)
-    end, { buffer = buf, desc = 'Go to cwd root' })
+    end, { buffer = buf, desc = "Go to cwd root" })
 
     -- Write pending filesystem changes, then close the explorer
-    vim.keymap.set('n', 'q', function()
+    vim.keymap.set("n", "q", function()
       files.synchronize()
       files.close()
-    end, { buffer = buf, desc = 'Sync and close' })
+    end, { buffer = buf, desc = "Sync and close" })
 
     -- Toggle the preview pane on/off by trimming and re-syncing the branch
-    vim.keymap.set('n', '<M-p>', function()
+    vim.keymap.set("n", "<M-p>", function()
       files.config.windows.preview = not files.config.windows.preview
       local state = files.get_explorer_state()
       if state then
         local branch = vim.list_slice(state.branch, 1, state.depth_focus)
         files.set_branch(branch, { depth_focus = state.depth_focus })
       end
-    end, { buffer = buf, desc = 'Toggle preview pane' })
+    end, { buffer = buf, desc = "Toggle preview pane" })
   end,
 })
 
@@ -124,5 +128,5 @@ return {
         use_as_default_explorer = true,
       },
     }
-  end
+  end,
 }
