@@ -25,6 +25,7 @@ When working with this configuration, consult the official Neovim documentation:
 │   │   ├── highlights.lua# Custom highlight groups
 │   │   └── helpers.lua   # Utility functions
 │   └── plugins/          # Plugin specifications (one file per plugin)
+├── justfile              # Task runner recipes (format, lint, check)
 ├── lazy-lock.json        # Plugin version lockfile (managed by lazy.nvim)
 └── stylua.toml           # Lua formatter configuration
 ```
@@ -140,4 +141,46 @@ After making changes:
 - Format Lua files with StyLua (config in `stylua.toml`)
 - Use type annotations where helpful
 - Comment non-obvious configurations
+
+## Lua Development Tooling
+
+This configuration includes integrated Lua development tools:
+
+### Type Annotations
+
+- Use LuaCATS annotations (`---@param`, `---@return`, `---@type`, `---@class`) for type safety
+- Plugin specs must include `---@module "lazy"` and `---@type LazySpec`
+- lazydev.nvim provides Neovim API completions and type definitions
+
+### Formatting and Linting
+
+- **stylua** formats Lua on save via conform.nvim (also formats sh with shfmt, yaml with yamlfmt)
+- **selene** lints Lua on save/open via nvim-lint (also lints sh with shellcheck, markdown with markdownlint-cli2)
+- `<leader>f=` triggers manual format via conform (falls back to LSP)
+
+### Adding Globals to Selene
+
+To suppress selene warnings for new runtime globals, add them to `vim.yml`:
+
+```yaml
+globals:
+  NewGlobal:
+    any: true
+```
+
+### CLI Tools
+
+After editing Lua files, run `just check` to lint and format all files. Individual recipes:
+
+- `just format` — auto-fix formatting with stylua
+- `just lint` — run selene linter
+- `just check` — run both lint and format
+
+### Verification After Changes
+
+1. Run `just check` to lint and format all Lua files
+2. Save a Lua file — confirm stylua auto-formats
+3. Check for linting warnings in the diagnostics
+4. Run `:ConformInfo` to verify formatter config
+5. Run `:LspInfo` to verify lua_ls is attached
 
