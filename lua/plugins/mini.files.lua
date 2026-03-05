@@ -96,10 +96,13 @@ vim.api.nvim_create_autocmd("User", {
     end, { buffer = buf, desc = "Go to cwd root" })
 
     -- Write pending filesystem changes, then close the explorer
-    vim.keymap.set("n", "q", function()
+    local function sync_and_close()
       files.synchronize()
       files.close()
-    end, { buffer = buf, desc = "Sync and close" })
+    end
+
+    vim.keymap.set("n", "q", sync_and_close, { buffer = buf, desc = "Sync and close" })
+    vim.keymap.set("n", "<Esc>", sync_and_close, { buffer = buf, desc = "Sync and close" })
 
     -- Toggle the preview pane on/off by trimming and re-syncing the branch
     vim.keymap.set("n", "<M-p>", function()
