@@ -1,5 +1,3 @@
-# AGENTS.md
-
 This document provides guidance for AI agents working with this Neovim configuration repository.
 
 ## Documentation Reference
