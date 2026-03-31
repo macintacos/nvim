@@ -1,0 +1,4 @@
+-- github.com/Bekaboo/dropbar.nvim
+-- Breadcrumb navigation bar
+vim.pack.add({ "https://github.com/Bekaboo/dropbar.nvim" })
+require("dropbar").setup()

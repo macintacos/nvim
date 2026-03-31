@@ -9,92 +9,88 @@ When working with this configuration, consult the official Neovim documentation:
 - **Neovim Help**: `:help` within Neovim or https://neovim.io/doc/
 - **Neovim Lua Guide**: `:help lua-guide` or https://neovim.io/doc/user/lua-guide.html
 - **Neovim API**: `:help api` or https://neovim.io/doc/user/api.html
-- **lazy.nvim Documentation**: https://lazy.folke.io/
+- **vim.pack**: Built-in plugin manager (Neovim 0.12.0+) — `:help vim.pack`
 
 ## Repository Structure
 
 ```
 .
-├── init.lua              # Entry point - loads lua/config/lazy.lua
+├── init.lua              # Entry point: vim.loader, core config, PackChanged builds
+├── plugin/               # Plugin files (auto-sourced by Neovim after init.lua)
+│   ├── snacks.lua        # Each file calls vim.pack.add() + setup() directly
+│   ├── treesitter.lua
+│   ├── lsp.lua
+│   └── ...
 ├── lua/
-│   ├── config/           # Core configuration modules
-│   │   ├── lazy.lua      # lazy.nvim bootstrap and setup
-│   │   ├── options.lua   # Neovim options and globals
-│   │   ├── keymaps.lua   # Global keybindings
-│   │   ├── autocmds.lua  # Autocommands
-│   │   ├── highlights.lua# Custom highlight groups
-│   │   └── helpers.lua   # Utility functions
-│   └── plugins/          # Plugin specifications (one file per plugin)
+│   └── config/           # Core configuration modules
+│       ├── options.lua   # Neovim options and globals
+│       ├── keymaps.lua   # Global keybindings
+│       ├── autocmds.lua  # Autocommands
+│       ├── highlights.lua# Custom highlight groups
+│       └── helpers.lua   # Utility functions
 ├── justfile              # Task runner recipes (format, lint, check)
-├── lazy-lock.json        # Plugin version lockfile (managed by lazy.nvim)
+├── nvim-pack-lock.json   # Plugin version lockfile (managed by vim.pack)
 └── stylua.toml           # Lua formatter configuration
 ```
 
-## Plugin Manager: lazy.nvim
+## Plugin Manager: vim.pack (built-in)
 
-This configuration uses [lazy.nvim](https://github.com/folke/lazy.nvim) for plugin management.
+This configuration uses Neovim's built-in `vim.pack` for plugin management. No external plugin manager is needed.
 
-### Plugin Specification Pattern
+### Plugin File Pattern
 
-Each plugin is defined in its own file under `lua/plugins/`. Files should return a `LazySpec` table:
+Each plugin lives in its own file under `plugin/`. Files are auto-sourced by Neovim at startup (alphabetically, after init.lua). Every file starts with a header comment and calls `vim.pack.add()` directly:
 
 ```lua
----@module "lazy"
----@type LazySpec
-return {
-  "author/plugin-name",
+-- github.com/author/plugin-name
+-- Short description of what the plugin does
+vim.pack.add({ "https://github.com/author/plugin-name" })
+require("plugin-name").setup({
   -- Plugin options here
-  opts = {},
-}
+})
 ```
 
-### Common Plugin Spec Fields
+### Plugin Spec Format
 
-- `opts` - Configuration passed to `plugin.setup(opts)`
-- `config` - Function called when plugin loads (use `opts` when possible)
-- `init` - Function called at startup before plugin loads
-- `lazy` - Whether to lazy-load (default: true)
-- `event` - Events that trigger loading (e.g., `"BufReadPre"`, `"VeryLazy"`)
-- `ft` - Filetypes that trigger loading
-- `cmd` - Commands that trigger loading
-- `keys` - Keymaps that trigger loading
-- `dependencies` - Plugins that must load first
-- `build` - Build command run after install/update
-- `priority` - Load order for non-lazy plugins (higher = earlier)
+- **String**: `"https://github.com/author/plugin"` — simple URL
+- **Table**: `{ src = "https://github.com/author/plugin", version = "stable" }` — with options
+- **List**: Multiple specs in one `vim.pack.add()` call for related plugins
 
-### Type Annotations
+### Loading Strategies
 
-Use LuaCATS annotations for better IDE support:
+Plugins are loaded in three tiers:
 
-```lua
----@module "lazy"
----@type LazySpec
-return {
-  "plugin/name",
-  ---@module "plugin-name"
-  ---@type PluginConfig
-  opts = {},
-}
-```
+1. **Eager** — `vim.pack.add()` with default `load` (installs and loads immediately)
+2. **Deferred** — `vim.pack.add({ ... }, { load = false })` + `vim.schedule()` to packadd after startup
+3. **Lazy** — `vim.pack.add({ ... }, { load = false })` + a trigger (`once` autocmd, stub command, or stub keymap) that calls `vim.cmd.packadd()` on first use
 
 ## Configuration Loading Order
 
-1. `init.lua` → requires `config.lazy`
-2. `config/lazy.lua`:
-   - Bootstraps lazy.nvim
-   - Loads `config/options.lua`
-   - Loads `config/autocmds.lua`
-   - Loads `config/keymaps.lua`
-   - Loads `config/highlights.lua`
-   - Initializes lazy.nvim with `{ import = "plugins" }`
-3. lazy.nvim loads all files from `lua/plugins/`
+1. `init.lua`:
+   - Enables `vim.loader` for fast bytecode caching
+   - Loads `config/options.lua`, `config/autocmds.lua`, `config/keymaps.lua`, `config/highlights.lua`
+   - Registers `PackChanged` autocommand for plugin build steps
+2. Neovim auto-sources all `plugin/*.lua` files (alphabetically)
+   - Each file calls `vim.pack.add()` and configures its plugin(s)
 
 ## Conventions
 
 ### File Naming
 
-- Plugin files: `lua/plugins/<plugin-name>.lua` (use the plugin's short name)
-- Files prefixed with `_` (e.g., `_LSP.lua`) indicate broader configurations
+- Plugin files: `plugin/<plugin-name>.lua` (one per plugin, use the plugin's short name)
+
+### File Header
+
+Every `plugin/*.lua` file **must** start with:
+```lua
+-- <repo link>
+-- <short, simple sentence describing the plugin>
+```
+
+### Autocommands
+
+- Every `nvim_create_autocmd` **must** have a comment above it explaining what it does, why it exists, and when it fires
+- For lazy-loading autocmds, explain which plugin is being loaded and what triggers it
 
 ### Keymaps
 
@@ -118,23 +114,23 @@ Important globals defined in `config/options.lua`:
 - **mason.nvim + mason-lspconfig.nvim** - LSP server management
 - **nvim-treesitter** - Syntax highlighting and code understanding
 - **blink.cmp** - Completion engine
-- **neo-tree.nvim** - File explorer
+- **mini.files** - File explorer
 - **which-key.nvim** - Keymap hints
 
 ## Making Changes
 
-1. **Adding a plugin**: Create `lua/plugins/<plugin-name>.lua` returning a LazySpec
+1. **Adding a plugin**: Create `plugin/<plugin-name>.lua` with `vim.pack.add()` + setup
 2. **Modifying options**: Edit `lua/config/options.lua`
-3. **Adding keymaps**: Edit `lua/config/keymaps.lua` or add to plugin's `keys` spec
+3. **Adding keymaps**: Edit `lua/config/keymaps.lua` or add to the plugin's `plugin/*.lua` file
 4. **Adding autocommands**: Edit `lua/config/autocmds.lua`
 
 ## Testing Changes
 
 After making changes:
 
-1. Restart Neovim or run `:Lazy reload <plugin>`
-2. Check for errors with `:messages` or `:checkhealth`
-3. Run `:Lazy` to manage plugins
+1. Restart Neovim
+2. Check for errors with `:messages` or `:checkhealth vim.pack`
+3. Run `:lua vim.pack.update()` to manage plugins
 
 ## Code Style
 
@@ -149,7 +145,6 @@ This configuration includes integrated Lua development tools:
 ### Type Annotations
 
 - Use LuaCATS annotations (`---@param`, `---@return`, `---@type`, `---@class`) for type safety
-- Plugin specs must include `---@module "lazy"` and `---@type LazySpec`
 - lazydev.nvim provides Neovim API completions and type definitions
 
 ### Formatting and Linting
@@ -183,4 +178,3 @@ After editing Lua files, run `just check` to lint and format all files. Individu
 3. Check for linting warnings in the diagnostics
 4. Run `:ConformInfo` to verify formatter config
 5. Run `:LspInfo` to verify lua_ls is attached
-
