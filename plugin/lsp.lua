@@ -37,15 +37,31 @@ vim.lsp.config("lua_ls", {
   },
 })
 
-vim.lsp.enable({ "bashls", "jsonnet_ls", "lua_ls", "taplo" })
+vim.lsp.config("basedpyright", {
+  settings = {
+    basedpyright = {
+      analysis = {
+        typeCheckingMode = "off",
+      },
+    },
+  },
+})
+
+vim.lsp.config("ty", {
+  cmd = { "uvx", "ty", "server" },
+})
+
+vim.lsp.enable({ "basedpyright", "bashls", "jsonnet_ls", "lua_ls", "taplo", "ty" })
 
 -- Mason
 require("mason").setup({
   ensure_installed = {
+    "basedpyright",
     "bash-language-server",
     "jsonnet-language-server",
     "lua-language-server",
     "markdownlint-cli2",
+    "ruff",
     "selene",
     "shellcheck",
     "shfmt",
