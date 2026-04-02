@@ -15,6 +15,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         sh = { "shfmt" },
         yaml = { "yamlfmt" },
       },
+      formatters = {
+        shfmt = {
+          prepend_args = { "-i", "0" },
+        },
+      },
       format_on_save = {
         timeout_ms = 3000,
         lsp_format = "fallback",
@@ -36,6 +41,11 @@ vim.api.nvim_create_user_command("ConformInfo", function()
       python = { "ruff_format" },
       sh = { "shfmt" },
       yaml = { "yamlfmt" },
+    },
+    formatters = {
+      shfmt = {
+        prepend_args = { "-i", "0" },
+      },
     },
     format_on_save = {
       timeout_ms = 3000,
