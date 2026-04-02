@@ -11,8 +11,8 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
     vim.cmd.packadd("nvim-lint")
     require("lint").linters_by_ft = {
       lua = { "selene" },
-      sh = { "shellcheck" },
       markdown = { "markdownlint-cli2" },
+      sh = { "shellcheck" },
     }
     -- Persistent autocmd for all future lint triggers
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
