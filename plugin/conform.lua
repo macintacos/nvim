@@ -11,6 +11,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     require("conform").setup({
       formatters_by_ft = {
         lua = { "stylua" },
+        python = { "ruff_format" },
         sh = { "shfmt" },
         yaml = { "yamlfmt" },
       },
@@ -32,6 +33,7 @@ vim.api.nvim_create_user_command("ConformInfo", function()
   require("conform").setup({
     formatters_by_ft = {
       lua = { "stylua" },
+      python = { "ruff_format" },
       sh = { "shfmt" },
       yaml = { "yamlfmt" },
     },
