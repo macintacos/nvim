@@ -42,6 +42,8 @@ vim.schedule(function()
         desc = "Unveil in Explorer" },
       { "<leader>fR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
       { "<leader>f=", function() require("conform").format({ async = true }) end, desc = "Format File" },
+      { "<leader>fs", Cmd("w"), desc = "Save File" },
+      { "<leader>fS", Cmd("noautocmd w"), desc = "Save File (no format)" },
 
       -- Git
       { "<leader>g", group = "git" },
