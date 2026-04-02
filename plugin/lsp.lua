@@ -16,11 +16,15 @@ map("n", "gD", function()
   vim.cmd("vsplit")
   vim.lsp.buf.definition()
 end, noremap("Goto Definition in Split"))
-map("n", "gh", vim.lsp.buf.hover, noremap("Show Hover"))
+map("n", "gh", function()
+  vim.lsp.buf.hover({ border = "rounded", max_width = 80 })
+end, noremap("Show Hover"))
 map("n", "gr", vim.lsp.buf.references, noremap("Goto References"))
 map("n", "gi", vim.lsp.buf.implementation, noremap("Goto Implementation"))
 map("n", "gy", vim.lsp.buf.type_definition, noremap("Goto T[y]pe Definition"))
-map("i", "<C-k>", vim.lsp.buf.signature_help, noremap("Show Signature Help"))
+map("i", "<C-k>", function()
+  vim.lsp.buf.signature_help({ border = "rounded", max_width = 80 })
+end, noremap("Show Signature Help"))
 
 -- LSP server configs
 vim.lsp.config("jsonnet_ls", {
