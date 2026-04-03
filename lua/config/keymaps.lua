@@ -90,3 +90,20 @@ vim.keymap.set("n", "<C-\\>", neo_tree_focus_toggle, { noremap = true, silent = 
 -- Join the next/prev line with the current
 map("n", "<A-J>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
 map("n", "<A-K>", Cmd(".-1,.join"), { desc = "Join Current Line w/ Prev" })
+
+-- Select parent/child treesitter node (falls back to LSP selection range)
+map({ "n", "x", "o" }, "<A-o>", function()
+	if vim.treesitter.get_parser(nil, nil, { error = false }) then
+		require("vim.treesitter._select").select_parent(vim.v.count1)
+	else
+		vim.lsp.buf.selection_range(vim.v.count1)
+	end
+end, { desc = "Select Parent Node" })
+
+map({ "n", "x", "o" }, "<A-i>", function()
+	if vim.treesitter.get_parser(nil, nil, { error = false }) then
+		require("vim.treesitter._select").select_child(vim.v.count1)
+	else
+		vim.lsp.buf.selection_range(-vim.v.count1)
+	end
+end, { desc = "Select Child Node" })
