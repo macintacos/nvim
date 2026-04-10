@@ -112,8 +112,24 @@ vim.api.nvim_create_autocmd("User", {
     local files = require("mini.files")
 
     vim.keymap.set("n", "<CR>", function()
-      files.go_in({ close_on_file = true })
+      local entry = files.get_fs_entry()
+      if entry then
+        files.go_in({ close_on_file = true })
+      else
+        -- Entry doesn't exist yet — sync to create it, then open
+        files.synchronize()
+        files.go_in({ close_on_file = true })
+      end
     end, { buffer = buf, desc = "Open file or expand directory" })
+
+    -- Intercept :w to trigger synchronize instead of a regular file write —
+    -- prompts the user to confirm pending file system changes
+    vim.api.nvim_create_autocmd("BufWriteCmd", {
+      buffer = buf,
+      callback = function()
+        files.synchronize()
+      end,
+    })
 
     vim.keymap.set("n", "H", function()
       files.open(vim.uv.cwd(), false)
