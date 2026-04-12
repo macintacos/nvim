@@ -102,6 +102,16 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
+-- Disable scrolloff inside mini.files windows so entries at the top
+-- and bottom of the list aren't pushed away from the edge
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = "minifiles",
+  callback = function()
+    vim.opt_local.scrolloff = 0
+  end,
+})
+
 -- Buffer-local keymaps set each time a new explorer buffer is created
 vim.api.nvim_create_autocmd("User", {
   group = augroup,

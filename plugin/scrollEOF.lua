@@ -7,6 +7,8 @@ vim.api.nvim_create_autocmd("CursorMoved", {
   once = true,
   callback = function()
     vim.cmd.packadd("scrollEOF.nvim")
-    require("scrollEOF").setup()
+    require("scrollEOF").setup({
+      disabled_filetypes = { "minifiles" },
+    })
   end,
 })
