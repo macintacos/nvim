@@ -134,6 +134,16 @@ vim.schedule(function()
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation" },
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode" },
 
+      -- Plugins
+      { "<leader>P", group = "plugins" },
+      { "<leader>Pc", function() require("config.pack-updates").check(true) end, desc = "Check for Updates" },
+      { "<leader>Pu", function() vim.pack.update() end, desc = "Update Plugins" },
+      { "<leader>PU", function() vim.pack.update(nil, { force = true }) end, desc = "Update Plugins (force, no confirm)" },
+      { "<leader>Ps", function() vim.pack.update(nil, { offline = true }) end, desc = "Show Plugin Status" },
+      { "<leader>Pr", function() vim.pack.update(nil, { target = "lockfile" }) end, desc = "Restore to Lockfile" },
+      { "<leader>Ph", Cmd("checkhealth vim.pack"), desc = "Health Check" },
+      { "<leader>Pd", function() vim.pack.del() end, desc = "Clean Unused Plugins" },
+
       -- Windows
       { "<leader>w", group = "window", proxy = "<C-w>" },
       { "<leader>w-", Cmd("rightbelow sb"), desc = "Split Window Horizontal" },

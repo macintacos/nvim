@@ -143,14 +143,18 @@ end
 --- Compare locked revisions against remote HEAD for all plugins.
 --- Respects the 24-hour cache — skips network calls if a recent
 --- check result is available and the lock file hasn't changed.
+--- Pass `force = true` to bypass the cache and always hit the network.
 --- Runs `git ls-remote` asynchronously, batched to at most MAX_CONCURRENT
 --- concurrent processes. Triggers a statusline redraw on completion.
-function M.check()
-  local valid, cache = cache_is_valid()
-  if valid and cache then
-    count = cache.count
-    vim.cmd.redrawstatus()
-    return
+---@param force? boolean Skip cache validation and always check remote
+function M.check(force)
+  if not force then
+    local valid, cache = cache_is_valid()
+    if valid and cache then
+      count = cache.count
+      vim.cmd.redrawstatus()
+      return
+    end
   end
 
   local plugins = read_lockfile()
