@@ -165,26 +165,53 @@ function M.check(force)
   count = 0
   start_spinner()
 
-  ---@type { src: string, rev: string }[]
+  ---@type { src: string, rev: string, version: string? }[]
   local queue = {}
   for _, spec in pairs(plugins) do
-    table.insert(queue, { src = spec.src, rev = spec.rev })
+    -- Only queue plugins whose remote ref we can resolve:
+    -- no version (query HEAD) or pinned branch/tag (e.g. "'stable'")
+    if not spec.version or spec.version:match("^'(.+)'$") then
+      table.insert(queue, { src = spec.src, rev = spec.rev, version = spec.version })
+    end
   end
 
   local total = #queue
   local completed = 0
   local idx = 0
 
+  local spawn_next
+
+  local function on_complete()
+    completed = completed + 1
+    if completed == total then
+      stop_spinner()
+      write_cache(count)
+      vim.cmd.redrawstatus()
+    else
+      spawn_next()
+    end
+  end
+
   -- Pull the next plugin off the queue and check it. Each completion
   -- callback spawns the next check, keeping MAX_CONCURRENT in flight.
-  local function spawn_next()
+  spawn_next = function()
     idx = idx + 1
     if idx > total then
       return
     end
 
     local entry = queue[idx]
-    vim.system({ "git", "ls-remote", entry.src, "HEAD" }, {}, function(result)
+
+    -- Resolve remote ref from version constraint
+    local ref_args
+    if not entry.version then
+      ref_args = { "HEAD" }
+    else
+      local pinned = entry.version:match("^'(.+)'$")
+      ref_args = { "refs/heads/" .. pinned, "refs/tags/" .. pinned }
+    end
+
+    vim.system({ "git", "ls-remote", entry.src, unpack(ref_args) }, {}, function(result)
       vim.schedule(function()
         if result.code == 0 and result.stdout then
           local remote_rev = result.stdout:match("^(%x+)")
@@ -192,15 +219,7 @@ function M.check(force)
             count = count + 1
           end
         end
-
-        completed = completed + 1
-        if completed == total then
-          stop_spinner()
-          write_cache(count)
-          vim.cmd.redrawstatus()
-        else
-          spawn_next()
-        end
+        on_complete()
       end)
     end)
   end
