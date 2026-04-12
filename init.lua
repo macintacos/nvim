@@ -19,6 +19,15 @@ local function find_plugin_path(name)
   end
 end
 
+-- Check for plugin updates asynchronously after startup — runs
+-- git ls-remote for each plugin in a background thread pool
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    require("config.pack-updates").check()
+  end,
+})
+
 -- Some plugins ship native code that must be compiled after cloning.
 -- vim.pack fires PackChanged once per plugin on install or update —
 -- we hook into it here to run the appropriate build step for each.

@@ -5,3 +5,5 @@ globals:
     any: true
   MiniFiles:
     any: true
+  MiniStatusline:
+    any: true
