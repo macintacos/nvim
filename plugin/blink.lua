@@ -1,8 +1,8 @@
 -- github.com/Saghen/blink.cmp + blink.pairs
 -- Completion engine with auto-bracket pairing
 vim.pack.add({
-  "https://github.com/Saghen/blink.cmp",
-  "https://github.com/Saghen/blink.pairs",
+  { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.x") },
+  { src = "https://github.com/Saghen/blink.pairs", version = vim.version.range("0.x") },
   "https://github.com/Saghen/blink.download",
 })
 

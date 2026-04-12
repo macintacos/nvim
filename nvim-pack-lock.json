@@ -9,16 +9,18 @@
       "src": "https://github.com/rmagatti/auto-session"
     },
     "blink.cmp": {
-      "rev": "456d38d1cd3743926f329204c2340f3e7840aad6",
-      "src": "https://github.com/Saghen/blink.cmp"
+      "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
+      "src": "https://github.com/Saghen/blink.cmp",
+      "version": "1.0.0 - 2.0.0"
     },
     "blink.download": {
       "rev": "a459c8fbf51359902971874b5ebe05f6602db8b4",
       "src": "https://github.com/Saghen/blink.download"
     },
     "blink.pairs": {
-      "rev": "2da33da164fbbf5cf52214fb9e7db1096d55e0dc",
-      "src": "https://github.com/Saghen/blink.pairs"
+      "rev": "4e43012356d33a26f69eae475f746fbe9f325f44",
+      "src": "https://github.com/Saghen/blink.pairs",
+      "version": "0.0.0 - 1.0.0"
     },
     "chezmoi.nvim": {
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",

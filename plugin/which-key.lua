@@ -101,7 +101,11 @@ vim.schedule(function()
         mode = { "n", "v" },
         desc = "Search and Replace" },
       { "<leader>ss", function () Snacks.picker.lines() end, desc = "Buffer Lines"},
-      { "<leader>sp", function () Snacks.picker.grep() end, desc = "Grep Project"},
+      { "<leader>sp", function() require('fff').live_grep({
+        grep = {
+          modes = { 'fuzzy', 'plain' }
+        }
+      }) end, desc = "Grep Project"},
       { "<leader>sb", function () Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers"},
 
       -- Jump to
