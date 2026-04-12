@@ -19,7 +19,7 @@ vim.schedule(function()
       { "<leader><leader>", function() Snacks.picker.commands() end, desc = "Search All Commands" },
 
       -- Buffers
-      { "<leader>b", group = "buffers" },
+      { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer" },
       { "<leader>bp", Cmd("bprevious"), desc = "Prev Buffer" },
       { "<leader>bb", function() Snacks.picker.buffers() end, desc = "Show Open Buffers" },
@@ -30,7 +30,7 @@ vim.schedule(function()
       { "<leader>bz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Files
-      { "<leader>f", group = "files" },
+      { "<leader>f", group = "files", icon = { icon = "󰉋", color = "cyan" } },
       ---@diagnostic disable-next-line: undefined-field
       { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
@@ -46,7 +46,7 @@ vim.schedule(function()
       { "<leader>fS", Cmd("noautocmd w"), desc = "Save File (no format)" },
 
       -- Git
-      { "<leader>g", group = "git" },
+      { "<leader>g", group = "git", icon = { cat = "filetype", name = "git" } },
       { "<leader>gs", function() Snacks.lazygit.open() end, desc = "Open Lazygit" },
       { "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },
       { "<leader>gb", function() Snacks.picker.git_log_line() end, desc = "Git Blame Line" },
@@ -54,7 +54,7 @@ vim.schedule(function()
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)" },
 
       -- Help
-      { "<leader>H", group = "help", icon = "?" },
+      { "<leader>H", group = "help", icon = { icon = "󰋖", color = "purple" } },
       { "<leader>Hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
       { "<leader>Hh", function() Snacks.picker.help() end, desc = "Search All Help Docs" },
       { "<leader>Hm", function() Snacks.picker.keymaps() end, desc = "Search All Keymaps" },
@@ -62,7 +62,7 @@ vim.schedule(function()
       { "<leader>HH", function() Snacks.picker.highlights() end, desc = "Search All Highlights" },
 
       -- Open various UIs
-      { "<leader>o", group = "open..." },
+      { "<leader>o", group = "open...", icon = { icon = "󰏌", color = "green" } },
       { "<leader>ol",
         function()
           local success, err = pcall(vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 and vim.cmd.lclose or vim.cmd.lopen)
@@ -78,7 +78,7 @@ vim.schedule(function()
             vim.notify(err, vim.log.levels.ERROR)
           end
         end, desc = "Quickfix List" },
-      { "<leader>on", group = "Noice" },
+      { "<leader>on", group = "Noice", icon = { icon = "󰈸", color = "orange" } },
       { "<leader>onl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
       { "<leader>onh", function() require("noice").cmd("history") end, desc = "Noice History" },
       { "<leader>ona", function() require("noice").cmd("all") end, desc = "Noice All" },
@@ -86,6 +86,7 @@ vim.schedule(function()
       { "<leader>ont", function() require("noice").cmd("pick") end, desc = "Noice Picker" },
 
       -- Search
+      { "<leader>s", group = "search", icon = { icon = "", color = "green" } },
       { "<leader>sr",
         function()
           local grug = require("grug-far")
@@ -104,11 +105,12 @@ vim.schedule(function()
       { "<leader>sb", function () Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers"},
 
       -- Jump to
-      { "<leader>j", group = "jump to..." },
+      { "<leader>j", group = "jump to...", icon = { icon = "󰌑", color = "yellow" } },
       { "<leader>ji", function() Snacks.picker.lsp_symbols() end, desc = "Symbols in File" },
       { "<leader>jI", function() Snacks.picker.lsp_workspace_symbols() end, desc = "Symbols in Workspace" },
 
       -- Tabs
+      { "<leader><tab>", group = "tabs", icon = { icon = "󰓩", color = "purple" } },
       {"<leader><tab><tab>", Cmd("tabnew"), desc = "New Tab" },
       {"<leader><tab>[", Cmd("tabprevious"), desc = "Previous Tab" },
       {"<leader><tab>]", Cmd("tabnext"), desc = "Next Tab" },
@@ -119,7 +121,7 @@ vim.schedule(function()
       {"<leader><tab>o", Cmd("tabonly"), desc = "Close Other Tabs" },
 
       -- Toggles
-      { "<leader>T", group = "ui/toggles" },
+      { "<leader>T", group = "ui/toggles", icon = { icon = "", color = "yellow" } },
       { "<leader>TL", function() Snacks.toggle.option("relativenumber", { name = "Relative Number" }):toggle() end, desc = "Relative Number" },
       { "<leader>TT", function() Snacks.toggle.treesitter():toggle() end, desc = "Treesitter" },
       { "<leader>Tb", function() Snacks.toggle.option("background", {off = "light", on = "dark", name = "Dark Background"}):toggle() end, desc = "Dark Background" },
@@ -135,7 +137,7 @@ vim.schedule(function()
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Plugins
-      { "<leader>P", group = "plugins" },
+      { "<leader>P", group = "plugins", icon = { icon = "󰏗", color = "azure" } },
       { "<leader>Pc", function() require("config.pack-updates").check(true) end, desc = "Check for Updates" },
       { "<leader>Pu", function() vim.pack.update() end, desc = "Update Plugins" },
       { "<leader>PU", function() vim.pack.update(nil, { force = true }) end, desc = "Update Plugins (force, no confirm)" },
@@ -144,8 +146,11 @@ vim.schedule(function()
       { "<leader>Ph", Cmd("checkhealth vim.pack"), desc = "Health Check" },
       { "<leader>Pd", function() vim.pack.del() end, desc = "Clean Unused Plugins" },
 
+      -- UI
+      { "<leader>u", group = "ui", icon = { icon = "󰙵 ", color = "cyan" } },
+
       -- Windows
-      { "<leader>w", group = "window", proxy = "<C-w>" },
+      { "<leader>w", group = "window", proxy = "<C-w>", icon = { icon = " ", color = "blue" } },
       { "<leader>w-", Cmd("rightbelow sb"), desc = "Split Window Horizontal" },
       { "<leader>w/", Cmd("vertical rightbelow sb"), desc = "Split Window Vertical" },
       { "<leader>wd", "<C-w>c", desc = "Delete Window" },
