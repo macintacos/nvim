@@ -1,4 +1,5 @@
 std = "lua51+vim"
+exclude = ["tests/*"]
 
 [lints]
 mixed_table = "allow"

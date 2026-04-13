@@ -11,11 +11,21 @@ require("blink.cmp").setup({
   appearance = { nerd_font_variant = "mono" },
   sources = {
     default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+    per_filetype = {
+      markdown = { "markdown-refs", "lazydev", "lsp", "path" },
+    },
     providers = {
       lazydev = {
         name = "LazyDev",
         module = "lazydev.integrations.blink",
         score_offset = 100,
+      },
+      ["markdown-refs"] = {
+        name = "MarkdownRefs",
+        module = "blink-markdown-refs",
+        score_offset = 200,
+        async = true,
+        timeout_ms = 3000,
       },
     },
   },
@@ -36,13 +46,25 @@ require("blink.cmp").setup({
     list = { selection = { auto_insert = false, preselect = false } },
     accept = { auto_brackets = { enabled = true } },
     menu = { draw = { treesitter = { "lsp" } } },
-    documentation = { auto_show = true, auto_show_delay_ms = 200 },
+    documentation = {
+      auto_show = true,
+      auto_show_delay_ms = 200,
+      window = { border = "rounded" },
+    },
     ghost_text = { enabled = vim.g.ai_cmp },
   },
   keymap = {
     preset = "enter",
     ["<Tab>"] = { "select_next", "fallback" },
     ["<S-Tab>"] = { "select_prev", "fallback" },
+    -- Accept completion but strip the leading @ (for markdown-refs source)
+    ["<S-CR>"] = {
+      function(cmp)
+        vim.b.blink_md_refs_strip_at = true
+        return cmp.accept()
+      end,
+      "fallback",
+    },
   },
 })
 

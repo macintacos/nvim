@@ -6,5 +6,9 @@ format:
 lint:
     selene .
 
-# Run both lint and format
-check: lint format
+# Run plenary tests
+test:
+    nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+
+# Run lint, format, and tests
+check: lint format test
