@@ -11,7 +11,16 @@ local function noremap(desc)
   return { noremap = true, silent = true, desc = desc }
 end
 
-map("n", "gd", vim.lsp.buf.definition, noremap("Goto Definition"))
+-- If the cursor is on a URL, open it in the browser; otherwise go to definition
+map("n", "gd", function()
+  local word = vim.fn.expand("<cWORD>")
+  local url = word:match("(https?://[%w_.~!*'();:@&=+$,/?#%%[%]%-]+)")
+  if url then
+    vim.ui.open(url)
+  else
+    vim.lsp.buf.definition()
+  end
+end, noremap("Goto Definition / Open URL"))
 map("n", "gD", function()
   vim.cmd("vsplit")
   vim.lsp.buf.definition()
