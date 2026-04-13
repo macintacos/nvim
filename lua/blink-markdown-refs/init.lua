@@ -6,8 +6,8 @@ local search = require("blink-markdown-refs.search")
 local util = require("blink-markdown-refs.util")
 
 local hl_ns = vim.api.nvim_create_namespace("blink-markdown-refs")
-vim.api.nvim_set_hl(0, "BlinkCmpDocMatchLine", { default = true, bg = "#2a2a3a" })
-vim.api.nvim_set_hl(0, "BlinkCmpDocMatchChars", { default = true, bold = true, fg = "#ff9e64", bg = "#3a3a5a" })
+vim.api.nvim_set_hl(0, "BlinkCmpDocMatchLine", { default = true, bg = "#1a1c30" })
+vim.api.nvim_set_hl(0, "BlinkCmpDocMatchChars", { default = true, bold = true, fg = "#ff9e64", bg = "#252840" })
 
 local EMPTY_RESPONSE = { items = {}, is_incomplete_forward = false, is_incomplete_backward = false }
 
