@@ -2,6 +2,9 @@ local util = require("blink-markdown-refs.util")
 
 local M = {}
 
+--- Maximum number of completion items returned per type (file, heading, content).
+M.MAX_RESULTS_PER_TYPE = 5
+
 local LABEL_MAX = 30
 
 ---Build a file completion item from an absolute path.
@@ -116,8 +119,13 @@ function M.search(query, root, buf_dir, callback)
       on_done()
       return
     end
+    local count = 0
     for line in result.stdout:gmatch("[^\n]+") do
+      if count >= M.MAX_RESULTS_PER_TYPE then
+        break
+      end
       items[#items + 1] = file_item(line, buf_dir, query)
+      count = count + 1
     end
     on_done()
   end)
@@ -132,13 +140,18 @@ function M.search(query, root, buf_dir, callback)
         on_done()
         return
       end
+      local count = 0
       for line in result.stdout:gmatch("[^\n]+") do
+        if count >= M.MAX_RESULTS_PER_TYPE then
+          break
+        end
         -- Format: path:line_nr:heading_line
         local path, lnum, text = line:match("^(.+):(%d+):(.+)$")
         if path and lnum and text then
           local heading = text:match("^#+%s+(.+)$")
           if heading then
             items[#items + 1] = heading_item(path, buf_dir, tonumber(lnum), heading, query)
+            count = count + 1
           end
         end
       end
@@ -157,11 +170,16 @@ function M.search(query, root, buf_dir, callback)
           on_done()
           return
         end
+        local count = 0
         for line in result.stdout:gmatch("[^\n]+") do
+          if count >= M.MAX_RESULTS_PER_TYPE then
+            break
+          end
           -- Format: path:line_nr:col:matched_text
           local path, lnum, col, text = line:match("^(.+):(%d+):(%d+):(.*)$")
           if path and lnum and col then
             items[#items + 1] = content_item(path, buf_dir, tonumber(lnum), tonumber(col), text or "", query)
+            count = count + 1
           end
         end
         on_done()

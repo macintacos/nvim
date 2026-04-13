@@ -284,4 +284,149 @@ describe("search", function()
       end)
     end)
   end)
+
+  describe("per-type result limits", function()
+    local tmp
+
+    -- Create fixtures with >5 items per type
+    before_each(function()
+      tmp = vim.fn.tempname()
+      vim.fn.mkdir(tmp, "p")
+
+      -- 7 files to exceed the default limit of 5
+      for i = 1, 7 do
+        vim.fn.writefile({ "file " .. i }, tmp .. "/file" .. i .. ".lua")
+      end
+
+      -- 7 headings across markdown files
+      vim.fn.writefile({
+        "# Heading One",
+        "# Heading Two",
+        "# Heading Three",
+        "# Heading Four",
+      }, tmp .. "/headings1.md")
+      vim.fn.writefile({
+        "# Heading Five",
+        "# Heading Six",
+        "# Heading Seven",
+      }, tmp .. "/headings2.md")
+
+      -- 7 lines matching "matchword" for content search
+      local content_lines = {}
+      for i = 1, 7 do
+        content_lines[i] = "matchword result " .. i
+      end
+      vim.fn.writefile(content_lines, tmp .. "/content.txt")
+    end)
+
+    after_each(function()
+      if tmp then
+        vim.fn.delete(tmp, "rf")
+      end
+    end)
+
+    it("limits file results to MAX_RESULTS_PER_TYPE", function()
+      local done = false
+      local results
+
+      search.search("", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+      assert.is_truthy(
+        #file_items <= search.MAX_RESULTS_PER_TYPE,
+        "expected at most " .. search.MAX_RESULTS_PER_TYPE .. " file items, got " .. #file_items
+      )
+    end)
+
+    it("limits heading results to MAX_RESULTS_PER_TYPE", function()
+      local done = false
+      local results
+
+      search.search("", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+      assert.is_truthy(
+        #heading_items <= search.MAX_RESULTS_PER_TYPE,
+        "expected at most " .. search.MAX_RESULTS_PER_TYPE .. " heading items, got " .. #heading_items
+      )
+    end)
+
+    it("limits content results to MAX_RESULTS_PER_TYPE", function()
+      local done = false
+      local results
+
+      search.search("matchword", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local content_items = vim.tbl_filter(function(item)
+        return item.data.type == "content"
+      end, results.items)
+      assert.is_truthy(
+        #content_items <= search.MAX_RESULTS_PER_TYPE,
+        "expected at most " .. search.MAX_RESULTS_PER_TYPE .. " content items, got " .. #content_items
+      )
+    end)
+
+    it("MAX_RESULTS_PER_TYPE is configurable", function()
+      local original = search.MAX_RESULTS_PER_TYPE
+      search.MAX_RESULTS_PER_TYPE = 2
+
+      local done = false
+      local results
+
+      search.search("matchword", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+
+      search.MAX_RESULTS_PER_TYPE = original
+
+      assert.is_truthy(done, "search timed out")
+
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+      local content_items = vim.tbl_filter(function(item)
+        return item.data.type == "content"
+      end, results.items)
+
+      assert.is_truthy(#file_items <= 2, "expected at most 2 file items, got " .. #file_items)
+      assert.is_truthy(#heading_items <= 2, "expected at most 2 heading items, got " .. #heading_items)
+      assert.is_truthy(#content_items <= 2, "expected at most 2 content items, got " .. #content_items)
+    end)
+  end)
 end)
