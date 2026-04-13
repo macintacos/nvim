@@ -204,11 +204,11 @@ describe("search", function()
       assert.is_truthy(#file_items >= 3, "expected at least 3 file items (README.md, guide.md, main.py)")
     end)
 
-    it("returns heading results from md files", function()
+    it("returns heading results matching query from md files", function()
       local done = false
       local results
 
-      search.search("", tmp, tmp, function(response)
+      search.search("install", tmp, tmp, function(response)
         results = response
         done = true
       end)
@@ -221,9 +221,9 @@ describe("search", function()
       local heading_items = vim.tbl_filter(function(item)
         return item.data.type == "heading"
       end, results.items)
-      assert.is_truthy(#heading_items >= 5, "expected at least 5 heading items")
+      assert.is_truthy(#heading_items >= 1, "expected at least 1 matching heading item")
 
-      -- Check specific headings exist (heading text is now in labelDetails.description)
+      -- Check that Installation heading exists (heading text is in labelDetails.description)
       local found_install = false
       for _, item in ipairs(heading_items) do
         if
@@ -282,6 +282,348 @@ describe("search", function()
       assert.has_no.errors(function()
         cancel()
       end)
+    end)
+  end)
+
+  describe("heading filtering without #", function()
+    local tmp
+
+    before_each(function()
+      tmp = create_fixtures()
+    end)
+
+    after_each(function()
+      if tmp then
+        cleanup(tmp)
+      end
+    end)
+
+    it("excludes headings that don't match query text", function()
+      local done = false
+      local results
+
+      search.search("install", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      -- Should only have headings matching "install" (i.e., "Installation")
+      for _, item in ipairs(heading_items) do
+        local desc = item.labelDetails and item.labelDetails.description or ""
+        assert.is_truthy(desc:lower():find("install"), "heading '" .. desc .. "' does not match query 'install'")
+      end
+      assert.is_truthy(#heading_items > 0, "expected at least one matching heading")
+    end)
+
+    it("returns no headings when query is empty", function()
+      local done = false
+      local results
+
+      search.search("", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+      assert.equals(0, #heading_items, "expected no heading items for empty query")
+    end)
+
+    it("heading filter is smart-case insensitive for lowercase query", function()
+      local done = false
+      local results
+
+      search.search("config", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      local found = false
+      for _, item in ipairs(heading_items) do
+        if item.labelDetails and item.labelDetails.description == "Configuration" then
+          found = true
+        end
+      end
+      assert.is_truthy(found, "expected 'Configuration' heading to match lowercase 'config'")
+    end)
+
+    it("heading filter is smart-case sensitive for mixed-case query", function()
+      local done = false
+      local results
+
+      search.search("CONFIG", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      -- "CONFIG" (all uppercase) should NOT match "Configuration" (case-sensitive)
+      for _, item in ipairs(heading_items) do
+        local desc = item.labelDetails and item.labelDetails.description or ""
+        assert.is_falsy(
+          desc == "Configuration",
+          "uppercase 'CONFIG' should not match 'Configuration' in case-sensitive mode"
+        )
+      end
+    end)
+  end)
+
+  describe("hash syntax", function()
+    local tmp
+
+    before_each(function()
+      tmp = create_fixtures()
+    end)
+
+    after_each(function()
+      if tmp then
+        cleanup(tmp)
+      end
+    end)
+
+    it("foo# returns only files matching foo", function()
+      local done = false
+      local results
+
+      search.search("README#", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+
+      assert.is_truthy(#file_items > 0, "expected at least one file item")
+      for _, item in ipairs(file_items) do
+        local filename = vim.fn.fnamemodify(item.data.path, ":t")
+        assert.is_truthy(filename:lower():find("readme"), "file '" .. filename .. "' does not match 'README'")
+      end
+    end)
+
+    it("foo# returns all headings from matched files", function()
+      local done = false
+      local results
+
+      search.search("README#", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      -- README.md has: Getting Started, Installation, Usage
+      assert.is_truthy(#heading_items >= 3, "expected at least 3 headings from README.md")
+
+      -- All headings should be from README.md
+      for _, item in ipairs(heading_items) do
+        local filename = vim.fn.fnamemodify(item.data.path, ":t")
+        assert.equals("README.md", filename, "heading should be from README.md")
+      end
+    end)
+
+    it("foo#bar filters headings within matched files", function()
+      local done = false
+      local results
+
+      search.search("README#install", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      assert.is_truthy(#heading_items > 0, "expected at least one heading")
+      for _, item in ipairs(heading_items) do
+        local desc = item.labelDetails and item.labelDetails.description or ""
+        assert.is_truthy(desc:lower():find("install"), "heading '" .. desc .. "' does not match 'install'")
+        local filename = vim.fn.fnamemodify(item.data.path, ":t")
+        assert.equals("README.md", filename, "heading should be from README.md")
+      end
+    end)
+
+    it("suppresses content search when # is present", function()
+      local done = false
+      local results
+
+      -- "hello" would normally match main.py content, but # suppresses content search
+      search.search("README#hello", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local content_items = vim.tbl_filter(function(item)
+        return item.data.type == "content"
+      end, results.items)
+      assert.equals(0, #content_items, "expected no content results when # is present")
+    end)
+
+    it("#heading with empty file part matches headings across all files", function()
+      local done = false
+      local results
+
+      search.search("#install", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      assert.is_truthy(#heading_items > 0, "expected headings matching 'install'")
+    end)
+
+    it("stores heading_query in heading item data.query", function()
+      local done = false
+      local results
+
+      search.search("README#install", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+
+      assert.is_truthy(#heading_items > 0, "expected heading items")
+      for _, item in ipairs(heading_items) do
+        assert.equals("install", item.data.query, "heading data.query should be the heading portion")
+      end
+    end)
+
+    it("returns empty headings when no files match file_query", function()
+      local done = false
+      local results
+
+      search.search("nonexistent#", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+      assert.equals(0, #heading_items, "expected no headings when file doesn't match")
+    end)
+
+    it("heading items rank above file items in # mode", function()
+      local done = false
+      local results
+
+      search.search("README#install", tmp, tmp, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local heading_items = vim.tbl_filter(function(item)
+        return item.data.type == "heading"
+      end, results.items)
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+
+      assert.is_truthy(#heading_items > 0, "expected heading items")
+      assert.is_truthy(#file_items > 0, "expected file items")
+
+      -- Every heading should have higher score_offset than every file
+      local min_heading_score = math.huge
+      for _, item in ipairs(heading_items) do
+        if item.score_offset < min_heading_score then
+          min_heading_score = item.score_offset
+        end
+      end
+      local max_file_score = -math.huge
+      for _, item in ipairs(file_items) do
+        if item.score_offset > max_file_score then
+          max_file_score = item.score_offset
+        end
+      end
+      assert.is_truthy(
+        min_heading_score > max_file_score,
+        "heading score_offset ("
+          .. min_heading_score
+          .. ") should be greater than file score_offset ("
+          .. max_file_score
+          .. ")"
+      )
     end)
   end)
 

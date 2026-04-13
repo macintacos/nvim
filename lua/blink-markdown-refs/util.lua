@@ -82,6 +82,22 @@ function M.is_smart_exact(query, text)
   return M.smart_find(query, text) ~= nil
 end
 
+---Parse a raw query string into file and heading components.
+---Splits on the first `#` if present: "foo#bar" -> file_query="foo", heading_query="bar".
+---@param raw string
+---@return { file_query: string, heading_query: string?, has_hash: boolean }
+function M.parse_query(raw)
+  local hash_pos = raw:find("#", 1, true)
+  if hash_pos then
+    return {
+      file_query = raw:sub(1, hash_pos - 1),
+      heading_query = raw:sub(hash_pos + 1),
+      has_hash = true,
+    }
+  end
+  return { file_query = raw, heading_query = nil, has_hash = false }
+end
+
 ---Compute a relative path from a directory to a target file.
 ---@param from_dir string Absolute directory path
 ---@param to_file string Absolute file path
