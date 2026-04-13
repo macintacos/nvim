@@ -12,7 +12,10 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     vim.cmd.packadd("nvim-bqf")
     vim.cmd.packadd("quicker.nvim")
-    require("bqf").setup()
+    -- bqf bootstraps during packadd (via after/ftplugin), so setup() has
+    -- already run with defaults. Override the preview winblend on the
+    -- singleton floatwin directly to make the preview fully opaque.
+    require("bqf.preview.floatwin").winblend = 0
     require("quicker").setup()
   end,
 })
