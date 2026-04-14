@@ -1,3 +1,11 @@
+# Install plugins and dev tools needed for check/test
+install:
+    @echo "Installing dev tools…"
+    brew install stylua selene
+    @echo "Installing plugins…"
+    nvim --headless -c "lua vim.pack.update()" -c "quitall"
+    @echo "Done."
+
 # Format all Lua files with stylua
 format:
     stylua .
