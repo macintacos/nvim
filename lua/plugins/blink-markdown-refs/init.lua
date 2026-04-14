@@ -135,7 +135,7 @@ end
 
 ---@return string[]
 function source:get_trigger_characters()
-  return { "@" }
+  return { "@", "!" }
 end
 
 ---Dispatch completion based on the parsed line mode.
@@ -186,7 +186,7 @@ function source:get_completions(ctx, callback)
       return
     end
     local project_name = parsed.project
-    return search.search(parsed.query, project_path, buf_dir, function(response)
+    return search.search(parsed.query, project_path, project_path, function(response)
       for _, item in ipairs(response.items) do
         item.data.project = project_name
       end
@@ -276,6 +276,7 @@ end
 local function replace_range(ctx, start_col, text, callback)
   local row = ctx.cursor[1] - 1
   vim.api.nvim_buf_set_text(ctx.bufnr, row, start_col, row, ctx.cursor[2], { text })
+  vim.api.nvim_win_set_cursor(0, { ctx.cursor[1], start_col + #text })
   callback()
 end
 

@@ -48,9 +48,9 @@ describe("blink-markdown-refs source", function()
   end)
 
   describe("get_trigger_characters", function()
-    it("returns @ as trigger", function()
+    it("returns @ and ! as triggers", function()
       local chars = src:get_trigger_characters()
-      assert.same({ "@" }, chars)
+      assert.same({ "@", "!" }, chars)
     end)
   end)
 
@@ -569,6 +569,37 @@ describe("blink-markdown-refs source", function()
       end
     end)
 
+    it("returns paths relative to project root, not buffer dir", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!testproj@",
+        cursor = { 1, 16 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+      assert.is_truthy(#file_items > 0, "expected file items")
+
+      -- Paths should be relative to the project root (e.g., "README.md"), not the buffer dir
+      for _, item in ipairs(file_items) do
+        assert.is_falsy(item.insertText:match("%.%./"), "path should not contain ../ (got " .. item.insertText .. ")")
+      end
+    end)
+
     it("returns file results from project path for @!testproj@", function()
       local done = false
       local results
@@ -692,6 +723,34 @@ describe("blink-markdown-refs source", function()
       local line = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
       assert.equal("text @README.md", line)
       assert.is_false(default_called, "should not call default_implementation for project items")
+
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end)
+
+    it("positions cursor after inserted text for project items", function()
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_set_current_buf(buf)
+      vim.api.nvim_buf_set_lines(buf, 0, -1, true, { "text @!myproj@README.md" })
+      -- Place cursor at the window level so nvim_win_set_cursor works
+      vim.api.nvim_win_set_cursor(0, { 1, 23 })
+
+      local ctx = {
+        line = "text @!myproj@README.md",
+        cursor = { 1, 23 },
+        bufnr = buf,
+      }
+      local item = {
+        insertText = "README.md",
+        data = { type = "file", project = "myproj", raw_path = "README.md" },
+      }
+
+      src:execute(ctx, item, function() end, function() end)
+
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      local line = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
+      -- Cursor should be at or near the end of the inserted text
+      -- Neovim clamps to last valid column in normal mode (#line - 1)
+      assert.is_truthy(cursor[2] >= #line - 1, "cursor should be at end of inserted text (got " .. cursor[2] .. ")")
 
       vim.api.nvim_buf_delete(buf, { force = true })
     end)
