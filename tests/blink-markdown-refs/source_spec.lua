@@ -237,7 +237,7 @@ describe("blink-markdown-refs source", function()
         return done
       end)
       assert.is_truthy(done)
-      assert.equals(0, #results.items)
+      assert.equal(0, #results.items)
     end)
 
     it("returns empty when space follows @", function()
@@ -259,7 +259,7 @@ describe("blink-markdown-refs source", function()
         return done
       end)
       assert.is_truthy(done)
-      assert.equals(0, #results.items)
+      assert.equal(0, #results.items)
     end)
 
     it("returns items when @ is typed", function()
