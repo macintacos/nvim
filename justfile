@@ -5,6 +5,7 @@ format:
 # Lint all Lua files with selene
 lint:
     selene .
+    selene --config tests/selene.toml tests/
 
 # Run plenary tests
 test:

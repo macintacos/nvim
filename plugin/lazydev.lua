@@ -11,6 +11,8 @@ vim.api.nvim_create_autocmd("FileType", {
     require("lazydev").setup({
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = "${3rd}/busted/library" },
+        { path = "${3rd}/luassert/library" },
         { path = "snacks.nvim", words = { "Snacks" } },
       },
     })

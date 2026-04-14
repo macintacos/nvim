@@ -9,7 +9,16 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
   once = true,
   callback = function()
     vim.cmd.packadd("nvim-lint")
-    require("lint").linters_by_ft = {
+    local lint = require("lint")
+    -- Use tests/selene.toml for test files (has busted/luassert globals)
+    lint.linters.selene.args = function()
+      local file = vim.api.nvim_buf_get_name(0)
+      if file:match("/tests/") then
+        return { "--display-style", "json", "--config", "tests/selene.toml", "-" }
+      end
+      return { "--display-style", "json", "-" }
+    end
+    lint.linters_by_ft = {
       lua = { "selene" },
       markdown = { "markdownlint-cli2" },
       sh = { "shellcheck" },
