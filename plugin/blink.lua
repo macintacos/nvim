@@ -6,6 +6,12 @@ vim.pack.add({
   "https://github.com/Saghen/blink.download",
 })
 
+require("plugins.blink-markdown-refs").setup({
+  paths = {
+    "/Users/juliantorres/GitLocal/Play",
+  },
+})
+
 require("blink.cmp").setup({
   fuzzy = { implementation = "prefer_rust_with_warning" },
   appearance = { nerd_font_variant = "mono" },
@@ -22,7 +28,7 @@ require("blink.cmp").setup({
       },
       ["markdown-refs"] = {
         name = "MarkdownRefs",
-        module = "blink-markdown-refs",
+        module = "plugins.blink-markdown-refs",
         score_offset = 200,
         async = true,
         timeout_ms = 3000,

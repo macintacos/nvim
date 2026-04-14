@@ -1,4 +1,4 @@
-local search = require("blink-markdown-refs.search")
+local search = require("plugins.blink-markdown-refs.search")
 
 -- Helper to create a temp directory with fixture files
 local function create_fixtures()

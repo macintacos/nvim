@@ -1,4 +1,4 @@
-local source_mod = require("blink-markdown-refs")
+local source_mod = require("plugins.blink-markdown-refs")
 
 describe("blink-markdown-refs source", function()
   local src
@@ -214,6 +214,505 @@ describe("blink-markdown-refs source", function()
 
       vim.api.nvim_buf_delete(buf, { force = true })
       vim.fn.delete(tmp)
+    end)
+  end)
+
+  describe("setup", function()
+    it("has a setup method", function()
+      assert.is_function(source_mod.setup)
+    end)
+
+    it("accepts projects config without error", function()
+      assert.has_no.errors(function()
+        source_mod.setup({ projects = { foo = "/tmp/foo" } })
+      end)
+    end)
+
+    it("works without calling setup", function()
+      -- A fresh source should function even if setup was never called
+      local fresh_src = source_mod.new({})
+      assert.is_function(fresh_src.get_completions)
+    end)
+  end)
+
+  describe("setup with glob patterns", function()
+    local tmp
+
+    before_each(function()
+      tmp = vim.fn.tempname()
+      vim.fn.mkdir(tmp, "p")
+      vim.fn.mkdir(tmp .. "/alpha", "p")
+      vim.fn.mkdir(tmp .. "/beta", "p")
+      vim.fn.writefile({ "not a dir" }, tmp .. "/file.txt")
+    end)
+
+    after_each(function()
+      source_mod.setup({ projects = {} })
+      if tmp then
+        vim.fn.delete(tmp, "rf")
+      end
+    end)
+
+    it("expands wildcard paths into project entries", function()
+      source_mod.setup({ paths = { tmp } })
+      -- Should have expanded to alpha and beta (directories only)
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(2, #results.items)
+
+      local names = {}
+      for _, item in ipairs(results.items) do
+        names[item.label] = true
+      end
+      assert.is_truthy(names["alpha"])
+      assert.is_truthy(names["beta"])
+    end)
+
+    it("uses directory basename as project name", function()
+      source_mod.setup({ paths = { tmp } })
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!al",
+        cursor = { 1, 9 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(1, #results.items)
+      assert.equal("alpha", results.items[1].label)
+      assert.equal(tmp .. "/alpha", results.items[1].labelDetails.description)
+    end)
+
+    it("preserves explicit entries alongside globs", function()
+      source_mod.setup({ paths = { tmp }, projects = { myproj = "/explicit/path" } })
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      -- alpha + beta from glob, plus myproj explicit
+      assert.equal(3, #results.items)
+    end)
+
+    it("handles non-existent glob paths gracefully", function()
+      assert.has_no.errors(function()
+        source_mod.setup({ paths = { "/nonexistent/path" } })
+      end)
+    end)
+  end)
+
+  describe("project completion", function()
+    before_each(function()
+      source_mod.setup({ projects = { notes = "/tmp/test-notes", code = "/tmp/test-code" } })
+    end)
+
+    after_each(function()
+      source_mod.setup({ projects = {} })
+    end)
+
+    it("returns project names for @!", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(2, #results.items)
+
+      local names = {}
+      for _, item in ipairs(results.items) do
+        names[item.label] = true
+      end
+      assert.is_truthy(names["notes"])
+      assert.is_truthy(names["code"])
+    end)
+
+    it("filters projects by prefix for @!no", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!no",
+        cursor = { 1, 9 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(1, #results.items)
+      assert.equal("notes", results.items[1].label)
+    end)
+
+    it("project items have correct kind and insertText", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+
+      for _, item in ipairs(results.items) do
+        assert.equal(9, item.kind) -- Module
+        assert.equal("project", item.data.type)
+        assert.is_truthy(item.insertText:match("^!" .. item.label .. "@$"))
+        assert.is_truthy(item.filterText:match("^!"), "filterText should start with ! for blink fuzzy matching")
+      end
+    end)
+
+    it("returns empty when no projects configured", function()
+      source_mod.setup({ projects = {} })
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(0, #results.items)
+    end)
+  end)
+
+  describe("MRU persistence", function()
+    local mru_path
+
+    before_each(function()
+      -- Use a temp file for MRU so tests don't affect real state
+      mru_path = vim.fn.tempname() .. ".json"
+      source_mod._set_mru_path(mru_path)
+      source_mod.setup({ projects = { alpha = "/tmp/alpha", beta = "/tmp/beta", gamma = "/tmp/gamma" } })
+    end)
+
+    after_each(function()
+      source_mod.setup({ projects = {} })
+      vim.fn.delete(mru_path)
+      source_mod._set_mru_path(nil)
+    end)
+
+    it("returns empty list when no MRU file exists", function()
+      local mru = source_mod._read_mru()
+      assert.same({}, mru)
+    end)
+
+    it("round-trips MRU data correctly", function()
+      source_mod._write_mru({ "beta", "alpha" })
+      local mru = source_mod._read_mru()
+      assert.same({ "beta", "alpha" }, mru)
+    end)
+
+    it("add_to_mru moves name to front and deduplicates", function()
+      source_mod._write_mru({ "alpha", "beta", "gamma" })
+      source_mod._add_to_mru("gamma")
+      local mru = source_mod._read_mru()
+      assert.equal("gamma", mru[1])
+      -- No duplicates
+      local count = 0
+      for _, name in ipairs(mru) do
+        if name == "gamma" then
+          count = count + 1
+        end
+      end
+      assert.equal(1, count)
+    end)
+
+    it("project items are sorted by MRU order", function()
+      source_mod._write_mru({ "gamma", "alpha" })
+
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!",
+        cursor = { 1, 7 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(3, #results.items)
+
+      -- Sort items by sortText to verify ordering
+      table.sort(results.items, function(a, b)
+        return a.sortText < b.sortText
+      end)
+      assert.equal("gamma", results.items[1].label)
+      assert.equal("alpha", results.items[2].label)
+      assert.equal("beta", results.items[3].label)
+    end)
+
+    it("executing a project item updates MRU", function()
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_set_current_buf(buf)
+      vim.api.nvim_buf_set_lines(buf, 0, -1, true, { "text @!beta@" })
+
+      local ctx = {
+        line = "text @!beta@",
+        cursor = { 1, 12 },
+        bufnr = buf,
+      }
+      local item = {
+        insertText = "!beta@",
+        data = { type = "project", project_name = "beta", project_path = "/tmp/beta" },
+      }
+
+      src:execute(ctx, item, function() end, function() end)
+
+      local mru = source_mod._read_mru()
+      assert.equal("beta", mru[1])
+
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end)
+  end)
+
+  describe("project search", function()
+    local tmp
+
+    before_each(function()
+      tmp = vim.fn.tempname()
+      vim.fn.mkdir(tmp, "p")
+      vim.fn.writefile({ "# Heading One", "", "Some content." }, tmp .. "/README.md")
+      vim.fn.writefile({ "local x = 1" }, tmp .. "/main.lua")
+      source_mod.setup({ projects = { testproj = tmp } })
+    end)
+
+    after_each(function()
+      source_mod.setup({ projects = {} })
+      if tmp then
+        vim.fn.delete(tmp, "rf")
+      end
+    end)
+
+    it("returns file results from project path for @!testproj@", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!testproj@",
+        cursor = { 1, 16 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+      assert.is_truthy(#results.items > 0, "expected results from project")
+
+      local file_items = vim.tbl_filter(function(item)
+        return item.data.type == "file"
+      end, results.items)
+      assert.is_truthy(#file_items >= 2, "expected at least 2 file items")
+    end)
+
+    it("returns empty for unknown project", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!unknown@query",
+        cursor = { 1, 20 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(1000, function()
+        return done
+      end)
+      assert.is_truthy(done)
+      assert.equal(0, #results.items)
+    end)
+
+    it("regular @query still uses buffer root", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @",
+        cursor = { 1, 6 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+      -- Should return results from the nvim config repo, not the test project
+      assert.is_truthy(#results.items > 0, "expected results from buffer root")
+    end)
+
+    it("tags project search items with data.project", function()
+      local done = false
+      local results
+
+      local ctx = {
+        line = "text @!testproj@",
+        cursor = { 1, 16 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+
+      src:get_completions(ctx, function(response)
+        results = response
+        done = true
+      end)
+
+      vim.wait(5000, function()
+        return done
+      end)
+      assert.is_truthy(done, "search timed out")
+      assert.is_truthy(#results.items > 0, "expected results")
+
+      for _, item in ipairs(results.items) do
+        assert.equal("testproj", item.data.project)
+      end
+    end)
+  end)
+
+  describe("execute with project items", function()
+    it("strips !project prefix for project-search items", function()
+      local buf = vim.api.nvim_create_buf(false, true)
+      vim.api.nvim_set_current_buf(buf)
+      vim.api.nvim_buf_set_lines(buf, 0, -1, true, { "text @!myproj@README.md" })
+
+      local ctx = {
+        line = "text @!myproj@README.md",
+        cursor = { 1, 23 },
+        bufnr = buf,
+      }
+      local item = {
+        insertText = "README.md",
+        data = { type = "file", project = "myproj", raw_path = "README.md" },
+      }
+      local default_called = false
+
+      src:execute(ctx, item, function() end, function()
+        default_called = true
+      end)
+
+      local line = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
+      assert.equal("text @README.md", line)
+      assert.is_false(default_called, "should not call default_implementation for project items")
+
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end)
+
+    it("calls default_implementation for non-project items", function()
+      local ctx = {
+        line = "text @README.md",
+        cursor = { 1, 15 },
+        bufnr = vim.api.nvim_get_current_buf(),
+      }
+      local item = {
+        insertText = "README.md",
+        data = { type = "file", raw_path = "README.md" },
+      }
+      local default_called = false
+
+      src:execute(ctx, item, function() end, function()
+        default_called = true
+      end)
+
+      assert.is_true(default_called, "should call default_implementation for non-project items")
     end)
   end)
 

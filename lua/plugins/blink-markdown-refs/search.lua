@@ -1,16 +1,21 @@
-local util = require("blink-markdown-refs.util")
+local util = require("plugins.blink-markdown-refs.util")
 
 local M = {}
 
---- Maximum number of completion items returned per type (file, heading, content).
+---@type integer Maximum number of completion items returned per type (file, heading, content).
 M.MAX_RESULTS_PER_TYPE = 5
 
+---@type integer Maximum label display width before left-truncation.
 local LABEL_MAX = 30
 
+---@type integer Cap on raw results collected from each rg process before filtering.
+---Bounds memory for large projects — we only keep MAX_RESULTS_PER_TYPE after filtering anyway.
+local RAW_LIMIT = 100
+
 ---Build a file completion item from an absolute path.
----@param abs_path string
----@param buf_dir string
----@param query string
+---@param abs_path string Absolute file path returned by rg
+---@param buf_dir string Current buffer's parent directory (for relative path computation)
+---@param query string The user's file query text
 ---@return lsp.CompletionItem
 local function file_item(abs_path, buf_dir, query)
   local rel = util.relative_path(buf_dir, abs_path)
@@ -28,11 +33,11 @@ local function file_item(abs_path, buf_dir, query)
 end
 
 ---Build a heading completion item.
----@param abs_path string
----@param buf_dir string
----@param line_nr number
----@param heading_text string
----@param query string
+---@param abs_path string Absolute file path containing the heading
+---@param buf_dir string Current buffer's parent directory
+---@param line_nr integer Line number of the heading in the file
+---@param heading_text string The heading text (without leading `#` markers)
+---@param query string The user's heading query text
 ---@return lsp.CompletionItem
 local function heading_item(abs_path, buf_dir, line_nr, heading_text, query)
   local rel = util.relative_path(buf_dir, abs_path)
@@ -53,12 +58,12 @@ local function heading_item(abs_path, buf_dir, line_nr, heading_text, query)
 end
 
 ---Build a content/line completion item.
----@param abs_path string
----@param buf_dir string
----@param line_nr number
----@param col number
----@param line_text string
----@param query string
+---@param abs_path string Absolute file path containing the match
+---@param buf_dir string Current buffer's parent directory
+---@param line_nr integer Line number of the match
+---@param col integer Column number of the match (1-based)
+---@param line_text string Full text of the matched line
+---@param query string The user's content query text
 ---@return lsp.CompletionItem
 local function content_item(abs_path, buf_dir, line_nr, col, line_text, query)
   local rel = util.relative_path(buf_dir, abs_path)
@@ -79,21 +84,23 @@ local function content_item(abs_path, buf_dir, line_nr, col, line_text, query)
 end
 
 ---Run a project-wide search and return completion items via callback.
+---Spawns up to 3 parallel ripgrep processes (files, headings, content) and
+---assembles results when all complete. Returns a cancel function that kills
+---any in-flight processes.
 ---@param query string Text after the @ trigger
----@param root string Project root directory
----@param buf_dir string Current buffer's directory
----@param callback fun(response: table) blink.cmp callback
----@return fun() cancel Cancel function
+---@param root string Project root directory to search in
+---@param buf_dir string Current buffer's directory (for relative paths)
+---@param callback fun(response: { items: lsp.CompletionItem[], is_incomplete_forward: boolean, is_incomplete_backward: boolean })
+---@return fun() cancel Kills any in-flight rg processes
 function M.search(query, root, buf_dir, callback)
   local parsed = util.parse_query(query)
   local pending = 0
   local cancelled = false
   local processes = {}
 
-  -- Intermediate raw result buffers — filtering happens in on_done
   local raw_files = {} ---@type string[]
-  local raw_headings = {} ---@type { path: string, lnum: number, text: string }[]
-  local raw_content = {} ---@type { path: string, lnum: number, col: number, text: string }[]
+  local raw_headings = {} ---@type { path: string, lnum: integer, text: string }[]
+  local raw_content = {} ---@type { path: string, lnum: integer, col: integer, text: string }[]
 
   local function on_done()
     pending = pending - 1
@@ -191,6 +198,9 @@ function M.search(query, root, buf_dir, callback)
     end
     for line in result.stdout:gmatch("[^\n]+") do
       raw_files[#raw_files + 1] = line
+      if #raw_files >= RAW_LIMIT then
+        break
+      end
     end
     on_done()
   end)
@@ -206,12 +216,14 @@ function M.search(query, root, buf_dir, callback)
         return
       end
       for line in result.stdout:gmatch("[^\n]+") do
-        -- Format: path:line_nr:heading_line
         local path, lnum, text = line:match("^(.+):(%d+):(.+)$")
         if path and lnum and text then
           local heading = text:match("^#+%s+(.+)$")
           if heading then
             raw_headings[#raw_headings + 1] = { path = path, lnum = tonumber(lnum), text = heading }
+            if #raw_headings >= RAW_LIMIT then
+              break
+            end
           end
         end
       end
@@ -223,7 +235,7 @@ function M.search(query, root, buf_dir, callback)
   if not parsed.has_hash and #query >= 2 then
     pending = pending + 1
     processes[#processes + 1] = vim.system(
-      { "rg", "--no-heading", "-n", "--column", "-S", "--max-count", "100", query, root },
+      { "rg", "--no-heading", "-n", "--column", "-S", "--max-count", "10", query, root },
       { text = true },
       function(result)
         if cancelled or result.code ~= 0 then
@@ -231,11 +243,13 @@ function M.search(query, root, buf_dir, callback)
           return
         end
         for line in result.stdout:gmatch("[^\n]+") do
-          -- Format: path:line_nr:col:matched_text
           local path, lnum, col, text = line:match("^(.+):(%d+):(%d+):(.*)$")
           if path and lnum and col then
             raw_content[#raw_content + 1] =
               { path = path, lnum = tonumber(lnum), col = tonumber(col), text = text or "" }
+            if #raw_content >= RAW_LIMIT then
+              break
+            end
           end
         end
         on_done()
