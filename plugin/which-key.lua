@@ -79,12 +79,7 @@ vim.schedule(function()
             vim.notify(err, vim.log.levels.ERROR)
           end
         end, desc = "Quickfix List" },
-      { "<leader>on", group = "Noice", icon = { icon = "󰈸", color = "orange" } },
-      { "<leader>onl", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
-      { "<leader>onh", function() require("noice").cmd("history") end, desc = "Noice History" },
-      { "<leader>ona", function() require("noice").cmd("all") end, desc = "Noice All" },
-      { "<leader>ond", function() require("noice").cmd("dismiss") end, desc = "Dismiss All" },
-      { "<leader>ont", function() require("noice").cmd("pick") end, desc = "Noice Picker" },
+      { "<leader>on", Cmd("messages"), desc = "Show Messages" },
 
       -- Search
       { "<leader>s", group = "search", icon = { icon = "", color = "green" } },
