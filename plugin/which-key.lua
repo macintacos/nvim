@@ -34,7 +34,8 @@ vim.schedule(function()
       ---@diagnostic disable-next-line: undefined-field
       { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
-      { "<leader>fe", function() MiniFiles.open() end, desc = "Show Explorer" },
+      { "<leader>fe", function() MiniFiles.open() end, desc = "Show mini.files" },
+      { "<leader>fE", function() Snacks.explorer() end, desc = "Show Snacks Explorer" },
       { "<leader>fu",
         function()
           MiniFiles.open(vim.api.nvim_buf_get_name(0), true)
