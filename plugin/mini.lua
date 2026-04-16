@@ -181,6 +181,10 @@ vim.api.nvim_create_autocmd("User", {
       end
     end, { buffer = buf, desc = "Open file or expand directory" })
 
+    -- Route :w through BufWriteCmd. mini.files creates scratch buffers
+    -- (buftype=nofile) which would otherwise reject :w with E382.
+    vim.bo[buf].buftype = "acwrite"
+
     -- Intercept :w to trigger synchronize instead of a regular file write —
     -- prompts the user to confirm pending file system changes
     vim.api.nvim_create_autocmd("BufWriteCmd", {
@@ -189,6 +193,27 @@ vim.api.nvim_create_autocmd("User", {
         files.synchronize()
       end,
     })
+
+    -- :q (and therefore :wq, :x) closes the whole explorer, matching
+    -- the q / <Esc> keymap behavior. Scheduled so the original :q
+    -- finishes first, then files.close() cleans up the rest.
+    vim.api.nvim_create_autocmd("QuitPre", {
+      buffer = buf,
+      callback = function()
+        vim.schedule(function()
+          pcall(files.close)
+        end)
+      end,
+    })
+
+    -- Override the global <C-s> for this buffer. The global mapping uses
+    -- <cmd>w<cr> which runs :w in a restricted context where vim.fn.confirm
+    -- returns its default (Yes) without prompting — auto-applying changes.
+    vim.keymap.set({ "n", "i", "x", "s" }, "<C-s>", function()
+      files.synchronize()
+      local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+      vim.api.nvim_feedkeys(esc, "n", false)
+    end, { buffer = buf, desc = "Synchronize mini.files" })
 
     vim.keymap.set("n", "H", function()
       files.open(vim.uv.cwd(), false)
