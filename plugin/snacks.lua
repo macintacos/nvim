@@ -9,7 +9,7 @@ require("snacks").setup({
   input = { enabled = true },
   image = { enabled = true },
   lazygit = { enabled = true },
-  notifier = { enabled = true, top_down = false },
+  notifier = { enabled = false },
   picker = { enabled = true },
   quickfile = { enabled = true },
   scope = { enabled = true },
