@@ -23,7 +23,7 @@ vim.schedule(function()
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer" },
       { "<leader>bp", Cmd("bprevious"), desc = "Prev Buffer" },
       { "<leader>bb", function() Snacks.picker.buffers() end, desc = "Show Open Buffers" },
-      { "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete Buffer" } },
+      { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text" },
       { "<leader>bs", function () Snacks.picker.lines() end, desc = "Search Buffer Lines"},
