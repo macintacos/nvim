@@ -102,6 +102,9 @@ local function directory_content_width(buf_id)
   return found and max_width or nil
 end
 
+---@type string?
+local cut_line = nil
+
 local augroup = vim.api.nvim_create_augroup("mini_files_config", { clear = true })
 
 -- Keep the preview pane width proportional when the terminal is resized
@@ -227,6 +230,37 @@ vim.api.nvim_create_autocmd("User", {
     vim.keymap.set("n", "q", sync_and_close, { buffer = buf, desc = "Sync and close" })
     vim.keymap.set("n", "<Esc>", sync_and_close, { buffer = buf, desc = "Sync and close" })
 
+    -- mm: cut the entry under the cursor. Stashes the entire buffer line
+    -- (including the concealed /<path_id>/ prefix) in a module-local
+    -- variable and removes it from the buffer. Preserving the path_id is
+    -- what lets a subsequent paste be recognized by mini.files's diff as
+    -- a move rather than a delete + create.
+    vim.keymap.set("n", "mm", function()
+      local lnum = vim.api.nvim_win_get_cursor(0)[1]
+      local line = vim.api.nvim_buf_get_lines(buf, lnum - 1, lnum, false)[1]
+      if not line or line == "" then
+        return
+      end
+      cut_line = line
+      vim.api.nvim_buf_set_lines(buf, lnum - 1, lnum, false, {})
+    end, { buffer = buf, desc = "Cut entry (paste with p)" })
+
+    -- p: paste the previously cut entry below the cursor in any mini.files
+    -- buffer. The move is not committed until the user synchronizes
+    -- (:w / <C-s> / q), so this is safe to undo by closing without sync.
+    vim.keymap.set("n", "p", function()
+      if not cut_line then
+        vim.notify("mini.files: nothing to paste", vim.log.levels.WARN)
+        return
+      end
+      local lnum = vim.api.nvim_win_get_cursor(0)[1]
+      vim.api.nvim_buf_set_lines(buf, lnum, lnum, false, { cut_line })
+      cut_line = nil
+    end, { buffer = buf, desc = "Paste cut entry" })
+
+    -- <M-p>: toggle the preview pane on/off. Flipping the config flag
+    -- alone doesn't redraw, so we re-set the current branch to force
+    -- mini.files to rebuild the layout with the new preview setting.
     vim.keymap.set("n", "<M-p>", function()
       files.config.windows.preview = not files.config.windows.preview
       local state = files.get_explorer_state()
