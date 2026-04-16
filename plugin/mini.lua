@@ -173,12 +173,15 @@ vim.api.nvim_create_autocmd("User", {
     local buf = args.data.buf_id
     local files = require("mini.files")
 
+    -- <CR>: open the file under the cursor (closing the explorer) or
+    -- expand a directory in a new column. If the cursor is on a freshly
+    -- typed line that doesn't exist on disk yet, synchronize first so
+    -- mini.files creates the entry, then open it.
     vim.keymap.set("n", "<CR>", function()
       local entry = files.get_fs_entry()
       if entry then
         files.go_in({ close_on_file = true })
       else
-        -- Entry doesn't exist yet — sync to create it, then open
         files.synchronize()
         files.go_in({ close_on_file = true })
       end
@@ -209,19 +212,27 @@ vim.api.nvim_create_autocmd("User", {
       end,
     })
 
-    -- Override the global <C-s> for this buffer. The global mapping uses
-    -- <cmd>w<cr> which runs :w in a restricted context where vim.fn.confirm
-    -- returns its default (Yes) without prompting — auto-applying changes.
+    -- <C-s>: synchronize pending filesystem changes with a confirm prompt.
+    -- Overrides the global <C-s> mapping for this buffer because the global
+    -- one uses <cmd>w<cr>, which runs :w in a restricted context where
+    -- vim.fn.confirm returns its default (Yes) without prompting — silently
+    -- auto-applying changes. Feeding <Esc> afterwards exits insert/visual
+    -- mode so the keymap behaves consistently across modes.
     vim.keymap.set({ "n", "i", "x", "s" }, "<C-s>", function()
       files.synchronize()
       local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
       vim.api.nvim_feedkeys(esc, "n", false)
     end, { buffer = buf, desc = "Synchronize mini.files" })
 
+    -- H: jump the explorer back to the current working directory.
+    -- Useful when nested deep in a tree and you want to start over from
+    -- the project root without closing and reopening the explorer.
     vim.keymap.set("n", "H", function()
       files.open(vim.uv.cwd(), false)
     end, { buffer = buf, desc = "Go to cwd root" })
 
+    -- q / <Esc>: close the explorer, synchronizing first so any pending
+    -- edits are not silently dropped — the confirm prompt still runs.
     local function sync_and_close()
       files.synchronize()
       files.close()
