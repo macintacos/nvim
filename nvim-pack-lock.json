@@ -212,6 +212,10 @@
       "rev": "123a9fb12e7229342f807ec9e6de478b1102b041",
       "src": "https://github.com/folke/ts-comments.nvim"
     },
+    "venv-selector.nvim": {
+      "rev": "bcb2f58533c59b01565285eba49693f00bc460f5",
+      "src": "https://github.com/linux-cultist/venv-selector.nvim"
+    },
     "vim-eunuch": {
       "rev": "e86bb794a1c10a2edac130feb0ea590a00d03f1e",
       "src": "https://github.com/tpope/vim-eunuch"
