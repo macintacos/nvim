@@ -8,7 +8,7 @@ vim.pack.add({
 require("incline").setup({
   window = {
     padding = 0,
-    margin = { horizontal = 0 },
+    margin = { horizontal = 0, vertical = 2 },
     placement = { vertical = "bottom", horizontal = "right" },
   },
   ignore = {
