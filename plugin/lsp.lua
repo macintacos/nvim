@@ -84,4 +84,4 @@ require("mason").setup({
     "yamlfmt",
   },
 })
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup({ automatic_enable = false })
