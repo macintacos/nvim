@@ -2,6 +2,7 @@
 -- UI utilities: picker, notifier, terminal, lazygit, zen mode, and more
 vim.g.snacks_animate = false
 vim.pack.add({ "https://github.com/folke/snacks.nvim" })
+
 require("snacks").setup({
   bigfile = { enabled = true },
   explorer = { enabled = true },
@@ -9,7 +10,12 @@ require("snacks").setup({
   input = { enabled = true },
   image = { enabled = true },
   lazygit = { enabled = true },
-  notifier = { enabled = false },
+  notifier = {
+    enabled = true,
+    style = "compact",
+    top_down = false,
+    margin = { top = 0, right = 1, bottom = 2 },
+  },
   picker = { enabled = true },
   quickfile = { enabled = true },
   scope = { enabled = true },
