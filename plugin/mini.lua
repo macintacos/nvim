@@ -173,16 +173,28 @@ vim.api.nvim_create_autocmd("User", {
     local buf = args.data.buf_id
     local files = require("mini.files")
 
-    -- <CR>: open the file under the cursor (closing the explorer) or
-    -- expand a directory in a new column. If the cursor is on a freshly
-    -- typed line that doesn't exist on disk yet, synchronize first so
-    -- mini.files creates the entry, then open it.
+    -- <CR>: open file (closing the explorer) or expand directory. If the
+    -- buffer has pending edits, apply them first so go_in's close_on_file
+    -- doesn't trip the "Close without synchronization?" prompt.
+    -- synchronize() always calls vim.fn.confirm; stub it to return 1 (Yes)
+    -- so fs actions apply silently.
     vim.keymap.set("n", "<CR>", function()
+      if vim.bo[buf].modified then
+        local orig_confirm = vim.fn.confirm
+        ---@diagnostic disable-next-line: duplicate-set-field
+        vim.fn.confirm = function()
+          return 1
+        end
+        local ok, err = pcall(files.synchronize)
+        ---@diagnostic disable-next-line: duplicate-set-field
+        vim.fn.confirm = orig_confirm
+        if not ok then
+          vim.notify(tostring(err), vim.log.levels.ERROR)
+          return
+        end
+      end
       local entry = files.get_fs_entry()
       if entry then
-        files.go_in({ close_on_file = true })
-      else
-        files.synchronize()
         files.go_in({ close_on_file = true })
       end
     end, { buffer = buf, desc = "Open file or expand directory" })
