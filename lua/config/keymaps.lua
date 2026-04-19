@@ -1,5 +1,6 @@
 local map = vim.keymap.set
-local Cmd = require("config.helpers").Cmd
+local helpers = require("config.helpers")
+local Cmd = helpers.Cmd
 
 -- Unmap 'q'
 map("n", "q", "<nop>", { remap = false })
@@ -27,9 +28,21 @@ map("n", "<A-s>", Cmd("resize -2"), { desc = "Decrease Window Height" })
 map("n", "<A-a>", Cmd("vertical resize -2"), { desc = "Decrease Window Width" })
 map("n", "<A-d>", Cmd("vertical resize +2"), { desc = "Increase Window Width" })
 
--- Move Lines
-map("n", "J", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
-map("n", "K", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
+-- Move Lines (scrolls LSP hover popup first, if one is open)
+map("n", "J", function()
+  if helpers.scroll_hover("down") then
+    return
+  end
+  vim.cmd("execute 'move .+' . v:count1")
+  vim.cmd("normal! ==")
+end, { desc = "Scroll Hover / Move Down" })
+map("n", "K", function()
+  if helpers.scroll_hover("up") then
+    return
+  end
+  vim.cmd("execute 'move .-' . (v:count1 + 1)")
+  vim.cmd("normal! ==")
+end, { desc = "Scroll Hover / Move Up" })
 map("v", "J", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
 map("v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
 
