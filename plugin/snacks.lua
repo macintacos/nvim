@@ -5,7 +5,7 @@ vim.pack.add({ "https://github.com/folke/snacks.nvim" })
 
 require("snacks").setup({
   bigfile = { enabled = true },
-  explorer = { enabled = true },
+  explorer = { enabled = true, replace_netrw = false },
   indent = { enabled = true },
   input = { enabled = true },
   image = { enabled = true },
