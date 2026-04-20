@@ -9,6 +9,8 @@ vim.schedule(function()
   local Snacks = require("snacks")
 
   require("which-key").setup({
+    preset = "helix",
+
     -- stylua: ignore
     spec = {
       -- Top-level Things
