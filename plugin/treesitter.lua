@@ -3,6 +3,7 @@
 vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
 
 local ts = require("nvim-treesitter")
+
 -- stylua: ignore start
 local langs = {
   "bash",           "javascript",       "python",
