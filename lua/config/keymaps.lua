@@ -1,82 +1,82 @@
-local map = vim.keymap.set
+local map = require("helpers.mappings").map
 local Cmd = require("helpers.mappings").Cmd
 local windows = require("helpers.windows")
 
 -- Unmap 'q'
-map("n", "q", "<nop>", { remap = false })
+map("Unmap q", "n", "q", "<nop>")
 
 -- Don't copy things you've pasted over
-map("v", "p", '"_dP')
+map("No-yank paste", "v", "p", '"_dP')
 
 -- make 'Y' yank from current character to end of line
-map("n", "Y", "y$", { desc = "Yank to Line End" })
-map("v", "y", "ygv<ESC>")
+map("Yank to Line End", "n", "Y", "y$")
+map("Yank and reselect", "v", "y", "ygv<ESC>")
 
 -- better up/down
-map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
-map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
-map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+map("Down", { "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map("Down", { "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map("Down", { "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map("Down", { "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map("Up", { "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+map("Up", { "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+map("Up", { "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+map("Up", { "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
 -- Resize windows using Alt+WASD
-map("n", "<A-w>", Cmd("resize +2"), { desc = "Increase Window Height" })
-map("n", "<A-s>", Cmd("resize -2"), { desc = "Decrease Window Height" })
-map("n", "<A-a>", Cmd("vertical resize -2"), { desc = "Decrease Window Width" })
-map("n", "<A-d>", Cmd("vertical resize +2"), { desc = "Increase Window Width" })
+map("Increase Window Height", "n", "<A-w>", Cmd("resize +2"))
+map("Decrease Window Height", "n", "<A-s>", Cmd("resize -2"))
+map("Decrease Window Width", "n", "<A-a>", Cmd("vertical resize -2"))
+map("Increase Window Width", "n", "<A-d>", Cmd("vertical resize +2"))
 
 -- Move Lines (scrolls LSP hover popup first, if one is open)
-map("n", "J", function()
+map("Scroll Hover / Move Down", "n", "J", function()
   if windows.scroll_hover("down") then
     return
   end
   vim.cmd("execute 'move .+' . v:count1")
   vim.cmd("normal! ==")
-end, { desc = "Scroll Hover / Move Down" })
-map("n", "K", function()
+end)
+map("Scroll Hover / Move Up", "n", "K", function()
   if windows.scroll_hover("up") then
     return
   end
   vim.cmd("execute 'move .-' . (v:count1 + 1)")
   vim.cmd("normal! ==")
-end, { desc = "Scroll Hover / Move Up" })
-map("v", "J", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
-map("v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+end)
+map("Move Down", "v", "J", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv")
+map("Move Up", "v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv")
 
 -- Better indentation
-map("v", "<", "<gv")
-map("v", ">", ">gv")
+map("Indent left and reselect", "v", "<", "<gv")
+map("Indent right and reselect", "v", ">", ">gv")
 
 -- Clear search and stop snippet on escape
-map({ "i", "n", "s" }, "<esc>", function()
+map("Escape and Clear hlsearch", { "i", "n", "s" }, "<esc>", function()
   vim.cmd("noh")
   return "<esc>"
-end, { expr = true, desc = "Escape and Clear hlsearch" })
+end, { expr = true })
 
 -- Add undo break-points
-map("i", ",", ",<c-g>u")
-map("i", ".", ".<c-g>u")
-map("i", ";", ";<c-g>u")
+map("Undo break-point at ,", "i", ",", ",<c-g>u")
+map("Undo break-point at .", "i", ".", ".<c-g>u")
+map("Undo break-point at ;", "i", ";", ";<c-g>u")
 
 -- Save, no matter what
-map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
+map("Save File", { "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>")
 
 -- Dupe lines up/down
-map("n", "<A-j>", Cmd("t."), { desc = "Copy line down" })
-map("n", "<A-k>", Cmd("t-1"), { desc = "Copy line up" })
-map("v", "<A-j>", "y`>pgv", { desc = "Copy lines down" })
-map("v", "<A-k>", "y`<Pgv", { desc = "Copy line up" })
+map("Copy line down", "n", "<A-j>", Cmd("t."))
+map("Copy line up", "n", "<A-k>", Cmd("t-1"))
+map("Copy lines down", "v", "<A-j>", "y`>pgv")
+map("Copy line up", "v", "<A-k>", "y`<Pgv")
 
 -- Terminal
-map("n", "<C-'>", function()
+map("Terminal", "n", "<C-'>", function()
   Snacks.terminal()
-end, { desc = "Terminal" })
-map("t", "<C-'>", function()
+end)
+map("Terminal", "t", "<C-'>", function()
   Snacks.terminal()
-end, { desc = "Terminal" })
+end)
 
 -- Focus Neotree using CTRL-\
 local function neo_tree_focus_toggle()
@@ -98,25 +98,25 @@ local function neo_tree_focus_toggle()
   vim.cmd("Neotree focus right")
 end
 
-vim.keymap.set("n", "<C-\\>", neo_tree_focus_toggle, { noremap = true, silent = true })
+map("Toggle neo-tree focus", "n", "<C-\\>", neo_tree_focus_toggle, { silent = true })
 
 -- Join the next/prev line with the current
-map("n", "<A-J>", Cmd("norm! J"), { desc = "Join Current Line w/ Next" })
-map("n", "<A-K>", Cmd(".-1,.join"), { desc = "Join Current Line w/ Prev" })
+map("Join Current Line w/ Next", "n", "<A-J>", Cmd("norm! J"))
+map("Join Current Line w/ Prev", "n", "<A-K>", Cmd(".-1,.join"))
 
 -- Select parent/child treesitter node (falls back to LSP selection range)
-map({ "n", "x", "o" }, "<A-o>", function()
+map("Select Parent Node", { "n", "x", "o" }, "<A-o>", function()
   if vim.treesitter.get_parser(nil, nil, { error = false }) then
     require("vim.treesitter._select").select_parent(vim.v.count1)
   else
     vim.lsp.buf.selection_range(vim.v.count1)
   end
-end, { desc = "Select Parent Node" })
+end)
 
-map({ "n", "x", "o" }, "<A-i>", function()
+map("Select Child Node", { "n", "x", "o" }, "<A-i>", function()
   if vim.treesitter.get_parser(nil, nil, { error = false }) then
     require("vim.treesitter._select").select_child(vim.v.count1)
   else
     vim.lsp.buf.selection_range(-vim.v.count1)
   end
-end, { desc = "Select Child Node" })
+end)
