@@ -59,8 +59,9 @@ vim.api.nvim_create_autocmd("FileType", {
         { "<LocalLeader>vr", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Resync PEP 723 Script Deps" },
       })
     else
+      local mappings_map = require("helpers.mappings").map
       local function map(lhs, rhs, desc)
-        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+        mappings_map(desc, "n", lhs, rhs, { buffer = bufnr, silent = true })
       end
       map("<LocalLeader>vs", "<Cmd>VenvSelect<CR>", "Select Virtualenv")
       map("<LocalLeader>vc", "<Cmd>VenvSelectCached<CR>", "Activate Cached Venv")
