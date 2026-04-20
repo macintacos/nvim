@@ -52,7 +52,6 @@ require("mini.statusline").setup({
       local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
       local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
       local filename = MiniStatusline.section_filename({ trunc_width = 140 })
-      local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
       local location = MiniStatusline.section_location({ trunc_width = 75 })
       local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
       local updates = section_pack_updates({ trunc_width = 75 })
@@ -64,7 +63,6 @@ require("mini.statusline").setup({
         { hl = "MiniStatuslineFilename", strings = { filename } },
         "%=",
         { hl = "MiniStatuslinePackUpdates", strings = { updates } },
-        { hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
         { hl = mode_hl, strings = { search, location } },
       })
     end,
