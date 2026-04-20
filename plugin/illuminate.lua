@@ -28,10 +28,12 @@ vim.schedule(function()
     :map("<leader>ux")
 end)
 
+local map = require("helpers.mappings").map
+
 local function map_ref(key, dir, buffer)
-  vim.keymap.set("n", key, function()
+  map(dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", "n", key, function()
     require("illuminate")["goto_" .. dir .. "_reference"](false)
-  end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
+  end, { buffer = buffer })
 end
 
 map_ref("]]", "next")
