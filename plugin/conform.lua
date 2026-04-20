@@ -10,6 +10,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     vim.cmd.packadd("conform.nvim")
     require("conform").setup({
       formatters_by_ft = {
+        just = { "just" },
         lua = { "stylua" },
         python = { "ruff_format" },
         rust = { "rustfmt" },
@@ -17,6 +18,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         yaml = { "yamlfmt" },
       },
       formatters = {
+        just = {
+          command = "just",
+          args = { "--fmt", "--justfile", "$FILENAME" },
+          stdin = false,
+        },
         shfmt = {
           prepend_args = { "-i", "0" },
         },
