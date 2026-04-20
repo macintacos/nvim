@@ -15,6 +15,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         python = { "ruff_format" },
         rust = { "rustfmt" },
         sh = { "shfmt" },
+        toml = { "taplo" },
         yaml = { "yamlfmt" },
       },
       formatters = {
@@ -48,6 +49,7 @@ vim.api.nvim_create_user_command("ConformInfo", function()
       python = { "ruff_format" },
       rust = { "rustfmt" },
       sh = { "shfmt" },
+      toml = { "taplo" },
       yaml = { "yamlfmt" },
     },
     formatters = {
