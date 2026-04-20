@@ -2,6 +2,8 @@
 -- Increment and decrement numbers, dates, booleans, and more with C-a/C-x
 vim.pack.add({ "https://github.com/monaqa/dial.nvim" }, { load = false })
 
+local map = require("helpers.mappings").map
+
 -- Build the dial.map function name for the current context and invoke it.
 -- Combines the direction (inc/dec), the "g" prefix variant (for g<C-a>),
 -- and the mode (visual/normal) into a function name like "inc_normal" or
@@ -157,8 +159,8 @@ local function ensure_loaded()
 end
 
 -- stylua: ignore start
-vim.keymap.set({ "n", "v" }, "<C-a>", function() ensure_loaded(); return dial(true) end, { expr = true, desc = "Increment" })
-vim.keymap.set({ "n", "v" }, "<C-x>", function() ensure_loaded(); return dial(false) end, { expr = true, desc = "Decrement" })
-vim.keymap.set({ "n", "v" }, "g<C-a>", function() ensure_loaded(); return dial(true, true) end, { expr = true, desc = "Increment" })
-vim.keymap.set({ "n", "v" }, "g<C-x>", function() ensure_loaded(); return dial(false, true) end, { expr = true, desc = "Decrement" })
+map("Increment", { "n", "v" }, "<C-a>", function() ensure_loaded(); return dial(true) end, { expr = true })
+map("Decrement", { "n", "v" }, "<C-x>", function() ensure_loaded(); return dial(false) end, { expr = true })
+map("Increment", { "n", "v" }, "g<C-a>", function() ensure_loaded(); return dial(true, true) end, { expr = true })
+map("Decrement", { "n", "v" }, "g<C-x>", function() ensure_loaded(); return dial(false, true) end, { expr = true })
 -- stylua: ignore end
