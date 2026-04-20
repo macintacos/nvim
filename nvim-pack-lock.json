@@ -192,6 +192,10 @@
       "rev": "063cc44da1eef8681bbd653b29d3bc961780886a",
       "src": "https://github.com/stevearc/quicker.nvim"
     },
+    "rustaceanvim": {
+      "rev": "824491c58bdba1f6f5e35e64e0ab8b2e2425d6b2",
+      "src": "https://github.com/mrcjkb/rustaceanvim"
+    },
     "scrollEOF.nvim": {
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"
