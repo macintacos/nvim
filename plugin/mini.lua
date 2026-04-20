@@ -22,6 +22,7 @@ vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statusline_highlight
 set_statusline_highlights()
 
 local pack_updates = require("config.pack-updates")
+local map = require("helpers.mappings").map
 
 -- Custom statusline section: shows a braille spinner while checking
 -- for plugin updates, then icon + count when updates are available.
@@ -178,7 +179,7 @@ vim.api.nvim_create_autocmd("User", {
     -- doesn't trip the "Close without synchronization?" prompt.
     -- synchronize() always calls vim.fn.confirm; stub it to return 1 (Yes)
     -- so fs actions apply silently.
-    vim.keymap.set("n", "<CR>", function()
+    map("Open file or expand directory", "n", "<CR>", function()
       if vim.bo[buf].modified then
         local orig_confirm = vim.fn.confirm
         ---@diagnostic disable-next-line: duplicate-set-field
@@ -197,7 +198,7 @@ vim.api.nvim_create_autocmd("User", {
       if entry then
         files.go_in({ close_on_file = true })
       end
-    end, { buffer = buf, desc = "Open file or expand directory" })
+    end, { buffer = buf })
 
     -- Route :w through BufWriteCmd. mini.files creates scratch buffers
     -- (buftype=nofile) which would otherwise reject :w with E382.
@@ -230,18 +231,18 @@ vim.api.nvim_create_autocmd("User", {
     -- vim.fn.confirm returns its default (Yes) without prompting — silently
     -- auto-applying changes. Feeding <Esc> afterwards exits insert/visual
     -- mode so the keymap behaves consistently across modes.
-    vim.keymap.set({ "n", "i", "x", "s" }, "<C-s>", function()
+    map("Synchronize mini.files", { "n", "i", "x", "s" }, "<C-s>", function()
       files.synchronize()
       local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
       vim.api.nvim_feedkeys(esc, "n", false)
-    end, { buffer = buf, desc = "Synchronize mini.files" })
+    end, { buffer = buf })
 
     -- H: jump the explorer back to the current working directory.
     -- Useful when nested deep in a tree and you want to start over from
     -- the project root without closing and reopening the explorer.
-    vim.keymap.set("n", "H", function()
+    map("Go to cwd root", "n", "H", function()
       files.open(vim.uv.cwd(), false)
-    end, { buffer = buf, desc = "Go to cwd root" })
+    end, { buffer = buf })
 
     -- q / <Esc>: close the explorer, synchronizing first so any pending
     -- edits are not silently dropped — the confirm prompt still runs.
@@ -250,15 +251,15 @@ vim.api.nvim_create_autocmd("User", {
       files.close()
     end
 
-    vim.keymap.set("n", "q", sync_and_close, { buffer = buf, desc = "Sync and close" })
-    vim.keymap.set("n", "<Esc>", sync_and_close, { buffer = buf, desc = "Sync and close" })
+    map("Sync and close", "n", "q", sync_and_close, { buffer = buf })
+    map("Sync and close", "n", "<Esc>", sync_and_close, { buffer = buf })
 
     -- mm: cut the entry under the cursor. Stashes the entire buffer line
     -- (including the concealed /<path_id>/ prefix) in a module-local
     -- variable and removes it from the buffer. Preserving the path_id is
     -- what lets a subsequent paste be recognized by mini.files's diff as
     -- a move rather than a delete + create.
-    vim.keymap.set("n", "mm", function()
+    map("Cut entry (paste with p)", "n", "mm", function()
       local lnum = vim.api.nvim_win_get_cursor(0)[1]
       local line = vim.api.nvim_buf_get_lines(buf, lnum - 1, lnum, false)[1]
       if not line or line == "" then
@@ -266,12 +267,12 @@ vim.api.nvim_create_autocmd("User", {
       end
       cut_line = line
       vim.api.nvim_buf_set_lines(buf, lnum - 1, lnum, false, {})
-    end, { buffer = buf, desc = "Cut entry (paste with p)" })
+    end, { buffer = buf })
 
     -- p: paste the previously cut entry below the cursor in any mini.files
     -- buffer. The move is not committed until the user synchronizes
     -- (:w / <C-s> / q), so this is safe to undo by closing without sync.
-    vim.keymap.set("n", "p", function()
+    map("Paste cut entry", "n", "p", function()
       if not cut_line then
         vim.notify("mini.files: nothing to paste", vim.log.levels.WARN)
         return
@@ -279,19 +280,19 @@ vim.api.nvim_create_autocmd("User", {
       local lnum = vim.api.nvim_win_get_cursor(0)[1]
       vim.api.nvim_buf_set_lines(buf, lnum, lnum, false, { cut_line })
       cut_line = nil
-    end, { buffer = buf, desc = "Paste cut entry" })
+    end, { buffer = buf })
 
     -- <M-p>: toggle the preview pane on/off. Flipping the config flag
     -- alone doesn't redraw, so we re-set the current branch to force
     -- mini.files to rebuild the layout with the new preview setting.
-    vim.keymap.set("n", "<M-p>", function()
+    map("Toggle preview pane", "n", "<M-p>", function()
       files.config.windows.preview = not files.config.windows.preview
       local state = files.get_explorer_state()
       if state then
         local branch = vim.list_slice(state.branch, 1, state.depth_focus)
         files.set_branch(branch, { depth_focus = state.depth_focus })
       end
-    end, { buffer = buf, desc = "Toggle preview pane" })
+    end, { buffer = buf })
   end,
 })
 
