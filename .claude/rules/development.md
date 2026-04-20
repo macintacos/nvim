@@ -18,7 +18,7 @@ Rules for adding features to this Neovim configuration. See `CLAUDE.md` at the r
 
 Edit the appropriate file in `lua/config/`:
 - **Options/globals**: `options.lua`
-- **Keybindings**: `keymaps.lua` (use `require("config.helpers").Cmd()` for command mappings)
+- **Keybindings**: `keymaps.lua` (use `require("helpers.mappings").Cmd()` for command mappings)
 - **Autocommands**: `autocmds.lua` (every autocmd **must** have a comment explaining what/why/when)
 - **Highlight groups**: `highlights.lua`
 
