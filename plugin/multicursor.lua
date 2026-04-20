@@ -13,25 +13,25 @@ hl(0, "MultiCursorDisabledCursor", { link = "Visual" })
 hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
 hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
 
-local map = vim.keymap.set
+local map = require("helpers.mappings").map
 
 -- stylua: ignore start
-map({ "n", "x" }, "<C-k>", function() mc.lineAddCursor(-1) end, { desc = "Add Cursor Above" })
-map({ "n", "x" }, "<C-S-k>", function() mc.lineAddCursor(-1) end, { desc = "Add Cursor Above" })
-map({ "n", "x" }, "<C-j>", function() mc.lineAddCursor(1) end, { desc = "Add Cursor Below" })
-map({ "n", "x" }, "<C-S-j>", function() mc.lineAddCursor(1) end, { desc = "Add Cursor Below" })
+map("Add Cursor Above", { "n", "x" }, "<C-k>", function() mc.lineAddCursor(-1) end)
+map("Add Cursor Above", { "n", "x" }, "<C-S-k>", function() mc.lineAddCursor(-1) end)
+map("Add Cursor Below", { "n", "x" }, "<C-j>", function() mc.lineAddCursor(1) end)
+map("Add Cursor Below", { "n", "x" }, "<C-S-j>", function() mc.lineAddCursor(1) end)
 
-map({ "n", "x" }, "<C-n>", function() mc.matchAddCursor(1) end, { desc = "Add Cursor to Next Match" })
-map({ "n", "x" }, "gn", function() mc.matchAddCursor(1) end, { desc = "Add Cursor to Next Match" })
-map({ "n", "x" }, "<C-S-n>", function() mc.matchAddCursor(-1) end, { desc = "Add Cursor to Prev Match" })
-map({ "n", "x" }, "gN", function() mc.matchAddCursor(-1) end, { desc = "Add Cursor to Prev Match" })
-map({ "n", "x" }, "gA", function() mc.matchAllAddCursors() end, { desc = "Add Cursor to All Matches" })
+map("Add Cursor to Next Match", { "n", "x" }, "<C-n>", function() mc.matchAddCursor(1) end)
+map("Add Cursor to Next Match", { "n", "x" }, "gn", function() mc.matchAddCursor(1) end)
+map("Add Cursor to Prev Match", { "n", "x" }, "<C-S-n>", function() mc.matchAddCursor(-1) end)
+map("Add Cursor to Prev Match", { "n", "x" }, "gN", function() mc.matchAddCursor(-1) end)
+map("Add Cursor to All Matches", { "n", "x" }, "gA", function() mc.matchAllAddCursors() end)
 
-map("n", "<C-leftmouse>", mc.handleMouse)
-map("n", "<C-leftdrag>", mc.handleMouseDrag)
-map("n", "<C-leftrelease>", mc.handleMouseRelease)
+map("Multicursor mouse down", "n", "<C-leftmouse>", mc.handleMouse)
+map("Multicursor mouse drag", "n", "<C-leftdrag>", mc.handleMouseDrag)
+map("Multicursor mouse release", "n", "<C-leftrelease>", mc.handleMouseRelease)
 
-map({ "n", "x" }, "<C-q>", mc.toggleCursor, { desc = "Toggle Multicursor" })
+map("Toggle Multicursor", { "n", "x" }, "<C-q>", mc.toggleCursor)
 
 mc.addKeymapLayer(function(layerMap)
   layerMap({ "n", "x" }, "<left>", mc.prevCursor, { desc = "Move to Prev Cursor" })
