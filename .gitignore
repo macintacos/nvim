@@ -9,3 +9,7 @@ data
 .DS_Store
 .claude/settings.local.json
 **/CLAUDE.md
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json
