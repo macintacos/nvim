@@ -6,13 +6,10 @@ vim.pack.add({
 })
 
 -- LSP keymaps
-local map = vim.keymap.set
-local function noremap(desc)
-  return { noremap = true, silent = true, desc = desc }
-end
+local map = require("helpers.mappings").map
 
 -- If the cursor is on a URL, open it in the browser; otherwise go to definition
-map("n", "gd", function()
+map("Goto Definition / Open URL", "n", "gd", function()
   local word = vim.fn.expand("<cWORD>")
   local url = word:match("(https?://[%w_.~!*'();:@&=+$,/?#%%[%]%-]+)")
   if url then
@@ -20,20 +17,20 @@ map("n", "gd", function()
   else
     vim.lsp.buf.definition()
   end
-end, noremap("Goto Definition / Open URL"))
-map("n", "gD", function()
+end, { silent = true })
+map("Goto Definition in Split", "n", "gD", function()
   vim.cmd("vsplit")
   vim.lsp.buf.definition()
-end, noremap("Goto Definition in Split"))
-map("n", "gh", function()
+end, { silent = true })
+map("Show Hover", "n", "gh", function()
   vim.lsp.buf.hover({ border = "rounded", max_width = 80 })
-end, noremap("Show Hover"))
-map("n", "gr", vim.lsp.buf.references, noremap("Goto References"))
-map("n", "gi", vim.lsp.buf.implementation, noremap("Goto Implementation"))
-map("n", "gy", vim.lsp.buf.type_definition, noremap("Goto T[y]pe Definition"))
-map("i", "<C-k>", function()
+end, { silent = true })
+map("Goto References", "n", "gr", vim.lsp.buf.references, { silent = true })
+map("Goto Implementation", "n", "gi", vim.lsp.buf.implementation, { silent = true })
+map("Goto T[y]pe Definition", "n", "gy", vim.lsp.buf.type_definition, { silent = true })
+map("Show Signature Help", "i", "<C-k>", function()
   vim.lsp.buf.signature_help({ border = "rounded", max_width = 80 })
-end, noremap("Show Signature Help"))
+end, { silent = true })
 
 -- LSP server configs
 vim.lsp.config("jsonnet_ls", {
