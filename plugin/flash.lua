@@ -2,11 +2,13 @@
 -- Jump anywhere on screen with labeled targets via 's'
 vim.pack.add({ "https://github.com/folke/flash.nvim" }, { load = false })
 
-vim.keymap.set({ "n", "x", "o" }, "s", function()
+local map = require("helpers.mappings").map
+
+map("Flash", { "n", "x", "o" }, "s", function()
   vim.cmd.packadd("flash.nvim")
   -- Replace this stub with the real keymap
-  vim.keymap.set({ "n", "x", "o" }, "s", function()
+  map("Flash", { "n", "x", "o" }, "s", function()
     require("flash").jump()
-  end, { desc = "Flash" })
+  end)
   require("flash").jump()
-end, { desc = "Flash" })
+end)
