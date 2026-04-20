@@ -73,6 +73,7 @@ require("mason").setup({
     "lua-language-server",
     "markdownlint-cli2",
     "ruff",
+    "rust-analyzer",
     "selene",
     "shellcheck",
     "shfmt",
