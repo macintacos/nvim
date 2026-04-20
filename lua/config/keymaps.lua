@@ -1,6 +1,6 @@
 local map = vim.keymap.set
-local helpers = require("config.helpers")
-local Cmd = helpers.Cmd
+local Cmd = require("helpers.mappings").Cmd
+local windows = require("helpers.windows")
 
 -- Unmap 'q'
 map("n", "q", "<nop>", { remap = false })
@@ -30,14 +30,14 @@ map("n", "<A-d>", Cmd("vertical resize +2"), { desc = "Increase Window Width" })
 
 -- Move Lines (scrolls LSP hover popup first, if one is open)
 map("n", "J", function()
-  if helpers.scroll_hover("down") then
+  if windows.scroll_hover("down") then
     return
   end
   vim.cmd("execute 'move .+' . v:count1")
   vim.cmd("normal! ==")
 end, { desc = "Scroll Hover / Move Down" })
 map("n", "K", function()
-  if helpers.scroll_hover("up") then
+  if windows.scroll_hover("up") then
     return
   end
   vim.cmd("execute 'move .-' . (v:count1 + 1)")

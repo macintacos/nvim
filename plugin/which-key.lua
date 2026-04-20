@@ -5,7 +5,7 @@ vim.pack.add({ "https://github.com/folke/which-key.nvim" }, { load = false })
 vim.schedule(function()
   vim.cmd.packadd("which-key.nvim")
 
-  local Cmd = require("config.helpers").Cmd
+  local Cmd = require("helpers.mappings").Cmd
   local Snacks = require("snacks")
 
   require("which-key").setup({
