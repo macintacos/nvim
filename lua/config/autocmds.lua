@@ -1,3 +1,5 @@
+local map = require("helpers.mappings").map
+
 local function augroup(name)
   return vim.api.nvim_create_augroup("__personal_" .. name, { clear = true })
 end
@@ -102,13 +104,12 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function(event)
     vim.bo[event.buf].buflisted = false
     vim.schedule(function()
-      vim.keymap.set("n", "q", function()
+      map("Quit buffer", "n", "q", function()
         vim.cmd("close")
         pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
       end, {
         buffer = event.buf,
         silent = true,
-        desc = "Quit buffer",
       })
     end)
   end,
