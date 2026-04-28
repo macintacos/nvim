@@ -187,3 +187,15 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     vim.schedule(edit_watch)
   end,
 })
+
+-- Sets cursorcolumn only in the windows that have focus.
+vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+  callback = function()
+    vim.wo.cursorcolumn = true
+  end,
+})
+vim.api.nvim_create_autocmd({ "WinLeave" }, {
+  callback = function()
+    vim.wo.cursorcolumn = false
+  end,
+})
