@@ -7,6 +7,7 @@ vim.schedule(function()
 
   local Cmd = require("helpers.mappings").Cmd
   local Snacks = require("snacks")
+  local Paths = require("helpers.paths")
 
   require("which-key").setup({
     preset = "helix",
@@ -47,6 +48,28 @@ vim.schedule(function()
       { "<leader>f=", function() require("conform").format({ async = true }) end, desc = "Format File" },
       { "<leader>fs", Cmd("w"), desc = "Save File" },
       { "<leader>fS", Cmd("noautocmd w"), desc = "Save File (no format)" },
+
+      -- Files > Copy paths
+      { "<leader>fy", group = "copy", icon = { icon = "󰅍", color = "yellow" } },
+      { "<leader>fyp", function() Paths.copy(Paths.path(0), "relative path") end, desc = "Relative Path" },
+      { "<leader>fyP", function() Paths.copy(Paths.path(0, { absolute = true }), "absolute path") end, desc = "Absolute Path" },
+      { "<leader>fyl", function() Paths.copy(Paths.path(0, { with_line = true }), "relative path:line") end, desc = "Relative Path:Line" },
+      { "<leader>fyL", function() Paths.copy(Paths.path(0, { absolute = true, with_line = true }), "absolute path:line") end, desc = "Absolute Path:Line" },
+      { "<leader>fyn", function() Paths.copy(Paths.path(0, { basename = true }), "filename") end, desc = "Filename" },
+      { "<leader>fyd", function() Paths.copy(Paths.path(0, { dir_only = true }), "relative dir") end, desc = "Relative Dir" },
+      { "<leader>fyD", function() Paths.copy(Paths.path(0, { absolute = true, dir_only = true }), "absolute dir") end, desc = "Absolute Dir" },
+      { "<leader>fyw",
+        function()
+          local list = vim.tbl_map(function(b) return Paths.path(b) end, Paths.tab_window_buffers())
+          Paths.copy(list, "relative paths")
+        end,
+        desc = "Visible Windows: Relative Paths" },
+      { "<leader>fyW",
+        function()
+          local list = vim.tbl_map(function(b) return Paths.path(b, { absolute = true }) end, Paths.tab_window_buffers())
+          Paths.copy(list, "absolute paths")
+        end,
+        desc = "Visible Windows: Absolute Paths" },
 
       -- Git
       { "<leader>g", group = "git", icon = { cat = "filetype", name = "git" } },
