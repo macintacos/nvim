@@ -171,6 +171,13 @@ vim.schedule(function()
       { "<leader>Ph", Cmd("checkhealth vim.pack"), desc = "Health Check" },
       { "<leader>Pd", function() vim.pack.del() end, desc = "Clean Unused Plugins" },
 
+      -- Quit
+      { "<leader>q", group = "quit", icon = { icon = "󰗼", color = "red" } },
+      { "<leader>qq", Cmd("qa"), desc = "Quit All" },
+      { "<leader>qw", Cmd("wq"), desc = "Write & Quit" },
+      { "<leader>qW", Cmd("wqa"), desc = "Write All & Quit All" },
+      { "<leader>q!", Cmd("qa!"), desc = "Force Quit All (discard changes)" },
+
       -- UI
       { "<leader>u", group = "ui", icon = { icon = "󰙵 ", color = "cyan" } },
 
