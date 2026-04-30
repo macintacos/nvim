@@ -291,6 +291,65 @@ vim.api.nvim_create_autocmd("User", {
         files.set_branch(branch, { depth_focus = state.depth_focus })
       end
     end, { buffer = buf })
+
+    -- yp / yP: yank the path of the entry under the cursor to the system
+    -- clipboard. yp gives a path relative to cwd, yP gives the absolute
+    -- path. In visual mode, copies one path per selected line, newline-
+    -- separated. Visual mode reads the live selection via line("v") /
+    -- line(".") rather than '< / '> (those reflect the *previous*
+    -- selection until exit), then feeds <Esc> so yank also exits visual
+    -- mode like Vim's default y.
+    local function copy_paths(transform)
+      return function()
+        local mode = vim.fn.mode()
+        local lnums = {}
+        if mode == "v" or mode == "V" or mode == "\22" then
+          local s = math.min(vim.fn.line("v"), vim.fn.line("."))
+          local e = math.max(vim.fn.line("v"), vim.fn.line("."))
+          for i = s, e do
+            table.insert(lnums, i)
+          end
+          local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
+          vim.api.nvim_feedkeys(esc, "n", false)
+        else
+          lnums = { vim.api.nvim_win_get_cursor(0)[1] }
+        end
+
+        local paths = {}
+        for _, lnum in ipairs(lnums) do
+          local entry = files.get_fs_entry(buf, lnum)
+          if entry then
+            table.insert(paths, transform(entry.path))
+          end
+        end
+        if #paths == 0 then
+          vim.notify("mini.files: no entry under cursor", vim.log.levels.WARN)
+          return
+        end
+        vim.fn.setreg("+", table.concat(paths, "\n"))
+        vim.notify(("Copied %d path%s to clipboard"):format(#paths, #paths == 1 and "" or "s"))
+      end
+    end
+
+    map(
+      "Copy relative path",
+      { "n", "x" },
+      "yp",
+      copy_paths(function(p)
+        return vim.fn.fnamemodify(p, ":.")
+      end),
+      { buffer = buf }
+    )
+
+    map(
+      "Copy absolute path",
+      { "n", "x" },
+      "yP",
+      copy_paths(function(p)
+        return p
+      end),
+      { buffer = buf }
+    )
   end,
 })
 
