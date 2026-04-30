@@ -47,6 +47,20 @@ vim.lsp.config("lua_ls", {
   },
 })
 
+vim.lsp.config("jsonls", {
+  settings = {
+    json = {
+      schemas = {
+        {
+          fileMatch = { "**/.project-meta.json" },
+          url = "file://" .. vim.fn.stdpath("config") .. "/schemas/project-meta.json",
+        },
+      },
+      validate = { enable = true },
+    },
+  },
+})
+
 vim.lsp.config("basedpyright", {
   settings = {
     basedpyright = {

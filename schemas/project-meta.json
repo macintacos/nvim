@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Meta",
+  "description": "Per-repo configuration for project tooling",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "jira": {
+      "type": "object",
+      "description": "Jira-related configuration for this repository",
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "type": "array",
+          "description": "Jira component names exactly as they appear in the project. First entry is the default. Recommended max: 4.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["components"]
+    }
+  }
+}
