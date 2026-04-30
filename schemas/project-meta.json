@@ -5,6 +5,17 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "git": {
+      "type": "object",
+      "description": "Git-related configuration for this repository",
+      "additionalProperties": false,
+      "properties": {
+        "allowDefaultBranchCommits": {
+          "type": "boolean",
+          "description": "When true, /git skips the default-branch guard and commits directly to main/trunk/etc."
+        }
+      }
+    },
     "jira": {
       "type": "object",
       "description": "Jira-related configuration for this repository",
