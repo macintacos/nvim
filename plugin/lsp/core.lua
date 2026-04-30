@@ -61,7 +61,7 @@ vim.lsp.config("ty", {
   cmd = { "uvx", "ty", "server" },
 })
 
-vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "jsonnet_ls", "just", "lua_ls", "taplo", "ty" })
+vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "jsonnet_ls", "just", "lua_ls", "marksman", "taplo", "ty" })
 
 -- Mason
 require("mason").setup({
@@ -73,6 +73,7 @@ require("mason").setup({
     "just-lsp",
     "lua-language-server",
     "markdownlint-cli2",
+    "marksman",
     "ruff",
     "rust-analyzer",
     "selene",
