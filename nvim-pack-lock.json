@@ -196,6 +196,10 @@
       "rev": "063cc44da1eef8681bbd653b29d3bc961780886a",
       "src": "https://github.com/stevearc/quicker.nvim"
     },
+    "render-markdown.nvim": {
+      "rev": "3f3eea97b80839f629c951ca660ffd125bfa5b34",
+      "src": "ssh://git@github.com/MeanderingProgrammer/render-markdown.nvim"
+    },
     "rustaceanvim": {
       "rev": "135f40f1243cf73963d34cf4694f8587cc07bee9",
       "src": "https://github.com/mrcjkb/rustaceanvim"
