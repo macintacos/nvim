@@ -6,7 +6,6 @@ require("render-markdown").setup({
   -- All non-table components disabled.
   -- To re-enable any of these, flip `enabled = true`.
   heading = { enabled = false },
-  code = { enabled = true },
   dash = { enabled = false },
   bullet = { enabled = false },
   checkbox = { enabled = false },
@@ -17,6 +16,16 @@ require("render-markdown").setup({
   html = { enabled = false },
   latex = { enabled = false },
 
-  -- The only feature active.
+  -- Active features
+  code = {
+    enabled = true,
+
+    width = "block",
+    border = "thin",
+    left_pad = 3,
+    right_pad = 60,
+    language_pad = 2,
+    background_inset = 0,
+  },
   pipe_table = { enabled = true },
 })
