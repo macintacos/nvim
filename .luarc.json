@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "LuaJIT",
+  "diagnostics.globals": [
+    "vim",
+    "Snacks",
+    "MiniFiles",
+    "MiniStatusline"
+  ],
+  "workspace.checkThirdParty": false,
+  "telemetry.enable": false
+}
