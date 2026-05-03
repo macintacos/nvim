@@ -13,6 +13,9 @@ require("plugins.blink-markdown-refs").setup({
 })
 
 require("blink.cmp").setup({
+  enabled = function()
+    return vim.bo.filetype ~= "minifiles"
+  end,
   fuzzy = { implementation = "prefer_rust_with_warning" },
   appearance = { nerd_font_variant = "mono" },
   sources = {
