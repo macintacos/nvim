@@ -21,6 +21,7 @@ local langs = {
   "graphql",        "nim",              "vimdoc",
   "groovy",         "printf",           "xml",
   "html",           "proto",            "yaml",
+  "kdl",
 }
 -- stylua: ignore end
 
