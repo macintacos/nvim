@@ -51,7 +51,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "bb4f337a786ded8f91fc5ac5809ba54386c10605",
+      "rev": "e8dd50ce5a6857f2dc7f827746163a4b1040ba9c",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -185,7 +185,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "af9857e4993e0adddb897f09c2805b44a0d913ea",
+      "rev": "c2eb05599c75e22cdb017de9448ad20a979728e6",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
