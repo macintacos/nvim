@@ -198,6 +198,11 @@ vim.api.nvim_create_autocmd("User", {
       end
     end, { buffer = buf })
 
+    -- Insert-mode <CR>: drop back to normal mode instead of inserting a
+    -- newline. After typing a name with `o`/`i`, Enter feels like commit;
+    -- landing in normal mode lets the existing n-mode <CR> sync and open.
+    map("Leave insert mode", "i", "<CR>", "<Esc>", { buffer = buf })
+
     -- Route :w through BufWriteCmd. mini.files creates scratch buffers
     -- (buftype=nofile) which would otherwise reject :w with E382.
     vim.bo[buf].buftype = "acwrite"
