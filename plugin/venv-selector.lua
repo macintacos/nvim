@@ -40,7 +40,7 @@ local function ensure_loaded()
 end
 
 -- Lazy-load venv-selector on the first Python buffer and register buffer-local
--- <LocalLeader>v... keymaps. Scoping to the buffer keeps them out of non-Python
+-- <localleader>v... keymaps. Scoping to the buffer keeps them out of non-Python
 -- filetypes and ensures which-key only surfaces them where they apply. Fires on
 -- every Python FileType so keymaps are wired to each buffer individually.
 vim.api.nvim_create_autocmd("FileType", {
@@ -53,19 +53,19 @@ vim.api.nvim_create_autocmd("FileType", {
     local ok, wk = pcall(require, "which-key")
     if ok then
       wk.add({
-        { "<LocalLeader>v", group = "venv", buffer = bufnr, icon = { icon = "󰌠", color = "green" } },
-        { "<LocalLeader>vs", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Select Virtualenv" },
-        { "<LocalLeader>vc", "<Cmd>VenvSelectCached<CR>", buffer = bufnr, desc = "Activate Cached Venv" },
-        { "<LocalLeader>vr", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Resync PEP 723 Script Deps" },
+        { "<localleader>v", group = "venv", buffer = bufnr, icon = { icon = "󰌠", color = "green" } },
+        { "<localleader>vs", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Select Virtualenv" },
+        { "<localleader>vc", "<Cmd>VenvSelectCached<CR>", buffer = bufnr, desc = "Activate Cached Venv" },
+        { "<localleader>vr", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Resync PEP 723 Script Deps" },
       })
     else
       local mappings_map = require("helpers.mappings").map
       local function map(lhs, rhs, desc)
         mappings_map(desc, "n", lhs, rhs, { buffer = bufnr, silent = true })
       end
-      map("<LocalLeader>vs", "<Cmd>VenvSelect<CR>", "Select Virtualenv")
-      map("<LocalLeader>vc", "<Cmd>VenvSelectCached<CR>", "Activate Cached Venv")
-      map("<LocalLeader>vr", "<Cmd>VenvSelect<CR>", "Resync PEP 723 Script Deps")
+      map("<localleader>vs", "<Cmd>VenvSelect<CR>", "Select Virtualenv")
+      map("<localleader>vc", "<Cmd>VenvSelectCached<CR>", "Activate Cached Venv")
+      map("<localleader>vr", "<Cmd>VenvSelect<CR>", "Resync PEP 723 Script Deps")
     end
   end,
 })

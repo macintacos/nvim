@@ -142,6 +142,24 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Register a labeled <localleader> group with which-key for markdown
+-- buffers so the buffer-local <localleader>X mappings configured in
+-- plugin/mkdnflow.lua and any future markdown-specific <localleader>
+-- mappings surface under a single named group.
+-- Fires: when a buffer's filetype is set to markdown.
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("markdown_localleader"),
+  pattern = { "markdown" },
+  callback = function(event)
+    local ok, wk = pcall(require, "which-key")
+    if ok then
+      wk.add({
+        { "<localleader>", group = "markdown", buffer = event.buf, icon = { icon = "󰍔", color = "blue" } },
+      })
+    end
+  end,
+})
+
 -- Force conceallevel to 0 for JSON files.
 -- Some colorschemes or plugins set conceallevel > 0, which hides quotes and
 -- colons in JSON — making the file look broken or hard to edit. This ensures
