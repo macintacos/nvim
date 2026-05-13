@@ -26,7 +26,8 @@ When working with this configuration, consult the official Neovim documentation:
 │       ├── autocmds.lua  # Autocommands
 │       ├── highlights.lua# Custom highlight groups
 │       └── helpers.lua   # Utility functions
-├── justfile              # Task runner recipes (format, lint, check)
+├── mise.toml             # Tool versions and task runner recipes (format, lint, check)
+├── mise.lock             # Pinned tool versions (managed by mise)
 ├── nvim-pack-lock.json   # Plugin version lockfile (managed by vim.pack)
 └── stylua.toml           # Lua formatter configuration
 ```
@@ -163,15 +164,19 @@ globals:
 
 ### CLI Tools
 
-After editing Lua files, run `just check` to lint and format all files. Individual recipes:
+After editing Lua files, run `mise run check` to lint, format, and test all files. Individual tasks:
 
-- `just format` — auto-fix formatting with stylua
-- `just lint` — run selene linter
-- `just check` — run both lint and format
+- `mise run format` — auto-fix formatting with stylua
+- `mise run lint` — run selene linter
+- `mise run check` — run lint, format, and tests
+- `mise run test` — run plenary tests
+- `mise run install` — install Neovim plugins
+
+Tool versions are managed by mise (`mise install` to install, `mise.lock` pins exact versions).
 
 ### Verification After Changes
 
-1. Run `just check` to lint and format all Lua files
+1. Run `mise run check` to lint, format, and test all Lua files
 2. Save a Lua file — confirm stylua auto-formats
 3. Check for linting warnings in the diagnostics
 4. Run `:ConformInfo` to verify formatter config
