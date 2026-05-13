@@ -67,7 +67,7 @@ describe("<module>", function()
 end)
 ```
 
-Tests run via `just test` using `tests/minimal_init.lua` as the init file. Create temporary fixtures with `vim.fn.mkdir()` and `vim.fn.writefile()` and clean them up after each test.
+Tests run via `mise run test` using `tests/minimal_init.lua` as the init file. Create temporary fixtures with `vim.fn.mkdir()` and `vim.fn.writefile()` and clean them up after each test.
 
 ## Development Process
 
@@ -79,7 +79,7 @@ For non-trivial features, use the TDD skill (red-green-simplify):
 2. **Green**: Write the minimum code to make the test pass
 3. **Simplify**: Refactor while keeping tests green
 
-Use `just test` to run the test suite. Use `just check` to run lint + format + test together.
+Use `mise run test` to run the test suite. Use `mise run check` to run lint, format, and test together.
 
 ### Documentation Pass (Final Step)
 
@@ -103,4 +103,4 @@ function M.search(query, root, callback)
 
 ## Verification
 
-After any changes, run `just check` to lint, format, and test all files.
+After any changes, run `mise run check` to lint, format, and test all files.
