@@ -192,6 +192,10 @@
       "rev": "a455e68a99d395889ab30a25ac3846a135e93c46",
       "src": "https://github.com/jmbuhr/otter.nvim"
     },
+    "pkl-neovim": {
+      "rev": "6067ca1424d851a3ce93b0429e23e3e13a8ee6e6",
+      "src": "https://github.com/apple/pkl-neovim"
+    },
     "plenary.nvim": {
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"

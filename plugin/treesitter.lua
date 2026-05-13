@@ -19,9 +19,9 @@ local langs = {
   "gosum",          "markdown",         "typescript",
   "gotmpl",         "markdown_inline",  "vim",
   "graphql",        "nim",              "vimdoc",
-  "groovy",         "printf",           "xml",
-  "html",           "proto",            "yaml",
-  "kdl",
+  "groovy",         "pkl",              "xml",
+  "html",           "printf",           "yaml",
+  "kdl",            "proto",
 }
 -- stylua: ignore end
 
