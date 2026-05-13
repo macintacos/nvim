@@ -2,8 +2,8 @@
 lockfile = true
 
 [tools]
-selene = "latest"
-stylua = "latest"
+"aqua:Kampfkarren/selene" = "latest"
+"aqua:JohnnyMorganz/StyLua" = "latest"
 
 [tasks.format]
 description = "Format all Lua files with stylua"
