@@ -1,0 +1,33 @@
+[settings]
+lockfile = true
+
+[tools]
+selene = "latest"
+stylua = "latest"
+
+[tasks.format]
+description = "Format all Lua files with stylua"
+run = "stylua ."
+
+[tasks.lint]
+description = "Lint all Lua files with selene"
+run = """
+selene .
+selene --config tests/selene.toml tests/
+"""
+
+[tasks.test]
+description = "Run plenary tests"
+run = """
+nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+"""
+
+[tasks.check]
+description = "Run lint, format, and tests"
+depends = ["lint", "format", "test"]
+
+[tasks.install]
+description = "Install Neovim plugins"
+run = """
+nvim --headless -c "lua vim.pack.update()" -c "quitall"
+"""
