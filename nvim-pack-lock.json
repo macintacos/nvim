@@ -51,7 +51,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "8cb1f4768b4badab5edcb0c5f45184e236fa3f8a",
+      "rev": "1104a8deaf551fdb17fecadc87d6872397c98a6a",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -79,7 +79,7 @@
       "src": "https://github.com/folke/lazydev.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "51feb0ada33d18f3c5c71ffb46005dbf8b33bef4",
+      "rev": "eaa34887d444cb002e1b165fac399ae4bbc771f7",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason.nvim": {
@@ -153,11 +153,11 @@
       "src": "https://github.com/kevinhwang91/nvim-bqf"
     },
     "nvim-lint": {
-      "rev": "eab58b48eb11d7745c11c505e0f3057165902461",
+      "rev": "665525810630701b84181e4d9eefd24b49845b29",
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "451d4ef9abd4f0f08e379ef0d55d1c391b6125a7",
+      "rev": "75e49cfa588a89ca667d767c0afef3ceac205faa",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-notify": {
@@ -185,7 +185,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "894ffaddb4813314d5fa6f2d9d9e145630c36d10",
+      "rev": "c9c2bcb3bc03b3b3e264e58d43289d8f8c2ee798",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -209,7 +209,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "b8aa69b6c401c7b26d66637789577b6dc7600f28",
+      "rev": "4798c7b584331d3c764369332a29a76d1c2d90f9",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
@@ -273,7 +273,7 @@
       "src": "https://github.com/folke/which-key.nvim"
     },
     "wrapping.nvim": {
-      "rev": "6adcdce080a1680942cbb43ecf7e58e45c55d221",
+      "rev": "3ecfb37cdc189a4e32d646e1c2ae0f46b9d62740",
       "src": "https://github.com/andrewferrier/wrapping.nvim"
     }
   }
