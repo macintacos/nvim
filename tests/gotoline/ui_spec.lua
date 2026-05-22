@@ -148,11 +148,12 @@ describe("gotoline.ui._handlers", function()
       assert.is_truthy(hint:find("letter") or hint:find("number"))
     end)
 
-    it("returns the navigate hint for filename mode (with or without results)", function()
+    it("returns the navigation hint for filename mode (with or without results)", function()
       for _, count in ipairs({ 0, 5 }) do
         local hint = h.hint_for({ mode = "filename", file_query = "x" }, count)
         assert.is_string(hint)
-        assert.is_truthy(hint:find("navigate"))
+        assert.is_truthy(hint:find("down"))
+        assert.is_truthy(hint:find("up"))
         assert.is_truthy(hint:find("select"))
       end
     end)

@@ -8,9 +8,11 @@ local M = {}
 local NS_RESULTS = vim.api.nvim_create_namespace("gotoline-results")
 local NS_PREVIEW = preview.NS
 local NS_PROMPT_HINT = vim.api.nvim_create_namespace("gotoline-prompt-hint")
+local NS_PROMPT_PREFIX = vim.api.nvim_create_namespace("gotoline-prompt-prefix")
 local MAX_RESULTS = 200
+local PROMPT_PREFIX = " $ "
 local HINT = "type a letter to find a file, or a number to jump in the current buffer"
-local HINT_NAV = "↑↓ navigate   ⏎ select"
+local HINT_NAV = "^n/^j/<tab> down   ^k/^p/<s-tab> up   <enter> select"
 local HINT_JUMP = "#### line   ⏎ jump"
 
 ---@class gotoline.State
@@ -193,7 +195,7 @@ local function paint_results()
     local icon, icon_hl = file_icon(r.path)
     if icon then
       vim.api.nvim_buf_set_extmark(state.results_buf, NS_RESULTS, row - 1, 0, {
-        virt_text = { { icon .. " ", icon_hl or "Normal" } },
+        virt_text = { { " " .. icon .. " ", icon_hl or "Normal" } },
         virt_text_pos = "inline",
         priority = 210,
       })
@@ -414,6 +416,15 @@ function M.open()
     results = {},
     selected = 1,
   }
+
+  -- Render a fixed " $ " prefix as inline virt_text. It's not part of the
+  -- buffer, so the user can't backspace through it and `get_prompt()` keeps
+  -- returning the user's text only.
+  vim.api.nvim_buf_set_extmark(prompt_buf, NS_PROMPT_PREFIX, 0, 0, {
+    virt_text = { { PROMPT_PREFIX, "Comment" } },
+    virt_text_pos = "inline",
+    right_gravity = false,
+  })
 
   vim.api.nvim_buf_attach(prompt_buf, false, {
     on_lines = function()
