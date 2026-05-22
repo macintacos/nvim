@@ -12,13 +12,14 @@ local function rtrim(s)
   return (s:gsub("%s+$", ""))
 end
 
----Parse `s` as a strict positive base-10 integer (1-based line number).
+---Parse `s` as a base-10 integer (any value — clamping to a valid 1-based line
+---happens at jump time, not here, so that `-5` previews/jumps to line 1 and a
+---huge number jumps to the file's last line).
 ---@param s string
 ---@return integer|nil
 local function to_line(s)
-  local n = s:match("^%d+$") and tonumber(s) or nil
-  if n and n >= 1 then
-    return n
+  if s:match("^%-?%d+$") then
+    return tonumber(s)
   end
 end
 

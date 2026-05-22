@@ -340,7 +340,11 @@ local function confirm()
     vim.api.nvim_set_current_win(origin_win)
   end
   vim.cmd("edit " .. vim.fn.fnameescape(target.file))
-  pcall(vim.api.nvim_win_set_cursor, 0, { target.line, 0 })
+  -- Clamp into the destination buffer's range: `-5` lands on line 1, a number
+  -- past the end lands on the last line.
+  local last = vim.api.nvim_buf_line_count(0)
+  local line = math.max(1, math.min(target.line, last))
+  pcall(vim.api.nvim_win_set_cursor, 0, { line, 0 })
   vim.cmd("normal! zz")
   -- The prompt window was in insert mode; ensure the user lands in normal mode
   -- in the destination buffer.
