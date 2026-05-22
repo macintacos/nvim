@@ -276,7 +276,7 @@ local function paint_prompt_hint(parsed, result_count)
   vim.api.nvim_buf_clear_namespace(state.prompt_buf, NS_PROMPT_HINT, 0, -1)
   local hint = handlers.hint_for(parsed, result_count)
   vim.api.nvim_buf_set_extmark(state.prompt_buf, NS_PROMPT_HINT, 0, 0, {
-    virt_lines = { { { hint, "Comment" } } },
+    virt_lines = { { { hint, "GotolineHelp" } } },
   })
 end
 
@@ -428,7 +428,7 @@ function M.open()
   -- buffer, so the user can't backspace through it and `get_prompt()` keeps
   -- returning the user's text only.
   vim.api.nvim_buf_set_extmark(prompt_buf, NS_PROMPT_PREFIX, 0, 0, {
-    virt_text = { { PROMPT_PREFIX, "Comment" } },
+    virt_text = { { PROMPT_PREFIX, "GotolineHelp" } },
     virt_text_pos = "inline",
     right_gravity = false,
   })
