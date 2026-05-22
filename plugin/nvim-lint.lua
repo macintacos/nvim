@@ -32,7 +32,7 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
       group = vim.api.nvim_create_augroup("__personal_nvim_lint", { clear = true }),
       callback = function()
-        if not vim.bo.modifiable then
+        if not vim.bo.modifiable or vim.b.is_tmpl then
           return
         end
         lint.linters.selene.args = selene_args_for_buffer()
@@ -41,7 +41,7 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
     })
 
     -- Lint the current buffer immediately
-    if vim.bo.modifiable then
+    if vim.bo.modifiable and not vim.b.is_tmpl then
       lint.linters.selene.args = selene_args_for_buffer()
       lint.try_lint()
     end

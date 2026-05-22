@@ -241,6 +241,12 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
       -- Set the primary filetype
       vim.bo.filetype = ext_filetypes[ext]
 
+      -- Mark this buffer as a template so conform.nvim skips format-on-save
+      -- and nvim-lint skips linting; also hide LSP/lint diagnostics for the
+      -- buffer since template directives produce nonsense parse errors.
+      vim.b.is_tmpl = true
+      vim.diagnostic.enable(false, { bufnr = 0 })
+
       -- Define embedded Go template syntax
       vim.cmd([[
         syntax include @gotmpl syntax/gotmpl.vim

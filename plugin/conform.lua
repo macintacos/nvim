@@ -28,10 +28,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
           prepend_args = { "-i", "0" },
         },
       },
-      format_on_save = {
-        timeout_ms = 3000,
-        lsp_format = "fallback",
-      },
+      format_on_save = function(bufnr)
+        if vim.b[bufnr].is_tmpl then
+          return nil
+        end
+        return { timeout_ms = 3000, lsp_format = "fallback" }
+      end,
     })
     vim.api.nvim_exec_autocmds("BufWritePre", {
       buffer = vim.api.nvim_get_current_buf(),
@@ -57,10 +59,12 @@ vim.api.nvim_create_user_command("ConformInfo", function()
         prepend_args = { "-i", "0" },
       },
     },
-    format_on_save = {
-      timeout_ms = 3000,
-      lsp_format = "fallback",
-    },
+    format_on_save = function(bufnr)
+      if vim.b[bufnr].is_tmpl then
+        return nil
+      end
+      return { timeout_ms = 3000, lsp_format = "fallback" }
+    end,
   })
   vim.cmd("ConformInfo")
 end, { desc = "Lazy-loaded: conform.nvim" })
