@@ -8,8 +8,10 @@ centered floating popup for jumping to a line in a project file.
 Run `:GoToLine`. A unified prompt-and-results modal appears, with a single
 horizontal divider separating:
 
-- **Prompt** (top): where you type. A subtle right-aligned hint coaches the
-  next available actions (navigate / select / type a line / jump).
+- **Prompt** (top): two rows — the row where you type, and a dimmed helper
+  row directly below it that coaches the next available actions
+  (e.g. `↑↓ navigate   ⏎ select` while picking a file, `#### line   ⏎ jump`
+  while entering a line number).
 - **Results** (below): file list while you search, or a treesitter-highlighted
   file preview once a file is locked in.
 

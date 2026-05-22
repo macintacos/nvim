@@ -14,8 +14,6 @@ local HINT_NAV = "↑↓ navigate   ⏎ select"
 local HINT_JUMP = "#### line   ⏎ jump"
 
 ---@class gotoline.State
----@field container_buf integer
----@field container_win integer
 ---@field prompt_buf integer
 ---@field prompt_win integer
 ---@field results_buf integer
@@ -25,6 +23,12 @@ local HINT_JUMP = "#### line   ⏎ jump"
 ---@field locked_file string|nil
 ---@field results gotoline.Match[]
 ---@field selected integer
+
+-- Border characters chosen so the prompt's bottom row and the results' top row
+-- draw the same `├─...─┤` divider. Positioned so those rows overlap on screen,
+-- the two windows look like one box split by a single line.
+local PROMPT_BORDER = { "╭", "─", "╮", "│", "┤", "─", "├", "│" }
+local RESULTS_BORDER = { "├", "─", "┤", "│", "╯", "─", "╰", "│" }
 
 ---@type gotoline.State|nil
 local state = nil
@@ -79,20 +83,19 @@ function handlers.resolve_target(parsed, origin_file, root)
   return nil
 end
 
----Return the right-aligned prompt hint string for the current parse state, or nil
----when no hint should be shown. The hint coaches the user on the next available
----actions (navigation while choosing a file, line-number entry while jumping).
+---Return the helper string shown on the prompt's second row for the current
+---parse state. Always returns a hint — the helper row is always visible.
 ---@param parsed gotoline.ParsedPrompt
----@param result_count integer
----@return string|nil
-function handlers.hint_for(parsed, result_count)
-  if parsed.mode == "filename" and result_count > 0 then
+---@param _result_count integer
+---@return string
+function handlers.hint_for(parsed, _result_count)
+  if parsed.mode == "filename" then
     return HINT_NAV
   end
   if parsed.mode == "line_only" or parsed.mode == "locked" then
     return HINT_JUMP
   end
-  return nil
+  return HINT
 end
 
 ---Reconcile the prompt with the current lock anchor (`<file>:`).
@@ -135,12 +138,12 @@ local function clear_results_view()
 end
 
 ---Switch the results buffer out of preview mode: detach treesitter,
----reset filetype, drop the line-number gutter and clear the container footer.
+---reset filetype, drop the line-number gutter and clear the window footer.
 local function reset_results_buffer()
   pcall(vim.treesitter.stop, state.results_buf)
   vim.bo[state.results_buf].filetype = ""
   vim.wo[state.results_win].number = false
-  pcall(vim.api.nvim_win_set_config, state.container_win, { footer = "" })
+  pcall(vim.api.nvim_win_set_config, state.results_win, { footer = "" })
 end
 
 ---Look up a filetype icon for `file_path` via mini.icons; returns nil if unavailable.
@@ -156,16 +159,14 @@ local function file_icon(file_path)
   return icon, hl
 end
 
-local function show_hint()
+---Empty out the results pane (used when nothing useful belongs there — e.g. the
+---prompt is empty, or `line_only` mode without an origin file).
+local function clear_results()
   state.results = {}
   state.selected = 1
   clear_results_view()
   reset_results_buffer()
-  vim.api.nvim_buf_set_lines(state.results_buf, 0, -1, false, { HINT })
-  vim.api.nvim_buf_set_extmark(state.results_buf, NS_RESULTS, 0, 0, {
-    end_col = #HINT,
-    hl_group = "Comment",
-  })
+  vim.api.nvim_buf_set_lines(state.results_buf, 0, -1, false, { "" })
 end
 
 local function paint_results()
@@ -245,13 +246,13 @@ local function render_preview_for(file_path, line)
     end)
   end
 
-  -- Anchor the filename label to the bottom-right of the container's border so
-  -- it stays put regardless of how short the previewed file is.
+  -- Anchor the filename label to the results window's bottom border so it stays
+  -- put regardless of how short the previewed file is.
   local name = vim.fn.fnamemodify(file_path, ":t")
   local icon, icon_hl = file_icon(file_path)
   local footer = icon and { { " " .. icon .. " ", icon_hl or "Normal" }, { name .. " ", "FloatFooter" } }
     or { { " " .. name .. " ", "FloatFooter" } }
-  pcall(vim.api.nvim_win_set_config, state.container_win, {
+  pcall(vim.api.nvim_win_set_config, state.results_win, {
     footer = footer,
     footer_pos = "right",
   })
@@ -262,18 +263,16 @@ local function origin_file()
   return name ~= "" and name or nil
 end
 
----Set or clear the right-aligned coach text inside the prompt window.
+---Paint the coach line shown directly below the input row inside the prompt
+---window. Uses `virt_lines` so the buffer itself stays one editable line.
 ---@param parsed gotoline.ParsedPrompt
 ---@param result_count integer
 local function paint_prompt_hint(parsed, result_count)
   vim.api.nvim_buf_clear_namespace(state.prompt_buf, NS_PROMPT_HINT, 0, -1)
   local hint = handlers.hint_for(parsed, result_count)
-  if hint then
-    vim.api.nvim_buf_set_extmark(state.prompt_buf, NS_PROMPT_HINT, 0, 0, {
-      virt_text = { { hint, "Comment" } },
-      virt_text_pos = "right_align",
-    })
-  end
+  vim.api.nvim_buf_set_extmark(state.prompt_buf, NS_PROMPT_HINT, 0, 0, {
+    virt_lines = { { { hint, "Comment" } } },
+  })
 end
 
 local function redraw()
@@ -285,7 +284,7 @@ local function redraw()
   -- it once results land (the only mode where the hint depends on count).
   paint_prompt_hint(parsed, 0)
   if parsed.mode == "empty" then
-    show_hint()
+    clear_results()
   elseif parsed.mode == "filename" then
     render_results_list(parsed.file_query, function()
       if state then
@@ -297,7 +296,7 @@ local function redraw()
     if f then
       render_preview_for(f, parsed.line)
     else
-      show_hint()
+      clear_results()
     end
   elseif parsed.mode == "locked" then
     -- Locked file paths are relative to the project root.
@@ -353,45 +352,23 @@ function M.open()
   local ui_info = vim.api.nvim_list_uis()[1]
   local total_w = (ui_info and ui_info.width) or vim.o.columns
   local total_h = (ui_info and ui_info.height) or vim.o.lines
-  local box_w = math.min(120, math.floor(total_w * 0.8))
-  local box_h = math.min(30, math.floor(total_h * 0.7))
-  -- The container's content area sits inside its rounded border.
-  local content_w = box_w - 2
-  local content_h = box_h - 2
-  local row = math.floor((total_h - box_h) / 2) + 1
-  local col = math.floor((total_w - box_w) / 2) + 1
+  local width = math.min(120, math.floor(total_w * 0.8))
+  local height = math.min(30, math.floor(total_h * 0.7))
+  -- Visual layout (rows are screen rows, 0-based from `row`):
+  --   row-1            ╭──────── prompt's top border
+  --   row              user input              (prompt content line 1)
+  --   row+1            helper text (virt_line) (prompt content line 2)
+  --   row+2            ├──────── prompt's bottom border == results' top border
+  --   row+3..row+H-2   results / preview content
+  --   row+H-1          ╰──────── results' bottom border
+  local prompt_h = 2
+  local results_h = height - 5
+  local row = math.floor((total_h - height) / 2) + 1
+  local col = math.floor((total_w - width) / 2)
 
   local origin_buf = vim.api.nvim_get_current_buf()
   local origin_win = vim.api.nvim_get_current_win()
   files.invalidate(files.root(vim.api.nvim_buf_get_name(origin_buf)))
-
-  -- Container: a single rounded box around the whole modal. Its buffer paints
-  -- the horizontal divider on row 1 (between the prompt at row 0 and results
-  -- at rows 2..content_h-1). The prompt and results windows overlay everything
-  -- except the divider row, so the user sees one box with one divider line.
-  local container_buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[container_buf].bufhidden = "wipe"
-  local container_lines = {}
-  for i = 1, content_h do
-    container_lines[i] = (i == 2) and string.rep("─", content_w) or ""
-  end
-  vim.api.nvim_buf_set_lines(container_buf, 0, -1, false, container_lines)
-  vim.bo[container_buf].modifiable = false
-  local container_win = vim.api.nvim_open_win(container_buf, false, {
-    relative = "editor",
-    row = row,
-    col = col,
-    width = content_w,
-    height = content_h,
-    border = "rounded",
-    title = " GoToLine ",
-    title_pos = "center",
-    style = "minimal",
-    focusable = false,
-  })
-  -- Suppress end-of-buffer tilde column on rows past the buffer length (we
-  -- pre-sized the buffer to content_h, but be defensive).
-  vim.wo[container_win].fillchars = "eob: "
 
   local prompt_buf = vim.api.nvim_create_buf(false, true)
   vim.bo[prompt_buf].bufhidden = "wipe"
@@ -401,29 +378,32 @@ function M.open()
     relative = "editor",
     row = row,
     col = col,
-    width = content_w,
-    height = 1,
+    width = width,
+    height = prompt_h,
+    border = PROMPT_BORDER,
+    title = " GoToLine ",
+    title_pos = "center",
     style = "minimal",
   })
 
   local results_buf = vim.api.nvim_create_buf(false, true)
   vim.bo[results_buf].bufhidden = "wipe"
+  -- `row + prompt_h + 1` makes the results' top border row coincide with the
+  -- prompt's bottom border row, so the two ├─...─┤ rows overlap on screen.
   local results_win = vim.api.nvim_open_win(results_buf, false, {
     relative = "editor",
-    row = row + 2,
+    row = row + prompt_h + 1,
     col = col,
-    width = content_w,
-    height = content_h - 2,
+    width = width,
+    height = results_h,
+    border = RESULTS_BORDER,
     style = "minimal",
   })
   vim.wo[results_win].cursorline = false
   vim.wo[results_win].number = false
   vim.wo[results_win].relativenumber = false
-  vim.wo[results_win].fillchars = "eob: "
 
   state = {
-    container_buf = container_buf,
-    container_win = container_win,
     prompt_buf = prompt_buf,
     prompt_win = prompt_win,
     results_buf = results_buf,
@@ -495,7 +475,7 @@ function M.close()
   end
   local s = state
   state = nil
-  for _, w in ipairs({ s.prompt_win, s.results_win, s.container_win }) do
+  for _, w in ipairs({ s.prompt_win, s.results_win }) do
     if w and vim.api.nvim_win_is_valid(w) then
       vim.api.nvim_win_close(w, true)
     end

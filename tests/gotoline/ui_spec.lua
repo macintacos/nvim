@@ -142,19 +142,19 @@ describe("gotoline.ui._handlers", function()
   end)
 
   describe("hint_for", function()
-    it("returns nil for empty mode", function()
-      assert.is_nil(h.hint_for({ mode = "empty" }, 0))
-    end)
-
-    it("returns nil for filename mode with no results yet", function()
-      assert.is_nil(h.hint_for({ mode = "filename", file_query = "x" }, 0))
-    end)
-
-    it("returns the navigate hint for filename mode with results", function()
-      local hint = h.hint_for({ mode = "filename", file_query = "x" }, 5)
+    it("returns the intro hint for empty mode", function()
+      local hint = h.hint_for({ mode = "empty" }, 0)
       assert.is_string(hint)
-      assert.is_truthy(hint:find("navigate"))
-      assert.is_truthy(hint:find("select"))
+      assert.is_truthy(hint:find("letter") or hint:find("number"))
+    end)
+
+    it("returns the navigate hint for filename mode (with or without results)", function()
+      for _, count in ipairs({ 0, 5 }) do
+        local hint = h.hint_for({ mode = "filename", file_query = "x" }, count)
+        assert.is_string(hint)
+        assert.is_truthy(hint:find("navigate"))
+        assert.is_truthy(hint:find("select"))
+      end
     end)
 
     it("returns the jump hint for line_only mode", function()
