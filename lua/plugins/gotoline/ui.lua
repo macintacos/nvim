@@ -447,9 +447,12 @@ function M.open()
     vim.keymap.set(mode, lhs, rhs, { buffer = prompt_buf, nowait = true, silent = true })
   end
 
+  -- Result-list navigation. Once a file is locked (`<file>:`), the bottom
+  -- pane is a preview, not a selectable list — these keys become no-ops so
+  -- the user's keystrokes (typically digits) aren't swallowed.
   local function nav(handler)
     return function()
-      if state then
+      if state and not state.locked_file then
         handler(state)
         paint_results()
       end
