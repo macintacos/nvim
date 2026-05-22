@@ -86,6 +86,11 @@
       "rev": "cbf8d285e1462dd24acf3507817be2bbcb035919",
       "src": "https://github.com/mason-org/mason.nvim"
     },
+    "mini.align": {
+      "rev": "60c61c8c63dca41b5ac6bfc36b52df69b1a03e6b",
+      "src": "https://github.com/nvim-mini/mini.align",
+      "version": "'stable'"
+    },
     "mini.cursorword": {
       "rev": "dda0f57d55bb1fa19423b7201b2ba892c7d2bb3c",
       "src": "https://github.com/nvim-mini/mini.cursorword",
