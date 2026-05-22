@@ -22,6 +22,9 @@ function M.setup(_opts)
     desc = "Refresh GotolineHelp after colorscheme change",
     callback = refresh_help_hl,
   })
+  vim.api.nvim_create_user_command("GoToLine", function()
+    M.open()
+  end, { desc = "Open the GoToLine modal" })
 end
 
 function M.open()
