@@ -1,4 +1,4 @@
--- mini.nvim modules: statusline, icons, cursorword, hipatterns, trailspace, files
+-- mini.nvim modules: statusline, icons, cursorword, hipatterns, trailspace, files, align
 vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
@@ -6,6 +6,7 @@ vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.hipatterns", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.files", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.align", version = "stable" },
 })
 
 -- ============================================================================
@@ -367,3 +368,9 @@ require("mini.files").setup({
     use_as_default_explorer = true,
   },
 })
+
+-- ============================================================================
+-- mini.align
+-- ============================================================================
+
+require("mini.align").setup()
