@@ -11,9 +11,12 @@ local NS_PROMPT_HINT = vim.api.nvim_create_namespace("gotoline-prompt-hint")
 local NS_PROMPT_PREFIX = vim.api.nvim_create_namespace("gotoline-prompt-prefix")
 local MAX_RESULTS = 200
 local PROMPT_PREFIX = " $ "
-local HINT = "type a letter to find a file, or a number to jump in the current buffer"
-local HINT_NAV = "^n/^j/<tab> down   ^k/^p/<s-tab> up   <enter> select"
-local HINT_JUMP = "#### line   ⏎ jump"
+-- Hints are indented by one space so the first visible glyph aligns with the
+-- `$` of the prompt above. ↓/↑/⏎ are stable Unicode glyphs; 󰍉 (magnify) and
+-- 󰎠 (numeric) are Nerd Font glyphs already in use via mini.icons.
+local HINT = " 󰍉 type a letter to find a file, or a number to jump in the current buffer"
+local HINT_NAV = " ↓ ^n / ^j / <tab>    ↑ ^k / ^p / <s-tab>    ⏎ <enter>"
+local HINT_JUMP = " 󰎠 type a line number    ⏎ <enter> to jump"
 
 ---@class gotoline.State
 ---@field prompt_buf integer

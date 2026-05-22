@@ -152,9 +152,10 @@ describe("gotoline.ui._handlers", function()
       for _, count in ipairs({ 0, 5 }) do
         local hint = h.hint_for({ mode = "filename", file_query = "x" }, count)
         assert.is_string(hint)
-        assert.is_truthy(hint:find("down"))
-        assert.is_truthy(hint:find("up"))
-        assert.is_truthy(hint:find("select"))
+        -- Mentions at least one shortcut from each navigation axis + enter.
+        assert.is_truthy(hint:find("%^j"))
+        assert.is_truthy(hint:find("%^k"))
+        assert.is_truthy(hint:find("<enter>"))
       end
     end)
 
