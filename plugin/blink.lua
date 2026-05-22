@@ -14,6 +14,9 @@ require("plugins.blink-markdown-refs").setup({
 
 require("blink.cmp").setup({
   enabled = function()
+    if vim.b.gotoline_prompt then
+      return false
+    end
     return vim.bo.filetype ~= "minifiles"
   end,
   fuzzy = { implementation = "prefer_rust_with_warning" },
