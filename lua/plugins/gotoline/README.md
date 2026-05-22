@@ -8,10 +8,11 @@ centered floating popup for jumping to a line in a project file.
 Run `:GoToLine`. A unified prompt-and-results modal appears, with a single
 horizontal divider separating:
 
-- **Prompt** (top): two rows — the row where you type, and a dimmed helper
-  row directly below it that coaches the next available actions
-  (e.g. `↑↓ navigate   ⏎ select` while picking a file, `#### line   ⏎ jump`
-  while entering a line number).
+- **Prompt** (top): two rows — the row where you type (prefixed by a fixed
+  `$` glyph), and a dimmed helper row directly below it that coaches the next
+  available actions. The hint adapts to the current parse state — e.g. a
+  navigation cheat-sheet while picking a file, or `type a line number / ⏎ to
+  jump` while entering a line number.
 - **Results** (below): file list while you search, or a treesitter-highlighted
   file preview once a file is locked in.
 
@@ -33,13 +34,12 @@ The prompt grammar is `(<file-query>:)<line-number>`:
 
 ## Setup
 
-Wired up in `plugin/gotoline.lua`. No configuration is required.
+Wired up in `plugin/gotoline.lua`. No configuration is required — `setup()`
+registers the `:GoToLine` user command and the `ColorScheme` autocmd that
+refreshes the helper-text highlight.
 
 ```lua
 require("plugins.gotoline").setup({})
-vim.api.nvim_create_user_command("GoToLine", function()
-  require("plugins.gotoline").open()
-end, {})
 ```
 
 ## Project root
@@ -49,9 +49,14 @@ Files are listed from the git root, falling back to `cwd`. Listing uses
 
 ## Highlight groups
 
-Both default to a sensible fallback and can be overridden:
+All default to a sensible fallback and can be overridden:
 
 - `GotolineTargetLine` — line highlight on the preview's target line
   (defaults to `Visual`).
 - `GotolineSelected` — line highlight on the selected result in the list
   (defaults to `CursorLine`).
+- `GotolineMatch` — character highlight on matched query positions in
+  file paths (defaults to `Special`).
+- `GotolineHelp` — color of the prompt's `$` prefix and the dimmed
+  helper-text row (derived from `Comment`'s foreground with italics
+  stripped; refreshed on `ColorScheme`).
