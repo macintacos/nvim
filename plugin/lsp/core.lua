@@ -2,6 +2,7 @@
 vim.pack.add({
   "https://github.com/mason-org/mason.nvim",
   "https://github.com/mason-org/mason-lspconfig.nvim",
+  "https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim",
   "https://github.com/neovim/nvim-lspconfig",
 })
 
@@ -78,7 +79,9 @@ vim.lsp.config("ty", {
 vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "jsonnet_ls", "just", "lua_ls", "marksman", "taplo", "ty" })
 
 -- Mason
-require("mason").setup({
+require("mason").setup({})
+require("mason-lspconfig").setup({ automatic_enable = false })
+require("mason-tool-installer").setup({
   ensure_installed = {
     "basedpyright",
     "bash-language-server",
@@ -97,5 +100,5 @@ require("mason").setup({
     "taplo",
     "yamlfmt",
   },
+  run_on_start = true,
 })
-require("mason-lspconfig").setup({ automatic_enable = false })
