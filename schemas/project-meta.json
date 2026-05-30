@@ -16,6 +16,17 @@
         }
       }
     },
+    "linear": {
+      "type": "object",
+      "description": "Linear-related configuration for this repository",
+      "additionalProperties": false,
+      "properties": {
+        "projectName": {
+          "type": "string",
+          "description": "The name of the Linear project associated with the repository"
+        }
+      }
+    },
     "jira": {
       "type": "object",
       "description": "Jira-related configuration for this repository",
