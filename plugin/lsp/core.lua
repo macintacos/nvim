@@ -34,10 +34,6 @@ map("Show Signature Help", "i", "<C-k>", function()
 end, { silent = true })
 
 -- LSP server configs
-vim.lsp.config("jsonnet_ls", {
-  settings = { formatting = { StringStyle = "double" } },
-})
-
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
@@ -76,7 +72,7 @@ vim.lsp.config("ty", {
   cmd = { "uvx", "ty", "server" },
 })
 
-vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "jsonnet_ls", "just", "lua_ls", "marksman", "taplo", "ty" })
+vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "just", "lua_ls", "marksman", "taplo", "ty" })
 
 -- Mason
 require("mason").setup({})
@@ -86,7 +82,6 @@ require("mason-tool-installer").setup({
     "basedpyright",
     "bash-language-server",
     "json-lsp",
-    "jsonnet-language-server",
     "just-lsp",
     "lua-language-server",
     "markdownlint-cli2",
