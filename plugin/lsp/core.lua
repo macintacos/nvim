@@ -72,7 +72,7 @@ vim.lsp.config("ty", {
   cmd = { "uvx", "ty", "server" },
 })
 
-vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "just", "lua_ls", "marksman", "taplo", "ty" })
+vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "just", "lua_ls", "marksman", "taplo", "ty", "vtsls" })
 
 -- Mason
 require("mason").setup({})
@@ -93,6 +93,7 @@ require("mason-tool-installer").setup({
     "shfmt",
     "stylua",
     "taplo",
+    "vtsls",
     "yamlfmt",
   },
   run_on_start = true,
