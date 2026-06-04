@@ -1,4 +1,4 @@
--- mini.nvim modules: statusline, icons, cursorword, hipatterns, trailspace, files, align
+-- mini.nvim modules: statusline, icons, cursorword, hipatterns, trailspace, files, align, input
 vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
@@ -7,6 +7,8 @@ vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.files", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.align", version = "stable" },
+  -- mini.input is in beta and has no stable tag yet — track main
+  { src = "https://github.com/nvim-mini/mini.input" },
 })
 
 -- ============================================================================
@@ -14,6 +16,13 @@ vim.pack.add({
 -- ============================================================================
 
 require("mini.align").setup()
+
+-- ============================================================================
+-- mini.input
+-- ============================================================================
+
+-- Provides the vim.ui.input() implementation (snacks.input is disabled)
+require("mini.input").setup()
 
 -- ============================================================================
 -- mini.statusline

@@ -7,7 +7,8 @@ require("snacks").setup({
   bigfile = { enabled = true },
   explorer = { enabled = true, replace_netrw = false },
   indent = { enabled = true },
-  input = { enabled = true },
+  -- vim.ui.input is handled by mini.input (see plugin/mini.lua)
+  input = { enabled = false },
   image = { enabled = true },
   lazygit = { enabled = true },
   notifier = {

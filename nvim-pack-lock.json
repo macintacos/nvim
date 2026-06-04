@@ -115,6 +115,10 @@
       "src": "https://github.com/nvim-mini/mini.icons",
       "version": "'stable'"
     },
+    "mini.input": {
+      "rev": "c73dda5d01d962309a8c28c9eb589de5993d273c",
+      "src": "https://github.com/nvim-mini/mini.input"
+    },
     "mini.statusline": {
       "rev": "14919901649d20d020e659c63c03baa75cd94f33",
       "src": "https://github.com/nvim-mini/mini.statusline",
