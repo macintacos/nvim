@@ -9,6 +9,7 @@ vim.pack.add({
 require("plugins.blink-markdown-refs").setup({
   paths = {
     "/Users/juliantorres/GitLocal/Play",
+    "~/.local/share/",
   },
 })
 
