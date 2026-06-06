@@ -11,6 +11,9 @@ require("plugins.blink-markdown-refs").setup({
     "/Users/juliantorres/GitLocal/Play",
     "~/.local/share/",
   },
+  projects = {
+    ["dotfiles (chezmoi)"] = "~/.local/share/chezmoi/",
+  },
 })
 
 require("blink.cmp").setup({
