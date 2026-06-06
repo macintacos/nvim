@@ -228,13 +228,16 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 
     -- Add more extension to syntax mappings here if you need to.
     local ext_filetypes = {
+      sh = "bash",
+      fish = "fish",
       go = "go",
       html = "html",
       json = "json",
       md = "markdown",
+      toml = "toml",
+      xsh = "xsh",
       yaml = "yaml",
       yml = "yaml",
-      fish = "fish",
     }
 
     if ext and ext_filetypes[ext] then

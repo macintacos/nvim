@@ -281,6 +281,10 @@
       "rev": "5f33e50f1e2e2a80370c9094e4c303ea54cd2aea",
       "src": "https://github.com/dstein64/vim-startuptime"
     },
+    "vim-xonsh": {
+      "rev": "929f35e37ad7dbdec80b1effe295b89c9ac3f090",
+      "src": "https://github.com/meatballs/vim-xonsh"
+    },
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"

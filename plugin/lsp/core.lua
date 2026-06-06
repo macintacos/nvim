@@ -72,7 +72,23 @@ vim.lsp.config("ty", {
   cmd = { "uvx", "ty", "server" },
 })
 
-vim.lsp.enable({ "basedpyright", "bashls", "jsonls", "just", "lua_ls", "marksman", "taplo", "ty", "vtsls" })
+vim.lsp.config("xonsh_language_server", {
+  cmd = { "xonsh-language-server" },
+  filetypes = { "xonsh" },
+})
+
+vim.lsp.enable({
+  "basedpyright",
+  "bashls",
+  "jsonls",
+  "just",
+  "lua_ls",
+  "marksman",
+  "taplo",
+  "ty",
+  "vtsls",
+  "xonsh_language_server",
+})
 
 -- Mason
 require("mason").setup({})
