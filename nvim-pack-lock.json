@@ -51,7 +51,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "a0a93f20934048e2451e2feaad28dfda1af55b5a",
+      "rev": "6c7da240d1b07286151bb44c5755e6a769c6ba6f",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -206,7 +206,7 @@
       "src": "https://github.com/jmbuhr/otter.nvim"
     },
     "pkl-neovim": {
-      "rev": "4abd7291d9629e294a4610eeeb374a073ebb13f2",
+      "rev": "5655c38b07675eeab319d221e140948478cc3bab",
       "src": "https://github.com/apple/pkl-neovim"
     },
     "plenary.nvim": {
