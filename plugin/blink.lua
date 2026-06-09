@@ -29,12 +29,17 @@ require("blink.cmp").setup({
     default = { "lazydev", "lsp", "path", "snippets", "buffer" },
     per_filetype = {
       markdown = { "markdown-refs", "lazydev", "lsp", "path" },
+      ghostty = { "omni", "path", "buffer" },
     },
     providers = {
       lazydev = {
         name = "LazyDev",
         module = "lazydev.integrations.blink",
         score_offset = 100,
+      },
+      omni = {
+        name = "Omni",
+        module = "plugins.blink-omni",
       },
       ["markdown-refs"] = {
         name = "MarkdownRefs",
