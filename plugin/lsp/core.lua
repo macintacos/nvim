@@ -80,6 +80,7 @@ vim.lsp.config("xonsh_language_server", {
 vim.lsp.enable({
   "basedpyright",
   "bashls",
+  "gopls",
   "jsonls",
   "just",
   "lua_ls",
