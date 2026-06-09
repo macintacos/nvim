@@ -58,16 +58,6 @@ vim.lsp.config("jsonls", {
   },
 })
 
-vim.lsp.config("basedpyright", {
-  settings = {
-    basedpyright = {
-      analysis = {
-        typeCheckingMode = "off",
-      },
-    },
-  },
-})
-
 vim.lsp.config("ty", {
   cmd = { "uvx", "ty", "server" },
 })
@@ -78,7 +68,6 @@ vim.lsp.config("xonsh_language_server", {
 })
 
 vim.lsp.enable({
-  "basedpyright",
   "bashls",
   "gopls",
   "jsonls",
@@ -96,7 +85,6 @@ require("mason").setup({})
 require("mason-lspconfig").setup({ automatic_enable = false })
 require("mason-tool-installer").setup({
   ensure_installed = {
-    "basedpyright",
     "bash-language-server",
     "json-lsp",
     "just-lsp",
