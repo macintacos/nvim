@@ -19,3 +19,22 @@ vim.api.nvim_create_autocmd("FileType", {
     require("quicker").setup()
   end,
 })
+
+-- Make <CR> close the quickfix window after jumping (e.g. picking a result
+-- from `gr` LSP references). bqf maps <CR> to open(false) (jump, keep qf open)
+-- when it attaches to each qf buffer during its after/ftplugin bootstrap; we
+-- repoint it at open(true), which jumps AND closes the window. Deferred with
+-- vim.schedule so this runs after bqf's mapping for the buffer is in place.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "qf",
+  callback = function(ev)
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(ev.buf) then
+        return
+      end
+      vim.keymap.set("n", "<CR>", function()
+        require("bqf.qfwin.handler").open(true)
+      end, { buffer = ev.buf, nowait = true, desc = "Open item and close quickfix" })
+    end)
+  end,
+})
