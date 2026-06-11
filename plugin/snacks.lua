@@ -17,7 +17,14 @@ require("snacks").setup({
     top_down = false,
     margin = { top = 0, right = 1, bottom = 2 },
   },
-  picker = { enabled = true },
+  picker = {
+    enabled = true,
+    sources = {
+      -- taplo reports TOML symbols as Object/Array/String/Boolean kinds, which the
+      -- default lsp_symbols filter drops. Show all kinds for toml so the picker works.
+      lsp_symbols = { filter = { toml = true } },
+    },
+  },
   quickfile = { enabled = true },
   scope = { enabled = true },
   scroll = { enabled = true },
