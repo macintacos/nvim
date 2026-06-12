@@ -89,6 +89,19 @@ require("blink.cmp").setup({
   },
 })
 
+-- blink.pairs v0.6+ requires its native library before setup(), else it errors
+-- from a UIEnter autocmd. blink.download builds it by running cargo in the plugin
+-- dir and then looking for the artifact under <plugin>/target/release/. Our global
+-- ~/.cargo/config.toml redirects all cargo output to ~/.cache/cargo-target, so the
+-- build lands there and the loader never finds it. Force CARGO_TARGET_DIR back
+-- in-tree for just this build (env var overrides config.toml), then restore it so
+-- the global setting governs everything else. build() short-circuits once the lib
+-- is compiled, so cargo only runs on first install or after an update.
+local pairs_root = vim.fn.glob(vim.fn.stdpath("data") .. "/site/pack/*/opt/blink.pairs", false, true)[1]
+local saved_cargo_target = vim.env.CARGO_TARGET_DIR
+vim.env.CARGO_TARGET_DIR = pairs_root .. "/target"
+require("blink.pairs").build():pwait(120000)
+vim.env.CARGO_TARGET_DIR = saved_cargo_target
 require("blink.pairs").setup({
   mappings = { enabled = true, disabled_filetypes = {} },
   highlights = {
