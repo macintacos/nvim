@@ -67,6 +67,17 @@ vim.lsp.config("xonsh_language_server", {
   filetypes = { "xonsh" },
 })
 
+-- mq ships no filetype plugin, so register .mq ourselves; without it the
+-- buffer never gets filetype=mq and the LSP below has nothing to attach to.
+vim.filetype.add({ extension = { mq = "mq" } })
+
+-- mq-lsp is a standalone stdio server (cargo install mq-lsp); not on Mason.
+vim.lsp.config("mq", {
+  cmd = { "mq-lsp" },
+  filetypes = { "mq" },
+  root_markers = { ".git" },
+})
+
 vim.lsp.enable({
   "bashls",
   "gopls",
@@ -74,6 +85,7 @@ vim.lsp.enable({
   "just",
   "lua_ls",
   "marksman",
+  "mq",
   "taplo",
   "ty",
   "vtsls",
