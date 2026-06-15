@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run the plenary test suite"
+
+set -euo pipefail
+
+nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"

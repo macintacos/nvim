@@ -44,7 +44,7 @@ When working with this configuration, consult the official Neovim documentation:
 
 ## Repository Structure
 
-```
+```text
 .
 ├── init.lua              # Entry point: vim.loader, core config, PackChanged builds
 ├── plugin/               # Plugin files (auto-sourced by Neovim after init.lua)
@@ -59,8 +59,10 @@ When working with this configuration, consult the official Neovim documentation:
 │       ├── autocmds.lua  # Autocommands
 │       ├── highlights.lua# Custom highlight groups
 │       └── helpers.lua   # Utility functions
-├── mise.toml             # Tool versions and task runner recipes (format, lint, check)
+├── mise.toml             # Tool versions + git-hook env (HK_MISE, postinstall)
 ├── mise.lock             # Pinned tool versions (managed by mise)
+├── hk.pkl                # Formatters + linters + git hooks (pre-commit, pre-push)
+├── .mise/tasks/          # Task scripts: format, lint, test, preflight, setup, install
 ├── nvim-pack-lock.json   # Plugin version lockfile (managed by vim.pack)
 └── stylua.toml           # Lua formatter configuration
 ```
@@ -114,6 +116,7 @@ Plugins are loaded in three tiers:
 ### File Header
 
 Every `plugin/*.lua` file **must** start with:
+
 ```lua
 -- <repo link>
 -- <short, simple sentence describing the plugin>
@@ -197,19 +200,20 @@ globals:
 
 ### CLI Tools
 
-After editing Lua files, run `mise run check` to lint, format, and test all files. Individual tasks:
+After editing files, run `mise run preflight` to lint and test, or the individual tasks below. Formatting and linting are driven by [hk](https://hk.jdx.dev) (config in `hk.pkl`): the `pre-commit` hook formats and lints staged files, and `pre-push` runs the test suite.
 
-- `mise run format` — auto-fix formatting with stylua
-- `mise run lint` — run selene linter
-- `mise run check` — run lint, format, and tests
+- `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, shfmt) via hk
+- `mise run lint` — run all linters (selene, rumdl, shellcheck, taplo) via hk
 - `mise run test` — run plenary tests
-- `mise run install` — install Neovim plugins
+- `mise run preflight` — run lint + test (the pre-push gate)
+- `mise run setup` — install pinned tools and register git hooks
+- `mise run install` — update Neovim plugins
 
 Tool versions are managed by mise (`mise install` to install, `mise.lock` pins exact versions).
 
 ### Verification After Changes
 
-1. Run `mise run check` to lint, format, and test all Lua files
+1. Run `mise run preflight` to lint and test all Lua files (and `mise run format` to auto-fix formatting)
 2. Save a Lua file — confirm stylua auto-formats
 3. Check for linting warnings in the diagnostics
 4. Run `:ConformInfo` to verify formatter config

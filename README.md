@@ -4,7 +4,7 @@ It's a Neovim config. There are many like it, but this one is mine.
 
 It's deliberately not fancy anymore - it uses some LSP features, but mostly only for editing the `nvim` configuration itself, not for most of the programming that I do. I've had too many frustrations with Neovim in recent days that I really don't want to complicate it more than I have to. I use it for quick edits, and use VSCode to do the bulk of my "real" coding. Don't @ me.
 
-![](./assets/preview.png)
+![Neovim config preview](./assets/preview.png)
 
 Oh also I use iTerm because I think it has much better layout of tabs. I think that Ghostty's use of tabs to be a bit ugly, so I don't bother. Sue me.
 

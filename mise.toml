@@ -1,33 +1,28 @@
 [settings]
 lockfile = true
 
+# HK_MISE routes hk's git-hook subprocesses through `mise x`, so each hook step
+# uses the pinned versions below even when committing without mise activated.
+[env]
+HK_MISE = 1
+
 [tools]
-"aqua:Kampfkarren/selene" = "latest"
+# Lua toolchain (existing) — formatter + linter for the config itself.
 "aqua:JohnnyMorganz/StyLua" = "latest"
+"aqua:Kampfkarren/selene"   = "latest"
 
-[tasks.format]
-description = "Format all Lua files with stylua"
-run = "stylua ."
+# hk evaluates hk.pkl through pkl, so both are required. pkl also powers the
+# Pkl(Format) / Pkl(Lint) steps that lint hk.pkl itself.
+hk  = "latest"
+pkl = "latest"
 
-[tasks.lint]
-description = "Lint all Lua files with selene"
-run = """
-selene .
-selene --config tests/selene.toml tests/
-"""
+# Cross-language baseline (Markdown / YAML / TOML / Shell).
+rumdl                 = "latest" # Markdown format + lint (config in .rumdl.toml)
+"aqua:google/yamlfmt" = "latest" # YAML format
+taplo                 = "latest" # TOML format + lint (config in taplo.toml)
+shfmt                 = "latest" # Shell format (.mise/tasks scripts)
+shellcheck            = "latest" # Shell lint
 
-[tasks.test]
-description = "Run plenary tests"
-run = """
-nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
-"""
-
-[tasks.check]
-description = "Run lint, format, and tests"
-depends = ["lint", "format", "test"]
-
-[tasks.install]
-description = "Install Neovim plugins"
-run = """
-nvim --headless -c "lua vim.pack.update()" -c "quitall"
-"""
+# (Re)register git hooks whenever tools are installed or updated.
+[hooks]
+postinstall = "hk install --mise"

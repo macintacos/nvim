@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Update Neovim plugins via vim.pack"
+
+set -euo pipefail
+
+nvim --headless -c "lua vim.pack.update()" -c "quitall"
