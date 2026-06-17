@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "cacb911dd6ad0fca00cae91ce723b9360deb3bb0",
+      "rev": "5d72768388337749b3461e938f57e2851ef22678",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -18,7 +18,7 @@
       "version": "1.0.0 - 2.0.0"
     },
     "blink.download": {
-      "rev": "b127d48bf8e9ac9cf41f6e0fbead317503f76558",
+      "rev": "bf67998a314236cfba50fe311d60ef03d15d9426",
       "src": "https://github.com/Saghen/blink.download"
     },
     "blink.pairs": {
@@ -55,7 +55,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "cf171e067d99a7ee1298bd3903f14a04addd8b39",
+      "rev": "3b5e78c6b0304f468cceeeaa91bb60933647a4b9",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -120,7 +120,7 @@
       "version": "'stable'"
     },
     "mini.input": {
-      "rev": "db769a8447b1c64273a8cabeb07ee0d069f71dfd",
+      "rev": "82eb633fbaaf0dccebfe8bf3faa4ddeab8dc76f9",
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.statusline": {
@@ -170,7 +170,7 @@
       "src": "https://github.com/kevinhwang91/nvim-bqf"
     },
     "nvim-lint": {
-      "rev": "99cbc3ca8a76845fca50e496be7212bebf907dd3",
+      "rev": "4b7957daf4b81eb578114bd6fcf20b6f5a2b59e8",
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
@@ -202,7 +202,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "1eaddceacc62d31bd771d1903011ce153710e882",
+      "rev": "a0abc4f89d7228ee72091fcb31b46955e7d89a4c",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -226,7 +226,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "7e13178fd700669a4c1d8fa2d273d25d24fe6fb4",
+      "rev": "a22902f216b068faa311807c9f361c6b1d971367",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
