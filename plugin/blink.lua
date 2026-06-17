@@ -90,3 +90,6 @@ require("blink.pairs").setup({
   },
   debug = false,
 })
+
+-- agentcomplete.nvim must be called AFTER blink.cmp setup
+require("agentcomplete").setup({})
