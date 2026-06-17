@@ -6,16 +6,6 @@ vim.pack.add({
   "https://github.com/Saghen/blink.download",
 })
 
-require("plugins.blink-markdown-refs").setup({
-  paths = {
-    "/Users/juliantorres/GitLocal/Play",
-    "~/.local/share/",
-  },
-  projects = {
-    ["dotfiles (chezmoi)"] = "~/.local/share/chezmoi/",
-  },
-})
-
 require("blink.cmp").setup({
   enabled = function()
     if vim.b.gotoline_prompt then
@@ -28,7 +18,7 @@ require("blink.cmp").setup({
   sources = {
     default = { "lazydev", "lsp", "path", "snippets", "buffer" },
     per_filetype = {
-      markdown = { "markdown-refs", "lazydev", "lsp", "path" },
+      markdown = { "lazydev", "lsp", "path", "agentcomplete" },
       ghostty = { "omni", "path", "buffer" },
     },
     providers = {
@@ -41,12 +31,9 @@ require("blink.cmp").setup({
         name = "Omni",
         module = "plugins.blink-omni",
       },
-      ["markdown-refs"] = {
-        name = "MarkdownRefs",
-        module = "plugins.blink-markdown-refs",
-        score_offset = 200,
-        async = true,
-        timeout_ms = 3000,
+      agentcomplete = {
+        name = "agentcomplete",
+        module = "agentcomplete.backends.blink",
       },
     },
   },
@@ -78,14 +65,6 @@ require("blink.cmp").setup({
     preset = "enter",
     ["<Tab>"] = { "select_next", "fallback" },
     ["<S-Tab>"] = { "select_prev", "fallback" },
-    -- Accept completion but strip the leading @ (for markdown-refs source)
-    ["<S-CR>"] = {
-      function(cmp)
-        vim.b.blink_md_refs_strip_at = true
-        return cmp.accept()
-      end,
-      "fallback",
-    },
   },
 })
 
