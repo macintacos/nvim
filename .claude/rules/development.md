@@ -27,7 +27,7 @@ Edit the appropriate file in `lua/config/`:
 
 ## Building Local Plugins
 
-Local plugins live in `lua/plugins/<name>/` and follow the structure established by `blink-markdown-refs`:
+Local plugins live in `lua/plugins/<name>/` and follow the structure established by `gotoline`:
 
 ### Directory Structure
 
