@@ -84,8 +84,11 @@ vim.lsp.enable({
   "jsonls",
   "just",
   "lua_ls",
-  "marksman",
   "mq",
+  -- rumdl: Markdown lint/format LSP. Binary comes from mise (not Mason), so it
+  -- is absent from ensure_installed below. Uses nvim-lspconfig's shipped config
+  -- and auto-discovers .rumdl.toml.
+  "rumdl",
   "taplo",
   "ty",
   "vtsls",
@@ -101,8 +104,6 @@ require("mason-tool-installer").setup({
     "json-lsp",
     "just-lsp",
     "lua-language-server",
-    "markdownlint-cli2",
-    "marksman",
     "ruff",
     "rust-analyzer",
     "selene",

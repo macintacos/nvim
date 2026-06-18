@@ -13,7 +13,6 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
 
     lint.linters_by_ft = {
       lua = { "selene" },
-      markdown = { "markdownlint-cli2" },
       sh = { "shellcheck" },
     }
 
