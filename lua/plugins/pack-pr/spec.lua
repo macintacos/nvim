@@ -23,19 +23,21 @@ end
 ---@param src string The plugin's git source URL to locate.
 ---@param branch string? The branch to track, or nil to reset to default.
 ---@return string content The rewritten contents (unchanged when no match).
----@return boolean changed Whether a spec entry was rewritten.
+---@return boolean changed Whether the contents actually changed.
 function M.rewrite(content, src, branch)
   local replacement = M.build_spec(src, branch):gsub("%%", "%%%%")
   local esc = vim.pesc(src)
   -- Single-line table entry: { ... src = "<src>" ... } with no nested braces.
   local table_pat = "{[^{}]-src%s*=%s*[\"']" .. esc .. "[\"'][^{}]-}"
   if content:find(table_pat) then
-    return (content:gsub(table_pat, replacement, 1)), true
+    local new = content:gsub(table_pat, replacement, 1)
+    return new, new ~= content
   end
   -- Bare quoted string: "<src>" or '<src>'.
   local bare_pat = "[\"']" .. esc .. "[\"']"
   if content:find(bare_pat) then
-    return (content:gsub(bare_pat, replacement, 1)), true
+    local new = content:gsub(bare_pat, replacement, 1)
+    return new, new ~= content
   end
   return content, false
 end
