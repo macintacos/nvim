@@ -54,14 +54,31 @@ end
 ---@param branch string?
 function M._apply(entry, branch)
   local path = resolve(entry.spec_file)
+  if vim.fn.filereadable(path) == 0 then
+    vim.notify(("pack-pr: spec file not found: %s"):format(entry.spec_file), vim.log.levels.ERROR)
+    return
+  end
   local content = table.concat(vim.fn.readfile(path), "\n")
   local new, changed = spec.rewrite(content, entry.src, branch)
   if not changed then
-    vim.notify(("pack-pr: no spec for %s in %s"):format(entry.src, entry.spec_file), vim.log.levels.WARN)
+    -- No write needed: either the source isn't in this file, or it already
+    -- matches the target state (e.g. resetting a spec already on default).
+    if content:find(vim.pesc(entry.src)) then
+      vim.notify(("pack-pr: %s already up to date"):format(entry.name), vim.log.levels.INFO)
+    else
+      vim.notify(("pack-pr: no spec for %s in %s"):format(entry.src, entry.spec_file), vim.log.levels.WARN)
+    end
     return
   end
   vim.fn.writefile(vim.split(new, "\n"), path)
-  pcall(vim.pack.update, { entry.name })
+  local ok, err = pcall(vim.pack.update, { entry.name })
+  if not ok then
+    vim.notify(
+      ("pack-pr: %s spec rewritten but vim.pack.update failed: %s"):format(entry.name, err),
+      vim.log.levels.ERROR
+    )
+    return
+  end
   if branch then
     vim.notify(
       ("pack-pr: %s now tracks %s (restart or :lua vim.pack.update to load)"):format(entry.name, branch),
@@ -85,12 +102,13 @@ function M.open(repos)
     for _, err in ipairs(errors) do
       vim.notify(("pack-pr: %s: %s"):format(err.repo, err.message), vim.log.levels.WARN)
     end
-    if #prlist == 0 and #errors == 0 then
-      vim.notify("pack-pr: no open PRs found across configured repos", vim.log.levels.INFO)
-    end
     local items = M._build_items(prlist, repos)
     if #items == 0 then
+      vim.notify("pack-pr: no managed repos configured", vim.log.levels.INFO)
       return
+    end
+    if #prlist == 0 and #errors == 0 then
+      vim.notify("pack-pr: no open PRs found — showing reset options only", vim.log.levels.INFO)
     end
     Snacks.picker.pick({
       source = "pack_pr",
@@ -100,6 +118,9 @@ function M.open(repos)
         return { { item.text } }
       end,
       confirm = function(p, item)
+        if not item then
+          return
+        end
         p:close()
         M._apply(item.entry, item.branch)
       end,

@@ -57,5 +57,26 @@ describe("pack-pr spec", function()
         out
       )
     end)
+
+    it("rewrites a table form with a non-quoted version value", function()
+      local content = 'vim.pack.add({ { src = "' .. SRC .. '", version = vim.version.range("1.x") } })\n'
+      local out, changed = spec.rewrite(content, SRC, "b")
+      assert.is_true(changed)
+      assert.equal('vim.pack.add({ { src = "' .. SRC .. '", version = "b" } })\n', out)
+    end)
+
+    it("reports no change when resetting a spec already in bare form", function()
+      local content = 'vim.pack.add({ "' .. SRC .. '" })\n'
+      local out, changed = spec.rewrite(content, SRC, nil)
+      assert.is_false(changed)
+      assert.equal(content, out)
+    end)
+
+    it("rewrites only the matching entry in a multi-plugin add list", function()
+      local content = 'vim.pack.add({ "https://github.com/a/a", "' .. SRC .. '" })\n'
+      local out, changed = spec.rewrite(content, SRC, "b")
+      assert.is_true(changed)
+      assert.equal('vim.pack.add({ "https://github.com/a/a", { src = "' .. SRC .. '", version = "b" } })\n', out)
+    end)
   end)
 end)
