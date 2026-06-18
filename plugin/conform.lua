@@ -12,6 +12,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
       formatters_by_ft = {
         just = { "just" },
         lua = { "stylua" },
+        markdown = { "rumdl" },
         python = { "ruff_format" },
         rust = { "rustfmt" },
         sh = { "shfmt" },
@@ -48,6 +49,7 @@ vim.api.nvim_create_user_command("ConformInfo", function()
   require("conform").setup({
     formatters_by_ft = {
       lua = { "stylua" },
+      markdown = { "rumdl" },
       python = { "ruff_format" },
       rust = { "rustfmt" },
       sh = { "shfmt" },
