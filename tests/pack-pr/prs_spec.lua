@@ -50,3 +50,56 @@ describe("pack-pr prs.parse", function()
     assert.equal(2, rows[2].number)
   end)
 end)
+
+describe("pack-pr prs.gather", function()
+  after_each(function()
+    prs._reset()
+  end)
+
+  local function repo(name)
+    return { repo = name }
+  end
+
+  it("aggregates PRs across repos and reports no errors on success", function()
+    prs._set_runner(function(name, cb)
+      local data = name == "o/a"
+          and { { number = 1, title = "a", headRefName = "ba", author = { login = "x" }, url = "u1" } }
+        or { { number = 2, title = "b", headRefName = "bb", author = { login = "y" }, url = "u2" } }
+      cb({ code = 0, stdout = vim.json.encode(data), stderr = "" })
+    end)
+    local got_prs, got_errors
+    prs.gather({ repo("o/a"), repo("o/b") }, function(p, e)
+      got_prs, got_errors = p, e
+    end)
+    assert.equal(2, #got_prs)
+    assert.equal(0, #got_errors)
+  end)
+
+  it("collects an error for a repo whose gh call fails", function()
+    prs._set_runner(function(name, cb)
+      if name == "o/bad" then
+        cb({ code = 1, stdout = "", stderr = "HTTP 401: Bad credentials" })
+      else
+        cb({ code = 0, stdout = "[]", stderr = "" })
+      end
+    end)
+    local got_prs, got_errors
+    prs.gather({ repo("o/ok"), repo("o/bad") }, function(p, e)
+      got_prs, got_errors = p, e
+    end)
+    assert.equal(0, #got_prs)
+    assert.equal(1, #got_errors)
+    assert.equal("o/bad", got_errors[1].repo)
+    assert.is_truthy(got_errors[1].message:find("401"))
+  end)
+
+  it("invokes the callback immediately for an empty repo list", function()
+    local called = false
+    prs.gather({}, function(p, e)
+      called = true
+      assert.same({}, p)
+      assert.same({}, e)
+    end)
+    assert.is_true(called)
+  end)
+end)
