@@ -1,0 +1,21 @@
+local pack_pr = require("plugins.pack-pr")
+
+describe("pack-pr setup", function()
+  it("normalizes configured repos and exposes them via registry()", function()
+    pack_pr.setup({ repos = { "owner/thing.nvim" } })
+    local repos = pack_pr.registry()
+    assert.equal(1, #repos)
+    assert.equal("owner/thing.nvim", repos[1].repo)
+    assert.equal("https://github.com/owner/thing.nvim", repos[1].src)
+  end)
+
+  it("falls back to the default registry when none are configured", function()
+    pack_pr.setup({})
+    assert.is_true(#pack_pr.registry() >= 1)
+  end)
+
+  it("registers the :PackPR user command", function()
+    pack_pr.setup({})
+    assert.equal(2, vim.fn.exists(":PackPR"))
+  end)
+end)
