@@ -36,7 +36,7 @@ function M.parse(json, repo)
   return prs
 end
 
--- Spawn `gh pr list` for one repo and pass the vim.system result to `cb`.
+---Spawn `gh pr list` for one repo and pass the vim.system result to `cb`.
 ---@param repo string The "owner/repo" gh query target.
 ---@param cb fun(res: table) Receives a vim.system completion (code/stdout/stderr).
 local function default_runner(repo, cb)
