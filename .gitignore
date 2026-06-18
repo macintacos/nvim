@@ -8,6 +8,7 @@ foo.*
 data
 .DS_Store
 .claude/settings.local.json
+.claude/worktrees/
 **/CLAUDE.md
 
 # MemPalace per-project files (issue #185)

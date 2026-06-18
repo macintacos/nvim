@@ -184,9 +184,9 @@ This configuration includes integrated Lua development tools:
 
 ### Formatting and Linting
 
-- **stylua** formats Lua on save via conform.nvim (also formats sh with shfmt, yaml with yamlfmt)
+- **stylua** formats Lua on save via conform.nvim (also formats sh with shfmt, yaml with yamlfmt, markdown with rumdl)
 - **selene** lints Lua on save/open via nvim-lint (also lints sh with shellcheck)
-- **rumdl** lints and formats Markdown in-editor via its LSP (`rumdl server`); diagnostics, code actions, and format-on-save all read `.rumdl.toml`
+- **rumdl** owns Markdown: conform formats it on save (`rumdl fmt`), and the rumdl LSP (`rumdl server`) provides lint diagnostics and code actions — both read `.rumdl.toml`
 - `<leader>f=` triggers manual format via conform (falls back to LSP)
 
 ### Adding Globals to Selene
