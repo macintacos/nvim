@@ -10,6 +10,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     vim.cmd.packadd("conform.nvim")
     require("conform").setup({
       formatters_by_ft = {
+        help = { "vimdoc" },
         just = { "just" },
         lua = { "stylua" },
         markdown = { "rumdl" },
@@ -27,6 +28,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         },
         shfmt = {
           prepend_args = { "-i", "0" },
+        },
+        vimdoc = {
+          command = "vimdoc-language-server",
+          args = { "format", "$FILENAME" },
+          stdin = false,
         },
       },
       format_on_save = function(bufnr)
@@ -48,6 +54,7 @@ vim.api.nvim_create_user_command("ConformInfo", function()
   vim.cmd.packadd("conform.nvim")
   require("conform").setup({
     formatters_by_ft = {
+      help = { "vimdoc" },
       lua = { "stylua" },
       markdown = { "rumdl" },
       python = { "ruff_format" },
@@ -59,6 +66,11 @@ vim.api.nvim_create_user_command("ConformInfo", function()
     formatters = {
       shfmt = {
         prepend_args = { "-i", "0" },
+      },
+      vimdoc = {
+        command = "vimdoc-language-server",
+        args = { "format", "$FILENAME" },
+        stdin = false,
       },
     },
     format_on_save = function(bufnr)

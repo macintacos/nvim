@@ -91,6 +91,10 @@ vim.lsp.enable({
   "rumdl",
   "taplo",
   "ty",
+  -- vimdoc_ls: LSP for vim help files (diagnostics, hover, completion). Binary
+  -- comes from cargo (cargo install vimdoc-language-server), not Mason;
+  -- formatting goes through conform (plugin/conform.lua), mirroring rumdl.
+  "vimdoc_ls",
   "vtsls",
   "xonsh_language_server",
 })
