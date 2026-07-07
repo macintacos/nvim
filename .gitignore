@@ -14,3 +14,6 @@ data
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
+
+# Local token-tracking tool state (machine-local, not for committing)
+.tokensave/
