@@ -185,6 +185,7 @@ vim.schedule(function()
           end
         end,
         desc = "Clean Unused Plugins" },
+      { "<leader>PR", Cmd("restart"), desc = "Restart Neovim" },
 
       -- Quit
       { "<leader>q", group = "quit", icon = { icon = "󰗼", color = "red" } },
