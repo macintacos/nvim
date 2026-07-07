@@ -145,18 +145,6 @@
       "rev": "704b99f10a72cc05d370cfeb294ff83412a8ab55",
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
-    "noice.nvim": {
-      "rev": "7bfd942445fb63089b59f97ca487d605e715f155",
-      "src": "https://github.com/folke/noice.nvim"
-    },
-    "nordic.nvim": {
-      "rev": "9fb62116b891184049c50ca6ffb0d3bc100a1a6e",
-      "src": "https://github.com/AlexvZyl/nordic.nvim"
-    },
-    "nui.nvim": {
-      "rev": "de740991c12411b663994b2860f1a4fd0937c130",
-      "src": "https://github.com/MunifTanjim/nui.nvim"
-    },
     "numb.nvim": {
       "rev": "167fbbb8de5529eac4f66ef054c260636cd9af51",
       "src": "https://github.com/nacro90/numb.nvim"
@@ -249,10 +237,6 @@
       "rev": "586e87f00c8b0f5e857cefe10839e41f3e8c6d01",
       "src": "https://github.com/levouh/tint.nvim"
     },
-    "tiny-glimmer.nvim": {
-      "rev": "9a48d8a7436231cb16d47c88f924702e5602870a",
-      "src": "https://github.com/rachartier/tiny-glimmer.nvim"
-    },
     "tiny-inline-diagnostic.nvim": {
       "rev": "6264451f14119d63a52580e5198d6baf8518b0b2",
       "src": "https://github.com/rachartier/tiny-inline-diagnostic.nvim"
@@ -300,10 +284,6 @@
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
-    },
-    "wrapping.nvim": {
-      "rev": "3ecfb37cdc189a4e32d646e1c2ae0f46b9d62740",
-      "src": "https://github.com/andrewferrier/wrapping.nvim"
     }
   }
 }
