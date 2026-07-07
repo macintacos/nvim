@@ -230,12 +230,16 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "aa71a54c52e66514211ad321cf3602562510f27b",
+      "rev": "8c7b4e0a8333f21e3c981d2009c2af237904e803",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
       "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"
+    },
+    "smart-paste.nvim": {
+      "rev": "7eef31499d910959fe94bb1a99dcdae6eb30f90b",
+      "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
     },
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",

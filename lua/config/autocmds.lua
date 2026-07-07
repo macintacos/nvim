@@ -30,14 +30,19 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   end,
 })
 
--- Briefly flash yanked text to give visual feedback on what was copied.
--- Disabled — this is now handled by the tiny-glimmer plugin (plugin/tiny-glimmer.lua).
--- vim.api.nvim_create_autocmd("TextYankPost", {
---   group = augroup("highlight_yank"),
---   callback = function()
---     (vim.hl or vim.highlight).on_yank()
---   end,
--- })
+-- Briefly flash yanked text (copies only) to show what was just copied.
+-- FlashYank is defined in lua/config/highlights.lua; paste feedback is handled
+-- by the wrapper in plugin/smart-paste.lua. Gated to the "y" operator so that
+-- deletes and changes (which also fire TextYankPost) don't flash.
+-- Fires: after any yank/delete/change into a register.
+vim.api.nvim_create_autocmd("TextYankPost", {
+  group = augroup("highlight_yank"),
+  callback = function()
+    if vim.v.event.operator == "y" then
+      (vim.hl or vim.highlight).on_yank({ higroup = "FlashYank", timeout = 150 })
+    end
+  end,
+})
 
 -- Equalize split dimensions after a terminal/window resize.
 -- Without this, resizing the terminal leaves splits lopsided. The command
