@@ -169,7 +169,22 @@ vim.schedule(function()
       { "<leader>Ps", function() vim.pack.update(nil, { offline = true }) end, desc = "Show Plugin Status" },
       { "<leader>Pr", function() vim.pack.update(nil, { target = "lockfile" }) end, desc = "Restore to Lockfile" },
       { "<leader>Ph", Cmd("checkhealth vim.pack"), desc = "Health Check" },
-      { "<leader>Pd", function() vim.pack.del() end, desc = "Clean Unused Plugins" },
+      { "<leader>Pd",
+        function()
+          -- vim.pack.del() requires an explicit list of names; gather the plugins
+          -- on disk that no vim.pack.add() references this session (active == false).
+          local unused = vim.tbl_map(function(p) return p.spec.name end,
+            vim.tbl_filter(function(p) return not p.active end, vim.pack.get()))
+          if #unused == 0 then
+            vim.notify("No unused plugins to remove", vim.log.levels.INFO)
+            return
+          end
+          local prompt = ("Remove %d unused plugin(s)?\n%s"):format(#unused, table.concat(unused, ", "))
+          if vim.fn.confirm(prompt, "&Yes\n&No", 2) == 1 then
+            vim.pack.del(unused)
+          end
+        end,
+        desc = "Clean Unused Plugins" },
 
       -- Quit
       { "<leader>q", group = "quit", icon = { icon = "󰗼", color = "red" } },
