@@ -198,6 +198,20 @@ vim.schedule(function()
       { "<leader>w-", Cmd("rightbelow sb"), desc = "Split Window Horizontal" },
       { "<leader>w/", Cmd("vertical rightbelow sb"), desc = "Split Window Vertical" },
       { "<leader>wd", "<C-w>c", desc = "Delete Window" },
+      { "<leader>wD",
+        function()
+          -- Count non-floating windows in the current tab; :only closes every
+          -- one but the current, so bail with a notice when this is the last.
+          local wins = vim.tbl_filter(function(win)
+            return vim.api.nvim_win_get_config(win).relative == ""
+          end, vim.api.nvim_tabpage_list_wins(0))
+          if #wins <= 1 then
+            vim.notify("No other windows to close", vim.log.levels.INFO)
+            return
+          end
+          vim.cmd.only()
+        end,
+        desc = "Delete Other Windows" },
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode" },
     },
   })
