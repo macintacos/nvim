@@ -158,6 +158,9 @@ vim.schedule(function()
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation" },
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode" },
 
+      -- Project (children live in plugin/projects.lua)
+      { "<leader>p", group = "project", icon = { icon = "", color = "green" } },
+
       -- Plugins
       { "<leader>P", group = "plugins", icon = { icon = "󰏗", color = "azure" } },
       { "<leader>Pc", function() require("config.pack-updates").check(true) end, desc = "Check for Updates" },
