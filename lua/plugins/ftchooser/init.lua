@@ -76,10 +76,10 @@ function M.open()
       layout = {
         -- This config fn replaces the select preset's own, so we set the
         -- vertical position AND reproduce its list-height fit. row is a
-        -- fraction, so snacks re-resolves it to 25% of the view height on
-        -- every VimResized — the input line stays a quarter down as you resize.
+        -- fraction, so snacks re-resolves it to 15% of the view height on
+        -- every VimResized — the input line stays near the top as you resize.
         config = function(layout)
-          layout.layout.row = 0.25
+          layout.layout.row = 0.15
           for _, box in ipairs(layout.layout) do
             if box.win == "list" and not box.height then
               box.height = math.max(math.min(#labels, vim.o.lines * 0.8 - 10), 2)
