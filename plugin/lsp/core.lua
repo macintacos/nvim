@@ -71,6 +71,12 @@ vim.lsp.config("xonsh_language_server", {
 -- buffer never gets filetype=mq and the LSP below has nothing to attach to.
 vim.filetype.add({ extension = { mq = "mq" } })
 
+-- Zed's JSON config (keymap.json, settings.json) is really JSONC — it has
+-- // comments. Force jsonc so jsonls tolerates them instead of erroring.
+-- Pattern matches both the chezmoi source (dot_config/zed/...) and the
+-- deployed ~/.config/zed/... path.
+vim.filetype.add({ pattern = { [".*/zed/.*%.json"] = "jsonc" } })
+
 -- mq-lsp is a standalone stdio server (cargo install mq-lsp); not on Mason.
 vim.lsp.config("mq", {
   cmd = { "mq-lsp" },
