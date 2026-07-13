@@ -26,6 +26,18 @@ vim.api.nvim_create_autocmd("BufWritePre", {
           args = { "--fmt", "--justfile", "$FILENAME" },
           stdin = false,
         },
+        rumdl = {
+          -- `rumdl fmt` reads stdin, so rumdl never sees the file path and resolves
+          -- its config from the process cwd. Pin cwd to the file's own directory so
+          -- discovery is file-relative (like the LSP): a Claude prompt buffer in
+          -- $TMPDIR picks up ~/.config/rumdl/rumdl.toml (MD013 reflow), while project
+          -- files still get their own .rumdl.toml. Without this, formatting ran in
+          -- Neovim's cwd, so a prompt opened from a repo that overrides MD013 never
+          -- reflowed.
+          cwd = function(_, ctx)
+            return ctx.dirname
+          end,
+        },
         shfmt = {
           prepend_args = { "-i", "0" },
         },
