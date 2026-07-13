@@ -81,12 +81,12 @@ vim.schedule(function()
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)" },
 
       -- Help
-      { "<leader>H", group = "help", icon = { icon = "󰋖", color = "purple" } },
-      { "<leader>Hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
-      { "<leader>Hh", function() Snacks.picker.help() end, desc = "Search All Help Docs" },
-      { "<leader>Hm", function() Snacks.picker.keymaps() end, desc = "Search All Keymaps" },
-      { "<leader>HM", function() Snacks.picker.man() end, desc = "Search All Manpages" },
-      { "<leader>HH", function() Snacks.picker.highlights() end, desc = "Search All Highlights" },
+      { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },
+      { "<leader>hh", function() Snacks.picker.help() end, desc = "Search All Help Docs" },
+      { "<leader>hm", function() Snacks.picker.man() end, desc = "Search All Manpages" },
+      { "<leader>hM", function() Snacks.picker.keymaps() end, desc = "Search All Keymaps" },
+      { "<leader>hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
+      { "<leader>hH", function() Snacks.picker.highlights() end, desc = "Search All Highlights" },
 
       -- Open various UIs
       { "<leader>o", group = "open...", icon = { icon = "󰏌", color = "green" } },
