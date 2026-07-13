@@ -73,6 +73,9 @@ function M.open()
       return (by_label[label] == current and "● " or "  ") .. label
     end,
     snacks = {
+      -- Focus the input window on open so you start in insert mode, ready to
+      -- type-to-filter (snacks calls startinsert! on the input's BufEnter).
+      focus = "input",
       layout = {
         -- This config fn replaces the select preset's own, so we set the
         -- vertical position AND reproduce its list-height fit. row is a
