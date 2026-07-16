@@ -54,3 +54,188 @@ vim.api.nvim_create_autocmd("FileType", {
     end)
   end,
 })
+
+-- ---------------------------------------------------------------------------
+-- Pickers: gather the arguments interactively, then dispatch :CodeDiff. Git
+-- calls are synchronous systemlist (tiny commands, no shell), guarded so they
+-- degrade to a notify outside a repo instead of erroring.
+-- ---------------------------------------------------------------------------
+
+local function dispatch(args)
+  vim.cmd("CodeDiff " .. args)
+end
+
+local function git_lines(cmd)
+  local out = vim.fn.systemlist(cmd)
+  if vim.v.shell_error ~= 0 then
+    return {}
+  end
+  return out
+end
+
+-- Resolve the repo's base branch: origin/HEAD's target, else the first of
+-- main/master/trunk that exists, else "main".
+local function default_base()
+  local head = git_lines({ "git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD" })[1]
+  if head then
+    return (head:gsub("^origin/", ""))
+  end
+  for _, name in ipairs({ "main", "master", "trunk" }) do
+    if #git_lines({ "git", "rev-parse", "--verify", "--quiet", name }) > 0 then
+      return name
+    end
+  end
+  return "main"
+end
+
+-- vim.ui.select with an empty-list guard and cancel handling.
+local function ui_select(items, opts, on_choice)
+  if vim.tbl_isempty(items) then
+    vim.notify("codediff: nothing to pick (not in a git repo?)", vim.log.levels.WARN)
+    return
+  end
+  vim.ui.select(items, opts, function(choice)
+    if choice ~= nil then
+      on_choice(choice)
+    end
+  end)
+end
+
+local function all_branches()
+  local out = {}
+  for _, b in
+    ipairs(git_lines({
+      "git",
+      "for-each-ref",
+      "--sort=-committerdate",
+      "--format=%(refname:short)",
+      "refs/heads",
+      "refs/remotes",
+    }))
+  do
+    if not b:match("/HEAD$") then
+      table.insert(out, b)
+    end
+  end
+  return out
+end
+
+-- Ref candidates for the general-purpose picker: branches (recent-first), tags,
+-- then the last 20 commits. Each entry carries the ref string and a display label.
+local function ref_items()
+  local base = default_base()
+  local items = {}
+  for _, b in ipairs(all_branches()) do
+    table.insert(items, { ref = b, label = "branch  " .. b .. (b == base and "  (base)" or "") })
+  end
+  for _, t in ipairs(git_lines({ "git", "tag", "--sort=-creatordate" })) do
+    table.insert(items, { ref = t, label = "tag     " .. t })
+  end
+  for _, c in ipairs(git_lines({ "git", "log", "--oneline", "--no-decorate", "-n", "20" })) do
+    table.insert(items, { ref = c:match("^(%S+)"), label = "commit  " .. c })
+  end
+  return items
+end
+
+local function pick_ref(prompt, on_ref)
+  ui_select(ref_items(), {
+    prompt = prompt,
+    format_item = function(e)
+      return e.label
+    end,
+  }, function(e)
+    on_ref(e.ref)
+  end)
+end
+
+local function pick_branch(prompt, on_branch)
+  local branches = all_branches()
+  local base = default_base()
+  for i, b in ipairs(branches) do
+    if b == base then
+      table.remove(branches, i)
+      table.insert(branches, 1, b)
+      break
+    end
+  end
+  ui_select(branches, { prompt = prompt }, on_branch)
+end
+
+-- Review the current branch like a PR: only the changes introduced since it
+-- forked from the base (git merge-base "..." semantics).
+local function review_pr()
+  pick_branch("PR base branch", function(base)
+    ui_select({
+      { label = "All changes (incl. working tree)", spec = base .. "..." },
+      { label = "Committed changes only", spec = base .. "...HEAD" },
+    }, {
+      prompt = "Scope",
+      format_item = function(e)
+        return e.label
+      end,
+    }, function(e)
+      dispatch(e.spec)
+    end)
+  end)
+end
+
+-- Walk commits one at a time (per-commit diff explorer).
+local function review_history()
+  ui_select({
+    { label = "Recent commits (last 50)", run = "history" },
+    { label = "Since base branch (PR range)", branch = true },
+    { label = "Current file only", file = true },
+  }, {
+    prompt = "History",
+    format_item = function(e)
+      return e.label
+    end,
+  }, function(e)
+    if e.branch then
+      pick_branch("PR base branch", function(base)
+        dispatch("history " .. base .. "..HEAD")
+      end)
+    elseif e.file then
+      local path = vim.fn.expand("%:p")
+      if path == "" then
+        vim.notify("codediff: current buffer has no file", vim.log.levels.WARN)
+        return
+      end
+      dispatch("history HEAD~50 " .. vim.fn.fnameescape(path))
+    else
+      dispatch(e.run)
+    end
+  end)
+end
+
+-- Open the changed-files explorer comparing the working tree to any ref.
+local function diff_ref()
+  pick_ref("Diff against ref", dispatch)
+end
+
+-- Diff just the current buffer against a chosen revision.
+local function diff_file_ref()
+  if vim.fn.expand("%") == "" then
+    vim.notify("codediff: current buffer has no file", vim.log.levels.WARN)
+    return
+  end
+  pick_ref("Diff current file against ref", function(ref)
+    dispatch("file " .. ref)
+  end)
+end
+
+-- Register the <leader>gc "codediff" picker group once which-key is set up.
+-- Scheduled because this file is sourced before plugin/which-key.lua.
+vim.schedule(function()
+  local ok, wk = pcall(require, "which-key")
+  if not ok then
+    return
+  end
+  wk.add({
+    { "<leader>gc", group = "codediff", icon = { cat = "filetype", name = "git" } },
+    { "<leader>gcp", review_pr, desc = "Review branch as PR" },
+    { "<leader>gch", review_history, desc = "Commit-by-commit / history" },
+    { "<leader>gcr", diff_ref, desc = "Diff against a ref" },
+    { "<leader>gcf", diff_file_ref, desc = "Current file vs a ref" },
+  })
+end)
