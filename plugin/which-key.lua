@@ -79,6 +79,8 @@ vim.schedule(function()
       { "<leader>gb", function() Snacks.picker.git_log_line() end, desc = "Git Blame Line" },
       { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)" },
+      { "<leader>gd", "<Cmd>CodeDiff<CR>", desc = "Diff Changed Files (CodeDiff)" },
+      { "<leader>gh", "<Cmd>CodeDiff history<CR>", desc = "File History (CodeDiff)" },
 
       -- Help
       { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },

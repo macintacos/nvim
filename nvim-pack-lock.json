@@ -30,6 +30,10 @@
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",
       "src": "https://github.com/xvzc/chezmoi.nvim"
     },
+    "codediff.nvim": {
+      "rev": "7608f3b436ce1f84a4888f75e53079caa981a2e9",
+      "src": "https://github.com/esmuellert/codediff.nvim"
+    },
     "conform.nvim": {
       "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
       "src": "https://github.com/stevearc/conform.nvim"
