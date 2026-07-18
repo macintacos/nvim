@@ -67,6 +67,28 @@ vim.lsp.config("xonsh_language_server", {
   filetypes = { "xonsh" },
 })
 
+-- vtsls: load the Svelte TypeScript plugin so go-to-definition and references
+-- cross the .ts <-> .svelte boundary (in-file nav works without it via the
+-- Svelte LSP). The plugin ships bundled inside the Mason svelte-language-server
+-- package; enableForWorkspaceTypeScriptVersions runs it against the project's
+-- own TypeScript rather than the one vtsls bundles.
+vim.lsp.config("vtsls", {
+  settings = {
+    vtsls = {
+      tsserver = {
+        globalPlugins = {
+          {
+            name = "typescript-svelte-plugin",
+            location = vim.fn.stdpath("data")
+              .. "/mason/packages/svelte-language-server/node_modules/typescript-svelte-plugin",
+            enableForWorkspaceTypeScriptVersions = true,
+          },
+        },
+      },
+    },
+  },
+})
+
 -- mq ships no filetype plugin, so register .mq ourselves; without it the
 -- buffer never gets filetype=mq and the LSP below has nothing to attach to.
 vim.filetype.add({ extension = { mq = "mq" } })
@@ -95,6 +117,8 @@ vim.lsp.enable({
   -- is absent from ensure_installed below. Uses nvim-lspconfig's shipped config
   -- and auto-discovers .rumdl.toml.
   "rumdl",
+  "svelte",
+  "tailwindcss",
   "taplo",
   "ty",
   -- vimdoc_ls: LSP for vim help files (diagnostics, hover, completion). Binary
@@ -120,6 +144,8 @@ require("mason-tool-installer").setup({
     "shellcheck",
     "shfmt",
     "stylua",
+    "svelte-language-server",
+    "tailwindcss-language-server",
     "taplo",
     "vtsls",
     "yamlfmt",

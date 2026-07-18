@@ -45,7 +45,7 @@ vim.schedule(function()
         end,
         desc = "Unveil in Explorer" },
       { "<leader>fR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
-      { "<leader>f=", function() require("conform").format({ async = true }) end, desc = "Format File" },
+      { "<leader>f=", function() require("conform").format({ async = true, lsp_format = "fallback" }) end, desc = "Format File" },
       { "<leader>fl", function() require("plugins.ftchooser").open() end, desc = "Set Filetype" },
       { "<leader>fs", Cmd("w"), desc = "Save File" },
       { "<leader>fS", Cmd("noautocmd w"), desc = "Save File (no format)" },

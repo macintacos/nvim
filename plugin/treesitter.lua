@@ -22,6 +22,7 @@ local langs = {
   "groovy",         "pkl",              "xml",
   "html",           "printf",           "yaml",
   "kdl",            "proto",
+  "css",            "svelte",
 }
 -- stylua: ignore end
 

@@ -51,6 +51,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         if vim.b[bufnr].is_tmpl then
           return nil
         end
+        -- Svelte formats on demand only (<leader>f=), never on save: caret
+        -- doesn't auto-format .svelte (Biome excludes them), so a save must not
+        -- reformat its files to the LSP's prettier defaults.
+        if vim.bo[bufnr].filetype == "svelte" then
+          return nil
+        end
         return { timeout_ms = 3000, lsp_format = "fallback" }
       end,
     })
@@ -87,6 +93,12 @@ vim.api.nvim_create_user_command("ConformInfo", function()
     },
     format_on_save = function(bufnr)
       if vim.b[bufnr].is_tmpl then
+        return nil
+      end
+      -- Svelte formats on demand only (<leader>f=), never on save: caret
+      -- doesn't auto-format .svelte (Biome excludes them), so a save must not
+      -- reformat its files to the LSP's prettier defaults.
+      if vim.bo[bufnr].filetype == "svelte" then
         return nil
       end
       return { timeout_ms = 3000, lsp_format = "fallback" }
