@@ -23,8 +23,26 @@ map("Goto Definition in Split", "n", "gD", function()
   vim.cmd("vsplit")
   vim.lsp.buf.definition()
 end, { silent = true })
+-- open_floating_preview has no native min_width. Teach it one: when a caller
+-- sets opts.min_width, floor the computed width there (still capped by max_width
+-- and the screen). The hover mapping below uses it so a short popup — e.g. a
+-- one-line Tailwind class — isn't cramped. No-op for callers that don't set it,
+-- so signature help and diagnostic floats are unaffected.
+local orig_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  if opts.min_width and not opts.width and type(contents) == "table" then
+    local w = 0
+    for _, line in ipairs(contents) do
+      w = math.max(w, vim.fn.strdisplaywidth((line:gsub("%z", "\n"))))
+    end
+    opts.width = math.max(w, opts.min_width)
+  end
+  return orig_open_floating_preview(contents, syntax, opts, ...)
+end
+
 map("Show Hover", "n", "gh", function()
-  vim.lsp.buf.hover({ border = "rounded", max_width = 80 })
+  vim.lsp.buf.hover({ border = "rounded", max_width = 80, min_width = 40 })
 end, { silent = true })
 map("Goto References", "n", "gr", vim.lsp.buf.references, { silent = true })
 map("Goto Implementation", "n", "gi", vim.lsp.buf.implementation, { silent = true })
