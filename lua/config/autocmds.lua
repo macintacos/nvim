@@ -223,6 +223,27 @@ vim.api.nvim_create_autocmd({ "WinLeave" }, {
   end,
 })
 
+-- Sweep orphaned ShaDa temp files left behind by interrupted writes.
+-- Neovim writes the ShaDa file atomically: it dumps to main.shada.tmp.<a-z>
+-- then renames the result over main.shada. If nvim is killed mid-write (reboot,
+-- terminal/tmux closed, SIGKILL) the temp is orphaned. Once all 26 slots (.a-.z)
+-- are occupied, writes fail with "E138: All ... files exist". This removes temps
+-- untouched for 60s+; a real write renames within milliseconds, so the age guard
+-- never deletes a temp a concurrent nvim instance is actively writing.
+-- Fires: once, on startup.
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = augroup("shada_cleanup"),
+  callback = function()
+    local dir = vim.fn.stdpath("state") .. "/shada"
+    for _, path in ipairs(vim.fn.glob(dir .. "/*.tmp.*", true, true)) do
+      local stat = vim.uv.fs_stat(path)
+      if stat and os.time() - stat.mtime.sec > 60 then
+        vim.uv.fs_unlink(path)
+      end
+    end
+  end,
+})
+
 -- Highlight .tmpl files properly, using ../../syntax/gotmpl.vim
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = vim.api.nvim_create_augroup("gotmpl_highlight", { clear = true }),
