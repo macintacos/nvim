@@ -205,6 +205,11 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   callback = function(ev)
     local bufnr = ev.buf
     local edit_watch = function()
+      -- The buffer may be gone by the time this runs (session restore churns
+      -- through buffers, picker previews wipe them), so re-check validity.
+      if not vim.api.nvim_buf_is_valid(bufnr) then
+        return
+      end
       require("chezmoi.commands.__edit").watch(bufnr)
     end
     vim.schedule(edit_watch)
