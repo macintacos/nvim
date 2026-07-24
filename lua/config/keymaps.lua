@@ -120,3 +120,7 @@ map("Select Child Node", { "n", "x", "o" }, "<A-i>", function()
     vim.lsp.buf.selection_range(-vim.v.count1)
   end
 end)
+
+-- Jump and center
+map("Jump to Next Empty", "n", "}", "}zz")
+map("Jump to Prev Empty", "n", "{", "{zz")
