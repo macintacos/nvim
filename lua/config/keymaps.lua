@@ -22,6 +22,9 @@ map("Up", { "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent 
 map("Up", { "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 map("Up", { "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 
+-- Jump to end of line (replaces the default "lowest line in window")
+map("End of Line", { "n", "x" }, "L", "$")
+
 -- Resize windows using Alt+WASD
 map("Increase Window Height", "n", "<A-w>", Cmd("resize +2"))
 map("Decrease Window Height", "n", "<A-s>", Cmd("resize -2"))
