@@ -48,9 +48,13 @@ vim.api.nvim_create_autocmd("PackChanged", {
       -- Build the Rust fuzzy-matching backend asynchronously.
       -- blink.cmp falls back to a pure-Lua implementation until
       -- the binary is available, so this won't block startup.
+      -- blink.cmp loads the library from <plugin>/target/release/, but our
+      -- global ~/.cargo/config.toml redirects every build to a shared cache
+      -- dir, so pin CARGO_TARGET_DIR back in-tree (env wins over config.toml).
       local path = find_plugin_path("blink.cmp")
       if path then
-        vim.system({ "cargo", "+nightly-2025-09-30", "build", "--release" }, { cwd = path }, function(result)
+        local opts = { cwd = path, env = { CARGO_TARGET_DIR = path .. "/target" } }
+        vim.system({ "cargo", "build", "--release" }, opts, function(result)
           vim.schedule(function()
             if result.code ~= 0 then
               vim.notify("blink.cmp build failed: " .. (result.stderr or ""), vim.log.levels.ERROR)
