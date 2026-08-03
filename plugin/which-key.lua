@@ -37,7 +37,7 @@ vim.schedule(function()
       ---@diagnostic disable-next-line: undefined-field
       { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
-      { "<leader>ft", function() vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(true, true)) end, desc = "Scratch Buffer" },
+      { "<leader>ft", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>fe", function() MiniFiles.open() end, desc = "Show mini.files" },
       { "<leader>fE", function() Snacks.explorer() end, desc = "Show Snacks Explorer" },
       { "<leader>fu",
@@ -219,6 +219,7 @@ vim.schedule(function()
           vim.cmd.only()
         end,
         desc = "Delete Other Windows" },
+      { "<leader>wt", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode" },
     },
   })
