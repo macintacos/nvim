@@ -161,8 +161,10 @@ vim.schedule(function()
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation" },
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode" },
 
-      -- Project (children live in plugin/projects.lua)
+      -- Project (<leader>pp lives in plugin/projects.lua)
       { "<leader>p", group = "project", icon = { icon = "", color = "green" } },
+      { "<leader>ps", function() Snacks.scratch() end, desc = "Scratch Buffer" },
+      { "<leader>pS", function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
 
       -- Plugins
       { "<leader>P", group = "plugins", icon = { icon = "󰏗", color = "azure" } },
