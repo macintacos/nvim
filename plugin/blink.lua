@@ -51,7 +51,7 @@ require("blink.cmp").setup({
     },
   },
   completion = {
-    list = { selection = { auto_insert = false, preselect = true } },
+    list = { selection = { auto_insert = false, preselect = false } },
     accept = { auto_brackets = { enabled = true } },
     menu = { border = "rounded", draw = { treesitter = { "lsp" } } },
     documentation = {
@@ -65,6 +65,7 @@ require("blink.cmp").setup({
     preset = "enter",
     ["<Tab>"] = { "select_next", "fallback" },
     ["<S-Tab>"] = { "select_prev", "fallback" },
+    ["<Esc>"] = { "cancel", "fallback" },
   },
 })
 
