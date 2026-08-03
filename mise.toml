@@ -16,12 +16,16 @@ HK_MISE = 1
 hk  = "latest"
 pkl = "latest"
 
-# Cross-language baseline (Markdown / YAML / TOML / Shell).
-rumdl                 = "latest" # Markdown format + lint (config in .rumdl.toml)
-"aqua:google/yamlfmt" = "latest" # YAML format
-taplo                 = "latest" # TOML format + lint (config in taplo.toml)
-shfmt                 = "latest" # Shell format (.mise/tasks scripts)
-shellcheck            = "latest" # Shell lint
+# Cross-language baseline (Markdown / YAML / TOML / Shell / JSON).
+rumdl                   = "latest" # Markdown format + lint (config in .rumdl.toml)
+"aqua:google/yamlfmt"   = "latest" # YAML format
+taplo                   = "latest" # TOML format + lint (config in taplo.toml)
+shfmt                   = "latest" # Shell format (.mise/tasks scripts)
+shellcheck              = "latest" # Shell lint
+"pipx:check-jsonschema" = "latest" # JSON Schema lint (schemas/*.json)
+
+# Backs the pipx: backend above, and runs the PEP 723 hook scripts in ~/.claude.
+uv = "latest"
 
 # (Re)register git hooks whenever tools are installed or updated.
 [hooks]

@@ -57,6 +57,16 @@ local linters = new Mapping<String, Step> {
   // pkl lints by evaluating the file (`pkl eval`), resolving the remote
   // amends/import package (cached after first run).
   ["Pkl(Lint)         [[builtins.pkl]]"] = Builtins.pkl
+
+  // Validates schemas/*.json against the JSON Schema metaschema: catches bad
+  // type names, malformed `pattern` regexes, and keywords given the wrong type.
+  // It does NOT catch a misspelled keyword — JSON Schema treats unknown keywords
+  // as legal extensions, so `aditionalProperties` silently stops constraining.
+  // Nothing else in this repo checks JSON.
+  ["JSON(Lint)        [[check-jsonschema]]"] = new Step {
+    glob = List("schemas/*.json")
+    check = "check-jsonschema --check-metaschema {{ files }}"
+  }
 }
 
 hooks {
