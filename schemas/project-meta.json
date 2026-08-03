@@ -45,14 +45,15 @@
     },
     "search": {
       "type": "object",
-      "description": "Search-related configuration for this repository",
+      "description": "Search-related configuration for this repository, read by the search-scope guard hook rather than by Neovim",
       "additionalProperties": false,
       "properties": {
         "externalPaths": {
           "type": "array",
-          "description": "Directories outside the repository where a filesystem search may be rooted. Each entry grants its whole subtree and none of its ancestors.",
+          "description": "Directories outside the repository where a filesystem search may be rooted. Must be absolute or ~-prefixed; / and ~ themselves are refused. Each entry grants its whole subtree and none of its ancestors.",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(/|~/).+"
           }
         },
         "unrestricted": {
