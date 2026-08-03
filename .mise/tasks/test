@@ -3,4 +3,10 @@
 
 set -euo pipefail
 
-nvim --headless -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+# -u applies to the *outer* nvim, which needs plenary on its runtimepath for
+# :PlenaryBustedDirectory to exist at all. Without it nvim loads stdpath("config")
+# — the bare-repo container in a worktree layout, which has no init.lua — the
+# command is undefined, and --headless then blocks on stdin instead of exiting.
+# The child processes plenary spawns get the same init via minimal_init.
+nvim --headless -u tests/minimal_init.lua \
+	-c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
