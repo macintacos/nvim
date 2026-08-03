@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "54d6b547f9423abd02d282ccf9d9a90e3be06400",
+      "rev": "c2252a2ac97c4409fdfdee87ba3bf4942ee5b06f",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
