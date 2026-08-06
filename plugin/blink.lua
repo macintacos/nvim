@@ -3,7 +3,7 @@
 vim.pack.add({
   { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.x") },
   { src = "https://github.com/Saghen/blink.pairs", version = vim.version.range("0.x") },
-  "https://github.com/Saghen/blink.download",
+  "https://github.com/Saghen/blink.lib",
 })
 
 require("blink.cmp").setup({

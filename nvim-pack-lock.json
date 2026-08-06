@@ -21,6 +21,10 @@
       "rev": "8b04d0e0acc8565cfa4dd291a89a9212b7262633",
       "src": "https://github.com/Saghen/blink.download"
     },
+    "blink.lib": {
+      "rev": "8b04d0e0acc8565cfa4dd291a89a9212b7262633",
+      "src": "https://github.com/Saghen/blink.lib"
+    },
     "blink.pairs": {
       "rev": "aad9046bc4670dc91301cd62a6948feb36c55f4a",
       "src": "https://github.com/Saghen/blink.pairs",
@@ -234,7 +238,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "528ed737bc3b951fc8cd1831057175ef9e17fb17",
+      "rev": "f4051fb4662c43a568ce809a37e47c0f4e3d7a31",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
