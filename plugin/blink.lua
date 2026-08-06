@@ -65,7 +65,18 @@ require("blink.cmp").setup({
     preset = "enter",
     ["<Tab>"] = { "select_next", "fallback" },
     ["<S-Tab>"] = { "select_prev", "fallback" },
-    ["<Esc>"] = { "cancel", "fallback" },
+    -- With an item selected, <Esc> only cancels the completion. With the menu
+    -- merely open, it cancels and falls through so a single press also leaves
+    -- insert mode.
+    ["<Esc>"] = {
+      function(cmp)
+        if cmp.get_selected_item() then
+          return cmp.cancel()
+        end
+        cmp.hide()
+      end,
+      "fallback",
+    },
   },
 })
 
