@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "c2252a2ac97c4409fdfdee87ba3bf4942ee5b06f",
+      "rev": "bed5d8209396d211340a69a34f3fda10bb005ac2",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -63,7 +63,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "1eb913e509b846e77111cde2aeeb77a05243c003",
+      "rev": "695724eb4ada42792c48a4a5ce57da9093371a1e",
       "src": "https://github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -182,7 +182,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "1c0d8f70dbc8827263eedc3cf7021ceba0f68689",
+      "rev": "43ed3797b266e1ee8d222e491379ad471c9d3146",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-notify": {
@@ -202,7 +202,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "7b6cc8949f9999c5ed91436cbe24aa5f99c42025",
+      "rev": "3d3321b560a63ff92a8692401f303a5123336b86",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-web-devicons": {
@@ -238,7 +238,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "f4051fb4662c43a568ce809a37e47c0f4e3d7a31",
+      "rev": "818d3565d7b9f86546d0ddf5d16a5e12eb70ef4f",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
