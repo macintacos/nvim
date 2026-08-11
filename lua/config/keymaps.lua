@@ -52,6 +52,8 @@ map("Move Up", "v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv
 -- Better indentation
 map("Indent left and reselect", "v", "<", "<gv")
 map("Indent right and reselect", "v", ">", ">gv")
+map("Outdent line", "n", "<", "<<")
+map("Indent line", "n", ">", ">>")
 
 -- Clear search and stop snippet on escape
 map("Escape and Clear hlsearch", { "i", "n", "s" }, "<esc>", function()
