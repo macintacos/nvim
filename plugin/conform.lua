@@ -51,6 +51,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
         if vim.b[bufnr].is_tmpl then
           return nil
         end
+        -- Agent prompt buffers are markdown, so saving one would run rumdl over
+        -- it and rewrap a prompt mid-edit. Same detection agentcomplete.lua uses
+        -- to silence rumdl's diagnostics there.
+        if require("agentcomplete.detect").detect(bufnr) then
+          return nil
+        end
         -- Svelte formats on demand only (<leader>f=), never on save: caret
         -- doesn't auto-format .svelte (Biome excludes them), so a save must not
         -- reformat its files to the LSP's prettier defaults.
@@ -93,6 +99,9 @@ vim.api.nvim_create_user_command("ConformInfo", function()
     },
     format_on_save = function(bufnr)
       if vim.b[bufnr].is_tmpl then
+        return nil
+      end
+      if require("agentcomplete.detect").detect(bufnr) then
         return nil
       end
       -- Svelte formats on demand only (<leader>f=), never on save: caret
