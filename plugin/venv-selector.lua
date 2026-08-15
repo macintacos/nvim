@@ -1,5 +1,6 @@
 -- github.com/linux-cultist/venv-selector.nvim
--- Auto-activates per-project and per-PEP-723-script uv venvs so Python LSPs can resolve imports.
+-- Auto-activates per-project venvs so Python LSPs can resolve imports.
+-- PEP 723 script environments are handled in plugin/lsp/python.lua instead.
 vim.pack.add({ "https://github.com/linux-cultist/venv-selector.nvim" }, { load = false })
 
 local loaded = false
