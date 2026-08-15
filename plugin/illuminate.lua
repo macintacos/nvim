@@ -8,25 +8,32 @@ require("illuminate").configure({
   large_file_overrides = { providers = { "lsp" } },
 })
 
--- Defer the Snacks toggle until after snacks.lua has loaded
-vim.schedule(function()
-  require("snacks")
-    .toggle({
-      name = "Illuminate",
-      get = function()
-        return not require("illuminate.engine").is_paused()
-      end,
-      set = function(enabled)
-        local m = require("illuminate")
-        if enabled then
-          m.resume()
-        else
-          m.pause()
-        end
-      end,
-    })
-    :map("<leader>ux")
-end)
+-- Register the Snacks toggle once plugin/snacks.lua has been sourced. Fires on
+-- VimEnter rather than from vim.schedule() because a scheduled callback runs at
+-- the next event loop pump, and vim.pack pumps it mid-startup while installing
+-- a plugin — at which point snacks.lua (sourced after this file) hasn't run and
+-- require("snacks") aborts the plugin file that triggered the install.
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    require("snacks")
+      .toggle({
+        name = "Illuminate",
+        get = function()
+          return not require("illuminate.engine").is_paused()
+        end,
+        set = function(enabled)
+          local m = require("illuminate")
+          if enabled then
+            m.resume()
+          else
+            m.pause()
+          end
+        end,
+      })
+      :map("<leader>ux")
+  end,
+})
 
 local map = require("helpers.mappings").map
 
