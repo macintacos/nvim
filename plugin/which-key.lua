@@ -17,7 +17,7 @@ vim.schedule(function()
       -- Top-level Things
       { "<leader>?", function() require("which-key").show({ global = false }) end,
         desc = "Buffer Local Keymaps (which-key)" },
-      { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep Project" },
+      { "<leader>/", Cmd("Pick grep_live"), desc = "Grep Project" },
       { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
       { "<leader><leader>", function() Snacks.picker.commands() end, desc = "Search All Commands" },
 
@@ -25,7 +25,7 @@ vim.schedule(function()
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer" },
       { "<leader>bp", Cmd("bprevious"), desc = "Prev Buffer" },
-      { "<leader>bb", function() Snacks.picker.buffers() end, desc = "Show Open Buffers" },
+      { "<leader>bb", Cmd("Pick buffers"), desc = "Show Open Buffers" },
       { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text" },
@@ -34,8 +34,7 @@ vim.schedule(function()
 
       -- Files
       { "<leader>f", group = "files", icon = { icon = "󰉋", color = "cyan" } },
-      ---@diagnostic disable-next-line: undefined-field
-      { "<leader>ff", function() require("fff").find_files() end, desc = "FFFind Files" },
+      { "<leader>ff", Cmd("Pick files"), desc = "Find Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
       { "<leader>ft", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>fe", function() MiniFiles.open() end, desc = "Show mini.files" },
@@ -85,7 +84,7 @@ vim.schedule(function()
 
       -- Help
       { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },
-      { "<leader>hh", function() Snacks.picker.help() end, desc = "Search All Help Docs" },
+      { "<leader>hh", Cmd("Pick help"), desc = "Search All Help Docs" },
       { "<leader>hm", function() Snacks.picker.man() end, desc = "Search All Manpages" },
       { "<leader>hM", function() Snacks.picker.keymaps() end, desc = "Search All Keymaps" },
       { "<leader>hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
@@ -126,8 +125,9 @@ vim.schedule(function()
         mode = { "n", "v" },
         desc = "Search and Replace" },
       { "<leader>ss", function () Snacks.picker.lines() end, desc = "Buffer Lines"},
-      { "<leader>sp", function() Snacks.picker.grep() end, desc = "Grep Project"},
+      { "<leader>sp", Cmd("Pick grep_live"), desc = "Grep Project"},
       { "<leader>sb", function () Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers"},
+      { "<leader>sR", Cmd("Pick resume"), desc = "Resume Last Picker"},
 
       -- Jump to
       { "<leader>j", group = "jump to...", icon = { icon = "󰌑", color = "yellow" } },
