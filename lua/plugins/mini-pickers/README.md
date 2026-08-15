@@ -8,12 +8,34 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 
 | `:Pick …`         | What changes                                                                 |
 | ----------------- | ---------------------------------------------------------------------------- |
-| `files`           | `<Space>` toggles the preview instead of the global `<C-p>`.                  |
+| `files`           | Always `rg`, hidden files included, plus a list of ignored paths. `<Space>` toggles the preview instead of the global `<C-p>`. |
 | `lsp document_symbol` | Rendered as the file's outline — a real tree, not a flat list.            |
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
 
 Other `lsp` scopes (`references`, `definition`, …) pass straight through to mini.extra — they are location lists with no symbol structure to recover.
+
+## The files picker
+
+`MiniPick.builtin.files` picks a tool at runtime — `rg`, then `fd`, then `git`, then a Lua walk — and hardcodes the arguments it calls it with. `files.lua` spells the `rg` call out instead, so the flags are ours:
+
+```sh
+rg --files --color=never --hidden --glob '!.git' . CLAUDE.md
+```
+
+`--hidden` is what puts `.mise/tasks/`, `.luarc.json`, and `.github/` in the results at all; rg walks past dotfiles without it, and `!.git` is then the one directory it must be kept out of.
+
+Files an ignore file hides are a separate problem, and **`M.extra` in `files.lua` is the list of them** — `CLAUDE.md` and `.env` to start with. They are appended as literal path arguments, which is the only spelling that beats `.gitignore` while leaving the rest of the listing alone:
+
+| Approach                    | Result                                                     |
+| --------------------------- | ---------------------------------------------------------- |
+| `-g 'CLAUDE.md'`            | Outranks `.gitignore`, but one positive glob turns the run into a whitelist — nothing else is listed. |
+| `--ignore-file` with `!CLAUDE.md` | Loses to `.gitignore`; exclusions in that file still apply, un-ignores do not. |
+| `. CLAUDE.md` as path args  | Everything under `.`, plus the ignored path. What this uses. |
+
+Two consequences, both handled in `_postprocess`/`_command`: rg prefixes the paths it walks from `.` with `./` but returns the extras bare, so a file reachable both ways arrives twice under two spellings; and it errors on a path that does not exist, so extras missing from the project are dropped before the call rather than listed for every repo that has no `CLAUDE.md`.
+
+Nothing expands the entries — the spawn has no shell — so each is a plain relative path to a file or a directory, never a glob.
 
 ## The outline
 
@@ -53,6 +75,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | File            | Holds                                                                    |
 | --------------- | ------------------------------------------------------------------------ |
 | `init.lua`      | `setup()` — registry entries and the `lsp` scope dispatch.               |
+| `files.lua`     | The `rg` invocation and `M.extra`, the ignored paths added back to it.   |
 | `symbols.lua`   | Flattening a document-symbol tree into items carrying `guides`/`crumb`.  |
 | `outline.lua`   | The document-symbol picker and its two-mode renderer.                    |
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |

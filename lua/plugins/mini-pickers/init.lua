@@ -8,11 +8,8 @@ local M = {}
 ---Register the customised pickers. Must run after `mini.pick` and `mini.extra`
 ---have been set up, since it writes into the registry they create.
 function M.setup()
-  -- `:Pick files` toggles the preview with <Space> instead of the global <C-p>.
-  -- A file query never contains a space, unlike the prose queries grep and the
-  -- command pickers take, so the key is only free to steal here.
-  MiniPick.registry.files = function(local_opts)
-    return MiniPick.builtin.files(local_opts, { mappings = { toggle_preview = "<Space>" } })
+  MiniPick.registry.files = function()
+    return require("plugins.mini-pickers.files").pick()
   end
 
   MiniPick.registry.lsp = function(local_opts)
