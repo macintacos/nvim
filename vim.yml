@@ -7,3 +7,9 @@ globals:
     any: true
   MiniStatusline:
     any: true
+  MiniPick:
+    any: true
+  MiniExtra:
+    any: true
+  MiniIcons:
+    any: true

@@ -109,6 +109,11 @@
       "src": "https://github.com/nvim-mini/mini.cursorword",
       "version": "'stable'"
     },
+    "mini.extra": {
+      "rev": "e5ecf197f8954d002cb9e85b3715851e2c8d3cd5",
+      "src": "https://github.com/nvim-mini/mini.extra",
+      "version": "'stable'"
+    },
     "mini.files": {
       "rev": "a5689dae6b732955e33eec225b798d6815063179",
       "src": "https://github.com/nvim-mini/mini.files",

@@ -1,14 +1,15 @@
 -- mini.nvim modules
 vim.pack.add({
-  { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.bracketed", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.pick", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.cursorword", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.hipatterns", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
-  { src = "https://github.com/nvim-mini/mini.files", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.align", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.bracketed", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.cursorword", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.extra", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.files", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.hipatterns", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.pick", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
   -- mini.input is in beta and has no stable tag yet — track main
   { src = "https://github.com/nvim-mini/mini.input" },
 })
@@ -35,11 +36,293 @@ require("mini.bracketed").setup()
 require("mini.input").setup()
 
 -- ============================================================================
--- mini.pick
+-- mini.icons
 -- ============================================================================
 
--- Fuzzy picker; provides :Pick files and friends
+-- Creates the global MiniIcons table. Both mini.pick and mini.extra check for
+-- it at render time and silently fall back to icon-less output when absent, so
+-- this is what puts file icons on :Pick files/grep/buffers and kind icons on
+-- the LSP symbol pickers.
+require("mini.icons").setup()
+
+-- ============================================================================
+-- mini.pick / mini.extra
+-- ============================================================================
+
+-- Fuzzy picker. setup() also takes over vim.ui.select(), which is why
+-- snacks sets picker.ui_select = false (see plugin/snacks.lua).
 require("mini.pick").setup()
+
+-- Registers the extra pickers (lsp, keymaps, manpages, git_commits, ...)
+-- into MiniPick.registry, making them reachable as :Pick <name>.
+require("mini.extra").setup()
+
+-- LSP symbol pickers arrive doubly prefixed: Neovim formats every symbol as
+-- "[Kind] name" (vim.lsp.util.symbols_to_items) and mini.extra prepends
+-- "<path>│<lnum>│<col>│ " for the workspace scopes. The kind is already carried
+-- by the icon and the path is what pushes the name off-screen, so both go.
+local symbol_ns = vim.api.nvim_create_namespace("mini_pick_lsp_symbols")
+
+-- Kinds worth listing. Servers emit a symbol per table key, so without this a
+-- Lua file's outline is mostly `[1]`, `[2]`, and `desc`. Data filetypes are
+-- exempt because there Object/Array/String *are* the structure — the same
+-- carve-out the old snacks picker needed for toml.
+local SYMBOL_KINDS = {
+  Class = true,
+  Constant = true,
+  Constructor = true,
+  Enum = true,
+  EnumMember = true,
+  Event = true,
+  Field = true,
+  Function = true,
+  Interface = true,
+  Method = true,
+  Module = true,
+  Namespace = true,
+  Package = true,
+  Property = true,
+  Struct = true,
+  TypeParameter = true,
+  Variable = true,
+}
+local SYMBOL_KINDS_ALL_FT = { toml = true, json = true, jsonc = true, yaml = true, markdown = true }
+
+-- Relative path when the file lives under cwd, otherwise just enough tail to
+-- tell two files apart. Plain `pathshorten` is useless on the deep absolute
+-- paths workspace symbols return — it yields "/o/h/C/n/0/s/n/r/l/v/_/u/x.lua".
+---@param path string
+---@return string
+local function short_path(path)
+  local rel = vim.fn.fnamemodify(path, ":.")
+  if rel ~= path and #rel <= 40 then
+    return rel
+  end
+  return "…/" .. vim.fn.fnamemodify(path, ":h:t") .. "/" .. vim.fn.fnamemodify(path, ":t")
+end
+
+-- Subdued italic labels for the right-aligned kind annotation: one highlight
+-- group per kind, coloured by mixing that kind's icon colour with Comment so
+-- each hue stays recognisable while sitting back from the symbol name. Mixing
+-- toward Comment rather than toward the background is deliberate — catppuccin
+-- runs with transparent_background, so Normal has no bg to blend with.
+local KIND_MIX = 0.5
+
+---@type table<string, true>
+local kind_hl_made = {}
+
+---Mix two 0xRRGGBB colours, keeping `alpha` of the first.
+---@param a integer
+---@param b integer
+---@param alpha number
+---@return integer
+local function mix(a, b, alpha)
+  local out = {}
+  for i, shift in ipairs({ 65536, 256, 1 }) do
+    local ca, cb = math.floor(a / shift) % 256, math.floor(b / shift) % 256
+    out[i] = math.floor(ca * alpha + cb * (1 - alpha) + 0.5)
+  end
+  return out[1] * 65536 + out[2] * 256 + out[3]
+end
+
+---Highlight group for one kind's label, created on first use.
+---@param kind string
+---@param icon_hl string Highlight group mini.icons uses for this kind's icon.
+---@return string
+local function kind_label_hl(kind, icon_hl)
+  local name = "MiniPickKind" .. kind:gsub("%W", "")
+  if kind_hl_made[name] then
+    return name
+  end
+  local comment = vim.api.nvim_get_hl(0, { name = "Comment", link = false })
+  local icon = vim.api.nvim_get_hl(0, { name = icon_hl, link = false })
+  local fg = comment.fg
+  if icon.fg and comment.fg then
+    fg = mix(icon.fg, comment.fg, KIND_MIX)
+  end
+  vim.api.nvim_set_hl(0, name, { fg = fg, italic = true })
+  kind_hl_made[name] = true
+  return name
+end
+
+-- Label colours are derived from the active theme's icon and Comment groups,
+-- so drop the cache on a colorscheme change and let the next render rebuild
+-- them against the new palette.
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    kind_hl_made = {}
+  end,
+})
+
+---Split a mini.extra LSP symbol item into its display parts.
+---@param item table
+---@return string icon, string hl, string name, string kind
+local function symbol_parts(item)
+  local ok, icon, hl = pcall(MiniIcons.get, "lsp", item.kind)
+  icon = ok and icon or " "
+  -- Drop mini.extra's position prefix, or the icon it prepended when there is
+  -- no position prefix, then split off Neovim's own "[Kind] " label.
+  local raw = item.text:match("^.*│ (.*)$")
+  if raw == nil then
+    raw = item.text:gsub("^" .. vim.pesc(icon) .. "%s*", "")
+  end
+  local kind, name = raw:match("^%[([^%]]*)%]%s*(.*)$")
+  return icon, (ok and hl or "Normal"), (name or raw), (kind or item.kind or "")
+end
+
+---Build a `source.show` for the LSP symbol pickers.
+---
+---Buffer text is only "<icon> <name>" — the kind, and the location for
+---workspace scopes, are right-aligned virtual text. Being virtual keeps them
+---out of the buffer entirely, so they read as labels and can never be matched
+---by a query (typing "string" won't surface every String-kind symbol).
+---@param with_location boolean Prefix the annotation with "<path>:<lnum>".
+---@return fun(buf_id: integer, items: table[], query: string[])
+local function make_symbol_show(with_location)
+  return function(buf_id, items, query)
+    local rows, display = {}, {}
+    for i, item in ipairs(items) do
+      local icon, hl, name, kind = symbol_parts(item)
+      rows[i] = {
+        icon = icon,
+        hl = hl,
+        kind = kind,
+        loc = (with_location and item.path) and ("%s:%d"):format(short_path(item.path), item.lnum or 1) or "",
+      }
+      display[i] = vim.tbl_extend("force", item, { text = icon .. " " .. name })
+    end
+
+    MiniPick.default_show(buf_id, display, query)
+
+    -- Colour the kind icon and hang the annotation off the right edge. Runs
+    -- after default_show so it layers on top of the query match highlights.
+    vim.api.nvim_buf_clear_namespace(buf_id, symbol_ns, 0, -1)
+    for i, row in ipairs(rows) do
+      vim.api.nvim_buf_set_extmark(buf_id, symbol_ns, i - 1, 0, {
+        end_col = #row.icon,
+        hl_group = row.hl,
+        priority = 199,
+      })
+      local annotation = {}
+      if row.loc ~= "" then
+        annotation[#annotation + 1] = { row.loc .. "  ", "Comment" }
+      end
+      if row.kind ~= "" then
+        annotation[#annotation + 1] = { row.kind, kind_label_hl(row.kind, row.hl) }
+      end
+      if #annotation > 0 then
+        vim.api.nvim_buf_set_extmark(buf_id, symbol_ns, i - 1, 0, {
+          virt_text = annotation,
+          virt_text_pos = "right_align",
+          priority = 199,
+        })
+      end
+    end
+  end
+end
+
+---Build a `source.match` that matches on symbol names alone.
+---
+---mini.pick derives its match strings from each item's raw `text`, which still
+---carries the path and the "[Kind]" label, so both would otherwise be
+---queryable. Matching against the cleaned names keeps the query honest.
+---@param do_filter boolean Also drop kinds outside SYMBOL_KINDS.
+---@return fun(stritems: string[], inds: integer[], query: string[]): integer[]
+local function make_symbol_match(do_filter)
+  return function(stritems, inds, query)
+    local items = MiniPick.get_picker_items() or {}
+    local names = {}
+    for i, stritem in ipairs(stritems) do
+      names[i] = items[i] and select(3, symbol_parts(items[i])) or stritem
+    end
+
+    local kept = {}
+    for _, i in ipairs(inds) do
+      local kind = items[i] and items[i].kind
+      if not do_filter or kind == nil or SYMBOL_KINDS[kind] then
+        kept[#kept + 1] = i
+      end
+    end
+
+    -- default_match short-circuits an empty query to *every* stritem, ignoring
+    -- the inds we just filtered — which is the picker's opening state, so the
+    -- filter has to be returned directly here.
+    if #query == 0 then
+      return kept
+    end
+    return MiniPick.default_match(names, kept, query, { sync = true })
+  end
+end
+
+MiniPick.registry.lsp = function(local_opts)
+  local_opts = local_opts or {}
+  local scope = tostring(local_opts.scope or "")
+  -- references/definition/etc. are location lists, not symbols — leave them be.
+  if not scope:find("symbol") then
+    return MiniExtra.pickers.lsp(local_opts)
+  end
+
+  local source = { show = make_symbol_show(scope:find("workspace") ~= nil) }
+  -- The live scope drives its query through `source.match`, so overriding it
+  -- would break the search. Its results come from the server already scoped
+  -- to the query, which is far less noisy than a whole-file outline anyway.
+  if scope ~= "workspace_symbol_live" then
+    source.match = make_symbol_match(not SYMBOL_KINDS_ALL_FT[vim.bo.filetype])
+  end
+  return MiniExtra.pickers.lsp(local_opts, { source = source })
+end
+
+-- Commits that touched the line under the cursor — the one picker neither
+-- mini.pick nor mini.extra provides. `-L` restricts the log to a line range
+-- and forces patch output, so `-s` suppresses it back down to one line per
+-- commit; choosing one opens its full diff in a scratch tab.
+MiniPick.registry.git_blame_line = function()
+  local path = vim.fn.expand("%:p")
+  if path == "" then
+    vim.notify("git_blame_line: buffer has no file", vim.log.levels.WARN)
+    return
+  end
+  local lnum = vim.fn.line(".")
+
+  -- Same preview/choose shape mini.extra's git_commits uses, so both git
+  -- pickers behave identically: diff in the preview pane, and choosing one
+  -- replaces the target window rather than opening somewhere new.
+  local function show_commit(buf_id, item)
+    local hash = type(item) == "string" and item:match("^%x+")
+    if not hash then
+      return
+    end
+    vim.bo[buf_id].syntax = "git"
+    vim.system(
+      { "git", "--no-pager", "show", hash },
+      { text = true },
+      vim.schedule_wrap(function(res)
+        if vim.api.nvim_buf_is_valid(buf_id) then
+          vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, vim.split(res.stdout or "", "\n"))
+        end
+      end)
+    )
+  end
+
+  return MiniPick.builtin.cli({
+    command = { "git", "log", "-s", "--format=%h %as %an: %s", ("-L%d,%d:%s"):format(lnum, lnum, path) },
+  }, {
+    source = {
+      name = ("Git blame line %d"):format(lnum),
+      preview = show_commit,
+      choose = function(item)
+        local win = (MiniPick.get_picker_state().windows or {}).target
+        if win == nil or not vim.api.nvim_win_is_valid(win) then
+          return
+        end
+        local buf_id = vim.api.nvim_create_buf(true, true)
+        show_commit(buf_id, item)
+        vim.bo[buf_id].filetype = "git"
+        vim.api.nvim_win_set_buf(win, buf_id)
+      end,
+    },
+  })
+end
 
 -- ============================================================================
 -- mini.statusline
