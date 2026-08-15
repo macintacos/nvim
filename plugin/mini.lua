@@ -84,11 +84,28 @@ indentscope.setup({
 
 -- Fuzzy picker. setup() also takes over vim.ui.select(), which is why
 -- snacks sets picker.ui_select = false (see plugin/snacks.lua).
-require("mini.pick").setup()
+require("mini.pick").setup({
+  mappings = {
+    -- <Tab>/<S-Tab> walk the match list. The two actions they displace take
+    -- over the <C-n>/<C-p> that move_down/move_up just vacated.
+    move_down = "<Tab>",
+    move_up = "<S-Tab>",
+    toggle_preview = "<C-p>",
+    toggle_info = "<C-n>",
+  },
+})
 
 -- Registers the extra pickers (lsp, keymaps, manpages, git_commits, ...)
--- into MiniPick.registry, making them reachable as :Pick <name>.
+-- into MiniPick.registry, making them reachable as :Pick <name>. Must run
+-- after mini.pick's setup(), which creates the MiniPick table it registers into.
 require("mini.extra").setup()
+
+-- `:Pick files` toggles the preview with <Space> instead of the global <C-p>.
+-- A file query never contains a space, unlike the prose queries grep and the
+-- command pickers take, so the key is only free to steal here.
+MiniPick.registry.files = function(local_opts)
+  return MiniPick.builtin.files(local_opts, { mappings = { toggle_preview = "<Space>" } })
+end
 
 -- LSP symbol pickers arrive doubly prefixed: Neovim formats every symbol as
 -- "[Kind] name" (vim.lsp.util.symbols_to_items) and mini.extra prepends
