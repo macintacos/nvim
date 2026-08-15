@@ -224,18 +224,20 @@ local function diff_file_ref()
   end)
 end
 
--- Register the <leader>gc "codediff" picker group once which-key is set up.
--- Scheduled because this file is sourced before plugin/which-key.lua.
-vim.schedule(function()
-  local ok, wk = pcall(require, "which-key")
-  if not ok then
-    return
-  end
-  wk.add({
-    { "<leader>gc", group = "codediff", icon = { cat = "filetype", name = "git" } },
-    { "<leader>gcp", review_pr, desc = "Review branch as PR" },
-    { "<leader>gch", review_history, desc = "Commit-by-commit / history" },
-    { "<leader>gcr", diff_ref, desc = "Diff against a ref" },
-    { "<leader>gcf", diff_file_ref, desc = "Current file vs a ref" },
-  })
-end)
+-- Register the <leader>gc "codediff" picker group once plugin/which-key.lua has
+-- been sourced. Fires on VimEnter rather than from vim.schedule() because a
+-- scheduled callback runs at the next event loop pump, and vim.pack pumps it
+-- mid-startup while installing a plugin — at which point which-key.lua (sourced
+-- after this file) hasn't run and the group goes unregistered for the session.
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    require("which-key").add({
+      { "<leader>gc", group = "codediff", icon = { cat = "filetype", name = "git" } },
+      { "<leader>gcp", review_pr, desc = "Review branch as PR" },
+      { "<leader>gch", review_history, desc = "Commit-by-commit / history" },
+      { "<leader>gcr", diff_ref, desc = "Diff against a ref" },
+      { "<leader>gcf", diff_file_ref, desc = "Current file vs a ref" },
+    })
+  end,
+})
