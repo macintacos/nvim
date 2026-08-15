@@ -62,12 +62,6 @@ vim.api.nvim_create_autocmd("PackChanged", {
           end)
         end)
       end
-    elseif name == "fff.nvim" then
-      -- Download the prebuilt binary (or compile from source)
-      if not ev.data.active then
-        vim.cmd.packadd("fff.nvim")
-      end
-      require("fff.download").download_or_build_binary()
     end
   end,
 })
