@@ -104,6 +104,11 @@
       "src": "https://github.com/nvim-mini/mini.bracketed",
       "version": "'stable'"
     },
+    "mini.cmdline": {
+      "rev": "8e3fe6ee41a960226bc0dc663120363a40bc18bd",
+      "src": "https://github.com/nvim-mini/mini.cmdline",
+      "version": "'stable'"
+    },
     "mini.cursorword": {
       "rev": "331bc17172e41343d39d91a4ab571d510766812e",
       "src": "https://github.com/nvim-mini/mini.cursorword",
@@ -129,9 +134,19 @@
       "src": "https://github.com/nvim-mini/mini.icons",
       "version": "'stable'"
     },
+    "mini.indentscope": {
+      "rev": "d3f955f09b1a05d25d5a7740338fba2baaee41a3",
+      "src": "https://github.com/nvim-mini/mini.indentscope",
+      "version": "'stable'"
+    },
     "mini.input": {
       "rev": "957991e29b060dd74aad0b4098993dad313e09fa",
       "src": "https://github.com/nvim-mini/mini.input"
+    },
+    "mini.notify": {
+      "rev": "821db7d464f7a9bb8666b4ba3be7d2ed637cfcfc",
+      "src": "https://github.com/nvim-mini/mini.notify",
+      "version": "'stable'"
     },
     "mini.pick": {
       "rev": "8c1f75f8ddd8c9f75d07ed2ab5718d2c3cb65a66",

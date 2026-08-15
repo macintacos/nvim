@@ -2,11 +2,14 @@
 vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.align", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.bracketed", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.cmdline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.cursorword", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.extra", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.files", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.hipatterns", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.indentscope", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.notify", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.pick", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
@@ -15,35 +18,65 @@ vim.pack.add({
 })
 
 -- ============================================================================
--- mini.align
+-- Bare setup() modules
 -- ============================================================================
 
-require("mini.align").setup()
+-- Modules whose whole configuration is `require(...).setup()`. Add a name here
+-- and it is wired up; anything needing options or extra wiring gets its own
+-- section below.
+local bare_setup = {
+  "mini.align",
+  -- [/] motions for buffer, comment, conflict, diagnostic, file, indent, jump,
+  -- location, oldfile, quickfix, treesitter, undo, window, yank
+  "mini.bracketed",
+  -- Creates the global MiniIcons table. Both mini.pick and mini.extra check for
+  -- it at render time and silently fall back to icon-less output when absent, so
+  -- this is what puts file icons on :Pick files/grep/buffers and kind icons on
+  -- the LSP symbol pickers.
+  "mini.icons",
+  -- Provides the vim.ui.input() implementation (snacks.input is disabled)
+  "mini.input",
+  -- Floating notifications and LSP progress reports; replaces the snacks
+  -- notifier, which plugin/snacks.lua disables.
+  "mini.notify",
+}
+
+for _, name in ipairs(bare_setup) do
+  require(name).setup()
+end
+
+-- setup() only builds the notification machinery — this is what routes
+-- vim.notify through it.
+vim.notify = require("mini.notify").make_notify()
 
 -- ============================================================================
--- mini.bracketed
+-- mini.cmdline
 -- ============================================================================
 
--- [/] motions for buffer, comment, conflict, diagnostic, file, indent, jump,
--- location, oldfile, quickfix, treesitter, undo, window, yank
-require("mini.bracketed").setup()
+-- Autocorrects misspelled commands and options, and peeks at the lines a
+-- `:range` refers to. Its autocomplete is off because blink.cmp already drives
+-- cmdline completion (see plugin/blink.lua) and both would open a popup.
+require("mini.cmdline").setup({
+  autocomplete = { enable = false },
+})
 
 -- ============================================================================
--- mini.input
+-- mini.indentscope
 -- ============================================================================
 
--- Provides the vim.ui.input() implementation (snacks.input is disabled)
-require("mini.input").setup()
-
--- ============================================================================
--- mini.icons
--- ============================================================================
-
--- Creates the global MiniIcons table. Both mini.pick and mini.extra check for
--- it at render time and silently fall back to icon-less output when absent, so
--- this is what puts file icons on :Pick files/grep/buffers and kind icons on
--- the LSP symbol pickers.
-require("mini.icons").setup()
+-- Scope indicator only: the `ii`/`ai` textobjects and `[i`/`]i` motions it maps
+-- by default are already provided by snacks.scope. Animation is off to match
+-- vim.g.snacks_animate = false.
+local indentscope = require("mini.indentscope")
+indentscope.setup({
+  draw = { animation = indentscope.gen_animation.none() },
+  mappings = {
+    object_scope = "",
+    object_scope_with_border = "",
+    goto_top = "",
+    goto_bottom = "",
+  },
+})
 
 -- ============================================================================
 -- mini.pick / mini.extra
