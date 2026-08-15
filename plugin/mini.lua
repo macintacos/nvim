@@ -1,6 +1,8 @@
--- mini.nvim modules: statusline, icons, cursorword, hipatterns, trailspace, files, align, input
+-- mini.nvim modules
 vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.bracketed", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.pick", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.cursorword", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.hipatterns", version = "stable" },
@@ -18,11 +20,26 @@ vim.pack.add({
 require("mini.align").setup()
 
 -- ============================================================================
+-- mini.bracketed
+-- ============================================================================
+
+-- [/] motions for buffer, comment, conflict, diagnostic, file, indent, jump,
+-- location, oldfile, quickfix, treesitter, undo, window, yank
+require("mini.bracketed").setup()
+
+-- ============================================================================
 -- mini.input
 -- ============================================================================
 
 -- Provides the vim.ui.input() implementation (snacks.input is disabled)
 require("mini.input").setup()
+
+-- ============================================================================
+-- mini.pick
+-- ============================================================================
+
+-- Fuzzy picker; provides :Pick files and friends
+require("mini.pick").setup()
 
 -- ============================================================================
 -- mini.statusline

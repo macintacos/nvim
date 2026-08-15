@@ -8,6 +8,10 @@
       "rev": "bed5d8209396d211340a69a34f3fda10bb005ac2",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
+    "artio.nvim": {
+      "rev": "8fb9b8a96c37822ea57d399deb4c27053b13ff20",
+      "src": "https://github.com/comfysage/artio.nvim"
+    },
     "auto-session": {
       "rev": "6cde3874a9283c2db55627acca5f28e4fa402320",
       "src": "https://github.com/rmagatti/auto-session"
@@ -62,10 +66,6 @@
       "rev": "808ba31cde89aec8833e9789f5e04557cd31c9e1",
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
-    "fff.nvim": {
-      "rev": "695724eb4ada42792c48a4a5ce57da9093371a1e",
-      "src": "https://github.com/dmtrKovalenko/fff.nvim"
-    },
     "flash.nvim": {
       "rev": "b6346946d10d07998efee029fb0f7a593806d0cd",
       "src": "https://github.com/folke/flash.nvim"
@@ -107,6 +107,11 @@
       "src": "https://github.com/nvim-mini/mini.align",
       "version": "'stable'"
     },
+    "mini.bracketed": {
+      "rev": "7662c280946faf573c4eabf307d78406ad0783e4",
+      "src": "https://github.com/nvim-mini/mini.bracketed",
+      "version": "'stable'"
+    },
     "mini.cursorword": {
       "rev": "331bc17172e41343d39d91a4ab571d510766812e",
       "src": "https://github.com/nvim-mini/mini.cursorword",
@@ -130,6 +135,11 @@
     "mini.input": {
       "rev": "957991e29b060dd74aad0b4098993dad313e09fa",
       "src": "https://github.com/nvim-mini/mini.input"
+    },
+    "mini.pick": {
+      "rev": "8c1f75f8ddd8c9f75d07ed2ab5718d2c3cb65a66",
+      "src": "https://github.com/nvim-mini/mini.pick",
+      "version": "'stable'"
     },
     "mini.statusline": {
       "rev": "b5547f44560dae3ccd81f914256fa6f705837022",
@@ -272,6 +282,10 @@
     "ts-comments.nvim": {
       "rev": "a59d6092213447450191122c9346f309161504cb",
       "src": "https://github.com/folke/ts-comments.nvim"
+    },
+    "tunnelvision.nvim": {
+      "rev": "110ad7dbdbfce759a02741a712f78da774e7fcb8",
+      "src": "https://github.com/leolaurindo/tunnelvision.nvim"
     },
     "venv-selector.nvim": {
       "rev": "cc4bb3975de8835291f9bb45889e96c6b2795fc4",
