@@ -67,6 +67,39 @@ function M.crumb_hl()
   return name
 end
 
+---Reserve (or release) a display row above the window's first line.
+---
+---Neovim clips a `virt_lines_above` mark on the topline: the line is part of
+---the layout (`nvim_win_text_height` counts it) but there is nowhere to draw
+---it, so `topfill` has to reserve the row. Without this the breadcrumb above
+---the *first* result is silently missing while every other one renders.
+---
+---Deferred because mini.pick sets the cursor after `source.show` returns,
+---which resets the view — so this has to land after each of its renders.
+---@param win integer
+---@param needed boolean Whether the first line carries a trail.
+function M.reserve_trail_row(win, needed)
+  vim.schedule(function()
+    if not vim.api.nvim_win_is_valid(win) then
+      return
+    end
+    local want = needed and 1 or 0
+    local changed = vim.api.nvim_win_call(win, function()
+      if vim.fn.winsaveview().topfill == want then
+        return false
+      end
+      vim.fn.winrestview({ topfill = want })
+      return true
+    end)
+    -- `winrestview` moves the view without repainting, and mini.pick drew this
+    -- frame before the callback ran — so without this the reserved row stays
+    -- blank until the next keystroke happens to redraw.
+    if changed then
+      vim.cmd("redraw")
+    end
+  end)
+end
+
 -- Label colours are derived from the active theme's icon and Comment groups,
 -- so drop the cache on a colorscheme change and let the next render rebuild
 -- them against the new palette.

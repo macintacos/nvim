@@ -41,6 +41,13 @@ make_symbol_show › return
 
 The trail is a **virtual** line. mini.pick maps one item to one buffer line by position (`H.picker_set_lines`), so a real line would break selection; virtual ones also get the full window width, which is why the trail rarely needs trimming. Consecutive hits sharing a trail print it once.
 
+One wrinkle comes with that: Neovim clips a `virt_lines_above` mark on the window's **topline**. The line counts toward the layout — `nvim_win_text_height` includes it — but there is no display row above the first line to draw it into, so the trail above the *first* result silently goes missing while every other one renders. `render.reserve_trail_row` fixes it by setting `topfill`, the mechanism that reserves that row. Two things it has to get right:
+
+- **Deferred, on every render** — mini.pick sets the cursor after `source.show` returns, which resets the view.
+- **Followed by a redraw** — `winrestview` moves the view without repainting, and mini.pick has already drawn the frame by then. Skip this and `topfill` reads as `1` while the screen still shows the un-reserved paint.
+
+Screen-level behaviour like this is invisible to the headless test suite, which can only assert `topfill`. To check what actually renders, drive `outline._show` through `MiniPick.start` inside a real pty and read the grid back with `screenstring()`.
+
 ## Layout
 
 | File            | Holds                                                                    |

@@ -37,7 +37,7 @@ local function show(buf_id, items, query)
   local searching = #query > 0
 
   vim.api.nvim_buf_clear_namespace(buf_id, render.ns, 0, -1)
-  local prev_crumb
+  local prev_crumb, first_has_trail = nil, false
   for i, item in ipairs(items) do
     vim.api.nvim_buf_set_extmark(buf_id, render.ns, i - 1, 0, {
       end_col = #icons[i],
@@ -67,6 +67,7 @@ local function show(buf_id, items, query)
           virt_lines_above = true,
           priority = 199,
         })
+        first_has_trail = first_has_trail or i == 1
       end
       -- Indent the hits so the trail's first glyph sits left of what it covers.
       vim.api.nvim_buf_set_extmark(buf_id, render.ns, i - 1, 0, {
@@ -77,7 +78,14 @@ local function show(buf_id, items, query)
     end
     prev_crumb = item.crumb
   end
+
+  if state then
+    render.reserve_trail_row(state.windows.main, first_has_trail)
+  end
 end
+
+-- Exposed for tests: driving the renderer directly avoids needing a live LSP.
+M._show = show
 
 ---Open the outline for the current buffer.
 ---
