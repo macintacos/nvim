@@ -36,7 +36,7 @@ local spinner_timer = nil
 ---@field checked_at integer Unix timestamp of last check
 ---@field count integer Number of outdated plugins at last check
 
----@return table<string, { src: string, rev: string }>
+---@return table<string, { src: string, rev: string, version: string? }>
 local function read_lockfile()
   local f = io.open(LOCKFILE_PATH, "r")
   if not f then
@@ -111,7 +111,7 @@ local function start_spinner()
     return
   end
   spinner_idx = 1
-  spinner_timer = vim.uv.new_timer()
+  spinner_timer = assert(vim.uv.new_timer())
   spinner_timer:start(
     0,
     SPINNER_INTERVAL_MS,

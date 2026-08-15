@@ -133,6 +133,7 @@ describe("pack-tweaks open_commit (integration)", function()
       end
     end
     assert.is_function(cb)
+    ---@cast cb -nil
     vim.api.nvim_win_set_cursor(0, { row, 0 })
     cb()
   end

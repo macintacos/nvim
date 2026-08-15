@@ -35,8 +35,11 @@ local HINT_JUMP = " 󰎠 type a line number    ⏎ <enter> to jump"
 local PROMPT_BORDER = { "╭", "─", "╮", "│", "┤", "─", "├", "│" }
 local RESULTS_BORDER = { "├", "─", "┤", "│", "╯", "─", "╰", "│" }
 
----@type gotoline.State|nil
-local state = nil
+-- Live only while the popup is open. `M.open()` builds it and `M.close()`
+-- clears it, and every helper below runs between those two points, so they
+-- index it directly rather than re-proving it exists on each access.
+---@type gotoline.State
+local state
 
 local handlers = {}
 
@@ -495,6 +498,7 @@ function M.close()
     return
   end
   local s = state
+  ---@diagnostic disable-next-line: cast-local-type -- closing the popup ends `state`'s lifetime
   state = nil
   for _, w in ipairs({ s.prompt_win, s.results_win }) do
     if w and vim.api.nvim_win_is_valid(w) then

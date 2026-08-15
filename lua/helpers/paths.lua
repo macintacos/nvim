@@ -11,7 +11,7 @@ local M = {}
 ---@return string root Absolute, normalized path.
 function M.root(buf)
   local git = vim.fs.root(buf, { ".git" })
-  return vim.fs.normalize(git or vim.uv.cwd())
+  return vim.fs.normalize(git or assert(vim.uv.cwd()))
 end
 
 ---Path of `buf`'s file under `opts`, or nil when the buffer is unnamed.

@@ -7,6 +7,7 @@
     "MiniFiles",
     "MiniStatusline"
   ],
+  "diagnostics.unusedLocalExclude": ["_*"],
   "workspace.checkThirdParty": false,
   "telemetry.enable": false
 }

@@ -12,7 +12,9 @@ require("auto-session").setup({
         return
       end
       local argc = vim.fn.argc()
-      local launched_in_dir = argc == 0 or (argc == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1)
+      -- `argv(0)` is the string form; the array overload needs no argument.
+      local first_arg = vim.fn.argv(0) --[[@as string]]
+      local launched_in_dir = argc == 0 or (argc == 1 and vim.fn.isdirectory(first_arg) == 1)
       if not launched_in_dir then
         return
       end

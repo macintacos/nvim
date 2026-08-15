@@ -63,7 +63,9 @@ local function open_at_cursor()
     vim.notify("pack-tweaks: no Source line for this section", vim.log.levels.WARN)
     return
   end
-  vim.ui.open(build_url(src, target, kind))
+  -- `parse_target` returns both or neither, so the `target` guard above
+  -- already establishes that `kind` is set.
+  vim.ui.open(build_url(src, target, kind --[[@as "commit"|"tag"]]))
 end
 
 ---Attach the buffer-local <CR> keymap to a vim.pack confirmation buffer.

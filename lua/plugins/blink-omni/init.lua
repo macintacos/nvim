@@ -74,24 +74,25 @@ end
 ---locate the base column, then in results mode with the typed prefix.
 ---@param ctx { line: string, cursor: integer[], bufnr: integer }
 ---@param callback fun(response: { items: lsp.CompletionItem[], is_incomplete_forward: boolean, is_incomplete_backward: boolean })
+---@return (fun(): nil)? cancel Nothing to cancel — omnifunc is called synchronously.
 function source:get_completions(ctx, callback)
   local omnifunc = vim.bo.omnifunc
   if omnifunc == "" then
     callback(EMPTY_RESPONSE)
-    return
+    return nil
   end
 
   local ok, start_col = pcall(vim.fn.call, omnifunc, { 1, "" })
   if not ok or type(start_col) ~= "number" or start_col < 0 then
     callback(EMPTY_RESPONSE)
-    return
+    return nil
   end
 
   local base = ctx.line:sub(start_col + 1, ctx.cursor[2])
   local got, result = pcall(vim.fn.call, omnifunc, { 0, base })
   if not got then
     callback(EMPTY_RESPONSE)
-    return
+    return nil
   end
 
   local items = to_items(result)
@@ -110,6 +111,7 @@ function source:get_completions(ctx, callback)
 
   -- omnifunc results depend on the typed prefix, so re-query as it changes.
   callback({ items = items, is_incomplete_forward = true, is_incomplete_backward = true })
+  return nil
 end
 
 return source

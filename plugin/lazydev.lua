@@ -14,6 +14,12 @@ vim.api.nvim_create_autocmd("FileType", {
         { path = "${3rd}/busted/library" },
         { path = "${3rd}/luassert/library" },
         { path = "snacks.nvim", words = { "Snacks" } },
+        -- mini.nvim modules expose their API as a global rather than a
+        -- returned table, so the annotations only resolve if the module's own
+        -- source is on the library path.
+        { path = "mini.pick", words = { "MiniPick" } },
+        { path = "mini.extra", words = { "MiniExtra" } },
+        { path = "mini.icons", words = { "MiniIcons" } },
       },
     })
   end,
