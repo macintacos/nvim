@@ -9,6 +9,19 @@ vim.schedule(function()
   local Snacks = require("snacks")
   local Paths = require("helpers.paths")
 
+  -- Call a mini.pick registry picker directly. Going through `:Pick` routes the
+  -- options through Vim's command parser, which shell-expands quoted arguments;
+  -- under a non-POSIX shell (fish) that expansion fails and prints
+  -- "E79: Cannot expand wildcards" before the picker opens.
+  ---@param name string Registry picker name.
+  ---@param local_opts table? Options for that picker.
+  ---@return fun()
+  local function pick(name, local_opts)
+    return function()
+      MiniPick.registry[name](local_opts)
+    end
+  end
+
   require("which-key").setup({
     preset = "helix",
 
@@ -17,25 +30,26 @@ vim.schedule(function()
       -- Top-level Things
       { "<leader>?", function() require("which-key").show({ global = false }) end,
         desc = "Buffer Local Keymaps (which-key)" },
-      { "<leader>/", Cmd("Pick grep_live"), desc = "Grep Project" },
-      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
-      { "<leader><leader>", function() Snacks.picker.commands() end, desc = "Search All Commands" },
+      { "<leader>/", pick("grep_live"), desc = "Grep Project" },
+      { "<leader>:", pick("history", { scope = ":" }), desc = "Command History" },
+      { "<leader><leader>", pick("commands"), desc = "Search All Commands" },
 
       -- Buffers
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer" },
       { "<leader>bp", Cmd("bprevious"), desc = "Prev Buffer" },
-      { "<leader>bb", Cmd("Pick buffers"), desc = "Show Open Buffers" },
+      { "<leader>bb", pick("buffers"), desc = "Show Open Buffers" },
       { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers" },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text" },
-      { "<leader>bs", function () Snacks.picker.lines() end, desc = "Search Buffer Lines"},
+      { "<leader>bs", pick("buf_lines", { scope = "current" }), desc = "Search Buffer Lines"},
       { "<leader>bz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Files
       { "<leader>f", group = "files", icon = { icon = "󰉋", color = "cyan" } },
-      { "<leader>ff", Cmd("Pick files"), desc = "Find Files" },
+      { "<leader>ff", pick("files"), desc = "Find Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
+      { "<leader>fo", pick("oldfiles"), desc = "Recent Files" },
       { "<leader>ft", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>fe", function() MiniFiles.open() end, desc = "Show mini.files" },
       { "<leader>fE", function() Snacks.explorer() end, desc = "Show Snacks Explorer" },
@@ -72,23 +86,38 @@ vim.schedule(function()
         end,
         desc = "Visible Windows: Absolute Paths" },
 
+      -- Errors (anything reporting a problem: diagnostics and the fix lists)
+      { "<leader>e", group = "errors", icon = { icon = "", color = "red" } },
+      { "<leader>ee", pick("diagnostic", { scope = "all" }), desc = "Diagnostics (Workspace)" },
+      { "<leader>eb", pick("diagnostic", { scope = "current" }), desc = "Diagnostics (Buffer)" },
+      { "<leader>eq", pick("list", { scope = "quickfix" }), desc = "Quickfix List" },
+      { "<leader>el", pick("list", { scope = "location" }), desc = "Location List" },
+
       -- Git
       { "<leader>g", group = "git", icon = { cat = "filetype", name = "git" } },
       { "<leader>gs", function() Snacks.lazygit.open() end, desc = "Open Lazygit" },
-      { "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log" },
-      { "<leader>gb", function() Snacks.picker.git_log_line() end, desc = "Git Blame Line" },
-      { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
+      { "<leader>gl", pick("git_commits"), desc = "Git Log" },
+      { "<leader>gb", pick("git_blame_line"), desc = "Git Blame Line" },
+      { "<leader>gf",
+        function()
+          -- `:Pick` would expand `%` itself; doing it here keeps the whole
+          -- mapping off the command parser (see the `pick` helper above).
+          local path = vim.fn.expand("%:p")
+          MiniPick.registry.git_commits({ path = path ~= "" and path or nil })
+        end,
+        desc = "Git Log File" },
+      { "<leader>gH", pick("git_hunks", { scope = "unstaged" }), desc = "Git Hunks (unstaged)" },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)" },
       { "<leader>gd", "<Cmd>CodeDiff<CR>", desc = "Diff Changed Files (CodeDiff)" },
       { "<leader>gh", "<Cmd>CodeDiff history<CR>", desc = "File History (CodeDiff)" },
 
       -- Help
       { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },
-      { "<leader>hh", Cmd("Pick help"), desc = "Search All Help Docs" },
-      { "<leader>hm", function() Snacks.picker.man() end, desc = "Search All Manpages" },
-      { "<leader>hM", function() Snacks.picker.keymaps() end, desc = "Search All Keymaps" },
+      { "<leader>hh", pick("help"), desc = "Search All Help Docs" },
+      { "<leader>hm", pick("manpages"), desc = "Search All Manpages" },
+      { "<leader>hM", pick("keymaps"), desc = "Search All Keymaps" },
       { "<leader>hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
-      { "<leader>hH", function() Snacks.picker.highlights() end, desc = "Search All Highlights" },
+      { "<leader>hH", pick("hl_groups"), desc = "Search All Highlights" },
 
       -- Open various UIs
       { "<leader>o", group = "open...", icon = { icon = "󰏌", color = "green" } },
@@ -124,15 +153,19 @@ vim.schedule(function()
         end,
         mode = { "n", "v" },
         desc = "Search and Replace" },
-      { "<leader>ss", function () Snacks.picker.lines() end, desc = "Buffer Lines"},
-      { "<leader>sp", Cmd("Pick grep_live"), desc = "Grep Project"},
-      { "<leader>sb", function () Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers"},
-      { "<leader>sR", Cmd("Pick resume"), desc = "Resume Last Picker"},
+      { "<leader>ss", pick("buf_lines", { scope = "current" }), desc = "Buffer Lines"},
+      { "<leader>sp", pick("grep_live"), desc = "Grep Project"},
+      { "<leader>sb", pick("buf_lines", { scope = "all" }), desc = "Search Open Buffer Lines"},
+      { "<leader>sR", pick("resume"), desc = "Resume Last Picker"},
+      { "<leader>sm", pick("marks"), desc = "Marks"},
+      { "<leader>sy", pick("registers"), desc = "Registers"},
+      { "<leader>s/", pick("history", { scope = "/" }), desc = "Search History"},
 
       -- Jump to
       { "<leader>j", group = "jump to...", icon = { icon = "󰌑", color = "yellow" } },
-      { "<leader>ji", function() Snacks.picker.lsp_symbols() end, desc = "Symbols in File" },
-      { "<leader>jI", function() Snacks.picker.lsp_workspace_symbols() end, desc = "Symbols in Workspace" },
+      { "<leader>ji", pick("lsp", { scope = "document_symbol" }), desc = "Symbols in File" },
+      { "<leader>jI", pick("lsp", { scope = "workspace_symbol_live" }), desc = "Symbols in Workspace" },
+      { "<leader>jt", pick("treesitter"), desc = "Treesitter Nodes" },
 
       -- Tabs
       { "<leader><tab>", group = "tabs", icon = { icon = "󰓩", color = "purple" } },

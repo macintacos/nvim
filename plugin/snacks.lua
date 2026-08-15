@@ -18,12 +18,12 @@ require("snacks").setup({
     margin = { top = 0, right = 1, bottom = 2 },
   },
   picker = {
+    -- Kept enabled only because snacks.explorer is a picker under the hood;
+    -- the pickers themselves are mini.pick (see plugin/mini.lua).
     enabled = true,
-    sources = {
-      -- taplo reports TOML symbols as Object/Array/String/Boolean kinds, which the
-      -- default lsp_symbols filter drops. Show all kinds for toml so the picker works.
-      lsp_symbols = { filter = { toml = true } },
-    },
+    -- vim.ui.select is handled by mini.pick, whose setup() claims it too. This
+    -- file sources after plugin/mini.lua, so without opting out snacks wins.
+    ui_select = false,
   },
   quickfile = { enabled = true },
   scope = { enabled = true },

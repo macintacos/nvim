@@ -18,7 +18,7 @@ end
 ---sentinel per managed repo. PRs whose repo is not in `repos` are skipped.
 ---@param prlist pack-pr.PR[]
 ---@param repos pack-pr.Repo[]
----@return table[] items Snacks picker items (each carries `entry`, `branch`, `kind`).
+---@return table[] items Picker items (each carries `text`, `entry`, `branch`, `kind`).
 function M._build_items(prlist, repos)
   local by_repo = {}
   for _, r in ipairs(repos) do
@@ -90,7 +90,7 @@ function M._apply(entry, branch)
 end
 
 ---Open the PR-branch picker: gather open PRs across `repos`, present them (plus
----a reset sentinel per repo) in a snacks picker, and apply the selection.
+---a reset sentinel per repo) in a picker, and apply the selection.
 ---@param repos pack-pr.Repo[]? Defaults to the configured registry.
 function M.open(repos)
   repos = repos or require("plugins.pack-pr").registry()
@@ -110,20 +110,38 @@ function M.open(repos)
     if #prlist == 0 and #errors == 0 then
       vim.notify("pack-pr: no open PRs found — showing reset options only", vim.log.levels.INFO)
     end
-    Snacks.picker.pick({
-      source = "pack_pr",
-      title = "vim.pack PR branches",
-      items = items,
-      format = function(item)
-        return { { item.text } }
-      end,
-      confirm = function(p, item)
-        if not item then
-          return
-        end
-        p:close()
-        M._apply(item.entry, item.branch)
-      end,
+    -- mini.pick matches on each item's `text` field and calls `choose` after
+    -- the picker has already closed, so no explicit close is needed here.
+    MiniPick.start({
+      source = {
+        name = "vim.pack PR branches",
+        items = items,
+        -- Items are plain tables with no `path`, so the default preview would
+        -- dump vim.inspect output. Show the PR's own fields instead.
+        preview = function(buf_id, item)
+          local lines
+          if item.kind == "pr" then
+            local pr = item.pr
+            lines = {
+              ("%s #%d"):format(pr.repo, pr.number),
+              pr.title,
+              "",
+              ("branch  %s"):format(pr.branch),
+              ("author  @%s"):format(pr.author),
+              ("url     %s"):format(pr.url),
+            }
+          else
+            lines = { ("Reset %s to its default branch"):format(item.entry.repo) }
+          end
+          vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
+        end,
+        choose = function(item)
+          if not item then
+            return
+          end
+          M._apply(item.entry, item.branch)
+        end,
+      },
     })
   end)
 end

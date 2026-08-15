@@ -46,31 +46,13 @@ function M.open()
 
   local cwd = vim.fs.normalize(vim.fn.getcwd())
 
-  Snacks.picker.select(dirs, {
+  vim.ui.select(dirs, {
     prompt = "Projects",
     -- Show ~ for $HOME and mark the current working directory.
     format_item = function(dir)
       local mark = (vim.fs.normalize(dir) == cwd) and "● " or "  "
       return mark .. vim.fn.fnamemodify(dir, ":~")
     end,
-    snacks = {
-      -- Focus the input on open so you start filtering immediately (snacks runs
-      -- startinsert! on the input's BufEnter). Mirrors ftchooser.
-      focus = "input",
-      layout = {
-        -- Replaces the select preset's config, so we set the vertical position
-        -- AND reproduce its list-height fit. row is a fraction, re-resolved by
-        -- snacks on every VimResized, keeping the input near the top.
-        config = function(layout)
-          layout.layout.row = 0.15
-          for _, box in ipairs(layout.layout) do
-            if box.win == "list" and not box.height then
-              box.height = math.max(math.min(#dirs, vim.o.lines * 0.8 - 10), 2)
-            end
-          end
-        end,
-      },
-    },
   }, function(dir)
     if dir then
       switch(dir)
