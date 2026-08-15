@@ -1,0 +1,36 @@
+---Customised entries for `MiniPick.registry`.
+---
+---Each submodule is required on first use rather than at startup, so opening
+---`:Pick files` never loads the LSP or git picker code.
+
+local M = {}
+
+---Register the customised pickers. Must run after `mini.pick` and `mini.extra`
+---have been set up, since it writes into the registry they create.
+function M.setup()
+  -- `:Pick files` toggles the preview with <Space> instead of the global <C-p>.
+  -- A file query never contains a space, unlike the prose queries grep and the
+  -- command pickers take, so the key is only free to steal here.
+  MiniPick.registry.files = function(local_opts)
+    return MiniPick.builtin.files(local_opts, { mappings = { toggle_preview = "<Space>" } })
+  end
+
+  MiniPick.registry.lsp = function(local_opts)
+    local_opts = local_opts or {}
+    local scope = tostring(local_opts.scope or "")
+    if scope == "document_symbol" then
+      return require("plugins.mini-pickers.outline").pick()
+    end
+    -- references/definition/etc. are location lists, not symbols — leave them be.
+    if not scope:find("symbol") then
+      return MiniExtra.pickers.lsp(local_opts)
+    end
+    return require("plugins.mini-pickers.workspace").pick(local_opts, scope)
+  end
+
+  MiniPick.registry.git_blame_line = function()
+    return require("plugins.mini-pickers.git").blame_line()
+  end
+end
+
+return M
