@@ -12,6 +12,10 @@ function M.setup()
     return require("plugins.mini-pickers.files").pick()
   end
 
+  MiniPick.registry.grep_live = function(local_opts)
+    return require("plugins.mini-pickers.grep").pick(local_opts)
+  end
+
   MiniPick.registry.lsp = function(local_opts)
     local_opts = local_opts or {}
     local scope = tostring(local_opts.scope or "")

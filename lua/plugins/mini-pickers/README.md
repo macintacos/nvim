@@ -9,6 +9,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `:Pick …`         | What changes                                                                 |
 | ----------------- | ---------------------------------------------------------------------------- |
 | `files`           | Always `rg`, hidden files included, plus a list of ignored paths. `<Space>` toggles the preview instead of the global `<C-p>`. |
+| `grep_live`       | Hits grouped under a virtual file header, with the line number right-aligned. |
 | `lsp document_symbol` | Rendered as the file's outline — a real tree, not a flat list.            |
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
@@ -36,6 +37,30 @@ Files an ignore file hides are a separate problem, and **`M.extra` in `files.lua
 Two consequences, both handled in `_postprocess`/`_command`: rg prefixes the paths it walks from `.` with `./` but returns the extras bare, so a file reachable both ways arrives twice under two spellings; and it errors on a path that does not exist, so extras missing from the project are dropped before the call rather than listed for every repo that has no `CLAUDE.md`.
 
 Nothing expands the entries — the spawn has no shell — so each is a plain relative path to a file or a directory, never a glob.
+
+## The live grep
+
+`MiniPick.default_show` draws an rg hit as `path│lnum│col│text`, which repeats the path on every row of a file and starts the matched text three columns in:
+
+```text
+ lua/plugins/mini-pickers/render.lua│44│9│  local comment = vim.api.nvim…
+ lua/plugins/mini-pickers/render.lua│61│11│    local comment = vim.api.n…
+ lua/plugins/mini-pickers/outline.lua│33│3│  MiniPick.default_show(buf_i…
+```
+
+`grep.lua` keeps the items — they are the raw rg strings mini.pick parses for choosing and previewing — and changes only the drawing:
+
+```text
+󰢱 lua/plugins/mini-pickers/render.lua
+  local comment = vim.api.nvim_get_hl(0, { name = "Comment" })      44
+  local comment = vim.api.nvim_get_hl(0, { name = "Comment" })      61
+󰢱 lua/plugins/mini-pickers/outline.lua
+  MiniPick.default_show(buf_id, display, query)                     33
+```
+
+The header is the same `virt_lines_above` mark the outline's breadcrumb uses, with the same `render.reserve_trail_row` fix for the first row, and leading indentation is stripped from the text so a deeply nested match does not start off the right edge.
+
+One header covers a whole file because `grep_live` sets its items with `do_match = false` and rg walks a file at a time — hits arrive already grouped, so a run of equal paths is a run of hits in one file. Nothing re-sorts them; a query change re-runs rg rather than reordering what is on screen.
 
 ## The outline
 
@@ -76,6 +101,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | --------------- | ------------------------------------------------------------------------ |
 | `init.lua`      | `setup()` — registry entries and the `lsp` scope dispatch.               |
 | `files.lua`     | The `rg` invocation and `M.extra`, the ignored paths added back to it.   |
+| `grep.lua`      | The live grep's item parsing and its file-header renderer.               |
 | `symbols.lua`   | Flattening a document-symbol tree into items carrying `guides`/`crumb`.  |
 | `outline.lua`   | The document-symbol picker and its two-mode renderer.                    |
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |
