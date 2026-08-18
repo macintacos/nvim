@@ -9,6 +9,8 @@ globals:
     any: true
   MiniPick:
     any: true
+  MiniInput:
+    any: true
   MiniExtra:
     any: true
   MiniIcons:

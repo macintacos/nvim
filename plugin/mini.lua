@@ -97,6 +97,21 @@ require("mini.pick").setup({
   },
 })
 
+-- mini.pick and mini.input only accept a one-shot paste (`vim.paste` phase -1).
+-- macOS splits a terminal paste over ~1KB across pty writes, so Neovim reads it in
+-- chunks and streams it (phases 1/2/3), which both modules refuse with a warning.
+-- Re-dispatch each chunk as its own one-shot paste -- they append to the prompt in
+-- order, so cmd+v works at any clipboard size.
+local paste_orig = vim.paste
+vim.paste = function(lines, phase)
+  local prompt_active = MiniPick.is_picker_active() or MiniInput.get_state() ~= nil
+  if phase == -1 or not prompt_active then
+    return paste_orig(lines, phase)
+  end
+  paste_orig(lines, -1)
+  return true
+end
+
 -- Registers the extra pickers (lsp, keymaps, manpages, git_commits, ...)
 -- into MiniPick.registry, making them reachable as :Pick <name>. Must run
 -- after mini.pick's setup(), which creates the MiniPick table it registers into.
