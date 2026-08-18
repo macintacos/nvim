@@ -709,12 +709,45 @@ end
 -- both are filetype/LSP-kind icon sets — so these are the plain Unicode key
 -- symbols instead, the same ones macOS prints on its own menus.
 --
--- One line with a separator rather than aligned columns: these symbols are
--- East-Asian-ambiguous width, so a terminal may render them one or two cells
--- wide and any column layout goes ragged. Nothing here lines up, so nothing
--- can misalign. ⌃n/⌃p and ⌥j/⌥k also move but are left out to keep it short.
-local starter_footer =
-  table.concat({ "type to filter", "↑↓ move", "⏎ open", "⌫ delete", "⎋ reset", "⌃c close" }, "  ·  ")
+-- Laid out as a grid: within each column the symbols are right-aligned and the
+-- labels left-aligned, so the two rows line up vertically. Widths come from
+-- strdisplaywidth rather than `#` because every symbol here is multibyte, and
+-- mini.starter's aligning hook derives a single left pad from the widest line
+-- and applies it to all of them — so a grid built here survives centering.
+-- ⌃n/⌃p and ⌥j/⌥k also move, left out to keep the rows short.
+---@return string
+local function build_starter_footer()
+  local rows = {
+    { { "↑↓", "move" }, { "⏎", "open" }, { "⌫", "delete" } },
+    { { "⎋", "reset" }, { "⌃c", "close" } },
+  }
+
+  local width = vim.fn.strdisplaywidth
+  local sym_w, label_w = {}, {}
+  for _, row in ipairs(rows) do
+    for col, pair in ipairs(row) do
+      sym_w[col] = math.max(sym_w[col] or 0, width(pair[1]))
+      label_w[col] = math.max(label_w[col] or 0, width(pair[2]))
+    end
+  end
+
+  local lines = { "󰌌  type to filter" }
+  for _, row in ipairs(rows) do
+    local cells = {}
+    for col, pair in ipairs(row) do
+      local sym = string.rep(" ", sym_w[col] - width(pair[1])) .. pair[1]
+      local label = pair[2] .. string.rep(" ", label_w[col] - width(pair[2]))
+      table.insert(cells, sym .. "  " .. label)
+    end
+    -- Trailing pad would count toward this line's width and shift the whole
+    -- centered block, so it comes off before the line is kept.
+    table.insert(lines, (table.concat(cells, "   "):gsub("%s+$", "")))
+  end
+
+  return table.concat(lines, "\n")
+end
+
+local starter_footer = build_starter_footer()
 
 -- Sections render in order of first appearance, so "Resume" leads the screen.
 starter.setup({
