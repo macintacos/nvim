@@ -708,11 +708,13 @@ end
 -- lines. Neither mini.icons nor nvim-web-devicons carries keyboard glyphs —
 -- both are filetype/LSP-kind icon sets — so these are the plain Unicode key
 -- symbols instead, the same ones macOS prints on its own menus.
-local starter_footer = table.concat({
-  "type to filter",
-  "↑ ↓ / ⌃n ⌃p   move        ⏎   open",
-  "⌫   delete       ⎋   reset       ⌃c  close",
-}, "\n")
+--
+-- One line with a separator rather than aligned columns: these symbols are
+-- East-Asian-ambiguous width, so a terminal may render them one or two cells
+-- wide and any column layout goes ragged. Nothing here lines up, so nothing
+-- can misalign. ⌃n/⌃p and ⌥j/⌥k also move but are left out to keep it short.
+local starter_footer =
+  table.concat({ "type to filter", "↑↓ move", "⏎ open", "⌫ delete", "⎋ reset", "⌃c close" }, "  ·  ")
 
 -- Sections render in order of first appearance, so "Resume" leads the screen.
 starter.setup({
