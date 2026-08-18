@@ -588,11 +588,142 @@ local function other_session_items()
   return items
 end
 
+-- What is worth reaching for before any file is open: the README, the two
+-- pickers, and the project switcher — this screen is exactly where you land
+-- after realising Neovim opened in the wrong directory.
+---@return table[]
+local function project_items()
+  local items = {
+    { name = "Find file", action = MiniPick.registry.files, section = "Project" },
+    { name = "Grep", action = MiniPick.registry.grep_live, section = "Project" },
+    {
+      name = "Switch project",
+      action = function()
+        require("plugins.projects").open()
+      end,
+      section = "Project",
+    },
+  }
+
+  -- README leads when the project has one — the thing most often wanted from a
+  -- cold start, and what the auto-session setup used to open on its own.
+  local readme = vim.fs.joinpath(vim.fn.getcwd(), "README.md")
+  if vim.fn.filereadable(readme) == 1 then
+    table.insert(items, 1, {
+      name = "Open README",
+      action = function()
+        vim.cmd.edit(vim.fn.fnameescape(readme))
+      end,
+      section = "Project",
+    })
+  end
+
+  return items
+end
+
+-- Rendered only when something is actually out of date. The count comes from
+-- the disk cache config.pack-updates fills during init; on the first launch
+-- after that cache expires the check is still running when this renders, so the
+-- item turns up next launch instead. The statusline shows it live either way.
+---@return table[]
+local function pack_update_item()
+  local n = require("config.pack-updates").update_count()
+  if n == 0 then
+    return {}
+  end
+  return {
+    {
+      name = ("Update plugins (%d)"):format(n),
+      action = function()
+        vim.pack.update()
+      end,
+      section = "Plugins",
+    },
+  }
+end
+
+---Run git in the cwd, returning trimmed stdout or nil on any failure.
+---@param args string[]
+---@return string?
+local function git(args)
+  local ok, res = pcall(function()
+    return vim.system(vim.list_extend({ "git" }, args), { text = true }):wait(300)
+  end)
+  if not ok or res.code ~= 0 then
+    return nil
+  end
+  return vim.trim(res.stdout)
+end
+
+-- Distance from the branch this one merges into. The worktree layout already
+-- puts the current branch in the directory name, so the useful thing to show is
+-- how far it has drifted from the default. Synchronous because `rev-list
+-- --count` is ~5ms on a warm repo; the 300ms cap stops a pathological one from
+-- stalling startup, and any failure just drops the line.
+---@return string?
+local function branch_divergence()
+  local default = git({ "rev-parse", "--abbrev-ref", "origin/HEAD" })
+  if not default then
+    return nil
+  end
+  local counts = git({ "rev-list", "--left-right", "--count", default .. "...HEAD" })
+  if not counts then
+    return nil
+  end
+  local behind, ahead = counts:match("(%d+)%s+(%d+)")
+  if not behind then
+    return nil
+  end
+  behind, ahead = tonumber(behind), tonumber(ahead)
+
+  if ahead == 0 and behind == 0 then
+    return "in sync with " .. default
+  end
+  local parts = {}
+  if ahead > 0 then
+    table.insert(parts, "↑" .. ahead)
+  end
+  if behind > 0 then
+    table.insert(parts, "↓" .. behind)
+  end
+  return table.concat(parts, " ") .. " vs " .. default
+end
+
+---@return string
+local function starter_header()
+  local hour = tonumber(vim.fn.strftime("%H"))
+  local part = (hour < 12 and "morning") or (hour < 18 and "afternoon") or "evening"
+  local lines = {
+    ("Good %s, %s"):format(part, vim.uv.os_get_passwd().username),
+    vim.fn.fnamemodify(vim.fn.getcwd(), ":~"),
+  }
+  local divergence = branch_divergence()
+  if divergence then
+    lines[#lines] = lines[#lines] .. "  " .. divergence
+  end
+  return table.concat(lines, "\n")
+end
+
+-- mini.starter's default footer spells every key out in <>-notation over six
+-- lines. Neither mini.icons nor nvim-web-devicons carries keyboard glyphs —
+-- both are filetype/LSP-kind icon sets — so these are the plain Unicode key
+-- symbols instead, the same ones macOS prints on its own menus.
+local starter_footer = table.concat({
+  "type to filter",
+  "↑ ↓ / ⌃n ⌃p   move        ⏎   open",
+  "⌫   delete       ⎋   reset       ⌃c  close",
+}, "\n")
+
 -- Sections render in order of first appearance, so "Resume" leads the screen.
 starter.setup({
   items = {
     session_resume_item,
+    project_items,
+    starter.sections.recent_files(5, true, false),
     other_session_items,
+    pack_update_item,
     starter.sections.builtin_actions(),
   },
+  header = starter_header,
+  footer = starter_footer,
 })
