@@ -704,6 +704,60 @@ local function branch_divergence()
   return table.concat(parts, " ") .. " vs " .. default
 end
 
+-- Every other worktree of this repo, most recently used first. The bare repo is
+-- skipped (nothing to open) and so is the current worktree (already here).
+-- Selecting one only changes the cwd and redraws: its session, if it has one,
+-- then leads the refreshed screen as "Resume".
+--
+-- "Recently used" is the session's write time — when Neovim was last quit in
+-- that worktree — falling back to the directory's own mtime for one never
+-- opened here.
+---@return table[]
+local function worktree_items()
+  local out = git({ "worktree", "list", "--porcelain" })
+  if not out then
+    return {}
+  end
+
+  -- Porcelain separates worktrees by a blank line, which is what makes the
+  -- `bare` marker attributable to the entry it belongs to.
+  local cwd = vim.fn.getcwd()
+  local paths = {}
+  for entry in vim.gsplit(out, "\n\n") do
+    local path = entry:match("^worktree ([^\n]+)")
+    if path and path ~= cwd and not entry:find("\nbare") then
+      table.insert(paths, path)
+    end
+  end
+
+  local function last_used(path)
+    local session = MiniSessions.detected[(path:gsub("/", "%%"))]
+    if session then
+      return session.modify_time
+    end
+    local stat = vim.uv.fs_stat(path)
+    return stat and stat.mtime.sec or 0
+  end
+  table.sort(paths, function(a, b)
+    return last_used(a) > last_used(b)
+  end)
+
+  local items = {}
+  for _, path in ipairs(paths) do
+    table.insert(items, {
+      -- The layout puts the branch in the directory name, so the tail is the
+      -- whole identity — and short enough to filter down to by typing.
+      name = vim.fn.fnamemodify(path, ":t"),
+      action = function()
+        vim.cmd.cd(vim.fn.fnameescape(path))
+        starter.refresh()
+      end,
+      section = "Worktrees",
+    })
+  end
+  return items
+end
+
 ---@return string
 local function starter_header()
   local hour = tonumber(vim.fn.strftime("%H"))
@@ -769,6 +823,7 @@ starter.setup({
   items = {
     session_resume_item,
     project_items,
+    worktree_items,
     starter.sections.recent_files(5, true, false),
     other_session_items,
     pack_update_item,
