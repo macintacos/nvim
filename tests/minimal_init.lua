@@ -1,4 +1,10 @@
 -- Minimal init for plenary test harness
+
+-- Headless test nvims must never touch the shared ShaDa file. Without this,
+-- every spec's child nvim reads and writes ~/.local/state/nvim/*/shada/main.shada
+-- alongside the interactive editor; concurrent or signal-killed children
+-- interleave their writes and corrupt it (E576, then E136 on every later write).
+vim.o.shadafile = "NONE"
 -- Find plenary.nvim in vim.pack's install directory
 local data = vim.fn.stdpath("data") .. "/site/pack/"
 local plenary = vim.fn.glob(data .. "*/opt/plenary.nvim", false, true)[1]
