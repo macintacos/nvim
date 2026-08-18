@@ -8,10 +8,6 @@
       "rev": "bed5d8209396d211340a69a34f3fda10bb005ac2",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
-    "auto-session": {
-      "rev": "c8e6139a2e52a38101fecaba6014d7dd75489044",
-      "src": "https://github.com/rmagatti/auto-session"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/Saghen/blink.cmp",
@@ -159,6 +155,16 @@
     "mini.pick": {
       "rev": "8c1f75f8ddd8c9f75d07ed2ab5718d2c3cb65a66",
       "src": "https://github.com/nvim-mini/mini.pick",
+      "version": "'stable'"
+    },
+    "mini.sessions": {
+      "rev": "7cb2945ccc11323b7ca19796eb42618493e1dc12",
+      "src": "https://github.com/nvim-mini/mini.sessions",
+      "version": "'stable'"
+    },
+    "mini.starter": {
+      "rev": "0575c96206d63fd98d7f786df78dc225bf847d95",
+      "src": "https://github.com/nvim-mini/mini.starter",
       "version": "'stable'"
     },
     "mini.statusline": {

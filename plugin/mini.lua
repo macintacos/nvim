@@ -11,6 +11,8 @@ vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.indentscope", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.notify", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.pick", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.sessions", version = "stable" },
+  { src = "https://github.com/nvim-mini/mini.starter", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
   -- mini.input is in beta and has no stable tag yet — track main
@@ -462,5 +464,135 @@ require("mini.files").setup({
   },
   options = {
     use_as_default_explorer = true,
+  },
+})
+
+-- ============================================================================
+-- mini.sessions / mini.starter
+-- ============================================================================
+
+-- Directories that never get a session of their own, carried over from the
+-- auto-session config this replaced. They aren't projects, so a session for
+-- them would accumulate without ever being worth restoring.
+local session_suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" }
+
+-- Session name for the cwd: the absolute path with `/` replaced by `%`. Gives
+-- every project its own file under `config.directory` while keeping the project
+-- itself clean — mini.sessions' other mode drops a Session.vim in each root.
+---@return string
+local function session_name()
+  return (vim.fn.getcwd():gsub("/", "%%"))
+end
+
+-- vim.fs.normalize rather than fnamemodify(":p:h") — the latter resolves a path
+-- differently depending on whether the directory exists, silently collapsing
+-- `~/Projects` to `$HOME` when it doesn't.
+---@param dir string Absolute path, as returned by getcwd()
+---@return boolean
+local function session_suppressed(dir)
+  for _, suppressed in ipairs(session_suppressed_dirs) do
+    if dir == vim.fs.normalize(suppressed) then
+      return true
+    end
+  end
+  return false
+end
+
+-- True when this Neovim holds something worth persisting: at least one listed
+-- buffer backed by a real file. The starter buffer is `nobuflisted`, so quitting
+-- straight from the start screen reports false — without this, that would
+-- overwrite the project's good session with an empty one.
+---@return boolean
+local function session_has_content()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.fn.buflisted(buf) == 1 and vim.api.nvim_buf_get_name(buf) ~= "" then
+      return true
+    end
+  end
+  return false
+end
+
+require("mini.sessions").setup({
+  -- mini.starter has to win at VimEnter: autoread would restore the session
+  -- first and the start screen would never be shown.
+  autoread = false,
+  -- autowrite only fires when v:this_session is set, which is never true for a
+  -- project whose session hasn't been read yet. The autocmd below owns writing
+  -- instead, so a project gets a session without ever being saved by hand.
+  autowrite = false,
+  hooks = { pre = { write = require("helpers.windows").close_all_floating_wins } },
+})
+
+-- Writes the cwd's session on exit, which is what makes sessions appear without
+-- being asked for. Guarded so an empty or throwaway Neovim can't clobber a real
+-- session. Fires: VimLeavePre, late enough to capture the final layout but
+-- while windows still exist for :mksession.
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  group = vim.api.nvim_create_augroup("mini_sessions_autosave", { clear = true }),
+  callback = function()
+    if session_suppressed(vim.fn.getcwd()) or not session_has_content() then
+      return
+    end
+    require("mini.sessions").write(session_name())
+  end,
+})
+
+local starter = require("mini.starter")
+
+-- The cwd's own session, pinned above every other section. Returns nothing when
+-- the project has no session yet. This is a function rather than a table because
+-- items are evaluated when the screen is drawn, not when setup() runs — by then
+-- the session written by a previous Neovim has been detected.
+---@return table[]
+local function session_resume_item()
+  local name = session_name()
+  if not MiniSessions.detected[name] then
+    return {}
+  end
+  return {
+    {
+      name = "Resume " .. vim.fn.fnamemodify(vim.fn.getcwd(), ":~"),
+      action = function()
+        MiniSessions.read(name)
+      end,
+      section = "Resume",
+    },
+  }
+end
+
+-- Every other detected session, most recently written first. The cwd's own is
+-- filtered out because session_resume_item() already pins it at the top.
+---@return table[]
+local function other_session_items()
+  local current = session_name()
+  local names = {}
+  for name, _ in pairs(MiniSessions.detected) do
+    if name ~= current then
+      table.insert(names, name)
+    end
+  end
+  table.sort(names, function(a, b)
+    return MiniSessions.detected[a].modify_time > MiniSessions.detected[b].modify_time
+  end)
+
+  local items = {}
+  for _, name in ipairs(names) do
+    table.insert(items, {
+      name = vim.fn.fnamemodify((name:gsub("%%", "/")), ":~"),
+      action = function()
+        MiniSessions.read(name)
+      end,
+      section = "Sessions",
+    })
+  end
+  return items
+end
+
+-- Sections render in order of first appearance, so "Resume" leads the screen.
+starter.setup({
+  items = {
+    session_resume_item,
+    other_session_items,
+    starter.sections.builtin_actions(),
   },
 })

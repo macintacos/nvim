@@ -13,3 +13,7 @@ globals:
     any: true
   MiniIcons:
     any: true
+  MiniSessions:
+    any: true
+  MiniStarter:
+    any: true

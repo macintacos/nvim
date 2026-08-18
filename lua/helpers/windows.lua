@@ -1,6 +1,7 @@
 local M = {}
 
----Closes floating windows - especially useful in auto-session, to make sure that things are restored properly
+---Closes floating windows - runs before a session is written, so floats are not
+---serialized into it and the layout restores properly
 function M.close_all_floating_wins()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local config = vim.api.nvim_win_get_config(win)
