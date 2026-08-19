@@ -603,6 +603,19 @@ local function other_session_items()
   return items
 end
 
+---Run git in the cwd, returning trimmed stdout or nil on any failure.
+---@param args string[]
+---@return string?
+local function git(args)
+  local ok, res = pcall(function()
+    return vim.system(vim.list_extend({ "git" }, args), { text = true }):wait(300)
+  end)
+  if not ok or res.code ~= 0 then
+    return nil
+  end
+  return vim.trim(res.stdout)
+end
+
 -- What is worth reaching for before any file is open: the README, the two
 -- pickers, and the project switcher — this screen is exactly where you land
 -- after realising Neovim opened in the wrong directory.
@@ -619,6 +632,18 @@ local function project_items()
       section = "Project",
     },
   }
+
+  -- Only where there is a repo to look at — lazygit in a non-repo directory
+  -- opens on an error prompt.
+  if git({ "rev-parse", "--git-dir" }) then
+    table.insert(items, {
+      name = "Lazygit",
+      action = function()
+        Snacks.lazygit.open()
+      end,
+      section = "Project",
+    })
+  end
 
   -- README leads when the project has one — the thing most often wanted from a
   -- cold start, and what the auto-session setup used to open on its own.
@@ -655,19 +680,6 @@ local function pack_update_item()
       section = "Plugins",
     },
   }
-end
-
----Run git in the cwd, returning trimmed stdout or nil on any failure.
----@param args string[]
----@return string?
-local function git(args)
-  local ok, res = pcall(function()
-    return vim.system(vim.list_extend({ "git" }, args), { text = true }):wait(300)
-  end)
-  if not ok or res.code ~= 0 then
-    return nil
-  end
-  return vim.trim(res.stdout)
 end
 
 -- Distance from the branch this one merges into. The worktree layout already
