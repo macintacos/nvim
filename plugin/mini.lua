@@ -617,13 +617,20 @@ local function git(args)
 end
 
 -- What is worth reaching for before any file is open: the README, the two
--- pickers, and the project switcher — this screen is exactly where you land
--- after realising Neovim opened in the wrong directory.
+-- pickers, the explorer, and the project switcher — this screen is exactly
+-- where you land after realising Neovim opened in the wrong directory.
 ---@return table[]
 local function project_items()
   local items = {
     { name = "Find file", action = MiniPick.registry.files, section = "Project" },
     { name = "Grep", action = MiniPick.registry.grep_live, section = "Project" },
+    {
+      name = "Explorer",
+      action = function()
+        MiniFiles.open()
+      end,
+      section = "Project",
+    },
     {
       name = "Switch project",
       action = function()
