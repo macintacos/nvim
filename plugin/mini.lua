@@ -853,6 +853,58 @@ for byte = 32, 126 do
   end
 end
 
+-- HACK: reaching into mini.starter's private internals to make the query fuzzy.
+--
+-- mini.starter matches a query against the *start* of an item's name and
+-- exposes no hook to change that, so a session named "~/Projects/dotfiles" is
+-- only reachable by typing its path from the leading `~`. The module keeps its
+-- internals in a file-local `H`, so there is no supported way in — but `H` is
+-- upvalue #1 of every public function, and `debug.getupvalue` will hand it over.
+--
+-- This is exactly as brittle as it looks: it is pinned to two private function
+-- names and their signatures, and nothing upstream promises either. It survives
+-- only because both replacements are guarded on the fields they need, so a
+-- mini.starter that reshapes its internals silently falls back to prefix
+-- matching instead of breaking the start screen. Rip all of it out the day
+-- upstream takes a matcher hook.
+local H = select(2, debug.getupvalue(starter.add_to_query, 1))
+
+if type(H) == "table" and H.item_is_active and H.add_hl_activity and H.buf_hl then
+  -- Vim's own fuzzy matcher: case-insensitive, and it hands back the matched
+  -- byte positions that the highlighting below needs. An empty query matches
+  -- nothing rather than everything, hence the caller's guard.
+  ---@param name string
+  ---@param query string Non-empty.
+  ---@return integer[]? Zero-based byte offsets into `name`, nil when no match.
+  local function fuzzy_positions(name, query)
+    return vim.fn.matchfuzzypos({ name }, query)[2][1]
+  end
+
+  H.item_is_active = function(item, query)
+    if item.action == "" then
+      return false
+    end
+    return query == "" or fuzzy_positions(item.name, query) ~= nil
+  end
+
+  -- The stock version highlights the first #query characters, which is the
+  -- match only while matching is by prefix. Fuzzy matches are scattered through
+  -- the name, so each matched character is highlighted where it actually landed.
+  H.add_hl_activity = function(buf_id, query)
+    for _, item in ipairs(H.buffer_data[buf_id].items) do
+      if not item._active then
+        H.buf_hl(buf_id, H.ns.activity, "MiniStarterInactive", item._line, item._start_col, item._end_col, 53)
+      elseif query ~= "" then
+        for _, pos in ipairs(fuzzy_positions(item.name, query) or {}) do
+          local col = item._start_col + pos
+          H.buf_hl(buf_id, H.ns.activity, "MiniStarterQuery", item._line, col, col + 1, 53)
+        end
+      end
+    end
+  end
+end
+-- END HACK
+
 -- Sections render in order of first appearance, so "Resume" leads the screen.
 starter.setup({
   items = {
