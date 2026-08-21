@@ -31,6 +31,13 @@ local bare_setup = {
   -- [/] motions for buffer, comment, conflict, diagnostic, file, indent, jump,
   -- location, oldfile, quickfix, treesitter, undo, window, yank
   "mini.bracketed",
+  -- Highlights other instances of the word under the cursor. vim-illuminate
+  -- (plugin/illuminate.lua) covers the same ground with LSP/treesitter
+  -- providers; both draw.
+  "mini.cursorword",
+  -- Registers the module, but `highlighters` defaults to empty and it ships
+  -- none, so nothing is highlighted until one is added here.
+  "mini.hipatterns",
   -- Creates the global MiniIcons table. Both mini.pick and mini.extra check for
   -- it at render time and silently fall back to icon-less output when absent, so
   -- this is what puts file icons on :Pick files/grep/buffers and kind icons on
@@ -41,6 +48,8 @@ local bare_setup = {
   -- Floating notifications and LSP progress reports; replaces the snacks
   -- notifier, which plugin/snacks.lua disables.
   "mini.notify",
+  -- Highlights trailing whitespace; :lua MiniTrailspace.trim() clears it.
+  "mini.trailspace",
 }
 
 for _, name in ipairs(bare_setup) do
