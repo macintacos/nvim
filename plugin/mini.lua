@@ -869,22 +869,34 @@ end
 -- upstream takes a matcher hook.
 local H = select(2, debug.getupvalue(starter.add_to_query, 1))
 
-if type(H) == "table" and H.item_is_active and H.add_hl_activity and H.buf_hl then
-  -- Vim's own fuzzy matcher: case-insensitive, and it hands back the matched
-  -- byte positions that the highlighting below needs. An empty query matches
-  -- nothing rather than everything, hence the caller's guard.
+if
+  type(H) == "table"
+  and H.item_is_active
+  and H.add_hl_activity
+  and H.buf_hl
+  and H.position_cursor_on_current_item
+  and H.add_hl_current_item
+  and H.buffer_data
+  and H.ns
+then
+  -- Vim's own fuzzy matcher: case-insensitive, and it hands back both the
+  -- matched byte positions the highlighting needs and the score the cursor
+  -- follows. An empty query matches nothing rather than everything, hence the
+  -- callers' guards.
   ---@param name string
   ---@param query string Non-empty.
-  ---@return integer[]? Zero-based byte offsets into `name`, nil when no match.
-  local function fuzzy_positions(name, query)
-    return vim.fn.matchfuzzypos({ name }, query)[2][1]
+  ---@return integer[]? positions Zero-based byte offsets into `name`, nil when no match.
+  ---@return integer? score Higher is a closer match.
+  local function fuzzy_match(name, query)
+    local res = vim.fn.matchfuzzypos({ name }, query)
+    return res[2][1], res[3][1]
   end
 
   H.item_is_active = function(item, query)
     if item.action == "" then
       return false
     end
-    return query == "" or fuzzy_positions(item.name, query) ~= nil
+    return query == "" or fuzzy_match(item.name, query) ~= nil
   end
 
   -- The stock version highlights the first #query characters, which is the
@@ -895,12 +907,62 @@ if type(H) == "table" and H.item_is_active and H.add_hl_activity and H.buf_hl th
       if not item._active then
         H.buf_hl(buf_id, H.ns.activity, "MiniStarterInactive", item._line, item._start_col, item._end_col, 53)
       elseif query ~= "" then
-        for _, pos in ipairs(fuzzy_positions(item.name, query) or {}) do
+        for _, pos in ipairs(fuzzy_match(item.name, query) or {}) do
           local col = item._start_col + pos
           H.buf_hl(buf_id, H.ns.activity, "MiniStarterQuery", item._line, col, col + 1, 53)
         end
       end
     end
+  end
+
+  -- Stock mini.starter only moves the cursor once the query makes the current
+  -- item inactive, and then only to the next active one down the screen. That
+  -- strands the cursor on a scraping match while a far better one sits above
+  -- it: with "Foo" and "lololololfoo" both on screen, typing `f` should land on
+  -- "Foo" wherever it is. Vim scores the two at 890 against -55, so the cursor
+  -- follows the score instead. Ties keep the higher item, which is why the
+  -- comparison is strict.
+  ---@param buf_id integer
+  local function focus_best_match(buf_id)
+    local data = H.buffer_data[buf_id]
+    if data == nil or data.query == "" then
+      return
+    end
+
+    local best_id, best_score
+    for id, item in ipairs(data.items) do
+      if item._active then
+        local _, score = fuzzy_match(item.name, data.query)
+        if score ~= nil and (best_score == nil or score > best_score) then
+          best_id, best_score = id, score
+        end
+      end
+    end
+    if best_id == nil or best_id == data.current_item_id then
+      return
+    end
+
+    -- The tail of MiniStarter.update_current_item, which can only step by one.
+    data.current_item_id = best_id
+    H.position_cursor_on_current_item(buf_id)
+    vim.api.nvim_buf_clear_namespace(buf_id, H.ns.current_item, 0, -1)
+    H.add_hl_current_item(buf_id)
+  end
+
+  -- The query only ever reaches H.make_query through these two, and both have
+  -- placed the cursor by the time they return, so rescoring after them is the
+  -- whole hook. Wrapping rather than replacing: everything else they do —
+  -- validation, the no-match message, the query echo — still runs.
+  local add_to_query, set_query = starter.add_to_query, starter.set_query
+
+  starter.add_to_query = function(char, buf_id)
+    add_to_query(char, buf_id)
+    focus_best_match(buf_id or vim.api.nvim_get_current_buf())
+  end
+
+  starter.set_query = function(query, buf_id)
+    set_query(query, buf_id)
+    focus_best_match(buf_id or vim.api.nvim_get_current_buf())
   end
 end
 -- END HACK
