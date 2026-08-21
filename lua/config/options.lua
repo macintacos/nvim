@@ -1,29 +1,7 @@
 -- [[ GLOBALS BEGIN ]]
--- This file is automatically loaded by plugins.core
+-- Loaded by init.lua before any plugin/ file is sourced.
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
-
--- Snacks animations
--- Set to `false` to globally disable all snacks animations
-vim.g.snacks_animate = true
-
--- LazyVim root dir detection
--- Each entry can be:
--- * the name of a detector function like `lsp` or `cwd`
--- * a pattern or array of patterns like `.git` or `lua`.
--- * a function with signature `function(buf) -> string|string[]`
-vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
-
--- Set LSP servers to be ignored when used with `util.root.detectors.lsp`
--- for detecting the LSP root
-vim.g.root_lsp_ignore = { "copilot" }
-
--- Hide deprecation warnings
-vim.g.deprecation_warnings = false
-
--- Show the current document symbols location from Trouble in lualine
--- You can disable this for a buffer by setting `vim.b.trouble_lualine = false`
-vim.g.trouble_lualine = true
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
