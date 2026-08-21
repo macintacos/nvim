@@ -35,9 +35,6 @@ local bare_setup = {
   -- (plugin/illuminate.lua) covers the same ground with LSP/treesitter
   -- providers; both draw.
   "mini.cursorword",
-  -- Registers the module, but `highlighters` defaults to empty and it ships
-  -- none, so nothing is highlighted until one is added here.
-  "mini.hipatterns",
   -- Creates the global MiniIcons table. Both mini.pick and mini.extra check for
   -- it at render time and silently fall back to icon-less output when absent, so
   -- this is what puts file icons on :Pick files/grep/buffers and kind icons on
@@ -69,6 +66,20 @@ vim.notify = require("mini.notify").make_notify()
 -- cmdline completion (see plugin/blink.lua) and both would open a popup.
 require("mini.cmdline").setup({
   autocomplete = { enable = false },
+})
+
+-- ============================================================================
+-- mini.hipatterns
+-- ============================================================================
+
+-- Colorizes hex codes in place: the background of each `#rrggbb` becomes the
+-- color it names. The module ships no highlighters of its own, so this table is
+-- the whole of what it does — anything else to highlight gets an entry here.
+local hipatterns = require("mini.hipatterns")
+hipatterns.setup({
+  highlighters = {
+    hex_color = hipatterns.gen_highlighter.hex_color(),
+  },
 })
 
 -- ============================================================================
