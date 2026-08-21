@@ -130,7 +130,7 @@ Every `plugin/*.lua` file **must** start with:
 ### Keymaps
 
 - Leader key: `<Space>`
-- Local leader: `\`
+- Local leader: `,`
 - Use `vim.keymap.set()` for keybindings
 - Include `desc` for which-key integration
 - Helper: `require("config.helpers").Cmd()` wraps commands with `<Cmd>...<CR>`
@@ -140,8 +140,7 @@ Every `plugin/*.lua` file **must** start with:
 Important globals defined in `config/options.lua`:
 
 - `vim.g.mapleader = " "`
-- `vim.g.maplocalleader = "\\"`
-- `vim.g.snacks_animate` - Controls Snacks.nvim animations
+- `vim.g.maplocalleader = ","`
 
 ## Key Plugins
 
@@ -203,10 +202,10 @@ globals:
 
 After editing files, run `mise run preflight` to lint and test, or the individual tasks below. Formatting and linting are driven by [hk](https://hk.jdx.dev) (config in `hk.pkl`): the `pre-commit` hook formats and lints staged files, and `pre-push` runs the test suite.
 
-- `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, shfmt) via hk
-- `mise run lint` — run all linters (selene, rumdl, shellcheck, taplo) via hk
+- `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, pkl, shfmt) via hk
+- `mise run lint` — run all linters (selene, rumdl, shellcheck, taplo, pkl, check-jsonschema) via hk
 - `mise run test` — run plenary tests
-- `mise run preflight` — run lint + test (the pre-push gate)
+- `mise run preflight` — run lint + test before pushing (the `pre-push` hook itself runs only the tests)
 - `mise run setup` — install pinned tools and register git hooks
 - `mise run install` — update Neovim plugins
 

@@ -7,7 +7,7 @@ there too.
 
 ## Usage
 
-- `<leader>pp` — open the picker (Snacks). Filter by typing, `<CR>` to switch,
+- `<leader>pp` — open the picker. Filter by typing, `<CR>` to switch,
   `q`/`<Esc>` to dismiss. `●` marks the current working directory.
 
 Entries come from `zoxide query --list` (most-frecent first).
