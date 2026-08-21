@@ -837,6 +837,22 @@ end
 
 local starter_footer = build_starter_footer()
 
+-- mini.starter only binds the characters listed in `query_updaters`; every
+-- other key keeps its normal-mode meaning, which in a nomodifiable buffer means
+-- typing the `~` that leads a session path fires the built-in `~` and errors
+-- with E21 instead of filtering. The default list is `[a-z0-9_-.]`, far short of
+-- what the items here are named after — paths, capitals, spaces, parens. So
+-- every printable character filters instead, bar `:`: reaching the command line
+-- from the start screen is worth more than filtering on a colon no item
+-- contains. Queries are matched case-insensitively, so capitals fold in.
+local query_updaters = {}
+for byte = 32, 126 do
+  local char = string.char(byte)
+  if char ~= ":" then
+    table.insert(query_updaters, char)
+  end
+end
+
 -- Sections render in order of first appearance, so "Resume" leads the screen.
 starter.setup({
   items = {
@@ -850,4 +866,5 @@ starter.setup({
   },
   header = starter_header,
   footer = starter_footer,
+  query_updaters = table.concat(query_updaters),
 })
