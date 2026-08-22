@@ -861,12 +861,14 @@ local starter_footer = build_starter_footer()
 -- other key keeps its normal-mode meaning, which in a nomodifiable buffer means
 -- typing the `~` that leads a session path fires the built-in `~` and errors
 -- with E21 instead of filtering. The default list is `[a-z0-9_-.]`, far short of
--- what the items here are named after — paths, capitals, spaces, parens. So
--- every printable character filters instead, bar `:`: reaching the command line
--- from the start screen is worth more than filtering on a colon no item
--- contains. Queries are matched case-insensitively, so capitals fold in.
+-- what the items here are named after — paths, capitals, parens. So every
+-- printable character filters instead, bar `:` and `<Space>`: reaching the
+-- command line and the leader-key maps (which-key included) from the start
+-- screen is worth more than filtering on a colon no item contains or a space
+-- the fuzzy matcher steps over anyway. Queries are matched case-insensitively,
+-- so capitals fold in.
 local query_updaters = {}
-for byte = 32, 126 do
+for byte = 33, 126 do
   local char = string.char(byte)
   if char ~= ":" then
     table.insert(query_updaters, char)
