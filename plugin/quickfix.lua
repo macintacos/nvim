@@ -34,6 +34,9 @@ vim.api.nvim_create_autocmd("FileType", {
       end
       vim.keymap.set("n", "<CR>", function()
         require("bqf.qfwin.handler").open(true)
+        -- Reveal the landing line 30% down the window, matching the LSP goto
+        -- maps. Scheduled so bqf has finished jumping and closed the list.
+        vim.schedule(require("helpers.windows").reveal_cursor)
       end, { buffer = ev.buf, nowait = true, desc = "Open item and close quickfix" })
     end)
   end,

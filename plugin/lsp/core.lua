@@ -8,6 +8,7 @@ vim.pack.add({
 
 -- LSP keymaps
 local map = require("helpers.mappings").map
+local jump_then_reveal = require("helpers.windows").jump_then_reveal
 
 -- If the cursor is on a URL, open it in the browser; otherwise go to definition
 map("Goto Definition / Open URL", "n", "gd", function()
@@ -16,12 +17,12 @@ map("Goto Definition / Open URL", "n", "gd", function()
   if url then
     vim.ui.open(url)
   else
-    vim.lsp.buf.definition()
+    jump_then_reveal(vim.lsp.buf.definition)
   end
 end, { silent = true })
 map("Goto Definition in Split", "n", "gD", function()
   vim.cmd("vsplit")
-  vim.lsp.buf.definition()
+  jump_then_reveal(vim.lsp.buf.definition)
 end, { silent = true })
 -- open_floating_preview has no native min_width. Teach it one: when a caller
 -- sets opts.min_width, floor the computed width there (still capped by max_width
@@ -45,8 +46,12 @@ map("Show Hover", "n", "gh", function()
   vim.lsp.buf.hover({ border = "rounded", max_width = 80, min_width = 40 })
 end, { silent = true })
 map("Goto References", "n", "gr", vim.lsp.buf.references, { silent = true })
-map("Goto Implementation", "n", "gi", vim.lsp.buf.implementation, { silent = true })
-map("Goto T[y]pe Definition", "n", "gy", vim.lsp.buf.type_definition, { silent = true })
+map("Goto Implementation", "n", "gi", function()
+  jump_then_reveal(vim.lsp.buf.implementation)
+end, { silent = true })
+map("Goto T[y]pe Definition", "n", "gy", function()
+  jump_then_reveal(vim.lsp.buf.type_definition)
+end, { silent = true })
 map("Show Signature Help", "i", "<C-k>", function()
   vim.lsp.buf.signature_help({ border = "rounded", max_width = 80 })
 end, { silent = true })
