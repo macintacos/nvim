@@ -7,7 +7,7 @@ vim.schedule(function()
 
   local Cmd = require("helpers.mappings").Cmd
   local Snacks = require("snacks")
-  local Paths = require("helpers.paths")
+  local Yank = require("helpers.yank")
 
   -- Call a mini.pick registry picker directly. Going through `:Pick` routes the
   -- options through Vim's command parser, which shell-expands quoted arguments;
@@ -64,27 +64,18 @@ vim.schedule(function()
       { "<leader>fs", Cmd("w"), desc = "Save File" },
       { "<leader>fS", Cmd("noautocmd w"), desc = "Save File (no format)" },
 
-      -- Files > Copy paths
+      -- Files > Copy paths (the same actions as <leader>y, kept under their
+      -- original prefix)
       { "<leader>fy", group = "copy", icon = { icon = "󰅍", color = "yellow" } },
-      { "<leader>fyp", function() Paths.copy(Paths.path(0), "relative path") end, desc = "Relative Path" },
-      { "<leader>fyP", function() Paths.copy(Paths.path(0, { absolute = true }), "absolute path") end, desc = "Absolute Path" },
-      { "<leader>fyl", function() Paths.copy(Paths.path(0, { with_line = true }), "relative path:line") end, desc = "Relative Path:Line" },
-      { "<leader>fyL", function() Paths.copy(Paths.path(0, { absolute = true, with_line = true }), "absolute path:line") end, desc = "Absolute Path:Line" },
-      { "<leader>fyn", function() Paths.copy(Paths.path(0, { basename = true }), "filename") end, desc = "Filename" },
-      { "<leader>fyd", function() Paths.copy(Paths.path(0, { dir_only = true }), "relative dir") end, desc = "Relative Dir" },
-      { "<leader>fyD", function() Paths.copy(Paths.path(0, { absolute = true, dir_only = true }), "absolute dir") end, desc = "Absolute Dir" },
-      { "<leader>fyw",
-        function()
-          local list = vim.tbl_map(function(b) return Paths.path(b) end, Paths.tab_window_buffers())
-          Paths.copy(list, "relative paths")
-        end,
-        desc = "Visible Windows: Relative Paths" },
-      { "<leader>fyW",
-        function()
-          local list = vim.tbl_map(function(b) return Paths.path(b, { absolute = true }) end, Paths.tab_window_buffers())
-          Paths.copy(list, "absolute paths")
-        end,
-        desc = "Visible Windows: Absolute Paths" },
+      { "<leader>fyp", Yank.rel_path, desc = "Relative Path" },
+      { "<leader>fyP", Yank.abs_path, desc = "Absolute Path" },
+      { "<leader>fyl", Yank.rel_line, desc = "Relative Path:Line" },
+      { "<leader>fyL", Yank.abs_line, desc = "Absolute Path:Line" },
+      { "<leader>fyn", Yank.filename, desc = "Filename" },
+      { "<leader>fyd", Yank.rel_dir, desc = "Relative Dir" },
+      { "<leader>fyD", Yank.abs_dir, desc = "Absolute Dir" },
+      { "<leader>fyw", Yank.window_paths, desc = "Visible Windows: Relative Paths" },
+      { "<leader>fyW", Yank.window_paths_abs, desc = "Visible Windows: Absolute Paths" },
 
       -- Errors (anything reporting a problem: diagnostics and the fix lists)
       { "<leader>e", group = "errors", icon = { icon = "", color = "red" } },
@@ -256,6 +247,39 @@ vim.schedule(function()
         desc = "Delete Other Windows" },
       { "<leader>wt", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode" },
+
+      -- Yank (anything that ends up on the `+` register)
+      { "<leader>y", group = "yank", icon = { icon = "󰅍", color = "yellow" } },
+      { "<leader>yy", Yank.rel_path, desc = "Relative Path" },
+      { "<leader>yY", Yank.abs_path, desc = "Absolute Path" },
+      { "<leader>yl", Yank.rel_line, desc = "Relative Path:Line" },
+      { "<leader>yL", Yank.abs_line, desc = "Absolute Path:Line" },
+      { "<leader>yn", Yank.filename, desc = "Filename" },
+      { "<leader>yd", Yank.rel_dir, desc = "Relative Dir" },
+      { "<leader>yD", Yank.abs_dir, desc = "Absolute Dir" },
+      { "<leader>yw", Yank.window_paths, desc = "Visible Windows: Relative Paths" },
+      { "<leader>yW", Yank.window_paths_abs, desc = "Visible Windows: Absolute Paths" },
+      { "<leader>ya", Yank.buffer_paths, desc = "All Buffers: Relative Paths" },
+      { "<leader>yA", Yank.buffer_paths_abs, desc = "All Buffers: Absolute Paths" },
+      { "<leader>yt", Yank.buffer_text, desc = "Buffer Text" },
+      { "<leader>yc", Yank.cwd, desc = "Working Directory" },
+      { "<leader>yx", Yank.diagnostics, desc = "Diagnostics on Line" },
+      { "<leader>ym", Yank.markdown_link, desc = "Markdown Link to Line" },
+
+      -- Yank > git and github
+      { "<leader>yg", group = "git", icon = { cat = "filetype", name = "git" } },
+      { "<leader>ygh", Yank.commit_hash, desc = "Line's Commit Hash (short)" },
+      { "<leader>ygH", Yank.commit_hash_full, desc = "Line's Commit Hash (full)" },
+      { "<leader>ygd", Yank.commit_date, desc = "Line's Commit Date" },
+      { "<leader>yga", Yank.commit_author, desc = "Line's Commit Author" },
+      { "<leader>ygm", Yank.commit_summary, desc = "Line's Commit Subject" },
+      { "<leader>ygu", Yank.gh_commit, desc = "Link: Line's Commit" },
+      { "<leader>ygb", Yank.gh_blame, desc = "Link: Blame at Line" },
+      { "<leader>ygl", Yank.gh_permalink, desc = "Link: Permalink to Line" },
+      { "<leader>ygf", Yank.gh_file, desc = "Link: File on Branch" },
+      { "<leader>ygr", Yank.gh_repo, desc = "Link: Repo" },
+      { "<leader>ygB", Yank.branch, desc = "Branch Name" },
+      { "<leader>ygc", Yank.head_sha, desc = "HEAD Commit Hash" },
     },
   })
 end)

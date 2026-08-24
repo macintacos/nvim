@@ -68,6 +68,14 @@ function M.tab_window_buffers()
   return result
 end
 
+---Listed buffers that have a file name, in buffer-number order.
+---@return integer[] bufs
+function M.listed_buffers()
+  return vim.tbl_filter(function(buf)
+    return vim.bo[buf].buflisted and vim.api.nvim_buf_get_name(buf) ~= ""
+  end, vim.api.nvim_list_bufs())
+end
+
 ---Set the `+` register and notify. `content` may be a string or list of strings.
 ---@param content string|string[]|nil
 ---@param label string Short description used in the notification.
