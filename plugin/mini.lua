@@ -107,6 +107,15 @@ indentscope.setup({
 -- Fuzzy picker. setup() also takes over vim.ui.select(), which is why
 -- snacks sets picker.ui_select = false (see plugin/snacks.lua).
 require("mini.pick").setup({
+  -- The default float is a fixed 61.8% of the terminal width, which leaves too
+  -- little room for paths and matches in a narrow terminal. Below 120 columns
+  -- the picker takes the whole width instead (mini.pick clamps for the border).
+  window = {
+    config = function()
+      local columns = vim.o.columns
+      return { width = columns < 120 and columns or math.floor(0.618 * columns) }
+    end,
+  },
   mappings = {
     -- <Tab>/<S-Tab> walk the match list. The two actions they displace take
     -- over the <C-n>/<C-p> that move_down/move_up just vacated.
