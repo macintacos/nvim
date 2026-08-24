@@ -8,6 +8,14 @@ vim.pack.add({ "https://github.com/jakewvincent/mkdnflow.nvim" })
 -- ",X" buffer-local mappings on each FileType=markdown event.
 require("mkdnflow").setup({
   mappings = {
+    -- Insert-mode <Tab>/<S-Tab> default to MkdnTableNextCell/MkdnTablePrevCell,
+    -- which no-op outside a table, so the keys do nothing in a list. MkdnTab and
+    -- MkdnSTab keep the cell jump and add indent/dedent of the list item under
+    -- the cursor, falling through to a literal <Tab> anywhere else.
+    MkdnTab = { "i", "<Tab>" },
+    MkdnSTab = { "i", "<S-Tab>" },
+    MkdnTableNextCell = false,
+    MkdnTablePrevCell = false,
     MkdnUpdateNumbering = { "n", "<localleader>nn" },
     MkdnTableNewRowBelow = { "n", "<localleader>ir" },
     MkdnTableNewRowAbove = { "n", "<localleader>iR" },
