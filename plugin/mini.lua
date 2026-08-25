@@ -542,18 +542,50 @@ local function session_suppressed(dir)
   return false
 end
 
--- True when this Neovim holds something worth persisting: at least one listed
--- buffer backed by a real file. The starter buffer is `nobuflisted`, so quitting
--- straight from the start screen reports false — without this, that would
--- overwrite the project's good session with an empty one.
+-- Directories whose buffers never reach a session file. macOS hangs $TMPDIR off
+-- /private/var/folders, so scratch buffers, agent workspaces, and anything piped
+-- through a temp file live here — none of it exists to be reopened tomorrow.
+local session_excluded_dirs = { "/private/var/folders" }
+
+-- resolve() first because Neovim reports those paths as /var/folders/..., the
+-- unresolved symlink, so a prefix match on the real location would never hit.
+---@param name string Buffer name, as returned by nvim_buf_get_name()
 ---@return boolean
-local function session_has_content()
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.fn.buflisted(buf) == 1 and vim.api.nvim_buf_get_name(buf) ~= "" then
+local function session_excluded(name)
+  local resolved = vim.fn.resolve(name)
+  for _, dir in ipairs(session_excluded_dirs) do
+    if vim.startswith(resolved, dir .. "/") then
       return true
     end
   end
   return false
+end
+
+-- True when this Neovim holds something worth persisting: at least one listed
+-- buffer backed by a real file that survives the exclusion above. The starter
+-- buffer is `nobuflisted`, so quitting straight from the start screen reports
+-- false — without this, that would overwrite the project's good session with an
+-- empty one, as would quitting with nothing but excluded buffers open.
+---@return boolean
+local function session_has_content()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if vim.fn.buflisted(buf) == 1 and name ~= "" and not session_excluded(name) then
+      return true
+    end
+  end
+  return false
+end
+
+-- :mksession records whichever buffers exist when it runs, so removing them
+-- beforehand is the only filter available. Safe only because write() is called
+-- from VimLeavePre, where the buffers are about to go anyway.
+local function wipe_excluded_bufs()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if session_excluded(vim.api.nvim_buf_get_name(buf)) then
+      pcall(vim.api.nvim_buf_delete, buf, { force = true })
+    end
+  end
 end
 
 require("mini.sessions").setup({
@@ -564,7 +596,14 @@ require("mini.sessions").setup({
   -- project whose session hasn't been read yet. The autocmd below owns writing
   -- instead, so a project gets a session without ever being saved by hand.
   autowrite = false,
-  hooks = { pre = { write = require("helpers.windows").close_all_floating_wins } },
+  hooks = {
+    pre = {
+      write = function()
+        require("helpers.windows").close_all_floating_wins()
+        wipe_excluded_bufs()
+      end,
+    },
+  },
 })
 
 -- Writes the cwd's session on exit, which is what makes sessions appear without
