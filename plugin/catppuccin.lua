@@ -3,6 +3,11 @@
 vim.pack.add({ "https://github.com/catppuccin/nvim" })
 
 require("catppuccin").setup({
+  -- Named explicitly even though auto_integrations detects it: catppuccin's
+  -- compiled-highlight cache is keyed on the options passed here, so a newly
+  -- installed plugin picked up by auto-detection alone doesn't invalidate it
+  -- and its groups stay unstyled until the next :CatppuccinCompile.
+  integrations = { treesitter_context = true },
   transparent_background = true,
   background = { dark = "mocha" },
   float = { transparent = true, solid = false },
