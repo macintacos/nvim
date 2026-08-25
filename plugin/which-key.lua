@@ -146,6 +146,21 @@ vim.schedule(function()
         desc = "Search and Replace" },
       { "<leader>ss", pick("buf_lines", { scope = "current" }), desc = "Buffer Lines"},
       { "<leader>sp", pick("grep_live"), desc = "Grep Project"},
+      { "<leader>sP",
+        function()
+          -- grep_live always starts empty, and MiniPickStart fires once the picker
+          -- is up — the first moment its query can be seeded with <cword>.
+          local word = vim.fn.expand("<cword>")
+          if word ~= "" then
+            vim.api.nvim_create_autocmd("User", {
+              pattern = "MiniPickStart",
+              once = true,
+              callback = function() MiniPick.set_picker_query({ word }) end,
+            })
+          end
+          MiniPick.registry.grep_live()
+        end,
+        desc = "Grep Word Under Cursor"},
       { "<leader>sb", pick("buf_lines", { scope = "all" }), desc = "Search Open Buffer Lines"},
       { "<leader>sR", pick("resume"), desc = "Resume Last Picker"},
       { "<leader>sm", pick("marks"), desc = "Marks"},
