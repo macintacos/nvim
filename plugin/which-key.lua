@@ -263,6 +263,10 @@ vim.schedule(function()
       { "<leader>wt", function() Snacks.scratch() end, desc = "Scratch Buffer" },
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode" },
 
+      -- Actions (things that change the code under the cursor)
+      { "<leader>x", group = "actions", icon = { icon = "󰌵", color = "yellow" } },
+      { "<leader>xr", vim.lsp.buf.rename, desc = "Rename Symbol (LSP)" },
+
       -- Yank (anything that ends up on the `+` register)
       { "<leader>y", group = "yank", icon = { icon = "󰅍", color = "yellow" } },
       { "<leader>yy", Yank.rel_path, desc = "Relative Path" },
