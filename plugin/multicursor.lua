@@ -33,11 +33,14 @@ map("Multicursor mouse release", "n", "<C-leftrelease>", mc.handleMouseRelease)
 
 map("Toggle Multicursor", { "n", "x" }, "<C-q>", mc.toggleCursor)
 
+-- Layer maps live only while cursors are active. Keeping them under
+-- <localleader>c leaves the <leader> namespace untouched, and `c` is free of
+-- the other <localleader> groups (mkdnflow's n/i/d/a/p, venv-selector's v).
 mc.addKeymapLayer(function(layerMap)
   layerMap({ "n", "x" }, "<left>", mc.prevCursor, { desc = "Move to Prev Cursor" })
   layerMap({ "n", "x" }, "<right>", mc.nextCursor, { desc = "Move to Next Cursor" })
-  layerMap({ "n", "x" }, "<leader>x", mc.deleteCursor, { desc = "Delete Main Cursor" })
-  layerMap({ "n", "x" }, "<leader>a", mc.alignCursors, { desc = "Align Cursors" })
+  layerMap({ "n", "x" }, "<localleader>cd", mc.deleteCursor, { desc = "Delete Main Cursor" })
+  layerMap({ "n", "x" }, "<localleader>ca", mc.alignCursors, { desc = "Align Cursors" })
   layerMap("n", "<Esc>", function()
     if not mc.cursorsEnabled() then
       mc.enableCursors()
