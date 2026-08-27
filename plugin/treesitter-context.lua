@@ -6,6 +6,8 @@ require("treesitter-context").setup({
   -- Track the top visible line rather than the cursor, so the context follows
   -- the scroll instead of only updating when the cursor moves.
   mode = "topline",
+  -- Draw context in every window, not just the focused one.
+  multiwindow = true,
   -- Keep the sticky header small: at most three levels of nesting, each
   -- collapsed to a single line so long signatures don't eat the window.
   max_lines = 3,
