@@ -543,13 +543,15 @@ local function session_suppressed(dir)
 end
 
 -- Directories whose buffers never reach a session file. macOS hangs $TMPDIR off
--- /private/var/folders, so scratch buffers, agent workspaces, and anything piped
--- through a temp file live here — none of it exists to be reopened tomorrow.
-local session_excluded_dirs = { "/private/var/folders" }
+-- /private/var/folders, and /tmp resolves to /private/tmp — where coding agents
+-- drop the prompt file they hand to $EDITOR. Scratch buffers, agent workspaces,
+-- and anything piped through a temp file live under one of the two; none of it
+-- exists to be reopened tomorrow.
+local session_excluded_dirs = { "/private/var/folders", "/private/tmp" }
 
 -- resolve() first because Neovim reports those paths as /var/folders/..., the
 -- unresolved symlink, so a prefix match on the real location would never hit.
----@param name string Buffer name, as returned by nvim_buf_get_name()
+---@param name string Absolute path: a buffer name or a working directory
 ---@return boolean
 local function session_excluded(name)
   local resolved = vim.fn.resolve(name)
@@ -613,7 +615,11 @@ require("mini.sessions").setup({
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = vim.api.nvim_create_augroup("mini_sessions_autosave", { clear = true }),
   callback = function()
-    if session_suppressed(vim.fn.getcwd()) or not session_has_content() then
+    -- session_excluded() on the cwd, not just on buffers: a Neovim launched in an
+    -- agent scratchpad is as throwaway as the files in it, and would otherwise
+    -- leave a session behind for a directory that is gone tomorrow.
+    local cwd = vim.fn.getcwd()
+    if session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
       return
     end
     require("mini.sessions").write(session_name())
