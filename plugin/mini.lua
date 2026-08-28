@@ -649,34 +649,6 @@ local function session_resume_item()
   }
 end
 
--- Every other detected session, most recently written first. The cwd's own is
--- filtered out because session_resume_item() already pins it at the top.
----@return table[]
-local function other_session_items()
-  local current = session_name()
-  local names = {}
-  for name, _ in pairs(MiniSessions.detected) do
-    if name ~= current then
-      table.insert(names, name)
-    end
-  end
-  table.sort(names, function(a, b)
-    return MiniSessions.detected[a].modify_time > MiniSessions.detected[b].modify_time
-  end)
-
-  local items = {}
-  for _, name in ipairs(names) do
-    table.insert(items, {
-      name = vim.fn.fnamemodify((name:gsub("%%", "/")), ":~"),
-      action = function()
-        MiniSessions.read(name)
-      end,
-      section = "Sessions",
-    })
-  end
-  return items
-end
-
 ---Run git in the cwd, returning trimmed stdout or nil on any failure.
 ---@param args string[]
 ---@return string?
@@ -1050,7 +1022,6 @@ starter.setup({
     project_items,
     worktree_items,
     starter.sections.recent_files(5, true, false),
-    other_session_items,
     pack_update_item,
     starter.sections.builtin_actions(),
   },
