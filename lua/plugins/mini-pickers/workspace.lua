@@ -127,15 +127,16 @@ local function make_match(keep)
 end
 
 ---Open a workspace symbol picker.
----@param local_opts table Passed through to `MiniExtra.pickers.lsp`.
+---@param local_opts table Passed through to `MiniExtra.pickers.lsp`. `kinds`
+---  narrows past the per-filetype default and `name` labels the picker window.
 ---@param scope string The `local_opts.scope` already resolved by the caller.
 function M.pick(local_opts, scope)
-  local source = { show = show }
+  local source = { show = show, name = local_opts.name }
   -- The live scope drives its query through `source.match`, so overriding it
   -- would break the search. Its results come from the server already scoped
   -- to the query, which is far less noisy than a whole-file outline anyway.
   if scope ~= "workspace_symbol_live" then
-    source.match = make_match(kinds.for_filetype(vim.bo.filetype))
+    source.match = make_match(local_opts.kinds or kinds.for_filetype(vim.bo.filetype))
   end
   return MiniExtra.pickers.lsp(local_opts, { source = source })
 end

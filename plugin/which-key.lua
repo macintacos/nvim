@@ -6,6 +6,7 @@ vim.schedule(function()
   vim.cmd.packadd("which-key.nvim")
 
   local Cmd = require("helpers.mappings").Cmd
+  local Kinds = require("plugins.mini-pickers.kinds")
   local Snacks = require("snacks")
   local Yank = require("helpers.yank")
 
@@ -170,8 +171,11 @@ vim.schedule(function()
       -- Jump to
       { "<leader>j", group = "jump to...", icon = { icon = "󰌑", color = "yellow" } },
       { "<leader>ji", pick("lsp", { scope = "document_symbol" }), desc = "Symbols in File" },
-      { "<leader>jm", pick("lsp", { scope = "document_symbol", kinds = { Function = true, Method = true }, name = "LSP (functions)" }), desc = "Functions in File" },
       { "<leader>jI", pick("lsp", { scope = "workspace_symbol_live" }), desc = "Symbols in Workspace" },
+      { "<leader>jm", pick("lsp", { scope = "document_symbol", kinds = Kinds.FUNCTIONS, name = "LSP (functions)" }), desc = "Functions in File" },
+      { "<leader>jM", pick("lsp", { scope = "workspace_symbol", kinds = Kinds.FUNCTIONS, name = "LSP (workspace functions)" }), desc = "Functions in Workspace" },
+      { "<leader>jv", pick("lsp", { scope = "document_symbol", kinds = Kinds.VARIABLES, name = "LSP (variables)" }), desc = "Variables in File" },
+      { "<leader>jV", pick("lsp", { scope = "workspace_symbol", kinds = Kinds.VARIABLES, name = "LSP (workspace variables)" }), desc = "Variables in Workspace" },
       { "<leader>jt", pick("treesitter"), desc = "Treesitter Nodes" },
 
       -- Tabs

@@ -39,6 +39,13 @@ local KEEP_EVERY_KIND = { toml = true, json = true, jsonc = true, yaml = true, m
 -- packages, so the exclusion is scoped by filetype.
 local EXCLUDE = { lua = { Package = true } }
 
+---Kinds the narrowed jump pickers list, regardless of filetype.
+---@type table<string, true>
+M.FUNCTIONS = { Function = true, Method = true }
+
+---@type table<string, true>
+M.VARIABLES = { Constant = true, Field = true, Property = true, Variable = true }
+
 ---Kinds to keep for `ft`, or `nil` to keep every kind.
 ---@param ft string
 ---@return table<string, true>?
