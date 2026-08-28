@@ -51,7 +51,7 @@ end
 
 ---Pick a file.
 ---
----`<Space>` toggles the preview instead of the global `<C-p>`. A file query
+---`<Space>` toggles the preview instead of the global `<M-p>`. A file query
 ---never contains a space, unlike the prose queries grep and the command
 ---pickers take, so the key is only free to steal here.
 function M.pick()

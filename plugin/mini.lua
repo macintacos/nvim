@@ -104,6 +104,18 @@ indentscope.setup({
 -- mini.pick / mini.extra
 -- ============================================================================
 
+---Re-type `key` into the picker, so a second key runs the action bound to the
+---first. mini.pick binds one key per action, so an alias has to be a custom
+---action; the picker reads chars through `getcharstr()`, which feedkeys feeds.
+---@param key string Key whose action to run, e.g. "<C-n>".
+---@return fun()
+local function alias(key)
+  local keys = vim.keycode(key)
+  return function()
+    vim.api.nvim_feedkeys(keys, "t", false)
+  end
+end
+
 -- Fuzzy picker. setup() also takes over vim.ui.select(), which is why
 -- snacks sets picker.ui_select = false (see plugin/snacks.lua).
 require("mini.pick").setup({
@@ -117,12 +129,14 @@ require("mini.pick").setup({
     end,
   },
   mappings = {
-    -- <Tab>/<S-Tab> walk the match list. The two actions they displace take
-    -- over the <C-n>/<C-p> that move_down/move_up just vacated.
-    move_down = "<Tab>",
-    move_up = "<S-Tab>",
-    toggle_preview = "<C-p>",
-    toggle_info = "<C-n>",
+    -- move_down/move_up keep their default <C-n>/<C-p>; the aliases below add
+    -- <C-j>/<C-k>/<Tab>/<S-Tab>, which displaces the two toggles onto <M-*>.
+    toggle_preview = "<M-p>",
+    toggle_info = "<M-i>",
+    move_down_ctrl_j = { char = "<C-j>", func = alias("<C-n>") },
+    move_down_tab = { char = "<Tab>", func = alias("<C-n>") },
+    move_up_ctrl_k = { char = "<C-k>", func = alias("<C-p>") },
+    move_up_shift_tab = { char = "<S-Tab>", func = alias("<C-p>") },
   },
 })
 
