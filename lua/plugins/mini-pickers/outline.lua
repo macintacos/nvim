@@ -91,23 +91,26 @@ M._show = show
 ---
 ---Items are matched on their `text` (the bare name), which is what makes the
 ---default fuzzy match honest here without a `source.match` override.
-function M.pick()
+---@param opts? { kinds?: table<string, true>, name?: string } `kinds` narrows the
+---  outline past the per-filetype default; `name` labels the picker window.
+function M.pick(opts)
+  opts = opts or {}
   local buf = vim.api.nvim_get_current_buf()
   if #vim.lsp.get_clients({ bufnr = buf, method = "textDocument/documentSymbol" }) == 0 then
     return vim.notify("No LSP client provides document symbols", vim.log.levels.WARN)
   end
 
-  local keep = kinds.for_filetype(vim.bo[buf].filetype)
+  local keep = opts.kinds or kinds.for_filetype(vim.bo[buf].filetype)
   local params = { textDocument = vim.lsp.util.make_text_document_params(buf) }
   vim.lsp.buf_request_all(buf, "textDocument/documentSymbol", params, function(results)
     local items = {}
     for id, res in pairs(results) do
       local client = vim.lsp.get_client_by_id(id)
-      local opts = { bufnr = buf, kinds = keep, encoding = client and client.offset_encoding }
-      vim.list_extend(items, symbols.flatten(res.result or {}, opts))
+      local flat = { bufnr = buf, kinds = keep, encoding = client and client.offset_encoding }
+      vim.list_extend(items, symbols.flatten(res.result or {}, flat))
     end
     MiniPick.start({
-      source = { items = items, name = "LSP (document_symbol)", show = show },
+      source = { items = items, name = opts.name or "LSP (document_symbol)", show = show },
     })
   end)
 end

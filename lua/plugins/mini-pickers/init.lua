@@ -20,7 +20,7 @@ function M.setup()
     local_opts = local_opts or {}
     local scope = tostring(local_opts.scope or "")
     if scope == "document_symbol" then
-      return require("plugins.mini-pickers.outline").pick()
+      return require("plugins.mini-pickers.outline").pick(local_opts)
     end
     -- references/definition/etc. are location lists, not symbols — leave them be.
     if not scope:find("symbol") then

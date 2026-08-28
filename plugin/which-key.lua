@@ -170,6 +170,7 @@ vim.schedule(function()
       -- Jump to
       { "<leader>j", group = "jump to...", icon = { icon = "󰌑", color = "yellow" } },
       { "<leader>ji", pick("lsp", { scope = "document_symbol" }), desc = "Symbols in File" },
+      { "<leader>jm", pick("lsp", { scope = "document_symbol", kinds = { Function = true, Method = true }, name = "LSP (functions)" }), desc = "Functions in File" },
       { "<leader>jI", pick("lsp", { scope = "workspace_symbol_live" }), desc = "Symbols in Workspace" },
       { "<leader>jt", pick("treesitter"), desc = "Treesitter Nodes" },
 
