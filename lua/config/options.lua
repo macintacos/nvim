@@ -38,12 +38,16 @@ opt.fillchars = {
   foldclose = "",
   fold = " ",
   foldsep = " ",
+  -- Lines merely nested inside open folds get nothing; without this the fold
+  -- column falls back to printing the numeric fold level next to the line number.
+  foldinner = " ",
   diff = "╱",
   eob = " ",
 }
+opt.foldcolumn = "auto:1" -- Fold markers in the gutter, hidden when a buffer has no folds
 opt.foldlevel = 99
 opt.foldmethod = "indent"
-opt.foldtext = ""
+opt.foldtext = "v:lua.require'config.folds'.foldtext()"
 opt.formatoptions = "jcroqlnt" -- tcqj
 opt.grepformat = "%f:%l:%c:%m"
 opt.grepprg = "rg --vimgrep"
