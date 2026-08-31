@@ -17,3 +17,6 @@ entities.json
 
 # Local token-tracking tool state (machine-local, not for committing)
 .tokensave/
+
+# Per-project scratch buffer (lua/plugins/scratch)
+.tmp/

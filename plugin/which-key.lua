@@ -51,7 +51,7 @@ vim.schedule(function()
       { "<leader>ff", pick("files"), desc = "Find Files" },
       { "<leader>fn", Cmd("enew"), desc = "New File" },
       { "<leader>fo", pick("oldfiles"), desc = "Recent Files" },
-      { "<leader>ft", function() Snacks.scratch() end, desc = "Scratch Buffer" },
+      { "<leader>ft", function() require("plugins.scratch").open() end, desc = "Scratch Buffer" },
       { "<leader>fe", function() MiniFiles.open() end, desc = "Show mini.files" },
       { "<leader>fE", function() Snacks.explorer() end, desc = "Show Snacks Explorer" },
       { "<leader>fu",
@@ -207,8 +207,8 @@ vim.schedule(function()
 
       -- Project (<leader>pp lives in plugin/projects.lua)
       { "<leader>p", group = "project", icon = { icon = "", color = "green" } },
-      { "<leader>ps", function() Snacks.scratch() end, desc = "Scratch Buffer" },
-      { "<leader>pS", function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
+      { "<leader>ps", function() require("plugins.scratch").open() end, desc = "Scratch Buffer" },
+      { "<leader>pS", function() require("plugins.scratch").float() end, desc = "Scratch Buffer (Float)" },
 
       -- Plugins
       { "<leader>P", group = "plugins", icon = { icon = "󰏗", color = "azure" } },
@@ -265,7 +265,8 @@ vim.schedule(function()
           vim.cmd.only()
         end,
         desc = "Delete Other Windows" },
-      { "<leader>wt", function() Snacks.scratch() end, desc = "Scratch Buffer" },
+      { "<leader>wt", function() require("plugins.scratch").open() end, desc = "Scratch Buffer" },
+      { "<leader>wT", function() require("plugins.scratch").float() end, desc = "Scratch Buffer (Float)" },
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Actions (things that change the code under the cursor)

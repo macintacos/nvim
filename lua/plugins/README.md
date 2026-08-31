@@ -11,4 +11,5 @@ This directory contains locally-defined Neovim plugins that live inside this con
 - [`pack-pr`](pack-pr/) — `:PackPR` picks an open PR across managed GitHub repos and points the matching `vim.pack` spec at the PR's branch for live smoke-testing.
 - [`pack-tweaks`](pack-tweaks/) — tweaks to Neovim's built-in `vim.pack` plugin manager, each wired through `setup()`.
 - [`projects`](projects/) — `<leader>pp` picks a project from [zoxide](https://github.com/ajeetdsouza/zoxide) and relaunches Neovim there, so the shell ends up in the new directory too.
+- [`scratch`](scratch/) — `<leader>wt` opens a per-project scratch file at `.tmp/scratch.md`; `<leader>wT` opens the same file in an 80% float.
 - [`uv-scripts`](uv-scripts/) — filetype detection and a `ty` client pointed at the per-script environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script.
