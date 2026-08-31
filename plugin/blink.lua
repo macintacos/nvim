@@ -109,6 +109,34 @@ vim.env.CARGO_TARGET_DIR = saved_cargo_target
 local pairs_schema = require("blink.pairs.config.mappings")
 pairs_schema.pairs[2] = "table"
 
+-- blink.pairs ships `*` and `_` rules for typst only, and no `~` rule at all, so
+-- markdown emphasis delimiters never pair. Register them here, before the loop
+-- below, so they pick up the same balanced() predicate as every other symmetric
+-- delimiter -- that predicate is also what makes `**bold**` and `~~strike~~`
+-- work: the second keypress lands on an existing closer and shifts past it.
+local md = { "markdown", "markdown_inline" }
+local md_rules = {
+  ["*"] = { "*", languages = md, enter = false, space = false },
+  ["~"] = { "~", languages = md, enter = false, space = false },
+  ["_"] = {
+    "_",
+    languages = md,
+    enter = false,
+    space = false,
+    -- markdown reads `foo_bar` as a literal underscore, not emphasis, so only
+    -- pair at a word boundary -- unless a closer is already under the cursor,
+    -- which is how `_em_` closes its own span.
+    when = function(ctx)
+      return ctx:is_after_cursor("_") or not ctx:text_before_cursor():match("%w$")
+    end,
+  },
+}
+for key, rule in pairs(md_rules) do
+  local definitions = pairs_schema.pairs[1][key] or {}
+  table.insert(definitions, rule)
+  pairs_schema.pairs[1][key] = definitions
+end
+
 ---Build an `open_or_close` predicate for a symmetric delimiter.
 ---@param char string The delimiter, which is both the opening and closing text
 ---@return fun(ctx: blink.pairs.Context): boolean open Whether to insert a pair
