@@ -301,10 +301,6 @@
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://github.com/folke/snacks.nvim"
     },
-    "tint.nvim": {
-      "rev": "586e87f00c8b0f5e857cefe10839e41f3e8c6d01",
-      "src": "https://github.com/levouh/tint.nvim"
-    },
     "tiny-glimmer.nvim": {
       "rev": "9a48d8a7436231cb16d47c88f924702e5602870a",
       "src": "ssh://git@github.com/rachartier/tiny-glimmer.nvim"
