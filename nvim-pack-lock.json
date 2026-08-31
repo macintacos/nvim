@@ -171,6 +171,10 @@
       "src": "https://github.com/nvim-mini/mini.starter",
       "version": "'stable'"
     },
+    "mini.statuscolumn": {
+      "rev": "a7e533119f2cb5e4dcbaa584c308089d94c51f99",
+      "src": "https://github.com/nvim-mini/mini.statuscolumn"
+    },
     "mini.statusline": {
       "rev": "b5547f44560dae3ccd81f914256fa6f705837022",
       "src": "https://github.com/nvim-mini/mini.statusline",

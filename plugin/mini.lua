@@ -15,8 +15,10 @@ vim.pack.add({
   { src = "https://github.com/nvim-mini/mini.starter", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" },
   { src = "https://github.com/nvim-mini/mini.trailspace", version = "stable" },
-  -- mini.input is in beta and has no stable tag yet — track main
+  -- mini.input and mini.statuscolumn are in beta and have no stable tag yet —
+  -- track main
   { src = "https://github.com/nvim-mini/mini.input" },
+  { src = "https://github.com/nvim-mini/mini.statuscolumn" },
 })
 
 -- ============================================================================
@@ -45,6 +47,9 @@ local bare_setup = {
   -- Floating notifications and LSP progress reports; replaces the snacks
   -- notifier, which plugin/snacks.lua disables.
   "mini.notify",
+  -- Builds 'statuscolumn' out of the number, sign, and fold columns; replaces
+  -- snacks.statuscolumn, which plugin/snacks.lua disables.
+  "mini.statuscolumn",
   -- Highlights trailing whitespace; :lua MiniTrailspace.trim() clears it.
   "mini.trailspace",
 }
