@@ -47,9 +47,6 @@ local bare_setup = {
   -- Floating notifications and LSP progress reports; replaces the snacks
   -- notifier, which plugin/snacks.lua disables.
   "mini.notify",
-  -- Builds 'statuscolumn' out of the number, sign, and fold columns; replaces
-  -- snacks.statuscolumn, which plugin/snacks.lua disables.
-  "mini.statuscolumn",
   -- Highlights trailing whitespace; :lua MiniTrailspace.trim() clears it.
   "mini.trailspace",
 }
@@ -230,6 +227,29 @@ require("mini.statusline").setup({
     end,
   },
 })
+
+-- ============================================================================
+-- mini.statuscolumn
+-- ============================================================================
+
+-- Builds 'statuscolumn' out of the number, sign, and fold columns; replaces
+-- snacks.statuscolumn, which plugin/snacks.lua disables.
+require("mini.statuscolumn").setup()
+
+-- dim_inactive rewrites CursorLineNr to MiniStatuscolumnDimCursor in every
+-- unfocused window, and that group defaults to the flat MiniStatuscolumnDim, so
+-- an unfocused window's cursor line loses its number highlight. Point it back at
+-- CursorLineNr: the other lines stay dimmed, the cursor line stays readable.
+local function set_statuscolumn_hl()
+  vim.api.nvim_set_hl(0, "MiniStatuscolumnDimCursor", { link = "CursorLineNr" })
+end
+
+-- Re-apply on ColorScheme because setting a colorscheme clears custom groups and
+-- mini.statuscolumn's own ColorScheme handler then restores its default link.
+-- Registered after setup() so it runs after that handler.
+vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statuscolumn_hl })
+
+set_statuscolumn_hl()
 
 -- ============================================================================
 -- mini.files
