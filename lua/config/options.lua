@@ -73,7 +73,6 @@ opt.sessionoptions = {
   "skiprtp",
   "folds",
   "terminal",
-  "localoptions",
 }
 opt.shiftround = true -- Round indent
 opt.shiftwidth = 2 -- Size of an indent
