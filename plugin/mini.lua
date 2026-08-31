@@ -44,9 +44,6 @@ local bare_setup = {
   "mini.icons",
   -- Provides the vim.ui.input() implementation (snacks.input is disabled)
   "mini.input",
-  -- Floating notifications and LSP progress reports; replaces the snacks
-  -- notifier, which plugin/snacks.lua disables.
-  "mini.notify",
   -- Highlights trailing whitespace; :lua MiniTrailspace.trim() clears it.
   "mini.trailspace",
 }
@@ -99,6 +96,25 @@ indentscope.setup({
     object_scope_with_border = "",
     goto_top = "",
     goto_bottom = "",
+  },
+})
+
+-- ============================================================================
+-- mini.notify
+-- ============================================================================
+
+-- Floating notifications and LSP progress reports; replaces the snacks
+-- notifier, which plugin/snacks.lua disables. Notifications stack up from the
+-- bottom-right, clearing the incline filename label (plugin/incline.lua) that
+-- floats there: incline sits at `margin.vertical` (2) + its own row above the
+-- statusline, so the notification's bottom edge lands 3 rows higher than the
+-- usual bottom-right placement.
+require("mini.notify").setup({
+  window = {
+    config = function()
+      local pad = vim.o.cmdheight + (vim.o.laststatus > 0 and 1 or 0) + 3
+      return { anchor = "SE", col = vim.o.columns, row = vim.o.lines - pad }
+    end,
   },
 })
 
