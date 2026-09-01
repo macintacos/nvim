@@ -92,14 +92,47 @@ local function show(buf_id, items, query)
   end
 end
 
--- Exposed for tests: the item format is the only part worth asserting headlessly.
+---Grep scope for one filesystem entry.
+---
+---A directory greps itself. A file greps its parent directory narrowed back down
+---to the file: the leading `/` anchors the glob to the search root, so a
+---same-named file in a subdirectory does not come along.
+---@param path string
+---@param fs_type "file"|"directory"
+---@return string cwd Directory the picker searches.
+---@return string[] globs Restriction passed to `grep_live`.
+local function scope(path, fs_type)
+  if fs_type == "directory" then
+    return path, {}
+  end
+  return vim.fs.dirname(path), { "/" .. vim.fs.basename(path) }
+end
+
+-- Exposed for tests: the item format and the scope split are the only parts
+-- worth asserting headlessly.
 M._parse = parse
 M._show = show
+M._scope = scope
 
 ---Open the live grep picker.
 ---@param local_opts table? Options for `MiniPick.builtin.grep_live`.
-function M.pick(local_opts)
-  return MiniPick.builtin.grep_live(local_opts, { source = { show = show } })
+---@param opts table? Options for `MiniPick.start`, merged over the custom show.
+function M.pick(local_opts, opts)
+  opts = vim.tbl_deep_extend("force", { source = { show = show } }, opts or {})
+  return MiniPick.builtin.grep_live(local_opts, opts)
+end
+
+---Open the live grep picker scoped to one filesystem entry.
+---
+---The scope replaces `grep_live`'s `(rg regex)` detail in the border label,
+---since it is the part that actually varies between these pickers. The label is
+---fitted from the left, so a path too long for the window keeps its tail.
+---@param path string
+---@param fs_type "file"|"directory"
+function M.pick_in(path, fs_type)
+  local cwd, globs = scope(path, fs_type)
+  local label = vim.fn.fnamemodify(path, ":~:.") .. (fs_type == "directory" and "/" or "")
+  return M.pick({ globs = globs }, { source = { cwd = cwd, name = "Grep live (" .. label .. ")" } })
 end
 
 return M

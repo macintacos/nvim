@@ -553,6 +553,37 @@ vim.api.nvim_create_autocmd("User", {
       end),
       { buffer = buf }
     )
+
+    -- f / F: live grep scoped to a directory in the explorer. The explorer
+    -- synchronizes and closes first, the same exit q takes: its windows are
+    -- floats, so leaving them up would make the picker open its choice into the
+    -- explorer itself rather than the window behind it.
+    local function grep_entry(path, fs_type)
+      sync_and_close()
+      vim.schedule(function()
+        require("plugins.mini-pickers.grep").pick_in(path, fs_type)
+      end)
+    end
+
+    -- F: grep the directory the focused column is showing.
+    map("Grep focused directory", "n", "F", function()
+      local state = files.get_explorer_state()
+      if not state then
+        return
+      end
+      grep_entry(state.branch[state.depth_focus], "directory")
+    end, { buffer = buf })
+
+    -- f: grep the entry under the cursor -- a directory greps inside it, a
+    -- file greps only that file.
+    map("Grep entry under cursor", "n", "f", function()
+      local entry = files.get_fs_entry()
+      if not entry then
+        vim.notify("mini.files: no entry under cursor", vim.log.levels.WARN)
+        return
+      end
+      grep_entry(entry.path, entry.fs_type)
+    end, { buffer = buf })
   end,
 })
 
