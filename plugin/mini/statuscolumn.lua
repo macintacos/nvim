@@ -46,6 +46,14 @@ local function set_statuscolumn_hl()
   -- CursorLineNr: the other lines stay dimmed, the cursor line stays readable.
   vim.api.nvim_set_hl(0, "MiniStatuscolumnDimCursor", { link = "CursorLineNr" })
 
+  -- CursorLineFold ships without a background, so the cursor line's highlight
+  -- stops short of the fold column. modes.nvim gives CursorLineNr and
+  -- CursorLineSign the cursorline background but leaves this one out, which is
+  -- why only the modes it recolours look right.
+  local fold = vim.api.nvim_get_hl(0, { name = "CursorLineFold", link = false })
+  fold.bg = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false }).bg
+  vim.api.nvim_set_hl(0, "CursorLineFold", fold)
+
   -- One palette step below LineNr's surface1, so the run down a wrapped line
   -- reads quieter than the numbers it hangs off.
   local ok, palettes = pcall(require, "catppuccin.palettes")
