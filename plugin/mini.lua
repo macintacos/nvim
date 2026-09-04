@@ -694,21 +694,63 @@ require("mini.sessions").setup({
   },
 })
 
--- Writes the cwd's session on exit, which is what makes sessions appear without
--- being asked for. Guarded so an empty or throwaway Neovim can't clobber a real
--- session. Fires: VimLeavePre, late enough to capture the final layout but
--- while windows still exist for :mksession.
+-- Writes the cwd's session, which is what makes sessions appear without being
+-- asked for. Guarded so an empty or throwaway Neovim can't clobber a real one.
+---@param opts table|nil Options for MiniSessions.write
+local function session_write(opts)
+  -- session_excluded() on the cwd, not just on buffers: a Neovim launched in an
+  -- agent scratchpad is as throwaway as the files in it, and would otherwise
+  -- leave a session behind for a directory that is gone tomorrow.
+  local cwd = vim.fn.getcwd()
+  if session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
+    return
+  end
+  require("mini.sessions").write(session_name(), opts)
+end
+
+local session_augroup = vim.api.nvim_create_augroup("mini_sessions_autosave", { clear = true })
+
+-- Fires: VimLeavePre, late enough to capture the final layout but while windows
+-- still exist for :mksession.
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  group = vim.api.nvim_create_augroup("mini_sessions_autosave", { clear = true }),
+  group = session_augroup,
   callback = function()
-    -- session_excluded() on the cwd, not just on buffers: a Neovim launched in an
-    -- agent scratchpad is as throwaway as the files in it, and would otherwise
-    -- leave a session behind for a directory that is gone tomorrow.
-    local cwd = vim.fn.getcwd()
-    if session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
-      return
-    end
-    require("mini.sessions").write(session_name())
+    session_write()
+  end,
+})
+
+local session_timer = assert(vim.uv.new_timer())
+
+-- Keeps the session current between quits, so a crash or a terminal closed out
+-- from under Neovim doesn't cost the layout. Fires: the events that change what
+-- :mksession would record — which file sits in which window, how windows and
+-- tabs are arranged — plus FocusLost, to catch the layout you walked away from.
+vim.api.nvim_create_autocmd({
+  "BufEnter",
+  "BufDelete",
+  "WinNew",
+  "WinClosed",
+  "WinResized",
+  "TabNew",
+  "TabClosed",
+  "FocusLost",
+}, {
+  group = session_augroup,
+  callback = function()
+    -- Debounced: these arrive in bursts — opening a picker is a WinNew, a
+    -- BufEnter and a WinClosed inside a second — and only the layout that
+    -- settles is worth writing.
+    session_timer:start(
+      2000,
+      0,
+      vim.schedule_wrap(function()
+        -- The configured pre-write hook closes floats and wipes buffers, which
+        -- is only safe on the way out, so this write runs without it. pcall
+        -- because a background :mksession must never interrupt what is being
+        -- typed over it.
+        pcall(session_write, { hooks = { pre = function() end }, verbose = false })
+      end)
+    )
   end,
 })
 
