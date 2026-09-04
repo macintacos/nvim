@@ -1,0 +1,31 @@
+local folds = require("config.folds")
+
+describe("bar", function()
+  it("fills the width exactly", function()
+    local line = folds._bar("fn foo()", "3 lines · 10.0%", 80)
+    assert.equal(80, vim.api.nvim_strwidth(line))
+  end)
+
+  it("truncates the title rather than pushing the summary off the edge", function()
+    local line = folds._bar("local function a_very_long_name(alpha, beta)", "3 lines · 10.0%", 40)
+    assert.equal(40, vim.api.nvim_strwidth(line))
+    assert.is_true(line:find("3 lines · 10.0%", 1, true) ~= nil)
+    assert.is_true(line:find("…", 1, true) ~= nil)
+  end)
+
+  it("drops the title entirely when even the summary barely fits", function()
+    local line = folds._bar("local function foo()", "3 lines · 10.0%", 25)
+    assert.is_true(line:find("3 lines · 10.0%", 1, true) ~= nil)
+    assert.is_nil(line:find("foo", 1, true))
+  end)
+end)
+
+describe("summary", function()
+  it("says line, not lines, for a single hidden line", function()
+    assert.equal("1 line · 12.5%", folds._summary(1, {}, 8))
+  end)
+
+  it("puts diagnostic counts ahead of the size", function()
+    assert.equal(" 2 ⣹⣿⣏ 4 lines · 50.0%", folds._summary(4, { " 2" }, 8))
+  end)
+end)
