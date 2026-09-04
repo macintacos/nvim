@@ -407,3 +407,17 @@ starter.setup({
   footer = starter_footer,
   query_updaters = table.concat(query_updaters),
 })
+
+-- Tab/S-Tab as further movement keys. mini.starter exposes no mappings option
+-- and sets its filetype with `noautocmd`, so its own User event is the hook.
+vim.api.nvim_create_autocmd("User", {
+  pattern = "MiniStarterOpened",
+  callback = function()
+    vim.keymap.set("n", "<Tab>", function()
+      starter.update_current_item("next")
+    end, { buffer = 0, nowait = true })
+    vim.keymap.set("n", "<S-Tab>", function()
+      starter.update_current_item("prev")
+    end, { buffer = 0, nowait = true })
+  end,
+})
