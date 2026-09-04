@@ -8,8 +8,15 @@ local statuscolumn = require("mini.statuscolumn")
 
 local wrap_mark = "%{v:lua.require'helpers.statuscolumn'.wrap_mark(v:lnum, v:virtnum)}"
 
--- mini's own default spec, with one change: wrapped rows draw a continuous run
--- ending in an elbow instead of repeating `↳` on every row.
+-- mini's own default spec, with two changes: wrapped rows draw a continuous run
+-- ending in an elbow instead of repeating `↳` on every row, and the cursor line
+-- numbers itself.
+--
+-- `%l` left-aligns the cursor line under 'number' + 'relativenumber' (see
+-- |number_relativenumber|) to leave the absolute number room to outgrow the
+-- relative ones. Printing v:lnum instead drops that allowance, and `%=` then
+-- right-aligns it into the same column as every other line — which the run of
+-- wrapped rows below it hangs off.
 --
 -- The run under the cursor line asks for CursorLineNr rather than its own
 -- colour so that modes.nvim reaches it: that plugin recolours per mode by
@@ -17,8 +24,11 @@ local wrap_mark = "%{v:lua.require'helpers.statuscolumn'.wrap_mark(v:lnum, v:vir
 -- group wherever it is drawn, statuscolumn included.
 statuscolumn.setup({
   content = statuscolumn.gen_content.main({
-    { format = "=lfs", sep = "▏" },
+    -- Fold markers to the left of the number; the space ahead of the signs on
+    -- its right keeps diagnostic icons off the digits.
+    { format = "=fls", sign = " %s", sep = "▏" },
     { ltype = "virt", lnum = "•" },
+    { pos = "cursor", ltype = "text", lnum = "%{v:lnum}" },
     { ltype = "wrap", lnum = "%#StatuscolumnWrap#" .. wrap_mark .. "%*" },
     { pos = "cursor", ltype = "wrap", lnum = "%#CursorLineNr#" .. wrap_mark .. "%*" },
     { win = "inactive", sep = " " },
