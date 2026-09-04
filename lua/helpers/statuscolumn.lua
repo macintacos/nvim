@@ -6,6 +6,20 @@ local M = {}
 local STEM = "│"
 local ELBOW = "╰"
 
+---Line number for one row of buffer text, right-aligned in a field as wide as
+---Vim sizes its own number column: 'numberwidth', grown to fit the buffer's
+---highest line number. `%l` emits bare digits and leaves placement to `%=`, so
+---nothing reserves that room and a long number crowds the fold column to its
+---left. A fixed field keeps every row's layout still.
+---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).
+---@param relnum integer Its distance from the cursor line (|v:relnum|).
+---@return string
+function M.line_number(lnum, relnum)
+  local number = (vim.wo.relativenumber and relnum ~= 0) and relnum or lnum
+  local width = math.max(vim.wo.numberwidth, #tostring(vim.api.nvim_buf_line_count(0)) + 1)
+  return string.format("%" .. width .. "d", number)
+end
+
 ---Marker for one soft-wrapped row, drawn so that the wrapped rows of a line
 ---form a single run descending from the line number and ending in an elbow.
 ---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).

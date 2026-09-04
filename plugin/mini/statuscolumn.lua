@@ -6,17 +6,20 @@ vim.pack.add({ "https://github.com/nvim-mini/mini.statuscolumn" })
 -- Replaces snacks.statuscolumn, which plugin/snacks.lua disables.
 local statuscolumn = require("mini.statuscolumn")
 
-local wrap_mark = "%{v:lua.require'helpers.statuscolumn'.wrap_mark(v:lnum, v:virtnum)}"
+local helper = "v:lua.require'helpers.statuscolumn'"
+local line_number = "%{" .. helper .. ".line_number(v:lnum, v:relnum)}"
+local wrap_mark = "%{" .. helper .. ".wrap_mark(v:lnum, v:virtnum)}"
 
--- mini's own default spec, with two changes: wrapped rows draw a continuous run
--- ending in an elbow instead of repeating `↳` on every row, and the cursor line
--- numbers itself.
+-- mini's own default spec, with two changes: the numbers are drawn here rather
+-- than by `%l`, and wrapped rows draw a continuous run ending in an elbow
+-- instead of repeating `↳` on every row.
 --
--- `%l` left-aligns the cursor line under 'number' + 'relativenumber' (see
--- |number_relativenumber|) to leave the absolute number room to outgrow the
--- relative ones. Printing v:lnum instead drops that allowance, and `%=` then
--- right-aligns it into the same column as every other line — which the run of
--- wrapped rows below it hangs off.
+-- `%l` is dropped for two reasons. It left-aligns the cursor line under
+-- 'number' + 'relativenumber' (see |number_relativenumber|), and it emits bare
+-- digits, so a row's width tracks its digit count. Either one moves the rest of
+-- the column around under `%=`. line_number pads to a fixed width instead, and
+-- every row then lands identically — including the run of wrapped rows, which
+-- hangs off the number above it.
 --
 -- The run under the cursor line asks for CursorLineNr rather than its own
 -- colour so that modes.nvim reaches it: that plugin recolours per mode by
@@ -24,11 +27,12 @@ local wrap_mark = "%{v:lua.require'helpers.statuscolumn'.wrap_mark(v:lnum, v:vir
 -- group wherever it is drawn, statuscolumn included.
 statuscolumn.setup({
   content = statuscolumn.gen_content.main({
-    -- Fold markers to the left of the number; the space ahead of the signs on
-    -- its right keeps diagnostic icons off the digits.
-    { format = "=fls", sign = " %s", sep = "▏" },
+    -- Fold markers sit ahead of the `%=`, pinning them to the left edge rather
+    -- than letting the padding of a short row push them around. The space ahead
+    -- of the signs keeps diagnostic icons off the digits.
+    { format = "f=ls", sign = " %s", sep = "▏" },
     { ltype = "virt", lnum = "•" },
-    { pos = "cursor", ltype = "text", lnum = "%{v:lnum}" },
+    { ltype = "text", lnum = line_number },
     { ltype = "wrap", lnum = "%#StatuscolumnWrap#" .. wrap_mark .. "%*" },
     { pos = "cursor", ltype = "wrap", lnum = "%#CursorLineNr#" .. wrap_mark .. "%*" },
     { win = "inactive", sep = " " },
