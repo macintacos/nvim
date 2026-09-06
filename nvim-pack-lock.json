@@ -18,17 +18,16 @@
       "version": "1.0.0 - 2.0.0"
     },
     "blink.download": {
-      "rev": "c8fdc12c8a2fab6cf786dd7141a283f8079f902b",
+      "rev": "f55df8a6e0a7acccf45ef0ffbb4ce46110fcf7d0",
       "src": "ssh://git@github.com/Saghen/blink.download"
     },
     "blink.lib": {
-      "rev": "8b04d0e0acc8565cfa4dd291a89a9212b7262633",
+      "rev": "f55df8a6e0a7acccf45ef0ffbb4ce46110fcf7d0",
       "src": "https://github.com/Saghen/blink.lib"
     },
     "blink.pairs": {
-      "rev": "aad9046bc4670dc91301cd62a6948feb36c55f4a",
-      "src": "https://github.com/Saghen/blink.pairs",
-      "version": "0.0.0 - 1.0.0"
+      "rev": "21c2ac9164b36ae5e22f84a2dd0f02eaf107f8fe",
+      "src": "https://github.com/Saghen/blink.pairs"
     },
     "chezmoi.nvim": {
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",

@@ -2,7 +2,7 @@
 -- Completion engine with auto-bracket pairing
 vim.pack.add({
   { src = "https://github.com/Saghen/blink.cmp", version = vim.version.range("1.x") },
-  { src = "https://github.com/Saghen/blink.pairs", version = vim.version.range("0.x") },
+  "https://github.com/Saghen/blink.pairs",
   "https://github.com/Saghen/blink.lib",
 })
 
@@ -102,12 +102,7 @@ vim.env.CARGO_TARGET_DIR = saved_cargo_target
 -- pairs by shape rather than by who inserted them. Count the delimiters to the
 -- left instead: an odd count means the cursor sits inside an unclosed span, so
 -- emit a single character to close it.
---
--- The open_or_close hook is implemented and documented upstream but missing
--- from the config validator's field whitelist, so widen the `pairs` schema to a
--- plain table before the config module resolves its defaults.
 local pairs_schema = require("blink.pairs.config.mappings")
-pairs_schema.pairs[2] = "table"
 
 -- blink.pairs ships `*` and `_` rules for typst only, and no `~` rule at all, so
 -- markdown emphasis delimiters never pair. Register them here, before the loop
