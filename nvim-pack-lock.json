@@ -34,7 +34,7 @@
       "src": "https://github.com/xvzc/chezmoi.nvim"
     },
     "codediff.nvim": {
-      "rev": "f67ccdcc0bcf262821f4c4887ca08f3960499bad",
+      "rev": "1c8cc7b6785ec2508dd88ae12302de25afa57656",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "conform.nvim": {
@@ -245,7 +245,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "427e9222363d07c32d6db6169e4049c28d58d141",
+      "rev": "41416e81a6c7f4af4984395bfe0cd8d174e70976",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -257,7 +257,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "f98e2be8923467194d8965d9cc342345fe634b02",
+      "rev": "228d67dad4918f2ad2b71d4fc8a109cb6355f1a2",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -285,7 +285,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "9499318abe813fd36da9be3bca4a52765f7c24f9",
+      "rev": "facb3f26dc91e416425bf51585f3831edb833e02",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
@@ -337,7 +337,7 @@
       "src": "https://github.com/RRethy/vim-illuminate"
     },
     "vim-matchup": {
-      "rev": "5e3c4a3274a9766aee520caebb52572c007fc4f8",
+      "rev": "0106b1afd4a2f7e1098037b5ceb161bab7471088",
       "src": "https://github.com/andymass/vim-matchup"
     },
     "vim-numbertoggle": {
