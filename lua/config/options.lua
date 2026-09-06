@@ -44,7 +44,7 @@ opt.fillchars = {
   diff = "╱",
   eob = " ",
 }
-opt.foldcolumn = "auto:1" -- Fold markers in the gutter, hidden when a buffer has no folds
+opt.foldcolumn = "1" -- Fixed rather than "auto:1": the column doubles as the number's left pad, so it must not collapse in a buffer with no folds
 opt.foldlevel = 99
 opt.foldmethod = "indent"
 opt.foldtext = "v:lua.require'config.folds'.foldtext()"
