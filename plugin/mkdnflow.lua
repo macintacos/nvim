@@ -8,6 +8,10 @@ vim.pack.add({ "https://github.com/jakewvincent/mkdnflow.nvim" })
 -- ",X" buffer-local mappings on each FileType=markdown event.
 require("mkdnflow").setup({
   mappings = {
+    -- Defaults to normal/visual only; insert mode is what continues the list item
+    -- under the cursor on <CR> (and demotes an empty one instead of adding another).
+    MkdnEnter = { { "n", "v", "i" }, "<CR>" },
+
     -- Insert-mode <Tab>/<S-Tab> are mapped in after/ftplugin/markdown.lua instead:
     -- every mkdnflow command for them indents only part of what we want -- MkdnTab
     -- skips a list item that already has text, MkdnIndentListItem drops the cell jump.
