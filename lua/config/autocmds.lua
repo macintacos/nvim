@@ -8,11 +8,17 @@ end
 -- By default, Neovim inserts comment leaders when pressing Enter (r),
 -- opening a new line with o/O (o), or auto-wrapping text (c). This removes
 -- all three so new lines are always plain text.
+-- Markdown gets r and o back so `> ` blockquotes continue: n:> is the only
+-- repeating leader in its 'comments' (the bullet rules carry f), so list
+-- continuation stays mkdnflow's.
 -- Fires: on every FileType detection (overrides ftplugin defaults).
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "*",
-  callback = function()
+  callback = function(event)
     vim.opt_local.formatoptions:remove({ "r", "o", "c" })
+    if event.match == "markdown" then
+      vim.opt_local.formatoptions:append("ro")
+    end
   end,
 })
 
