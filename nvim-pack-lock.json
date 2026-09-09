@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "e82df6c1cfa62bab841569036ca5ca6061334b13",
+      "rev": "3c2f7032044f2b74464baf0787bbf3784ea8c147",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -26,7 +26,7 @@
       "src": "https://github.com/Saghen/blink.lib"
     },
     "blink.pairs": {
-      "rev": "21c2ac9164b36ae5e22f84a2dd0f02eaf107f8fe",
+      "rev": "95485092c16484d5ef5ca8b1919f0d48177a5776",
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "chezmoi.nvim": {
@@ -70,7 +70,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "31d6fb2d618bca1482b9f274751ead5f03461408",
+      "rev": "f2421c550618d257048afa650413d9e542ddbe67",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -90,7 +90,7 @@
       "src": "https://github.com/folke/lazydev.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "40276c4df7e6bdce6801d6c035c6227f9115a855",
+      "rev": "b5576cd62899a1a478d0e67ef3d378ee55dba82d",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason-tool-installer.nvim": {
@@ -225,7 +225,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "84252f9832fb5b9024fe9f7258e7c2aff915e6fb",
+      "rev": "84b6b6c3f13cb34a6c8a0354b0da4c67d8ccf867",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-notify": {
@@ -285,7 +285,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "facb3f26dc91e416425bf51585f3831edb833e02",
+      "rev": "69fbce17b969ae91e9f5d697efca21a374e4876b",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
