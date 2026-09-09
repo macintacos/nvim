@@ -33,7 +33,9 @@ statuscolumn.setup({
     { format = "f=ls", sign = " %s", sep = "▏" },
     { ltype = "virt", lnum = "•" },
     { ltype = "text", lnum = line_number },
-    { ltype = "wrap", lnum = "%#StatuscolumnWrap#" .. wrap_mark .. "%*" },
+    -- `%C` is evaluated per row, so a fold marker otherwise repeats down every
+    -- wrapped row of a folded line.
+    { ltype = "wrap", fold = " ", lnum = "%#StatuscolumnWrap#" .. wrap_mark .. "%*" },
     { pos = "cursor", ltype = "wrap", lnum = "%#CursorLineNr#" .. wrap_mark .. "%*" },
     { win = "inactive", sep = " " },
   }),
