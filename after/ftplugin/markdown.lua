@@ -1,3 +1,8 @@
+-- Softwrapped blockquotes hang under their text: 'breakindentopt=list:-1' sizes
+-- the indent from 'formatlistpat', which the runtime ftplugin covers for list
+-- markers only. The trailing group keeps a list inside a quote aligned too.
+vim.opt_local.formatlistpat:append([[\|^\s*>\+\s*\%([-*+]\s\+\|\d\+[.)]\s\+\)\=]])
+
 -- <Tab>/<S-Tab> indent the list item under the cursor, in insert mode.
 -- mkdnflow's own MkdnTab does this only for an empty item, so its <Tab> mapping
 -- is disabled in plugin/mkdnflow.lua in favor of these.

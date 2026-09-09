@@ -25,6 +25,8 @@ local opt = vim.opt
 
 opt.autoread = true -- If a file is changed, re-read it to update the view
 opt.autowrite = true -- Enable auto write
+opt.breakindent = true -- Softwrapped lines keep the indent of the line they wrap
+opt.breakindentopt = "list:-1" -- Hang wrapped list items under the text, not the marker (uses 'formatlistpat')
 -- only set clipboard if not in ssh, to make sure the OSC 52
 -- integration works automatically.
 opt.clipboard = vim.env.SSH_TTY and "" or "unnamedplus" -- Sync with system clipboard
