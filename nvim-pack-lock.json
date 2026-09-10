@@ -8,18 +8,10 @@
       "rev": "c0f2a95145e9bececa584b9eb7a821079fda6dca",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
-    "auto-session": {
-      "rev": "c8e6139a2e52a38101fecaba6014d7dd75489044",
-      "src": "ssh://git@github.com/rmagatti/auto-session"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/Saghen/blink.cmp",
       "version": "1.0.0 - 2.0.0"
-    },
-    "blink.download": {
-      "rev": "f55df8a6e0a7acccf45ef0ffbb4ce46110fcf7d0",
-      "src": "ssh://git@github.com/Saghen/blink.download"
     },
     "blink.lib": {
       "rev": "f55df8a6e0a7acccf45ef0ffbb4ce46110fcf7d0",
@@ -60,10 +52,6 @@
     "dropbar.nvim": {
       "rev": "808ba31cde89aec8833e9789f5e04557cd31c9e1",
       "src": "https://github.com/Bekaboo/dropbar.nvim"
-    },
-    "fff.nvim": {
-      "rev": "25f3546b4990af9c7893bd77064717d6aa54b331",
-      "src": "ssh://git@github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
       "rev": "5f0f270fdc7c5b0c21d903ee85b9cb06f2ac636a",
@@ -196,18 +184,6 @@
       "rev": "704b99f10a72cc05d370cfeb294ff83412a8ab55",
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
-    "noice.nvim": {
-      "rev": "7bfd942445fb63089b59f97ca487d605e715f155",
-      "src": "ssh://git@github.com/folke/noice.nvim"
-    },
-    "nordic.nvim": {
-      "rev": "9fb62116b891184049c50ca6ffb0d3bc100a1a6e",
-      "src": "ssh://git@github.com/AlexvZyl/nordic.nvim"
-    },
-    "nui.nvim": {
-      "rev": "10fc361835c856ba4233ef5ea135b919bf3dce97",
-      "src": "ssh://git@github.com/MunifTanjim/nui.nvim"
-    },
     "numb.nvim": {
       "rev": "36260c446465b1303b0b1922c722904791bdb03f",
       "src": "https://github.com/nacro90/numb.nvim"
@@ -285,7 +261,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "5ec2831e486ec7a940c1e4ad29e3511a87cc47a2",
+      "rev": "de4c3aa8bf80a6e70144b53c236098898827a059",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
@@ -299,10 +275,6 @@
     "snacks.nvim": {
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://github.com/folke/snacks.nvim"
-    },
-    "tiny-glimmer.nvim": {
-      "rev": "9a48d8a7436231cb16d47c88f924702e5602870a",
-      "src": "ssh://git@github.com/rachartier/tiny-glimmer.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
       "rev": "6264451f14119d63a52580e5198d6baf8518b0b2",
@@ -355,10 +327,6 @@
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
-    },
-    "wrapping.nvim": {
-      "rev": "3ecfb37cdc189a4e32d646e1c2ae0f46b9d62740",
-      "src": "ssh://git@github.com/andrewferrier/wrapping.nvim"
     }
   }
 }
