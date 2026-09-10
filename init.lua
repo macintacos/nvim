@@ -21,11 +21,14 @@ local function find_plugin_path(name)
 end
 
 -- Check for plugin updates asynchronously after startup — runs
--- git ls-remote for each plugin in a background thread pool
+-- git ls-remote for each plugin in a background thread pool — and
+-- again whenever vim.pack finishes applying updates
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
-    require("config.pack-updates").check()
+    local pack_updates = require("config.pack-updates")
+    pack_updates.check()
+    pack_updates.recheck_on_update()
   end,
 })
 

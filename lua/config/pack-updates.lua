@@ -253,6 +253,38 @@ function M.check(force)
   end
 end
 
+--- Force a fresh check each time vim.pack finishes applying updates, so the
+--- count drops as soon as they land instead of on the next startup.
+function M.recheck_on_update()
+  local group = vim.api.nvim_create_augroup("pack_updates_recheck", {})
+  local updated = false
+
+  -- Fires once per plugin as vim.pack checks it out. Only note it: the batch
+  -- is still running, so other checkouts may not be on disk yet.
+  vim.api.nvim_create_autocmd("PackChanged", {
+    group = group,
+    callback = function(ev)
+      if ev.data.kind == "update" then
+        updated = true
+      end
+    end,
+  })
+
+  -- vim.pack reports status "success" when a whole batch finishes — the first
+  -- point every checkout in it is on disk. Batches that only downloaded
+  -- (before the confirm buffer opens) changed nothing, so skip those.
+  vim.api.nvim_create_autocmd("Progress", {
+    group = group,
+    pattern = "vim.pack",
+    callback = function(ev)
+      if updated and ev.data.status == "success" then
+        updated = false
+        M.check(true)
+      end
+    end,
+  })
+end
+
 --- Return the number of plugins with available updates.
 ---@return integer
 function M.update_count()
