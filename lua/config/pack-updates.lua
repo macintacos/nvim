@@ -1,8 +1,8 @@
 --- Asynchronous plugin update checker for vim.pack.
 ---
---- Compares locked revisions in nvim-pack-lock.json against remote HEAD
---- using `git ls-remote`. All network calls run in libuv's thread pool
---- via `vim.system()` — zero impact on the main loop.
+--- Compares the checked-out revision of each plugin in nvim-pack-lock.json
+--- against remote HEAD using `git ls-remote`. All network calls run in
+--- libuv's thread pool via `vim.system()` — zero impact on the main loop.
 ---
 --- Results are cached to disk for 24 hours. The cache is invalidated
 --- when the lock file is modified (e.g. after `vim.pack.update()`),
@@ -22,8 +22,9 @@ local SPINNER_FRAMES = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧",
 local SPINNER_INTERVAL_MS = 80
 local LOCKFILE_PATH = vim.fn.stdpath("config") .. "/nvim-pack-lock.json"
 local CACHE_PATH = vim.fn.stdpath("cache") .. "/pack-updates-cache.json"
+local PACK_DIR = vim.fn.stdpath("data") .. "/site/pack/core/opt"
 
----@type integer Number of plugins with a newer remote HEAD than the locked rev
+---@type integer Number of plugins with a newer remote HEAD than the checked-out rev
 local count = 0
 
 ---@type integer Current spinner frame index (1-based)
@@ -102,6 +103,38 @@ local function cache_is_valid()
   return true, cache
 end
 
+--- Read the revision checked out on disk. vim.pack keeps plugins on a
+--- detached HEAD, so `.git/HEAD` holds the bare SHA.
+---@param plugin_dir string
+---@return string?
+local function installed_rev(plugin_dir)
+  local f = io.open(plugin_dir .. "/.git/HEAD", "r")
+  if not f then
+    return nil
+  end
+  local rev = f:read("*l")
+  f:close()
+  return rev
+end
+
+--- Select the plugins whose remote ref we can resolve: no version (query
+--- HEAD) or a pinned branch/tag (e.g. "'stable'").
+---@param plugins table<string, { src: string, rev: string, version: string? }> Lockfile entries by name
+---@param pack_dir string Directory vim.pack installs plugins into
+---@return { src: string, rev: string, version: string? }[]
+local function build_queue(plugins, pack_dir)
+  local queue = {}
+  for name, spec in pairs(plugins) do
+    -- Baseline is the checkout, not the lockfile rev: that's what vim.pack.update()
+    -- diffs against, and the lockfile can lag it.
+    local rev = installed_rev(pack_dir .. "/" .. name)
+    if rev and (not spec.version or spec.version:match("^'(.+)'$")) then
+      table.insert(queue, { src = spec.src, rev = rev, version = spec.version })
+    end
+  end
+  return queue
+end
+
 -- Start the braille spinner animation in the statusline.
 -- Cycles through SPINNER_FRAMES on a repeating timer, redrawing
 -- the statusline on each tick. spinner_timer doubles as the
@@ -165,16 +198,7 @@ function M.check(force)
   count = 0
   start_spinner()
 
-  ---@type { src: string, rev: string, version: string? }[]
-  local queue = {}
-  for _, spec in pairs(plugins) do
-    -- Only queue plugins whose remote ref we can resolve:
-    -- no version (query HEAD) or pinned branch/tag (e.g. "'stable'")
-    if not spec.version or spec.version:match("^'(.+)'$") then
-      table.insert(queue, { src = spec.src, rev = spec.rev, version = spec.version })
-    end
-  end
-
+  local queue = build_queue(plugins, PACK_DIR)
   local total = #queue
   local completed = 0
   local idx = 0
@@ -240,5 +264,7 @@ end
 function M.is_checking()
   return spinner_timer ~= nil
 end
+
+M._build_queue = build_queue
 
 return M
