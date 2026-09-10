@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "745dd39d3fb4cc4f2c48b1d06a8210cead896099",
+      "rev": "c0f2a95145e9bececa584b9eb7a821079fda6dca",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -62,7 +62,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "d84c0a10cd5ea23285cb5575fa90179f51710f99",
+      "rev": "25f3546b4990af9c7893bd77064717d6aa54b331",
       "src": "ssh://git@github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
