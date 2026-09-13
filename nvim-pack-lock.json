@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "c0f2a95145e9bececa584b9eb7a821079fda6dca",
+      "rev": "8aaa47792dbdebbc079b709b1f9eee1decc2f990",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "blink.cmp": {
@@ -26,7 +26,7 @@
       "src": "https://github.com/xvzc/chezmoi.nvim"
     },
     "codediff.nvim": {
-      "rev": "dfc9211879d748ea161f983d33272e7ebc111357",
+      "rev": "4b3ad7eb99dd0f02e64bbaf562ca1e87e8c07cc9",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "conform.nvim": {
@@ -78,7 +78,7 @@
       "src": "https://github.com/folke/lazydev.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "b5576cd62899a1a478d0e67ef3d378ee55dba82d",
+      "rev": "0c5d026dcd39bc3433be16a01395699cabbd1019",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason-tool-installer.nvim": {
@@ -233,7 +233,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "42ab815694dd0c52c00aafcbb2bab694036d6c21",
+      "rev": "7ab3ba0ecb33bad2f7b72175c9bbab62a8c82c83",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -261,7 +261,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "de4c3aa8bf80a6e70144b53c236098898827a059",
+      "rev": "c20095002309265822dc41b3a65e8b8b8940ca55",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
