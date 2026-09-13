@@ -68,6 +68,7 @@ function M.pick()
       end,
     },
     mappings = { toggle_preview = "<Space>" },
+    window = require("plugins.mini-pickers.preview").window(),
   })
 end
 

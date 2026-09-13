@@ -6,6 +6,7 @@
 ---This asks the server directly and keeps the tree.
 
 local kinds = require("plugins.mini-pickers.kinds")
+local preview = require("plugins.mini-pickers.preview")
 local render = require("plugins.mini-pickers.render")
 local symbols = require("plugins.mini-pickers.symbols")
 
@@ -111,6 +112,7 @@ function M.pick(opts)
     end
     MiniPick.start({
       source = { items = items, name = opts.name or "LSP (document_symbol)", show = show },
+      window = preview.window(),
     })
   end)
 end

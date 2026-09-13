@@ -8,6 +8,8 @@ local M = {}
 ---Register the customised pickers. Must run after `mini.pick` and `mini.extra`
 ---have been set up, since it writes into the registry they create.
 function M.setup()
+  require("plugins.mini-pickers.preview").setup()
+
   MiniPick.registry.files = function()
     return require("plugins.mini-pickers.files").pick()
   end
@@ -24,7 +26,7 @@ function M.setup()
     end
     -- references/definition/etc. are location lists, not symbols — leave them be.
     if not scope:find("symbol") then
-      return MiniExtra.pickers.lsp(local_opts)
+      return MiniExtra.pickers.lsp(local_opts, { window = require("plugins.mini-pickers.preview").window() })
     end
     return require("plugins.mini-pickers.workspace").pick(local_opts, scope)
   end

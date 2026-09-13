@@ -11,6 +11,7 @@
 ---hits arrive already grouped by path: one header per run of equal paths covers
 ---every hit in that file.
 
+local preview = require("plugins.mini-pickers.preview")
 local render = require("plugins.mini-pickers.render")
 local symbols = require("plugins.mini-pickers.symbols")
 
@@ -118,7 +119,7 @@ M._scope = scope
 ---@param local_opts table? Options for `MiniPick.builtin.grep_live`.
 ---@param opts table? Options for `MiniPick.start`, merged over the custom show.
 function M.pick(local_opts, opts)
-  opts = vim.tbl_deep_extend("force", { source = { show = show } }, opts or {})
+  opts = vim.tbl_deep_extend("force", { source = { show = show }, window = preview.window() }, opts or {})
   return MiniPick.builtin.grep_live(local_opts, opts)
 end
 

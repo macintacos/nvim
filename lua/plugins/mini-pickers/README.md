@@ -16,6 +16,23 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 
 Other `lsp` scopes (`references`, `definition`, …) pass straight through to mini.extra — they are location lists with no symbol structure to recover.
 
+## The side preview
+
+mini.pick draws its preview *in place of* the list. `preview.lua` hangs a second float right of the list instead, showing the current item as it moves:
+
+```text
+┌─ list (40%) ──────────┐┌─ preview (the rest) ───────────────────────┐
+│ 󰢱 lua/init.lua        ││ local M = {}                               │
+│   return M         12 ││ …the file, the hit's line highlighted      │
+└───────────────────────┘└────────────────────────────────────────────┘
+```
+
+A picker opts in with `window = preview.window()` — `files`, `grep_live`, and every `lsp` scope do; `vim.ui.select` and the rest keep the single window. Below `MIN_COLUMNS` (120) no float opens and the list takes the whole width, as before; the in-place toggle still works there.
+
+The float is filled by the picker's own `source.preview`, which is what makes location items land on their line: `MiniPick.default_preview` positions the cursor in whichever window shows the buffer it is handed, not the picker's. The landing line then sits 30% down, like the LSP jumps.
+
+mini.pick fires no event when the current item moves, so the float re-renders after every key the picker reads (`vim.on_key`), on `MiniPickMatch` for async items and query changes, and re-fits itself on `VimResized`.
+
 ## The files picker
 
 `MiniPick.builtin.files` picks a tool at runtime — `rg`, then `fd`, then `git`, then a Lua walk — and hardcodes the arguments it calls it with. `files.lua` spells the `rg` call out instead, so the flags are ours:
@@ -107,6 +124,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |
 | `kinds.lua`     | Which symbol kinds count as outline entries, per filetype.               |
 | `render.lua`    | The extmark namespace and the lazily-built highlight groups.             |
+| `preview.lua`   | The side preview float and the list/preview width split.                 |
 | `git.lua`       | `git_blame_line`.                                                        |
 
 Submodules are required on first use, so opening `:Pick files` never loads the LSP or git code.

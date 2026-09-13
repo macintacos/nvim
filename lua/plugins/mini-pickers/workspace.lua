@@ -8,6 +8,7 @@
 ---and re-hung as annotations.
 
 local kinds = require("plugins.mini-pickers.kinds")
+local preview = require("plugins.mini-pickers.preview")
 local render = require("plugins.mini-pickers.render")
 
 local M = {}
@@ -138,7 +139,7 @@ function M.pick(local_opts, scope)
   if scope ~= "workspace_symbol_live" then
     source.match = make_match(local_opts.kinds or kinds.for_filetype(vim.bo.filetype))
   end
-  return MiniExtra.pickers.lsp(local_opts, { source = source })
+  return MiniExtra.pickers.lsp(local_opts, { source = source, window = preview.window() })
 end
 
 return M
