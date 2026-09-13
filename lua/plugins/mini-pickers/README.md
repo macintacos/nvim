@@ -14,7 +14,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
 
-Other `lsp` scopes (`references`, `definition`, …) pass straight through to mini.extra — they are location lists with no symbol structure to recover.
+Other `lsp` scopes (`references`, `definition`, …) pass straight through to mini.extra — they are location lists with no symbol structure to recover. `gr` opens the `references` one.
 
 ## The side preview
 

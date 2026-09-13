@@ -20,8 +20,8 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Make <CR> close the quickfix window after jumping (e.g. picking a result
--- from `gr` LSP references). bqf maps <CR> to open(false) (jump, keep qf open)
+-- Make <CR> close the quickfix window after jumping (e.g. picking one of
+-- several `gd` definitions). bqf maps <CR> to open(false) (jump, keep qf open)
 -- when it attaches to each qf buffer during its after/ftplugin bootstrap; we
 -- repoint it at open(true), which jumps AND closes the window. Deferred with
 -- vim.schedule so this runs after bqf's mapping for the buffer is in place.
