@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "8aaa47792dbdebbc079b709b1f9eee1decc2f990",
+      "rev": "1e2ab5b7f77d6fa625c169e8a0a1d75735d501ee",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "blink.cmp": {

@@ -174,4 +174,4 @@ require("blink.pairs").setup({
 })
 
 -- agentcomplete.nvim must be called AFTER blink.cmp setup
-require("agentcomplete").setup({})
+require("agentcomplete").setup({ context = { stacked = "above" } })
