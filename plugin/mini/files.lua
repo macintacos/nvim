@@ -35,7 +35,73 @@ end
 ---@type string?
 local cut_line = nil
 
+-- Ignored entry names keyed by the directory holding them.
+---@type table<string, table<string, true>>
+local ignored_cache = {}
+
+-- How many direct children each directory hides, for the window footer.
+---@type table<string, integer>
+local hidden_counts = {}
+
+-- Asking git once per directory instead of per entry keeps the filter cheap.
+-- --directory collapses a wholly ignored tree into a single entry, so
+-- node_modules costs one line rather than thousands.
+---@param dir string
+---@return table<string, true>
+local function ignored_in(dir)
+  if ignored_cache[dir] then
+    return ignored_cache[dir]
+  end
+  local set, count = {}, 0
+  local out = vim.fn.systemlist({
+    "git",
+    "-C",
+    dir,
+    "ls-files",
+    "--others",
+    "--ignored",
+    "--exclude-standard",
+    "--directory",
+  })
+  if vim.v.shell_error == 0 then
+    for _, rel in ipairs(out) do
+      local name = (rel:gsub("/$", ""))
+      set[name] = true
+      -- Nested paths keep a separator; only the direct children are hidden here
+      if not name:find("/") then
+        count = count + 1
+      end
+    end
+  end
+  ignored_cache[dir], hidden_counts[dir] = set, count
+  return set
+end
+
+---@param entry { path: string, name: string }
+---@return boolean
+local function filter_tracked(entry)
+  return not ignored_in(vim.fs.dirname(entry.path))[entry.name]
+end
+
+local function filter_all()
+  return true
+end
+
+local show_ignored = false
+
 local augroup = vim.api.nvim_create_augroup("mini_files_config", { clear = true })
+
+-- Drop the git-ignore cache when the explorer closes, so the next session is
+-- classified against a fresh `git ls-files`. Clearing on open would land after
+-- the first window update -- mini.files fires that event last -- and leave the
+-- hidden-count footer blank for the rest of the session.
+vim.api.nvim_create_autocmd("User", {
+  group = augroup,
+  pattern = "MiniFilesExplorerClose",
+  callback = function()
+    ignored_cache, hidden_counts = {}, {}
+  end,
+})
 
 -- Keep the preview pane width proportional when the terminal is resized
 vim.api.nvim_create_autocmd("VimResized", {
@@ -51,8 +117,21 @@ vim.api.nvim_create_autocmd("VimResized", {
   end,
 })
 
--- Cap window height at 70% of screen and auto-fit directory preview
--- columns to their content width instead of using the full preview width
+-- The directory a mini.files window is showing, or nil if it isn't one.
+---@param win_id integer
+---@return string?
+local function window_dir(win_id)
+  local state = require("mini.files").get_explorer_state()
+  for _, win in ipairs(state and state.windows or {}) do
+    if win.win_id == win_id then
+      return win.path
+    end
+  end
+end
+
+-- Cap window height at 70% of screen, auto-fit directory preview columns to
+-- their content width instead of using the full preview width, and badge the
+-- border with the number of gitignored entries the filter is hiding
 vim.api.nvim_create_autocmd("User", {
   group = augroup,
   pattern = "MiniFilesWindowUpdate",
@@ -74,6 +153,17 @@ vim.api.nvim_create_autocmd("User", {
       local content_width = directory_content_width(buf_id)
       if content_width then
         config.width = content_width + 1
+        changed = true
+      end
+    end
+
+    if config.border and config.border ~= "none" then
+      local dir = window_dir(win_id)
+      local n = (not show_ignored) and dir and hidden_counts[dir] or 0
+      local footer = n > 0 and (" %d hidden "):format(n) or ""
+      local current = type(config.footer) == "table" and config.footer[1][1] or ""
+      if current ~= footer then
+        config.footer, config.footer_pos = footer, "right"
         changed = true
       end
     end
@@ -169,6 +259,13 @@ vim.api.nvim_create_autocmd("User", {
       files.synchronize()
       local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
       vim.api.nvim_feedkeys(esc, "n", false)
+    end, { buffer = buf })
+
+    -- I: reveal gitignored entries, hidden by default. Shadows the built-in
+    -- insert-at-line-start, which has no use here — names are edited with i/o.
+    map("Toggle gitignored files", "n", "I", function()
+      show_ignored = not show_ignored
+      files.refresh({ content = { filter = show_ignored and filter_all or filter_tracked } })
     end, { buffer = buf })
 
     -- H: jump the explorer back to the current working directory.
@@ -321,6 +418,9 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 require("mini.files").setup({
+  content = {
+    filter = filter_tracked,
+  },
   windows = {
     preview = true,
     width_preview = preview_width(),
