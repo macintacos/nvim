@@ -15,6 +15,22 @@ local function set_flash_hl()
   vim.api.nvim_set_hl(0, "FlashPaste", { bg = p.blue, fg = p.base })
 end
 
+-- Query matches in mini.pick: solid blocks in the list and the preview.
+--
+-- The list marks matches at extmark priority 200 and the current row at 201,
+-- so the row's colours win over the match's on that row. `reverse` is a flag,
+-- and flags survive the override: a match draws as a teal block on other rows
+-- and as a block of the current row's foreground on the current one.
+local function set_picker_match_hl()
+  local ok, palettes = pcall(require, "catppuccin.palettes")
+  if not ok then
+    return
+  end
+  local p = palettes.get_palette()
+  vim.api.nvim_set_hl(0, "MiniPickMatchRanges", { fg = p.teal, bg = p.base, reverse = true, bold = true })
+  vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = p.base, bg = p.teal, bold = true })
+end
+
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups.
 -- Fires when catppuccin loads at startup (plugin/catppuccin.lua) and on any
 -- later colorscheme change. The immediate call covers manual :source of this
@@ -23,7 +39,9 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   pattern = "catppuccin*",
   callback = function()
     set_flash_hl()
+    set_picker_match_hl()
   end,
 })
 
 set_flash_hl()
+set_picker_match_hl()
