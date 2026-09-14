@@ -14,7 +14,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
 
-Other `lsp` scopes (`references`, `definition`, …) pass straight through to mini.extra — they are location lists with no symbol structure to recover. `gr` opens the `references` one.
+The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `gr` opens the `references` one.
 
 ## The side preview
 
@@ -119,6 +119,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `symbols.lua`   | Flattening a document-symbol tree into items carrying `guides`/`crumb`.  |
 | `outline.lua`   | The document-symbol picker and its two-mode renderer.                    |
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |
+| `locations.lua` | `show`/`match` for references, definitions, and the other location lists. |
 | `kinds.lua`     | Which symbol kinds count as outline entries, per filetype.               |
 | `render.lua`    | The extmark namespace and the lazily-built highlight groups.             |
 | `preview.lua`   | The side preview float and the list/preview width split.                 |

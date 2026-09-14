@@ -24,9 +24,8 @@ function M.setup()
     if scope == "document_symbol" then
       return require("plugins.mini-pickers.outline").pick(local_opts)
     end
-    -- references/definition/etc. are location lists, not symbols — leave them be.
     if not scope:find("symbol") then
-      return MiniExtra.pickers.lsp(local_opts, { window = require("plugins.mini-pickers.preview").window() })
+      return require("plugins.mini-pickers.locations").pick(local_opts)
     end
     return require("plugins.mini-pickers.workspace").pick(local_opts, scope)
   end
