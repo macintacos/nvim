@@ -74,28 +74,19 @@ end
 ---it, so `topfill` has to reserve the row. Without this the breadcrumb above
 ---the *first* result is silently missing while every other one renders.
 ---
----Deferred because mini.pick sets the cursor after `source.show` returns,
----which resets the view — so this has to land after each of its renders.
+---Call it after `MiniPick.default_show`, on every render: rewriting the lines
+---drops `topfill`, and mini.pick draws the frame as soon as `source.show`
+---returns. Deferring it paints the list a row off first, a visible jump.
 ---@param win integer
 ---@param needed boolean Whether the first line carries a trail.
 function M.reserve_trail_row(win, needed)
-  vim.schedule(function()
-    if not vim.api.nvim_win_is_valid(win) then
-      return
-    end
-    local want = needed and 1 or 0
-    local changed = vim.api.nvim_win_call(win, function()
-      if vim.fn.winsaveview().topfill == want then
-        return false
-      end
+  if not vim.api.nvim_win_is_valid(win) then
+    return
+  end
+  local want = needed and 1 or 0
+  vim.api.nvim_win_call(win, function()
+    if vim.fn.winsaveview().topfill ~= want then
       vim.fn.winrestview({ topfill = want })
-      return true
-    end)
-    -- `winrestview` moves the view without repainting, and mini.pick drew this
-    -- frame before the callback ran — so without this the reserved row stays
-    -- blank until the next keystroke happens to redraw.
-    if changed then
-      vim.cmd("redraw")
     end
   end)
 end

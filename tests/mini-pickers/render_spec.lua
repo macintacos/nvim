@@ -31,25 +31,18 @@ local function topfill(win)
   end)
 end
 
----`reserve_trail_row` defers its work, so let the scheduled callback run.
----@param win integer
----@param want integer
-local function wait_for_topfill(win, want)
-  vim.wait(500, function()
-    return topfill(win) == want
-  end, 10)
-end
-
 describe("mini-pickers.render", function()
   describe("reserve_trail_row", function()
-    it("reserves the display row Neovim would otherwise clip the trail into", function()
+    it("reserves the display row Neovim would otherwise clip the trail into, before returning", function()
       local win, buf = float_with_trail({ "one", "two", "three" })
       -- Neovim draws no filler above the topline on its own, which is exactly
       -- why a trail on the first row goes missing.
       assert.equal(0, topfill(win))
 
+      -- Checked straight away: mini.pick draws the frame as soon as `source.show`
+      -- returns, so a reservation that lands any later paints the list a row
+      -- off first.
       render.reserve_trail_row(win, true)
-      wait_for_topfill(win, 1)
 
       assert.equal(1, topfill(win))
       vim.api.nvim_win_close(win, true)
@@ -59,10 +52,7 @@ describe("mini-pickers.render", function()
     it("releases the row when the first line carries no trail", function()
       local win, buf = float_with_trail({ "one", "two", "three" })
       render.reserve_trail_row(win, true)
-      wait_for_topfill(win, 1)
-
       render.reserve_trail_row(win, false)
-      wait_for_topfill(win, 0)
 
       assert.equal(0, topfill(win))
       vim.api.nvim_win_close(win, true)
@@ -74,11 +64,8 @@ describe("mini-pickers.render", function()
       vim.api.nvim_win_close(win, true)
       vim.api.nvim_buf_delete(buf, { force = true })
 
-      render.reserve_trail_row(win, true)
       assert.has_no.errors(function()
-        vim.wait(50, function()
-          return false
-        end, 10)
+        render.reserve_trail_row(win, true)
       end)
     end)
   end)
