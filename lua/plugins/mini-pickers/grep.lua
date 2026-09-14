@@ -11,7 +11,7 @@
 ---hits arrive already grouped by path: one header per run of equal paths covers
 ---every hit in that file.
 
-local preview = require("plugins.mini-pickers.preview")
+local side_preview = require("plugins.mini-pickers.preview")
 local render = require("plugins.mini-pickers.render")
 local symbols = require("plugins.mini-pickers.symbols")
 
@@ -27,13 +27,66 @@ local M = {}
 ---@return string? path nil when the item is not an rg hit.
 ---@return string? lnum
 ---@return string text Always set; the item verbatim when it does not parse.
+---@return integer? col 1-based byte column where the hit starts.
 local function parse(item)
   local str = tostring(item)
-  local path, lnum, text = str:match("^(.-)%z(%d+)%z%d+%z(.*)$")
+  local path, lnum, col, text = str:match("^(.-)%z(%d+)%z(%d+)%z(.*)$")
   if not path then
     return nil, nil, str
   end
-  return path, lnum, (text:gsub("^%s+", ""))
+  return path, lnum, (text:gsub("^%s+", "")), tonumber(col)
+end
+
+-- Characters Vim's very-magic regex treats as operators but rg's regex reads
+-- literally. Everything else the two dialects spell the same way.
+local VIM_ONLY_SPECIALS = "[<>=@%%&~]"
+
+---Where the query's match ends, given where rg says it starts.
+---
+---rg reports only a hit's start column, which leaves the preview marking one
+---character. The rg pattern is re-run as a Vim regex to measure the rest.
+---Syntax only rg understands (inline flags, lookarounds) fails to compile or to
+---match at `col`, and gets nil rather than a guess.
+---@param line string The line the hit is on.
+---@param col integer 1-based byte column where the hit starts.
+---@param pattern string The rg pattern.
+---@param ignore_case boolean Whether rg searched case-insensitively.
+---@return integer? end_col 0-based exclusive byte column.
+local function match_end(line, col, pattern, ignore_case)
+  local vim_pattern = (ignore_case and "\\c" or "\\C") .. "\\v" .. pattern:gsub(VIM_ONLY_SPECIALS, "\\%0")
+  local ok, regex = pcall(vim.regex, vim_pattern)
+  if not ok then
+    return nil
+  end
+  local from, to = regex:match_str(line:sub(col))
+  if from ~= 0 then
+    return nil
+  end
+  return col - 1 + to
+end
+
+---`source.preview` that marks the whole match, not just its first character.
+---@param buf_id integer
+---@param item any
+local function preview(buf_id, item)
+  MiniPick.default_preview(buf_id, item)
+  local _, lnum, _, col = parse(item)
+  local pattern = table.concat(MiniPick.get_picker_query() or {})
+  if not (lnum and col) or pattern == "" then
+    return
+  end
+  local row = tonumber(lnum) - 1
+  local line = vim.api.nvim_buf_get_lines(buf_id, row, row + 1, false)[1]
+  -- Mirrors the case flag `grep_live` hands rg.
+  local ignore_case = vim.o.ignorecase and not (vim.o.smartcase and pattern:find("%u"))
+  local end_col = line and match_end(line, col, pattern, ignore_case)
+  if end_col then
+    vim.api.nvim_buf_set_extmark(buf_id, render.ns, row, col - 1, {
+      end_col = end_col,
+      hl_group = "MiniPickPreviewRegion",
+      priority = 203,
+    })
+  end
 end
 
 ---`source.show` for the live grep.
@@ -113,13 +166,18 @@ end
 -- worth asserting headlessly.
 M._parse = parse
 M._show = show
+M._match_end = match_end
 M._scope = scope
 
 ---Open the live grep picker.
 ---@param local_opts table? Options for `MiniPick.builtin.grep_live`.
 ---@param opts table? Options for `MiniPick.start`, merged over the custom show.
 function M.pick(local_opts, opts)
-  opts = vim.tbl_deep_extend("force", { source = { show = show }, window = preview.window() }, opts or {})
+  opts = vim.tbl_deep_extend(
+    "force",
+    { source = { show = show, preview = preview }, window = side_preview.window() },
+    opts or {}
+  )
   return MiniPick.builtin.grep_live(local_opts, opts)
 end
 

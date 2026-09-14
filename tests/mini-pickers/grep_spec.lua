@@ -42,6 +42,40 @@ describe("grep", function()
     end)
   end)
 
+  describe("_parse column", function()
+    it("returns the hit's column last", function()
+      local col = select(4, grep._parse(hit("a.lua", 3, 9, "        return true")))
+      assert.equal(9, col)
+    end)
+  end)
+
+  describe("_match_end", function()
+    it("ends a literal match after its last byte", function()
+      assert.equal(10, grep._match_end("local file = 1", 7, "file", false))
+    end)
+
+    it("measures a regex match by what it matched, not the pattern", function()
+      assert.equal(10, grep._match_end("foo_bar123", 5, "bar\\d+", false))
+    end)
+
+    it("follows the case rule rg searched with", function()
+      assert.equal(10, grep._match_end("Local File", 7, "file", true))
+      assert.is_nil(grep._match_end("Local File", 7, "file", false))
+    end)
+
+    it("treats characters only Vim's regex finds special as literals", function()
+      assert.equal(5, grep._match_end("a <b> c", 3, "<b>", false))
+    end)
+
+    it("gives up when the pattern does not match where rg said it starts", function()
+      assert.is_nil(grep._match_end("xfile", 1, "file", false))
+    end)
+
+    it("gives up on syntax Vim's regex cannot compile", function()
+      assert.is_nil(grep._match_end("abc", 1, "(?i)abc", false))
+    end)
+  end)
+
   describe("_scope", function()
     it("searches a directory whole, unrestricted", function()
       local cwd, globs = grep._scope("/proj/lua", "directory")

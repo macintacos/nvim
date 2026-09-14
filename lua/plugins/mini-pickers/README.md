@@ -77,6 +77,8 @@ Nothing expands the entries — the spawn has no shell — so each is a plain re
 
 The header is the same `virt_lines_above` mark the outline's breadcrumb uses, with the same `render.reserve_trail_row` fix for the first row, and leading indentation is stripped from the text so a deeply nested match does not start off the right edge.
 
+The preview marks the whole match. rg reports only where a hit starts, so `grep.lua` re-runs the query as a Vim very-magic regex from that column to find where it ends; characters only Vim treats as operators (`<>=@%&~`) are escaped first. A pattern Vim cannot compile or match there — inline flags, lookarounds — keeps mini.pick's one-character mark.
+
 One header covers a whole file because `grep_live` sets its items with `do_match = false` and rg walks a file at a time — hits arrive already grouped, so a run of equal paths is a run of hits in one file. Nothing re-sorts them; a query change re-runs rg rather than reordering what is on screen.
 
 ## The outline
