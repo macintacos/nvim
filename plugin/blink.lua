@@ -110,9 +110,18 @@ local pairs_schema = require("blink.pairs.config.mappings")
 -- delimiter -- that predicate is also what makes `**bold**` and `~~strike~~`
 -- work: the second keypress lands on an existing closer and shifts past it.
 local md = { "markdown", "markdown_inline" }
+
+---Whether the cursor sits outside an inline code span, where emphasis is literal.
+---@param ctx blink.pairs.Context
+---@return boolean
+local function outside_code_span(ctx)
+  local _, backticks = ctx:text_before_cursor():gsub("`", "")
+  return backticks % 2 == 0
+end
+
 local md_rules = {
-  ["*"] = { "*", languages = md, enter = false, space = false },
-  ["~"] = { "~", languages = md, enter = false, space = false },
+  ["*"] = { "*", languages = md, enter = false, space = false, when = outside_code_span },
+  ["~"] = { "~", languages = md, enter = false, space = false, when = outside_code_span },
   ["_"] = {
     "_",
     languages = md,
@@ -122,7 +131,7 @@ local md_rules = {
     -- pair at a word boundary -- unless a closer is already under the cursor,
     -- which is how `_em_` closes its own span.
     when = function(ctx)
-      return ctx:is_after_cursor("_") or not ctx:text_before_cursor():match("%w$")
+      return outside_code_span(ctx) and (ctx:is_after_cursor("_") or not ctx:text_before_cursor():match("%w$"))
     end,
   },
 }
