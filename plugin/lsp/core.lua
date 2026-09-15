@@ -42,8 +42,8 @@ function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
   return orig_open_floating_preview(contents, syntax, opts, ...)
 end
 
-map("Show Hover", "n", "gh", function()
-  vim.lsp.buf.hover({ border = "rounded", max_width = 80, min_width = 40 })
+map("Show Hover / Line Diagnostics", "n", "gh", function()
+  require("helpers.hover").hover({ border = "rounded", max_width = 80, min_width = 40, anchor_bias = "above" })
 end, { silent = true })
 map("Goto References", "n", "gr", function()
   MiniPick.registry.lsp({ scope = "references" })
