@@ -23,6 +23,8 @@ map("Add Cursor Below", { "n", "x" }, "<C-S-j>", function() mc.lineAddCursor(1) 
 
 map("Add Cursor to Next Match", { "n", "x" }, "<C-n>", function() mc.matchAddCursor(1) end)
 map("Add Cursor to Next Match", { "n", "x" }, "gn", function() mc.matchAddCursor(1) end)
+map("Add Cursor to Next Match", { "n", "x" }, "gb", function() mc.matchAddCursor(1) end)
+map("Add Cursor to All Matches", { "n", "x" }, "gB", function() mc.matchAllAddCursors() end)
 map("Add Cursor to Prev Match", { "n", "x" }, "<C-S-n>", function() mc.matchAddCursor(-1) end)
 map("Add Cursor to Prev Match", { "n", "x" }, "gN", function() mc.matchAddCursor(-1) end)
 map("Add Cursor to All Matches", { "n", "x" }, "gA", function() mc.matchAllAddCursors() end)
