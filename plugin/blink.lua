@@ -93,71 +93,10 @@ local saved_cargo_target = vim.env.CARGO_TARGET_DIR
 vim.env.CARGO_TARGET_DIR = pairs_root .. "/target"
 require("blink.pairs").build():pwait(120000)
 vim.env.CARGO_TARGET_DIR = saved_cargo_target
--- blink.pairs asks its Rust parser whether a delimiter before the cursor is
--- still unmatched, and only opens a fresh pair when it isn't. That parser
--- tracks a stack of distinct opening/closing tokens, so symmetric delimiters
--- (` " $ ' _ *) are never on it and the lookup always answers nil. Typing ` at
--- the end of `foo therefore inserts a whole new pair instead of closing the
--- span, giving `foo``, and <BS> then deletes both delimiters because it removes
--- pairs by shape rather than by who inserted them. Count the delimiters to the
--- left instead: an odd count means the cursor sits inside an unclosed span, so
--- emit a single character to close it.
 local pairs_schema = require("blink.pairs.config.mappings")
+local blink_pairs = require("plugins.blink-pairs")
 
--- blink.pairs ships `*` and `_` rules for typst only, and no `~` rule at all, so
--- markdown emphasis delimiters never pair. Register them here, before the loop
--- below, so they pick up the same balanced() predicate as every other symmetric
--- delimiter -- that predicate is also what makes `**bold**` and `~~strike~~`
--- work: the second keypress lands on an existing closer and shifts past it.
-local md = { "markdown", "markdown_inline" }
-
----Whether the cursor sits outside an inline code span, where emphasis is literal.
----@param ctx blink.pairs.Context
----@return boolean
-local function outside_code_span(ctx)
-  local _, backticks = ctx:text_before_cursor():gsub("`", "")
-  return backticks % 2 == 0
-end
-
-local md_rules = {
-  ["*"] = { "*", languages = md, enter = false, space = false, when = outside_code_span },
-  ["~"] = { "~", languages = md, enter = false, space = false, when = outside_code_span },
-  ["_"] = {
-    "_",
-    languages = md,
-    enter = false,
-    space = false,
-    -- markdown reads `foo_bar` as a literal underscore, not emphasis, so only
-    -- pair at a word boundary -- unless a closer is already under the cursor,
-    -- which is how `_em_` closes its own span.
-    when = function(ctx)
-      return outside_code_span(ctx) and (ctx:is_after_cursor("_") or not ctx:text_before_cursor():match("%w$"))
-    end,
-  },
-}
-for key, rule in pairs(md_rules) do
-  local definitions = pairs_schema.pairs[1][key] or {}
-  table.insert(definitions, rule)
-  pairs_schema.pairs[1][key] = definitions
-end
-
----Build an `open_or_close` predicate for a symmetric delimiter.
----@param char string The delimiter, which is both the opening and closing text
----@return fun(ctx: blink.pairs.Context): boolean open Whether to insert a pair
-local function balanced(char)
-  local pattern = vim.pesc(char)
-  return function(ctx)
-    -- A closer already sits under the cursor; let blink.pairs jump over it
-    if ctx:is_after_cursor(char) then
-      return true
-    end
-    local before = ctx:text_before_cursor():gsub("\\.", "")
-    local _, count = before:gsub(pattern, "")
-    return count % 2 == 0
-  end
-end
-
--- Walk the default rule definitions and attach the predicate to every
+-- Walk the default rule definitions and attach the parity predicate to every
 -- single-character symmetric rule. Opening/closing are derived the same way
 -- blink.pairs' own rule.rule_from_def() derives them.
 for key, definitions in pairs(pairs_schema.pairs[1]) do
@@ -166,10 +105,18 @@ for key, definitions in pairs(pairs_schema.pairs[1]) do
       local closing = #def == 1 and def[1] or def[2]
       local opening = #def == 2 and def[1] or key
       if opening == closing and #opening == 1 then
-        def.open_or_close = balanced(opening)
+        def.open_or_close = blink_pairs.balanced(opening)
       end
     end
   end
+end
+
+-- Markdown emphasis rules bring their own span-aware parity predicate, so they
+-- register after the walk instead of inheriting `balanced` from it.
+for key, rule in pairs(blink_pairs.md_rules) do
+  local definitions = pairs_schema.pairs[1][key] or {}
+  table.insert(definitions, rule)
+  pairs_schema.pairs[1][key] = definitions
 end
 
 require("blink.pairs").setup({
@@ -181,6 +128,12 @@ require("blink.pairs").setup({
   },
   debug = false,
 })
+
+-- Markdown emphasis rules must bypass the engine's Rust-parser stage when
+-- opening/closing (see plugins.blink-pairs); every other rule keeps the
+-- original handler.
+local ops = require("blink.pairs.mappings.ops")
+ops.open_or_close_pair = blink_pairs.wrap_open_or_close(ops.open_or_close_pair)
 
 -- agentcomplete.nvim must be called AFTER blink.cmp setup
 require("agentcomplete").setup({ context = { stacked = "above" } })
