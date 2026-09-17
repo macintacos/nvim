@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "1e2ab5b7f77d6fa625c169e8a0a1d75735d501ee",
+      "rev": "14373d96a6de95ae20f208d53d8713738d4a16c2",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "blink.cmp": {
@@ -26,7 +26,7 @@
       "src": "https://github.com/xvzc/chezmoi.nvim"
     },
     "codediff.nvim": {
-      "rev": "4b3ad7eb99dd0f02e64bbaf562ca1e87e8c07cc9",
+      "rev": "09d9ebef2cc5a5c04db7a349cd6c61bdf84ecc8e",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "conform.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "fd36f038e52ad8409fbf9926ae4a0a514cca04d8",
+      "rev": "8d79f2410c76e62b92e51c28c82e28c1c5a3daeb",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -233,7 +233,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "7ab3ba0ecb33bad2f7b72175c9bbab62a8c82c83",
+      "rev": "be5ffb54ac7d18cf92733babab12c85da6a69bac",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -257,11 +257,11 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "render-markdown.nvim": {
-      "rev": "a778444a73080301a50c4a6f58c90d7e094dd59e",
+      "rev": "640a3ec6d538bad17c328be373c7cad0293d9589",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "a8c4f9af91fddb9156f1a3f7d0806de74e62488e",
+      "rev": "a968f5133b8b24f481de12f08cd79420d1ace559",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
@@ -289,7 +289,7 @@
       "src": "https://github.com/folke/ts-comments.nvim"
     },
     "tunnelvision.nvim": {
-      "rev": "110ad7dbdbfce759a02741a712f78da774e7fcb8",
+      "rev": "c1297e231b385cccfce1ee46783aa0f22b566d21",
       "src": "https://github.com/leolaurindo/tunnelvision.nvim"
     },
     "venv-selector.nvim": {
