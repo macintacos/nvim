@@ -3,5 +3,5 @@
 vim.pack.add({ "https://github.com/kylechui/nvim-surround" }, { load = false })
 vim.schedule(function()
   vim.cmd.packadd("nvim-surround")
-  require("nvim-surround").setup()
+  require("nvim-surround").setup({ move_cursor = "sticky" })
 end)
