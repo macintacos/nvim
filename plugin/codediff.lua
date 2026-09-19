@@ -65,28 +65,9 @@ local function dispatch(args)
   vim.cmd("CodeDiff " .. args)
 end
 
-local function git_lines(cmd)
-  local out = vim.fn.systemlist(cmd)
-  if vim.v.shell_error ~= 0 then
-    return {}
-  end
-  return out
-end
-
--- Resolve the repo's base branch: origin/HEAD's target, else the first of
--- main/master/trunk that exists, else "main".
-local function default_base()
-  local head = git_lines({ "git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD" })[1]
-  if head then
-    return (head:gsub("^origin/", ""))
-  end
-  for _, name in ipairs({ "main", "master", "trunk" }) do
-    if #git_lines({ "git", "rev-parse", "--verify", "--quiet", name }) > 0 then
-      return name
-    end
-  end
-  return "main"
-end
+local Git = require("helpers.git")
+local git_lines = Git.lines
+local default_base = Git.default_base
 
 -- vim.ui.select with an empty-list guard and cancel handling.
 local function ui_select(items, opts, on_choice)

@@ -23,6 +23,30 @@ vim.schedule(function()
     end
   end
 
+  -- Point gitsigns at this branch's fork point from the default branch, so the
+  -- gutter marks everything the branch changed rather than just uncommitted
+  -- work. Its global base doubles as the on/off state — no local flag to drift.
+  local function toggle_pr_review()
+    local gitsigns = require("gitsigns")
+    if require("gitsigns.config").config.base then
+      gitsigns.reset_base(true)
+      vim.notify("PR Review Mode: off")
+      return
+    end
+    local base, branch = require("helpers.git").merge_base()
+    if not base then
+      vim.notify("PR Review Mode: no merge base with the default branch", vim.log.levels.WARN)
+      return
+    end
+    gitsigns.change_base(base, true, function(err)
+      if err then
+        vim.notify("PR Review Mode: " .. err, vim.log.levels.ERROR)
+      else
+        vim.notify("PR Review Mode: on (vs " .. branch .. ")")
+      end
+    end)
+  end
+
   require("which-key").setup({
     preset = "helix",
 
@@ -99,6 +123,7 @@ vim.schedule(function()
         end,
         desc = "Git Log File" },
       { "<leader>gH", pick("git_hunks", { scope = "unstaged" }), desc = "Git Hunks (unstaged)" },
+      { "<leader>gp", toggle_pr_review, desc = "PR Review Mode (gutter vs default branch)" },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)" },
       { "<leader>gd", "<Cmd>CodeDiff<CR>", desc = "Diff Changed Files (CodeDiff)" },
       { "<leader>gh", "<Cmd>CodeDiff history<CR>", desc = "File History (CodeDiff)" },
