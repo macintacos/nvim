@@ -43,6 +43,17 @@ describe("mini-pickers.symbols", function()
       assert.same({ 0, 1, 0 }, field(items, "depth"))
     end)
 
+    it("records the body range separately from the name range", function()
+      local fn = sym("wrapper", KIND.Function, 4)
+      fn.range["end"] = { line = 20, character = 1 }
+
+      local items = symbols.flatten({ fn })
+
+      assert.equal(5, items[1].range_lnum)
+      assert.equal(21, items[1].range_end_lnum)
+      assert.equal(5, items[1].end_lnum)
+    end)
+
     it("resolves numeric LSP kinds to their names", function()
       local items = symbols.flatten({ sym("f", KIND.Function, 0) })
 
