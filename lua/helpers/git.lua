@@ -31,6 +31,7 @@ end
 ---Resolve the commit where HEAD forked from the default branch.
 ---@return string? sha nil outside a repo, or when the two share no ancestor.
 ---@return string? branch The default branch the fork point was taken against.
+---@return string? ref The ref actually measured against, remote prefix included.
 function M.merge_base()
   local branch = M.default_base()
   -- origin/ first: a local default branch sitting behind the remote drags the
@@ -38,7 +39,7 @@ function M.merge_base()
   for _, ref in ipairs({ "origin/" .. branch, branch }) do
     local sha = M.lines({ "git", "merge-base", "HEAD", ref })[1]
     if sha then
-      return sha, branch
+      return sha, branch, ref
     end
   end
 end

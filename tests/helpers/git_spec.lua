@@ -85,6 +85,23 @@ describe("helpers.git", function()
       assert.equal("trunk", branch)
     end)
 
+    it("names the remote ref it measured against when one exists", function()
+      local fork = init_repo("trunk")
+      git({ "update-ref", "refs/remotes/origin/trunk", fork })
+      git({ "checkout", "-q", "-b", "feature" })
+
+      local _, _, ref = Git.merge_base()
+      assert.equal("origin/trunk", ref)
+    end)
+
+    it("names the local branch when there is no remote to measure against", function()
+      init_repo("trunk")
+      git({ "checkout", "-q", "-b", "feature" })
+
+      local _, _, ref = Git.merge_base()
+      assert.equal("trunk", ref)
+    end)
+
     it("returns nil outside a repo", function()
       assert.is_nil(Git.merge_base())
     end)
