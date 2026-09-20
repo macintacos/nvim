@@ -7,8 +7,9 @@
 vim.opt.runtimepath:prepend(vim.fn.expand("~/GitLocal/Play/relops.nvim/main"))
 
 require("relops").setup({
-  -- cutlass owns `m` as its cut operator; relops' default `mr` claims all of
-  -- `m` through a dispatcher, so move gets its own leader mapping instead.
-  mappings = { move = "<leader>m" },
+  -- cutlass owns `m` as its cut operator, and relops' default `mr` claims all
+  -- of `m` through a dispatcher. Move stays unmapped rather than take a key
+  -- from either namespace; delete/yank/change keep their defaults.
+  mappings = { move = false },
   preview = { enabled = true },
 })
