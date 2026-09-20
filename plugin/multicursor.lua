@@ -29,6 +29,9 @@ map("Add Cursor to Prev Match", { "n", "x" }, "<C-S-n>", function() mc.matchAddC
 map("Add Cursor to Prev Match", { "n", "x" }, "gN", function() mc.matchAddCursor(-1) end)
 map("Add Cursor to All Matches", { "n", "x" }, "gA", function() mc.matchAllAddCursors() end)
 
+map("Insert at Start of Each Line", "x", "I", mc.insertVisual)
+map("Append at End of Each Line", "x", "A", mc.appendVisual)
+
 map("Multicursor mouse down", "n", "<C-leftmouse>", mc.handleMouse)
 map("Multicursor mouse drag", "n", "<C-leftdrag>", mc.handleMouseDrag)
 map("Multicursor mouse release", "n", "<C-leftrelease>", mc.handleMouseRelease)
