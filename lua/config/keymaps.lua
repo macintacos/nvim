@@ -31,23 +31,25 @@ map("Decrease Window Height", "n", "<A-s>", Cmd("resize -2"))
 map("Decrease Window Width", "n", "<A-a>", Cmd("vertical resize -2"))
 map("Increase Window Width", "n", "<A-d>", Cmd("vertical resize +2"))
 
--- Move Lines (scrolls LSP hover popup first, if one is open)
+-- Move Lines (scrolls LSP hover popup first, if one is open).
+-- The destination is clamped into the buffer: `:move` aborts with E16 on an
+-- address past either end, which is where a move at the top or bottom points.
 map("Scroll Hover / Move Down", "n", "J", function()
   if windows.scroll_hover("down") then
     return
   end
-  vim.cmd("execute 'move .+' . v:count1")
+  vim.cmd("execute 'move ' . min([line('.') + v:count1, line('$')])")
   vim.cmd("normal! ==")
 end)
 map("Scroll Hover / Move Up", "n", "K", function()
   if windows.scroll_hover("up") then
     return
   end
-  vim.cmd("execute 'move .-' . (v:count1 + 1)")
+  vim.cmd("execute 'move ' . max([line('.') - v:count1 - 1, 0])")
   vim.cmd("normal! ==")
 end)
-map("Move Down", "v", "J", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv")
-map("Move Up", "v", "K", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv")
+map("Move Down", "v", "J", ":<C-u>execute \"'<,'>move \" . min([line(\"'>\") + v:count1, line('$')])<cr>gv=gv")
+map("Move Up", "v", "K", ':<C-u>execute "\'<,\'>move " . max([line("\'<") - v:count1 - 1, 0])<cr>gv=gv')
 
 -- Better indentation
 map("Indent left and reselect", "v", "<", "<gv")
