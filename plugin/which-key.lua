@@ -47,8 +47,27 @@ vim.schedule(function()
     end)
   end
 
+  -- which-key's default sort pins buffer-local mappings first and splits groups
+  -- from plain mappings, which buries `<Space>` and scatters keys that belong
+  -- side by side (`p` and `P`). Order by what the key *is* instead; view.lua
+  -- appends a natural, case-aware sort, so within a class `p` lands beside `P`.
+  ---@param item wk.Item
+  ---@return integer
+  local function key_class(item)
+    local key = item.raw_key
+    if key == "<Space>" then
+      return 0
+    elseif key:match("^%d$") then
+      return 1
+    elseif key:match("^%a$") then
+      return 3
+    end
+    return 2
+  end
+
   require("which-key").setup({
     preset = "helix",
+    sort = { "order", key_class },
 
     -- stylua: ignore
     spec = {
