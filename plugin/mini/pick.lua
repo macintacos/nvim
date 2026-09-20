@@ -14,6 +14,32 @@ local function alias(key)
   end
 end
 
+---Move the selection half the list window's height, the way <C-d>/<C-u> move
+---the cursor in a buffer. Re-typing `move_down` that many times would wrap off
+---the last match and carry on from the top, so the jump is computed and set in
+---one go -- which also spares the preview a render per row crossed.
+---@param sign integer -1 to move up, 1 to move down.
+---@return fun()
+local function half_page(sign)
+  return function()
+    local matches = MiniPick.get_picker_matches() or {}
+    local inds = matches.all_inds
+    if inds == nil or #inds == 0 then
+      return
+    end
+    local pos = 1
+    for i, ind in ipairs(inds) do
+      if ind == matches.current_ind then
+        pos = i
+        break
+      end
+    end
+    local height = vim.api.nvim_win_get_height(MiniPick.get_picker_state().windows.main)
+    local target = pos + sign * math.max(math.floor(height / 2), 1)
+    MiniPick.set_picker_match_inds({ inds[math.min(math.max(target, 1), #inds)] }, "current")
+  end
+end
+
 -- setup() also takes over vim.ui.select(), which is why snacks sets
 -- picker.ui_select = false (see plugin/snacks.lua).
 require("mini.pick").setup({
@@ -29,12 +55,18 @@ require("mini.pick").setup({
   mappings = {
     -- move_down/move_up keep their default <C-n>/<C-p>; the aliases below add
     -- <C-j>/<C-k>/<Tab>/<S-Tab>, which displaces the two toggles onto <M-*>.
+    -- <C-d>/<C-u> take the half-page moves. delete_left is dropped rather than
+    -- rehomed: <BS> and <C-w> already trim a query, and leaving the built-in on
+    -- <C-u> makes mini.pick warn about the duplicate on every picker.
     toggle_preview = "<M-p>",
     toggle_info = "<M-i>",
+    delete_left = "",
     move_down_ctrl_j = { char = "<C-j>", func = alias("<C-n>") },
     move_down_tab = { char = "<Tab>", func = alias("<C-n>") },
     move_up_ctrl_k = { char = "<C-k>", func = alias("<C-p>") },
     move_up_shift_tab = { char = "<S-Tab>", func = alias("<C-p>") },
+    move_down_half = { char = "<C-d>", func = half_page(1) },
+    move_up_half = { char = "<C-u>", func = half_page(-1) },
   },
 })
 
