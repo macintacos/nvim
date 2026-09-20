@@ -78,6 +78,13 @@ vim.schedule(function()
       { "<leader>:", pick("history", { scope = ":" }), desc = "Command History" },
       { "<leader><leader>", pick("which_key"), desc = "Search All Keybindings" },
 
+      -- Z — ZR is mapped in config/keymaps.lua; ZZ and ZQ are Vim built-ins, so
+      -- which-key only learns them from a description-only entry (no rhs, so no
+      -- mapping is created), the same way its own presets label z, g and [ ].
+      { "Z", group = "quit/restart", icon = { icon = "󰗼", color = "red" } },
+      { "ZZ", desc = "Write & Quit" },
+      { "ZQ", desc = "Quit Without Writing" },
+
       -- Buffers
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer" },
