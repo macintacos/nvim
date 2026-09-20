@@ -33,6 +33,10 @@ function M.setup()
   MiniPick.registry.git_blame_line = function()
     return require("plugins.mini-pickers.git").blame_line()
   end
+
+  MiniPick.registry.which_key = function()
+    return require("plugins.mini-pickers.whichkey").pick()
+  end
 end
 
 return M

@@ -57,7 +57,7 @@ vim.schedule(function()
         desc = "Buffer Local Keymaps (which-key)" },
       { "<leader>/", pick("grep_live"), desc = "Grep Project" },
       { "<leader>:", pick("history", { scope = ":" }), desc = "Command History" },
-      { "<leader><leader>", pick("commands"), desc = "Search All Commands" },
+      { "<leader><leader>", pick("which_key"), desc = "Search All Keybindings" },
 
       -- Buffers
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
@@ -131,6 +131,7 @@ vim.schedule(function()
       -- Help
       { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },
       { "<leader>hh", pick("help"), desc = "Search All Help Docs" },
+      { "<leader>hc", pick("commands"), desc = "Search All Commands" },
       { "<leader>hm", pick("manpages"), desc = "Search All Manpages" },
       { "<leader>hM", pick("keymaps"), desc = "Search All Keymaps" },
       { "<leader>hk", Cmd("norm! K"), desc = "Lookup Keyword Under Cursor" },
