@@ -19,16 +19,12 @@ smear.setup({
 })
 
 -- modes.nvim relinks 'Cursor' on every mode change (plugin/modes.lua), so the
--- smear tracks the mode by reading that group back. brighten() keeps the hue
--- and lifts the lightness: the raw mode colors are tuned as cursorline fills,
--- and the darker ones (replace's #245361) read as nothing against the
--- background once drawn as a thin trail.
-local brighten = require("catppuccin.utils.colors").brighten
-
+-- smear tracks the mode by reading that group back -- already lifted clear of
+-- the background there, which a thin trail needs even more than the cursor does.
 local function sync_smear_color()
   local bg = vim.api.nvim_get_hl(0, { name = "Cursor", link = false }).bg
   if bg then
-    smear.cursor_color = brighten(("#%06x"):format(bg), 0.4)
+    smear.cursor_color = ("#%06x"):format(bg)
   end
 end
 

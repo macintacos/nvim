@@ -24,3 +24,31 @@ require("modes").setup({
   set_number = true,
   ignore = { "Neotree", "TelescopePrompt" },
 })
+
+-- The cursor is painted with the raw mode color, which is picked to work as a
+-- 30%-blended cursorline fill -- replace (#245361) and visual (#9745be) all but
+-- vanish when they're instead drawn solid against the background. Floor the
+-- HSLuv lightness instead of brightening uniformly: the hue and the already
+-- legible modes are left exactly as modes.nvim set them.
+local hsluv = require("catppuccin.lib.hsluv")
+
+local MIN_CURSOR_LIGHTNESS = 65
+
+local function lift_cursor_colors()
+  for _, scene in ipairs({ "Copy", "Delete", "Change", "Format", "Insert", "Replace", "Select", "Visual" }) do
+    local group = ("Modes%sCursor"):format(scene)
+    local bg = vim.api.nvim_get_hl(0, { name = group }).bg
+    if bg then
+      local hsl = hsluv.hex_to_hsluv(("#%06x"):format(bg))
+      hsl[3] = math.max(hsl[3], MIN_CURSOR_LIGHTNESS)
+      vim.api.nvim_set_hl(0, group, { bg = hsluv.hsluv_to_hex(hsl) })
+    end
+  end
+end
+
+-- modes.nvim rebuilds these groups from the raw colors on every ColorScheme.
+-- Its own handler is registered by the setup() call above, and autocmds fire in
+-- registration order, so this one always sees the freshly rebuilt values.
+vim.api.nvim_create_autocmd("ColorScheme", { callback = lift_cursor_colors })
+
+lift_cursor_colors()
