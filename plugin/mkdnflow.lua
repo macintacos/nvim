@@ -30,6 +30,8 @@ require("mkdnflow").setup({
     MkdnTableAlignRight = { "n", "<localleader>ar" },
     MkdnTableAlignCenter = { "n", "<localleader>ac" },
     MkdnTableAlignDefault = { "n", "<localleader>ax" },
+    MkdnFoldSection = { "n", "<localleader>f" },
+    MkdnUnfoldSection = { "n", "<localleader>F" },
     MkdnCreateLinkFromClipboard = { { "n", "v" }, "<localleader>p" },
   },
 })
