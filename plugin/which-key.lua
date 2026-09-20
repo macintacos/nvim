@@ -228,6 +228,7 @@ vim.schedule(function()
       { "<leader>Tt", function() Snacks.toggle.option("showtabline", { off = 0, on = vim.o.showtabline > 0 and vim.o.showtabline or 2, name = "Tabline" }):toggle() end, desc = "Tabline" },
       { "<leader>Tw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Word Wrap" },
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation" },
+      { "<leader>Tp", toggle_pr_review, desc = "PR Review Mode" },
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode" },
 
       -- Project (<leader>pp lives in plugin/projects.lua)
