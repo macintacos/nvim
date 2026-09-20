@@ -215,10 +215,15 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     require("which-key").add({
       { "<leader>gc", group = "codediff", icon = { cat = "filetype", name = "git" } },
-      { "<leader>gcp", review_pr, desc = "Review branch as PR" },
-      { "<leader>gch", review_history, desc = "Commit-by-commit / history" },
-      { "<leader>gcr", diff_ref, desc = "Diff against a ref" },
-      { "<leader>gcf", diff_file_ref, desc = "Current file vs a ref" },
+      { "<leader>gcp", review_pr, desc = "Review branch as PR", icon = { icon = "󰓂", color = "orange" } },
+      {
+        "<leader>gch",
+        review_history,
+        desc = "Commit-by-commit / history",
+        icon = { icon = "󰋚", color = "orange" },
+      },
+      { "<leader>gcr", diff_ref, desc = "Diff against a ref", icon = { icon = "󰕚", color = "orange" } },
+      { "<leader>gcf", diff_file_ref, desc = "Current file vs a ref", icon = { icon = "󰢪", color = "orange" } },
     })
   end,
 })
