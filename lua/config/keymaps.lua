@@ -71,6 +71,9 @@ map("Undo break-point at ;", "i", ";", ";<c-g>u")
 -- Save, no matter what
 map("Save File", { "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>")
 
+-- Restart, alongside the built-in ZZ and ZQ
+map("Restart Neovim", "n", "ZR", Cmd("restart"))
+
 -- Dupe lines up/down
 map("Copy line down", "n", "<A-j>", Cmd("t."))
 map("Copy line up", "n", "<A-k>", Cmd("t-1"))
