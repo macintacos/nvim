@@ -11,7 +11,6 @@
 --- Usage:
 ---   require("config.pack-updates").check()  -- kick off async check (respects cache)
 ---   require("config.pack-updates").update_count()  -- 0 until check completes
----   require("config.pack-updates").is_checking()   -- true while in progress
 ---   require("config.pack-updates").spinner_frame()  -- current spinner char or nil
 
 local M = {}
@@ -289,12 +288,6 @@ end
 ---@return integer
 function M.update_count()
   return count
-end
-
---- Return whether a check is currently in progress.
----@return boolean
-function M.is_checking()
-  return spinner_timer ~= nil
 end
 
 M._build_queue = build_queue
