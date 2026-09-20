@@ -1,5 +1,0 @@
-keymap
-keymaps
-iTerm
-Neovim
-Textbox
