@@ -1,4 +1,5 @@
 local diff = require("plugins.changeset.diff")
+local Fixture = require("support.git")
 
 -- Real `git diff --numstat -M <base>` output. Renames appear as `old => new`, or with the
 -- shared prefix/suffix folded into braces; binary files report `-` for both counts.
@@ -312,5 +313,122 @@ describe("changeset.diff._assemble", function()
 
   it("returns an empty list when nothing changed", function()
     assert.same({}, assemble({}))
+  end)
+end)
+
+local TWELVE_LINES =
+  { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" }
+
+---Commit everything in the fixture and return the new HEAD.
+---@return string
+local function commit_all()
+  Fixture.git({ "add", "-A" })
+  Fixture.git({ "commit", "-q", "-m", "seed" })
+  return Fixture.git({ "rev-parse", "HEAD" })
+end
+
+---@param base string
+---@param cwd string
+---@return changeset.File[]
+local function collect(base, cwd)
+  local files, err, done
+  diff.collect(base, cwd, function(result, message)
+    files, err, done = result, message, true
+  end)
+  assert(
+    vim.wait(10000, function()
+      return done
+    end, 10),
+    "collect never called back"
+  )
+  assert(not err, err)
+  return files
+end
+
+describe("changeset.diff.collect", function()
+  local tmp, cwd
+
+  before_each(function()
+    tmp, cwd = Fixture.tempdir()
+  end)
+
+  after_each(function()
+    vim.fn.chdir(cwd)
+    vim.fn.delete(tmp, "rf")
+  end)
+
+  it("keeps two edits three lines apart in separate hunks", function()
+    Fixture.init_repo("trunk")
+    vim.fn.writefile(TWELVE_LINES, "notes.txt")
+    local base = commit_all()
+    local edited = vim.list_slice(TWELVE_LINES)
+    edited[4], edited[8] = "FOUR", "EIGHT"
+    vim.fn.writefile(edited, "notes.txt")
+
+    assert.same({
+      {
+        path = "notes.txt",
+        status = "modified",
+        added = 2,
+        removed = 2,
+        hunks = {
+          { lnum = 4, count = 1, added = 1, removed = 1 },
+          { lnum = 8, count = 1, added = 1, removed = 1 },
+        },
+      },
+    }, collect(base, tmp))
+  end)
+
+  it("reports a staged rename as one renamed file", function()
+    Fixture.init_repo("trunk")
+    -- git enables rename detection by default, so without this the argv flag is
+    -- not what makes the rename show up and the test proves nothing.
+    Fixture.git({ "config", "diff.renames", "false" })
+    vim.fn.writefile({ "keep me" }, "old.txt")
+    local base = commit_all()
+    Fixture.git({ "mv", "old.txt", "new.txt" })
+
+    assert.same({
+      { path = "new.txt", oldpath = "old.txt", status = "renamed", added = 0, removed = 0, hunks = {} },
+    }, collect(base, tmp))
+  end)
+
+  it("leaves gitignored paths out of the untracked files", function()
+    Fixture.init_repo("trunk")
+    vim.fn.writefile({ "build/" }, ".gitignore")
+    local base = commit_all()
+    vim.fn.mkdir("build", "p")
+    vim.fn.writefile({ "binary" }, "build/artifact.o")
+    vim.fn.writefile({ "a", "b", "c" }, "scratch.txt")
+
+    assert.same({
+      {
+        path = "scratch.txt",
+        status = "untracked",
+        added = 3,
+        removed = 0,
+        hunks = { { lnum = 1, count = 3, added = 3, removed = 0 } },
+      },
+    }, collect(base, tmp))
+  end)
+
+  it("counts only the untracked paths it can read", function()
+    local base = Fixture.init_repo("trunk")
+    vim.fn.writefile({ "a", "b", "c" }, "scratch.txt")
+    -- A nested repo arrives from `ls-files` as the directory itself, and a
+    -- dangling symlink as a path nothing can read.
+    Fixture.git({ "init", "-q", "nested" })
+    vim.fn.writefile({ "inner" }, "nested/file.txt")
+    vim.uv.fs_symlink("missing", tmp .. "/dangling")
+
+    local files = collect(base, tmp)
+
+    assert.same(
+      { "scratch.txt" },
+      vim.tbl_map(function(file)
+        return file.path
+      end, files)
+    )
+    assert.equal(3, files[1].added)
   end)
 end)
