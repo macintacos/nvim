@@ -280,7 +280,7 @@ describe("changeset.window", function()
     end)
 
     -- Only `tab` can leak: `:tabnew` records the position it is standing on and
-    -- lands on an empty buffer, where `split`/`vsplit` copy the jumplist across
+    -- lands on an empty buffer, whereas `split`/`vsplit` copy the jumplist across
     -- instead of adding to it.
     it("sends <C-o> from a new tab back to where the window stood, not the preview", function()
       local _, right, one, two = staged()

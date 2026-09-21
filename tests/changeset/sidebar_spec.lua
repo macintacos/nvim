@@ -175,9 +175,7 @@ describe("changeset sidebar", function()
     assert.truthy(vim.wo[target].winbar ~= "")
 
     vim.api.nvim_set_current_win(window.win())
-    -- A literal carriage return through `vim.cmd.normal` would end the command
-    -- line instead of reaching the sidebar's buffer-local mapping.
-    vim.api.nvim_feedkeys(vim.keycode("<CR>"), "mx", false)
+    vim.cmd.normal(vim.keycode("<CR>"))
 
     local jumps = vim.fn.getjumplist(target)[1]
     local last = jumps[#jumps]
@@ -191,7 +189,8 @@ describe("changeset sidebar", function()
   end)
 
   -- One `]h` stays inside the file the sidebar was opened from, where the commit
-  -- swaps a window to the buffer it already holds and has no change to record on.
+  -- re-shows the buffer the window already holds, so no buffer swap records the
+  -- jump and the commit has to.
   it("sends <C-o> back for a row in the file the sidebar was opened from", function()
     commit_after(1)
   end)
