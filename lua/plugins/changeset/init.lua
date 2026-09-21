@@ -163,9 +163,9 @@ end
 ---@param lines changeset.Line[] Rendered lines, each carrying its own marks.
 local function apply_marks(buf, lines)
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
-  for i, line in ipairs(lines) do
+  for lnum, line in ipairs(lines) do
     for _, mark in ipairs(line.marks or {}) do
-      vim.api.nvim_buf_set_extmark(buf, ns, i - 1, mark.col or 0, {
+      vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, mark.col or 0, {
         end_col = mark.end_col,
         hl_group = mark.hl,
         virt_text = mark.virt_text,
@@ -179,14 +179,14 @@ end
 
 ---Hang the "what is being hidden" note under the tree as a virtual line.
 ---@param buf integer
----@param lnum integer 0-based line the note hangs under.
+---@param anchor_line integer 0-based line the note hangs under.
 ---@param width integer Sidebar width; the note gets one cell less, for its leading space.
-local function hidden_note_line(buf, lnum, width)
+local function hidden_note_line(buf, anchor_line, width)
   local note = render.hidden_note(view.hiding(view.kind_counts(session.rows), session.hidden), width - 1)
   if note then
     -- A virtual line rather than a row: the cursor cannot reach it, so it needs no
     -- place in `visible` and no guard in everything that reads a row off a line.
-    vim.api.nvim_buf_set_extmark(buf, ns, lnum, 0, {
+    vim.api.nvim_buf_set_extmark(buf, ns, anchor_line, 0, {
       virt_lines = { { { "" } }, { { " " .. note, render.META_HL } } },
     })
   end
@@ -338,8 +338,8 @@ local function open_kind_menu()
     branch = session.branch,
     counts = view.kind_counts(session.rows),
     hidden = session.hidden,
-    icon = function(kind)
-      return icon("lsp", kind)
+    icon = function(symbol_kind)
+      return icon("lsp", symbol_kind)
     end,
     sidebar = window.win(),
     on_change = function(hidden)
@@ -353,7 +353,7 @@ end
 ---
 ---Assumes an open session; `set_keymaps`'s `map` guards every handler it wires.
 local function prompt_filter()
-  local previous = session.query
+  local previous_query = session.query
   local group = vim.api.nvim_create_augroup("changeset.filter", { clear = true })
   -- input() edits on the command line, so every keystroke is a CmdlineChanged
   -- — which is what lets the tree narrow as it is typed rather than at <CR>.
@@ -369,12 +369,12 @@ local function prompt_filter()
 
   local ok, typed = pcall(vim.fn.input, {
     prompt = "Filter changes: ",
-    default = previous,
+    default = previous_query,
     cancelreturn = CANCELLED,
   })
   vim.api.nvim_del_augroup_by_id(group)
 
-  session.query = (ok and typed ~= CANCELLED) and typed or previous
+  session.query = (ok and typed ~= CANCELLED) and typed or previous_query
   draw()
 end
 
@@ -422,11 +422,11 @@ local function set_keymaps(buf)
     if not (row and win) then
       return
     end
-    local action, lnum = state._outward(session.visible, vim.api.nvim_win_get_cursor(win)[1])
+    local action, parent_lnum = state._outward(session.visible, vim.api.nvim_win_get_cursor(win)[1])
     if action == "collapse" then
       set_open(row, false)
     elseif action == "parent" then
-      vim.api.nvim_win_set_cursor(win, { lnum, 0 })
+      vim.api.nvim_win_set_cursor(win, { parent_lnum, 0 })
     end
   end, "Collapse, or step out to the parent")
   map("H", function()
