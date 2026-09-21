@@ -12,16 +12,14 @@ vim.o.shadafile = "NONE"
 vim.o.swapfile = false
 -- Git hooks export GIT_DIR and friends, and those override cwd-based repo
 -- discovery — under `pre-push` a spec's fixture repo would otherwise operate on
--- the repo being pushed. Each spec runs in its own child nvim, so nothing leaks
--- back out and no restore is needed.
+-- the repo being pushed. No restore: each spec runs in its own child nvim.
 for name in pairs(vim.fn.environ()) do
   if name:match("^GIT_") then
     vim.env[name] = nil
   end
 end
--- Set after the scrub, which would otherwise delete them. The user and system
--- configs arrive through $HOME rather than GIT_*, and options like
--- `diff.noprefix` reshape the output the specs parse.
+-- Set after the scrub, which would otherwise delete them. User and system git
+-- config (`diff.noprefix`, say) reshapes the output the specs parse.
 vim.env.GIT_CONFIG_GLOBAL = "/dev/null"
 vim.env.GIT_CONFIG_SYSTEM = "/dev/null"
 -- Find plenary.nvim in vim.pack's install directory

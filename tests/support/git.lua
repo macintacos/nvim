@@ -27,9 +27,8 @@ end
 ---@return string
 function M.init_repo(branch)
   M.git({ "init", "-q", "-b", branch })
-  -- Refuse to go further unless git resolved to the fixture. Everything below
-  -- writes commits and config, and a stray GIT_* var pointing elsewhere would
-  -- land them in a real repo.
+  -- Everything below writes commits and config; a stray GIT_* var pointing
+  -- elsewhere would land them in a real repo.
   local root = vim.fn.resolve(M.git({ "rev-parse", "--show-toplevel" }))
   assert(root == vim.fn.resolve(vim.fn.getcwd()), "fixture git repo escaped to " .. root)
 
