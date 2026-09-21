@@ -326,28 +326,6 @@ local function step(delta)
   preview_current()
 end
 
----What `h` does from a line: shut the row, or step out to its parent.
----
----Whether children are showing is read off the next line rather than the fold
----state, because a compressed chain shows them while it is itself still shut — so
----`h` closes one in the same two steps `l` opened it in.
----@param rows changeset.Row[] The visible rows, in display order.
----@param lnum integer
----@return "collapse"|"parent"|nil action nil on a shut row with no parent above it.
----@return integer? lnum Line of the parent, when the action is "parent".
-function M._outward(rows, lnum)
-  local depth = rows[lnum].depth
-  local below = rows[lnum + 1]
-  if below and below.depth > depth then
-    return "collapse"
-  end
-  for i = lnum - 1, 1, -1 do
-    if rows[i].depth < depth then
-      return "parent", i
-    end
-  end
-end
-
 ---Open the symbol-kind filter menu, redrawing as kinds are toggled.
 local function open_kind_menu()
   require("plugins.changeset.menu").open({
@@ -437,7 +415,7 @@ local function set_keymaps(buf)
     if not (row and win) then
       return
     end
-    local action, lnum = M._outward(session.visible, vim.api.nvim_win_get_cursor(win)[1])
+    local action, lnum = state._outward(session.visible, vim.api.nvim_win_get_cursor(win)[1])
     if action == "collapse" then
       set_open(row, false)
     elseif action == "parent" then
