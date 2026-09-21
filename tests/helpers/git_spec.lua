@@ -1,84 +1,46 @@
 local Git = require("helpers.git")
-
----Run git in the current directory, asserting it succeeded.
----@param args string[]
----@return string
-local function git(args)
-  local out = vim.fn.system(vim.list_extend({ "git" }, args))
-  assert(vim.v.shell_error == 0, out)
-  return vim.trim(out)
-end
-
----Initialise a repo on `branch` with one empty commit, and return its SHA.
----@param branch string
----@return string
-local function init_repo(branch)
-  git({ "init", "-q", "-b", branch })
-  -- Refuse to go further unless git resolved to the fixture. Everything below
-  -- writes commits and config, and a stray GIT_* var pointing elsewhere would
-  -- land them in a real repo.
-  local root = vim.fn.resolve(git({ "rev-parse", "--show-toplevel" }))
-  assert(root == vim.fn.resolve(vim.fn.getcwd()), "fixture git repo escaped to " .. root)
-
-  git({ "config", "user.email", "test@example.com" })
-  git({ "config", "user.name", "Test" })
-  git({ "config", "commit.gpgsign", "false" })
-  git({ "commit", "-q", "--allow-empty", "-m", "base" })
-  return git({ "rev-parse", "HEAD" })
-end
+local Fixture = require("support.git")
 
 describe("helpers.git", function()
-  local tmp, cwd, git_env
+  local tmp, previous_dir
 
+  -- Every assertion here calls `Git` with no cwd, so the fixture repo has to be
+  -- the process cwd rather than merely a directory git is pointed at.
   before_each(function()
-    -- Git hooks export GIT_DIR and friends, and those override cwd-based repo
-    -- discovery — under `pre-push` the fixtures below would otherwise operate
-    -- on the repo being pushed.
-    git_env = {}
-    for name, value in pairs(vim.fn.environ()) do
-      if name:match("^GIT_") then
-        git_env[name] = value
-        vim.env[name] = nil
-      end
-    end
-
     tmp = vim.fn.tempname()
     vim.fn.mkdir(tmp, "p")
-    cwd = vim.fn.chdir(tmp)
-    assert(cwd ~= "", "could not enter the fixture directory")
+    previous_dir = vim.fn.chdir(tmp)
+    assert(previous_dir ~= "", "could not enter the fixture directory")
   end)
 
   after_each(function()
-    vim.fn.chdir(cwd)
+    vim.fn.chdir(previous_dir)
     vim.fn.delete(tmp, "rf")
-    for name, value in pairs(git_env) do
-      vim.env[name] = value
-    end
   end)
 
   describe("default_base", function()
     it("picks the conventional branch that exists", function()
-      init_repo("trunk")
+      Fixture.init_repo("trunk", tmp)
       assert.equal("trunk", Git.default_base())
     end)
 
     it("prefers origin/HEAD over the conventional names", function()
-      init_repo("main")
-      git({ "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/mainline" })
+      Fixture.init_repo("main", tmp)
+      Fixture.git({ "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/mainline" }, tmp)
       assert.equal("mainline", Git.default_base())
     end)
 
     it("falls back to main when nothing matches", function()
-      init_repo("weird")
+      Fixture.init_repo("weird", tmp)
       assert.equal("main", Git.default_base())
     end)
   end)
 
   describe("merge_base", function()
     it("returns the fork point and the branch it forked from", function()
-      local fork = init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
-      git({ "commit", "-q", "--allow-empty", "-m", "work" })
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
+      Fixture.git({ "commit", "-q", "--allow-empty", "-m", "work" }, tmp)
 
       local sha, branch = Git.merge_base()
       assert.equal(fork, sha)
@@ -86,26 +48,26 @@ describe("helpers.git", function()
     end)
 
     it("names the remote ref it measured against when one exists", function()
-      local fork = init_repo("trunk")
-      git({ "update-ref", "refs/remotes/origin/trunk", fork })
-      git({ "checkout", "-q", "-b", "feature" })
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "update-ref", "refs/remotes/origin/trunk", fork }, tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
 
       local _, _, ref = Git.merge_base()
       assert.equal("origin/trunk", ref)
     end)
 
     it("names the local branch when there is no remote to measure against", function()
-      init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
+      Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
 
       local _, _, ref = Git.merge_base()
       assert.equal("trunk", ref)
     end)
 
     it("measures the repo it is given rather than the one Neovim sits in", function()
-      local fork = init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
-      vim.fn.chdir(cwd)
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
+      vim.fn.chdir(previous_dir)
 
       assert.equal(fork, (Git.merge_base(tmp)))
     end)

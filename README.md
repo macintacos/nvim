@@ -46,8 +46,8 @@ the new directory too, an update checker that runs `git ls-remote` in libuv's th
 and feeds a spinner into the statusline, a picker that points a plugin's spec at an open
 PR's branch so it can be smoke-tested live.
 
-**It's maintained like a project.** 21 [plenary](https://github.com/nvim-lua/plenary.nvim)
-spec files, selene and stylua over the Lua, and [hk](https://hk.jdx.dev/) on the hooks:
+**It's maintained like a project.** A [plenary](https://github.com/nvim-lua/plenary.nvim)
+spec suite, selene and stylua over the Lua, and [hk](https://hk.jdx.dev/) on the hooks:
 format and lint on commit, the test suite on push. [mise](https://mise.jdx.dev/) pins
 every tool that does any of it.
 

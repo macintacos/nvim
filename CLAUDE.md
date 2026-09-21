@@ -59,6 +59,8 @@ When working with this configuration, consult the official Neovim documentation:
 │       ├── autocmds.lua  # Autocommands
 │       ├── highlights.lua# Custom highlight groups
 │       └── helpers.lua   # Utility functions
+├── tests/                # Plenary specs, one directory per module
+│   └── support/          # Shared fixtures (require("support.<name>"))
 ├── mise.toml             # Tool versions + git-hook env (HK_MISE, postinstall)
 ├── mise.lock             # Pinned tool versions (managed by mise)
 ├── hk.pkl                # Formatters + linters + git hooks (pre-commit, pre-push)
