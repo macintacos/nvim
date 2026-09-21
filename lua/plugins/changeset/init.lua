@@ -158,6 +158,52 @@ local function preview_current()
   end
 end
 
+---@param buf integer
+---@param lines changeset.Line[] Rendered lines, each carrying its own marks.
+local function apply_marks(buf, lines)
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  for i, line in ipairs(lines) do
+    for _, mark in ipairs(line.marks or {}) do
+      vim.api.nvim_buf_set_extmark(buf, ns, i - 1, mark.col or 0, {
+        end_col = mark.end_col,
+        hl_group = mark.hl,
+        virt_text = mark.virt_text,
+        virt_text_pos = mark.pos,
+        priority = mark.priority or 199,
+      })
+    end
+  end
+end
+
+---Add the "N kinds hidden" note as a virtual line below the tree.
+---@param buf integer
+---@param lnum integer 0-based line the note hangs off — the last line of the tree.
+---@param width integer Sidebar width.
+local function hidden_note_line(buf, lnum, width)
+  local note = render.hidden_note(view.hiding(view.kind_counts(session.rows), session.hidden), width - 1)
+  if note then
+    -- A virtual line rather than a row: the cursor cannot reach it, so it needs no
+    -- place in `visible` and no guard in everything that reads a row off a line.
+    vim.api.nvim_buf_set_extmark(buf, ns, lnum, 0, {
+      virt_lines = { { { "" } }, { { " " .. note, render.META_HL } } },
+    })
+  end
+end
+
+---@param win integer
+local function set_header(win)
+  local added, removed = 0, 0
+  for _, file in ipairs(session.files) do
+    added, removed = added + (file.added or 0), removed + (file.removed or 0)
+  end
+  vim.wo[win].winbar = render.header({
+    base_ref = session.ref,
+    files = #session.files,
+    added = added,
+    removed = removed,
+  })
+end
+
 local function draw()
   local buf, win = window.buf(), window.win()
   if not (buf and win and vim.api.nvim_buf_is_valid(buf)) then
@@ -166,6 +212,7 @@ local function draw()
 
   local wanted = (row_at_cursor() or {}).id
   local previous_line = vim.api.nvim_win_get_cursor(win)[1]
+  local width = vim.api.nvim_win_get_width(win)
 
   local shown = tree.compress(view.by_kind(view.filter(session.rows, session.query), session.hidden), function(id)
     return state.is_chain_open(session.st, id)
@@ -179,7 +226,7 @@ local function draw()
     collapsed = function(id)
       return state.is_collapsed(session.st, id)
     end,
-    width = vim.api.nvim_win_get_width(win),
+    width = width,
     query = session.query,
   })
 
@@ -204,44 +251,15 @@ local function draw()
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
   vim.bo[buf].modifiable = false
 
-  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
-  for i, line in ipairs(lines) do
-    for _, mark in ipairs(line.marks or {}) do
-      vim.api.nvim_buf_set_extmark(buf, ns, i - 1, mark.col or 0, {
-        end_col = mark.end_col,
-        hl_group = mark.hl,
-        virt_text = mark.virt_text,
-        virt_text_pos = mark.pos,
-        priority = mark.priority or 199,
-      })
-    end
-  end
-
-  local note =
-    render.hidden_note(view.hiding(view.kind_counts(session.rows), session.hidden), vim.api.nvim_win_get_width(win) - 1)
-  if note then
-    -- A virtual line rather than a row: the cursor cannot reach it, so it needs no
-    -- place in `visible` and no guard in everything that reads a row off a line.
-    vim.api.nvim_buf_set_extmark(buf, ns, #text - 1, 0, {
-      virt_lines = { { { "" } }, { { " " .. note, render.META_HL } } },
-    })
-  end
+  apply_marks(buf, lines)
+  hidden_note_line(buf, #text - 1, width)
 
   local ids = vim.tbl_map(function(row)
     return row.id
   end, session.visible)
   vim.api.nvim_win_set_cursor(win, { state._reanchor(ids, wanted, previous_line), 0 })
 
-  local added, removed = 0, 0
-  for _, file in ipairs(session.files) do
-    added, removed = added + (file.added or 0), removed + (file.removed or 0)
-  end
-  vim.wo[win].winbar = render.header({
-    base_ref = session.ref,
-    files = #session.files,
-    added = added,
-    removed = removed,
-  })
+  set_header(win)
 end
 
 ---Text of a changed line, for captioning an orphan hunk.
