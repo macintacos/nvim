@@ -210,8 +210,9 @@ end
 
 ---Show `path` at `lnum` in the pinned window without leaving the sidebar.
 ---
----Deliberately not a jump: `nvim_win_set_cursor` records no jumplist entry, so
----holding `j` in the sidebar cannot fill `<C-o>` with one entry per keypress.
+---Deliberately not a jump: it is swapping the buffer, not moving the cursor,
+---that records a jumplist entry in a window — hence `keepjumps`, so holding `j`
+---in the sidebar cannot fill `<C-o>` with one entry per keypress.
 ---@param path string
 ---@param lnum integer? A deletion hunk at the top of a file reports 0, so this is clamped.
 ---@param band changeset.Band What the band over the window says about the file.
@@ -222,7 +223,9 @@ function M.preview(path, lnum, band)
   end
   local win = target()
   remember(win)
-  vim.api.nvim_win_set_buf(win, buf)
+  vim.api.nvim_win_call(win, function()
+    vim.cmd("keepjumps buffer " .. buf)
+  end)
   vim.wo[win].winbar = render.preview_winbar(band)
   if lnum then
     local last = vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(win))
@@ -257,9 +260,14 @@ function M.commit(path, lnum, how)
   if borrowed then
     vim.wo[0].winbar = borrowed.winbar
   end
-  -- `m'` before moving is what makes <C-o> come back here, and it is the one
-  -- place the sidebar is allowed to touch the jumplist.
-  vim.cmd("normal! m'")
+  -- Stand the window back where the sidebar found it before swapping, because a
+  -- swap records its jumplist entry at the position it leaves: <C-o> then comes
+  -- back to the user's own place rather than to whatever they previewed last.
+  if borrowed and vim.api.nvim_buf_is_valid(borrowed.buf) then
+    vim.cmd("keepjumps buffer " .. borrowed.buf)
+    local last = vim.api.nvim_buf_line_count(borrowed.buf)
+    vim.api.nvim_win_set_cursor(0, { M._clamp(borrowed.cursor[1], last), borrowed.cursor[2] })
+  end
   vim.api.nvim_win_set_buf(0, buf)
   if lnum then
     vim.api.nvim_win_set_cursor(0, { M._clamp(lnum, vim.api.nvim_buf_line_count(buf)), 0 })
@@ -293,7 +301,9 @@ function M.close()
   for borrower, snapshot in pairs(borrowed) do
     if vim.api.nvim_win_is_valid(borrower) then
       if vim.api.nvim_buf_is_valid(snapshot.buf) then
-        vim.api.nvim_win_set_buf(borrower, snapshot.buf)
+        vim.api.nvim_win_call(borrower, function()
+          vim.cmd("keepjumps buffer " .. snapshot.buf)
+        end)
         local last = vim.api.nvim_buf_line_count(snapshot.buf)
         vim.api.nvim_win_set_cursor(borrower, { M._clamp(snapshot.cursor[1], last), snapshot.cursor[2] })
       end

@@ -153,6 +153,32 @@ describe("changeset sidebar", function()
     assert.equal(expanded, #lines_of(buf))
   end)
 
+  it("previews without touching the jumplist, and sends <C-o> back to where the sidebar opened", function()
+    vim.cmd.edit("mod.lua")
+    local target = vim.api.nvim_get_current_win()
+    local from_buf = vim.api.nvim_win_get_buf(target)
+    local from_lnum = vim.api.nvim_win_get_cursor(target)[1]
+    open_sidebar()
+    local before = vim.fn.getjumplist(target)[1]
+
+    for _ = 1, 3 do
+      vim.cmd.normal("]h")
+    end
+
+    assert.same(before, vim.fn.getjumplist(target)[1])
+    assert.equal(target, vim.api.nvim_get_current_win())
+
+    vim.api.nvim_set_current_win(window.win())
+    -- A literal carriage return through `vim.cmd.normal` would end the command
+    -- line instead of reaching the sidebar's buffer-local mapping.
+    vim.api.nvim_feedkeys(vim.keycode("<CR>"), "mx", false)
+
+    local jumps = vim.fn.getjumplist(target)[1]
+    local last = jumps[#jumps]
+    assert.equal(from_buf, last.bufnr)
+    assert.equal(from_lnum, last.lnum)
+  end)
+
   it("shuts the row under the cursor", function()
     local buf = open_sidebar()
     local expanded = #lines_of(buf)
