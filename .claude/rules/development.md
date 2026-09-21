@@ -48,7 +48,7 @@ lua/plugins/<name>/
   require("plugins.<name>").setup({ ... })
   ```
 
-- **Test helpers**: Expose private functions for testing with a `_` prefix (e.g., `M._parse_query = parse_query`).
+- **Test helpers**: Expose private functions for testing by defining them on the module with a `_` prefix (e.g., `function M._parse_query(query)`).
 
 ### Testing
 

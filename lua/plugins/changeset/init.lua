@@ -27,11 +27,9 @@ local CANCELLED = "\r"
 -- One write per burst of answers rather than one per file.
 local SAVE_DEBOUNCE_MS = 1000
 
--- Advance the selection from the file you are reading, so a whole branch can be
--- reviewed without ever putting the cursor in the sidebar. Not <C-n>/<C-p>:
--- plugin/multicursor.lua owns those, and shadowing them would mean deleting a user
--- mapping on close. `h` is free across mini.bracketed's targets. Next first, which
--- is the order `?` and the deletion below both read them in.
+-- Not <C-n>/<C-p>: plugin/multicursor.lua owns those, and shadowing them would mean
+-- deleting a user mapping on close. `h` is free across mini.bracketed's targets.
+-- Next first — the bindings and `?` both index this order.
 local STEP_KEYS = { "]h", "[h" }
 
 local M = {}
