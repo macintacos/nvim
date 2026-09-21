@@ -163,6 +163,8 @@ describe("changeset.window", function()
     end)
 
     after_each(function()
+      -- `tabfirst` first: a failure that strands focus in the new tab would
+      -- otherwise leave `tabonly` closing the one the sidebar is in.
       vim.cmd("silent! tabfirst")
       vim.cmd("silent! tabonly")
       window.close()
@@ -255,10 +257,9 @@ describe("changeset.window", function()
       assert.equal("", vim.wo[right].winbar)
     end)
 
-    -- Previewing the file the window already shows, for the same reason the
-    -- winbar test above does it: a buffer round trip restores the cursor on its
-    -- own, so only a preview that never changes the buffer can tell whether the
-    -- sidebar put the position back itself.
+    -- Previewing the file the window already shows: a buffer round trip restores
+    -- the cursor on its own, so only a preview that never changes the buffer can
+    -- tell whether the sidebar put the position back itself.
     it("gives a borrowed window back the cursor it had", function()
       local _, right, _, two = staged()
       vim.api.nvim_win_set_cursor(right, { 3, 0 })
@@ -276,6 +277,28 @@ describe("changeset.window", function()
       window.commit(one, 2, "tab")
 
       assert.equal(before + 1, #vim.api.nvim_list_tabpages())
+    end)
+
+    -- Only `tab` can leak: `:tabnew` records the position it is standing on and
+    -- lands on an empty buffer, where `split`/`vsplit` copy the jumplist across
+    -- instead of adding to it.
+    it("sends <C-o> from a new tab back to where the window stood, not the preview", function()
+      local _, right, one, two = staged()
+      local stood = vim.api.nvim_win_get_cursor(right)[1]
+      local borrowed = vim.api.nvim_win_get_buf(right)
+      window.preview(two, 2, BAND)
+
+      window.commit(one, 2, "tab")
+
+      local jumps = vim.fn.getjumplist()[1]
+      local lines = {}
+      for _, jump in ipairs(jumps) do
+        if jump.bufnr == borrowed then
+          lines[#lines + 1] = jump.lnum
+        end
+      end
+      assert.same({ stood }, lines)
+      assert.equal(borrowed, jumps[#jumps].bufnr)
     end)
 
     -- A file the sidebar opened by itself, never `:edit`ed, so `bufadd` left it
