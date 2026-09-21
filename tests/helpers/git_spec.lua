@@ -102,6 +102,14 @@ describe("helpers.git", function()
       assert.equal("trunk", ref)
     end)
 
+    it("measures the repo it is given rather than the one Neovim sits in", function()
+      local fork = init_repo("trunk")
+      git({ "checkout", "-q", "-b", "feature" })
+      vim.fn.chdir(cwd)
+
+      assert.equal(fork, (Git.merge_base(tmp)))
+    end)
+
     it("returns nil outside a repo", function()
       assert.is_nil(Git.merge_base())
     end)
