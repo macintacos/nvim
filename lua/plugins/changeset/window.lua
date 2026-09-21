@@ -133,10 +133,10 @@ local function show(win, buf)
   end)
 end
 
----Stand `win` back on what `remember` saw it holding.
+---Put `win` back on what `remember` saw it holding.
 ---@param win integer
 ---@param snapshot changeset.Snapshot
-local function stand_back(win, snapshot)
+local function put_back(win, snapshot)
   show(win, snapshot.buf)
   local last = vim.api.nvim_buf_line_count(snapshot.buf)
   vim.api.nvim_win_set_cursor(win, { M._clamp(snapshot.cursor[1], last), snapshot.cursor[2] })
@@ -266,13 +266,13 @@ function M.commit(path, lnum, how)
   vim.bo[buf].buflisted = true
 
   local win = target()
-  local borrowed = sidebar.borrowed[win]
+  local snapshot = sidebar.borrowed[win]
   vim.api.nvim_set_current_win(win)
   -- On the snapshot first, so the entry below is the user's own position rather
   -- than the last preview — and before any split, since `:tabnew` records the
   -- position it leaves.
-  if borrowed and vim.api.nvim_buf_is_valid(borrowed.buf) then
-    stand_back(0, borrowed)
+  if snapshot and vim.api.nvim_buf_is_valid(snapshot.buf) then
+    put_back(0, snapshot)
   end
   vim.cmd("normal! m'")
   if how ~= "reuse" then
@@ -283,8 +283,8 @@ function M.commit(path, lnum, how)
   -- copies its options from the one it was split off: either way the band stops
   -- here rather than following the file out. After the swap, or it leaves with
   -- the buffer it was set on: window options are remembered per buffer.
-  if borrowed then
-    vim.wo[0].winbar = borrowed.winbar
+  if snapshot then
+    vim.wo[0].winbar = snapshot.winbar
   end
   if lnum then
     vim.api.nvim_win_set_cursor(0, { M._clamp(lnum, vim.api.nvim_buf_line_count(buf)), 0 })
@@ -315,15 +315,15 @@ function M.close()
     end
   end
 
-  for borrower, snapshot in pairs(borrowed) do
-    if vim.api.nvim_win_is_valid(borrower) then
+  for borrowed_win, snapshot in pairs(borrowed) do
+    if vim.api.nvim_win_is_valid(borrowed_win) then
       if vim.api.nvim_buf_is_valid(snapshot.buf) then
-        stand_back(borrower, snapshot)
+        put_back(borrowed_win, snapshot)
       end
       -- After the buffer, which brings its own remembered window options with
       -- it, and unconditionally: a window that has outlived what it was holding
       -- must still stop saying it is previewing.
-      vim.wo[borrower].winbar = snapshot.winbar
+      vim.wo[borrowed_win].winbar = snapshot.winbar
     end
   end
 

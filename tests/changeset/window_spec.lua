@@ -284,21 +284,21 @@ describe("changeset.window", function()
     -- instead of adding to it.
     it("sends <C-o> from a new tab back to where the window stood, not the preview", function()
       local _, right, one, two = staged()
-      local stood = vim.api.nvim_win_get_cursor(right)[1]
-      local borrowed = vim.api.nvim_win_get_buf(right)
+      local stood_lnum = vim.api.nvim_win_get_cursor(right)[1]
+      local stood_buf = vim.api.nvim_win_get_buf(right)
       window.preview(two, 2, BAND)
 
       window.commit(one, 2, "tab")
 
       local jumps = vim.fn.getjumplist()[1]
-      local lines = {}
+      local lnums = {}
       for _, jump in ipairs(jumps) do
-        if jump.bufnr == borrowed then
-          lines[#lines + 1] = jump.lnum
+        if jump.bufnr == stood_buf then
+          lnums[#lnums + 1] = jump.lnum
         end
       end
-      assert.same({ stood }, lines)
-      assert.equal(borrowed, jumps[#jumps].bufnr)
+      assert.same({ stood_lnum }, lnums)
+      assert.equal(stood_buf, jumps[#jumps].bufnr)
     end)
 
     -- A file the sidebar opened by itself, never `:edit`ed, so `bufadd` left it

@@ -178,10 +178,10 @@ describe("changeset sidebar", function()
     vim.cmd.normal(vim.keycode("<CR>"))
 
     local jumps = vim.fn.getjumplist(target)[1]
-    local last = jumps[#jumps]
-    assert.truthy(last, "<CR> recorded no jumplist entry, so <C-o> has nowhere to go")
-    assert.equal(from_buf, last.bufnr)
-    assert.equal(from_lnum, last.lnum)
+    local last_jump = jumps[#jumps]
+    assert.truthy(last_jump, "<CR> recorded no jumplist entry, so <C-o> has nowhere to go")
+    assert.equal(from_buf, last_jump.bufnr)
+    assert.equal(from_lnum, last_jump.lnum)
   end
 
   it("previews without touching the jumplist, and sends <C-o> back to where the sidebar opened", function()
