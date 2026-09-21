@@ -163,6 +163,8 @@ describe("changeset.window", function()
     end)
 
     after_each(function()
+      vim.cmd("silent! tabfirst")
+      vim.cmd("silent! tabonly")
       window.close()
       vim.cmd("only")
       for _, path in ipairs(files) do
@@ -251,6 +253,37 @@ describe("changeset.window", function()
       window.commit(one, 2, "reuse")
 
       assert.equal("", vim.wo[right].winbar)
+    end)
+
+    -- Previewing the file the window already shows, for the same reason the
+    -- winbar test above does it: a buffer round trip restores the cursor on its
+    -- own, so only a preview that never changes the buffer can tell whether the
+    -- sidebar put the position back itself.
+    it("gives a borrowed window back the cursor it had", function()
+      local _, right, _, two = staged()
+      vim.api.nvim_win_set_cursor(right, { 3, 0 })
+
+      window.preview(two, 1, BAND)
+      window.close()
+
+      assert.same({ 3, 0 }, vim.api.nvim_win_get_cursor(right))
+    end)
+
+    it("opens a new tabpage for a commit that asks for one", function()
+      local _, _, one = staged()
+      local before = #vim.api.nvim_list_tabpages()
+
+      window.commit(one, 2, "tab")
+
+      assert.equal(before + 1, #vim.api.nvim_list_tabpages())
+    end)
+
+    it("lists the buffer a commit claims", function()
+      local _, _, one = staged()
+
+      window.commit(one, 2, "reuse")
+
+      assert.is_true(vim.bo[vim.api.nvim_get_current_buf()].buflisted)
     end)
 
     it("puts back every window it previewed into", function()
