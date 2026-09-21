@@ -4,14 +4,14 @@ local Fixture = require("support.git")
 local git, init_repo = Fixture.git, Fixture.init_repo
 
 describe("helpers.git", function()
-  local tmp, cwd
+  local tmp, previous_dir
 
   before_each(function()
-    tmp, cwd = Fixture.tempdir()
+    tmp, previous_dir = Fixture.tempdir()
   end)
 
   after_each(function()
-    vim.fn.chdir(cwd)
+    vim.fn.chdir(previous_dir)
     vim.fn.delete(tmp, "rf")
   end)
 
@@ -64,7 +64,7 @@ describe("helpers.git", function()
     it("measures the repo it is given rather than the one Neovim sits in", function()
       local fork = init_repo("trunk")
       git({ "checkout", "-q", "-b", "feature" })
-      vim.fn.chdir(cwd)
+      vim.fn.chdir(previous_dir)
 
       assert.equal(fork, (Git.merge_base(tmp)))
     end)

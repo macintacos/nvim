@@ -339,14 +339,14 @@ local function collect(base, cwd)
 end
 
 describe("changeset.diff.collect", function()
-  local tmp, cwd
+  local tmp, previous_dir
 
   before_each(function()
-    tmp, cwd = Fixture.tempdir()
+    tmp, previous_dir = Fixture.tempdir()
   end)
 
   after_each(function()
-    vim.fn.chdir(cwd)
+    vim.fn.chdir(previous_dir)
     vim.fn.delete(tmp, "rf")
   end)
 

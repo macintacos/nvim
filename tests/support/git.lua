@@ -13,13 +13,13 @@ function M.git(args)
 end
 
 ---Create a temp directory and enter it.
----@return string tmp, string previous The directory Neovim was in before.
+---@return string tmp, string previous_dir The directory Neovim was in before.
 function M.tempdir()
   local tmp = vim.fn.tempname()
   vim.fn.mkdir(tmp, "p")
-  local previous = vim.fn.chdir(tmp)
-  assert(previous ~= "", "could not enter the fixture directory")
-  return tmp, previous
+  local previous_dir = vim.fn.chdir(tmp)
+  assert(previous_dir ~= "", "could not enter the fixture directory")
+  return tmp, previous_dir
 end
 
 ---Initialise a repo on `branch` with one empty commit, and return its SHA.

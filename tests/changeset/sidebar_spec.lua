@@ -13,7 +13,7 @@ local function write(path, lines)
 end
 
 ---A repo on `trunk` with two files, then a `feature` branch that changes both.
-local function init_repo()
+local function init_feature_repo()
   Fixture.init_repo("trunk")
 
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 1", "end", "", "return M" })
@@ -60,23 +60,23 @@ local function press(key)
 end
 
 describe("changeset sidebar", function()
-  local tmp, cwd, state_home
+  local tmp, previous_dir, state_home
 
   before_each(function()
-    tmp, cwd = Fixture.tempdir()
+    tmp, previous_dir = Fixture.tempdir()
     -- `prefs.path()` hangs off stdpath("state"), so without this the sidebar
     -- opens with whatever symbol kinds the developer has hidden in their own
     -- editor, and what this fixture renders changes machine to machine.
     state_home = vim.env.XDG_STATE_HOME
     vim.env.XDG_STATE_HOME = tmp .. "/state"
 
-    init_repo()
+    init_feature_repo()
   end)
 
   after_each(function()
     changeset.close()
     vim.cmd("silent! %bwipeout!")
-    vim.fn.chdir(cwd)
+    vim.fn.chdir(previous_dir)
     vim.fn.delete(tmp, "rf")
     vim.env.XDG_STATE_HOME = state_home
   end)
