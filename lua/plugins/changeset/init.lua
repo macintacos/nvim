@@ -348,6 +348,51 @@ function M._outward(rows, lnum)
   end
 end
 
+---Open the symbol-kind filter menu, redrawing as kinds are toggled.
+local function open_kind_menu()
+  require("plugins.changeset.menu").open({
+    root = session.root,
+    branch = session.branch,
+    counts = view.kind_counts(session.rows),
+    hidden = session.hidden,
+    icon = function(kind)
+      return icon("lsp", kind)
+    end,
+    sidebar = window.win(),
+    on_change = function(hidden)
+      session.hidden = hidden
+      draw()
+    end,
+  })
+end
+
+---Narrow the tree from the command line, restoring the previous query on cancel.
+local function prompt_filter()
+  local previous = session.query
+  local group = vim.api.nvim_create_augroup("changeset.filter", { clear = true })
+  -- input() edits on the command line, so every keystroke is a CmdlineChanged
+  -- — which is what lets the tree narrow as it is typed rather than at <CR>.
+  vim.api.nvim_create_autocmd("CmdlineChanged", {
+    group = group,
+    desc = "changeset: filter the tree on each keystroke of the filter prompt",
+    callback = function()
+      session.query = vim.fn.getcmdline()
+      draw()
+      vim.cmd("redraw")
+    end,
+  })
+
+  local ok, typed = pcall(vim.fn.input, {
+    prompt = "Filter changes: ",
+    default = previous,
+    cancelreturn = CANCELLED,
+  })
+  vim.api.nvim_del_augroup_by_id(group)
+
+  session.query = (ok and typed ~= CANCELLED) and typed or previous
+  draw()
+end
+
 ---@param buf integer
 local function set_keymaps(buf)
   local set, own = help.mapper(buf)
@@ -422,47 +467,8 @@ local function set_keymaps(buf)
   map("?", function()
     help.show(buf, own, STEP_KEYS)
   end, "Show these keymaps")
-  map("F", function()
-    require("plugins.changeset.menu").open({
-      root = session.root,
-      branch = session.branch,
-      counts = view.kind_counts(session.rows),
-      hidden = session.hidden,
-      icon = function(kind)
-        return icon("lsp", kind)
-      end,
-      sidebar = window.win(),
-      on_change = function(hidden)
-        session.hidden = hidden
-        draw()
-      end,
-    })
-  end, "Filter by symbol kind")
-  map("f", function()
-    local previous = session.query
-    local group = vim.api.nvim_create_augroup("changeset.filter", { clear = true })
-    -- input() edits on the command line, so every keystroke is a CmdlineChanged
-    -- — which is what lets the tree narrow as it is typed rather than at <CR>.
-    vim.api.nvim_create_autocmd("CmdlineChanged", {
-      group = group,
-      desc = "changeset: filter the tree on each keystroke of the filter prompt",
-      callback = function()
-        session.query = vim.fn.getcmdline()
-        draw()
-        vim.cmd("redraw")
-      end,
-    })
-
-    local ok, typed = pcall(vim.fn.input, {
-      prompt = "Filter changes: ",
-      default = previous,
-      cancelreturn = CANCELLED,
-    })
-    vim.api.nvim_del_augroup_by_id(group)
-
-    session.query = (ok and typed ~= CANCELLED) and typed or previous
-    draw()
-  end, "Filter the tree")
+  map("F", open_kind_menu, "Filter by symbol kind")
+  map("f", prompt_filter, "Filter the tree")
 end
 
 ---Gather the diff, then let symbols fill in behind it.
