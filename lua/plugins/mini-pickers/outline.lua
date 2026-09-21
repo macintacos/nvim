@@ -88,6 +88,37 @@ end
 -- Exposed for tests: driving the renderer directly avoids needing a live LSP.
 M._show = show
 
+---Items for a `textDocument/documentSymbol` response, filtered to `keep`.
+---
+---A kinds filter can legitimately match nothing — gopls reports no Variable
+---symbols for a file of nothing but functions — and a silent empty picker
+---reads as broken rather than as an answer. When that happens the filter is
+---dropped; the second return says so, so the caller can explain the switch.
+---@param results table Per-client results, as `vim.lsp.buf_request_all` delivers them.
+---@param buf integer Buffer the symbols describe.
+---@param keep table<string, true>? Kinds to keep, or nil for every kind.
+---@return MiniPickers.Symbol[] items, boolean fell_back
+function M._collect(results, buf, keep)
+  local function flatten(kinds_tbl)
+    local items = {}
+    for id, res in pairs(results) do
+      local client = vim.lsp.get_client_by_id(id)
+      local flat = { bufnr = buf, kinds = kinds_tbl, encoding = client and client.offset_encoding }
+      vim.list_extend(items, symbols.flatten(res.result or {}, flat))
+    end
+    return items
+  end
+
+  local items = flatten(keep)
+  if keep ~= nil and #items == 0 then
+    local every = flatten(nil)
+    if #every > 0 then
+      return every, true
+    end
+  end
+  return items, false
+end
+
 ---Open the outline for the current buffer.
 ---
 ---Items are matched on their `text` (the bare name), which is what makes the
@@ -104,11 +135,14 @@ function M.pick(opts)
   local keep = opts.kinds or kinds.for_filetype(vim.bo[buf].filetype)
   local params = { textDocument = vim.lsp.util.make_text_document_params(buf) }
   vim.lsp.buf_request_all(buf, "textDocument/documentSymbol", params, function(results)
-    local items = {}
-    for id, res in pairs(results) do
-      local client = vim.lsp.get_client_by_id(id)
-      local flat = { bufnr = buf, kinds = keep, encoding = client and client.offset_encoding }
-      vim.list_extend(items, symbols.flatten(res.result or {}, flat))
+    local items, fell_back = M._collect(results, buf, keep)
+    if fell_back then
+      local requested = vim.tbl_keys(keep)
+      table.sort(requested)
+      vim.notify(
+        ("No %s symbols in this file — showing every kind"):format(table.concat(requested, ", ")),
+        vim.log.levels.INFO
+      )
     end
     MiniPick.start({
       source = { items = items, name = opts.name or "LSP (document_symbol)", show = show },
