@@ -1,16 +1,10 @@
 local changeset = require("plugins.changeset")
 local window = require("plugins.changeset.window")
+local Fixture = require("support.git")
 
 local ns = vim.api.nvim_get_namespaces()["changeset"]
 
----Run git in the current directory, asserting it succeeded.
----@param args string[]
----@return string
-local function git(args)
-  local out = vim.fn.system(vim.list_extend({ "git" }, args))
-  assert(vim.v.shell_error == 0, out)
-  return vim.trim(out)
-end
+local git = Fixture.git
 
 ---@param path string
 ---@param lines string[]
@@ -20,16 +14,7 @@ end
 
 ---A repo on `trunk` with two files, then a `feature` branch that changes both.
 local function init_repo()
-  git({ "init", "-q", "-b", "trunk" })
-  -- Refuse to go further unless git resolved to the fixture. Everything below
-  -- writes commits and config, and a stray GIT_* var pointing elsewhere would
-  -- land them in a real repo.
-  local root = vim.fn.resolve(git({ "rev-parse", "--show-toplevel" }))
-  assert(root == vim.fn.resolve(vim.fn.getcwd()), "fixture git repo escaped to " .. root)
-
-  git({ "config", "user.email", "test@example.com" })
-  git({ "config", "user.name", "Test" })
-  git({ "config", "commit.gpgsign", "false" })
+  Fixture.init_repo("trunk")
 
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 1", "end", "", "return M" })
   write("other.lua", { "return { a = 1 }" })
@@ -77,30 +62,16 @@ local function press(key)
 end
 
 describe("changeset sidebar", function()
-  local tmp, cwd, git_env, state_home
+  local tmp, cwd, state_home
 
   before_each(function()
-    -- Git hooks export GIT_DIR and friends, and those override cwd-based repo
-    -- discovery — under `pre-push` the fixture below would otherwise operate on
-    -- the repo being pushed.
-    git_env = {}
-    for name, value in pairs(vim.fn.environ()) do
-      if name:match("^GIT_") then
-        git_env[name] = value
-        vim.env[name] = nil
-      end
-    end
-
-    tmp = vim.fn.tempname()
-    vim.fn.mkdir(tmp, "p")
+    tmp, cwd = Fixture.tempdir()
     -- `prefs.path()` hangs off stdpath("state"), so without this the sidebar
     -- opens with whatever symbol kinds the developer has hidden in their own
     -- editor, and what this fixture renders changes machine to machine.
     state_home = vim.env.XDG_STATE_HOME
     vim.env.XDG_STATE_HOME = tmp .. "/state"
 
-    cwd = vim.fn.chdir(tmp)
-    assert(cwd ~= "", "could not enter the fixture directory")
     init_repo()
   end)
 
@@ -110,9 +81,6 @@ describe("changeset sidebar", function()
     vim.fn.chdir(cwd)
     vim.fn.delete(tmp, "rf")
     vim.env.XDG_STATE_HOME = state_home
-    for name, value in pairs(git_env) do
-      vim.env[name] = value
-    end
   end)
 
   it("lists every file the branch changed", function()
