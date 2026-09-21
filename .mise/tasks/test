@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#MISE description="Run the plenary test suite"
+#MISE description="Run the plenary test suite, or the spec file / directory given"
 
 set -euo pipefail
 
@@ -8,5 +8,9 @@ set -euo pipefail
 # — the bare-repo container in a worktree layout, which has no init.lua — the
 # command is undefined, and --headless then blocks on stdin instead of exiting.
 # The child processes plenary spawns get the same init via minimal_init.
+#
+# A single file goes through PlenaryBustedDirectory too — it shells out to `find`,
+# which takes one. :PlenaryBustedFile accepts no options, so the nvim it spawns
+# gets no -u and tests stdpath("config") rather than this checkout.
 nvim --headless -u tests/minimal_init.lua \
-	-c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua'}"
+	-c "PlenaryBustedDirectory ${1:-tests/} {minimal_init = 'tests/minimal_init.lua'}"

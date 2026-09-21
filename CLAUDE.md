@@ -204,7 +204,7 @@ After editing files, run `mise run preflight` to lint and test, or the individua
 
 - `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, pkl, shfmt) via hk
 - `mise run lint` — run all linters (selene, rumdl, shellcheck, taplo, pkl, check-jsonschema) via hk
-- `mise run test` — run plenary tests
+- `mise run test [path]` — run plenary tests; pass a spec file or directory to narrow the run
 - `mise run preflight` — run lint + test before pushing (the `pre-push` hook itself runs only the tests)
 - `mise run setup` — install pinned tools and register git hooks
 - `mise run install` — update Neovim plugins

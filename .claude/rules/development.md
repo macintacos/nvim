@@ -73,7 +73,7 @@ describe("<module>", function()
 end)
 ```
 
-Tests run via `mise run test` using `tests/minimal_init.lua` as the init file. Create temporary fixtures with `vim.fn.mkdir()` and `vim.fn.writefile()` and clean them up after each test.
+Tests run via `mise run test` using `tests/minimal_init.lua` as the init file, and `mise run test <path>` narrows the run to one spec file or directory. Reach for that rather than `:PlenaryBustedFile`, which accepts no options: the nvim it spawns gets no `-u`, so from a worktree it resolves `stdpath("config")` to the default-branch checkout and reports on that code instead of yours. Create temporary fixtures with `vim.fn.mkdir()` and `vim.fn.writefile()` and clean them up after each test.
 
 ## Development Process
 
