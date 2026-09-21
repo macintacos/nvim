@@ -278,12 +278,25 @@ describe("changeset.window", function()
       assert.equal(before + 1, #vim.api.nvim_list_tabpages())
     end)
 
+    -- A file the sidebar opened by itself, never `:edit`ed, so `bufadd` left it
+    -- unlisted and the commit is the only thing that can promote it.
     it("lists the buffer a commit claims", function()
-      local _, _, one = staged()
+      staged()
+      local three = fixture("three")
 
-      window.commit(one, 2, "reuse")
+      window.commit(three, 2, "reuse")
 
       assert.is_true(vim.bo[vim.api.nvim_get_current_buf()].buflisted)
+    end)
+
+    it("puts a borrowed window back without disturbing its jumplist", function()
+      local _, right, one = staged()
+      local before = vim.fn.getjumplist(right)[1]
+
+      window.preview(one, 2, BAND)
+      window.close()
+
+      assert.same(before, vim.fn.getjumplist(right)[1])
     end)
 
     it("puts back every window it previewed into", function()
