@@ -1,51 +1,43 @@
 ---Reachable as `support.git` only because `tests/minimal_init.lua` puts `tests/`
----on `package.path`. Every function runs in the process cwd, so `tempdir()`
----comes first.
+---on `package.path`.
 local M = {}
 
----Run git in the current directory, asserting it succeeded.
+---Run git in `cwd`, asserting it succeeded.
 ---@param args string[]
+---@param cwd string Repository to run in; relative paths in `args` resolve against it.
 ---@return string
-function M.git(args)
-  local out = vim.fn.system(vim.list_extend({ "git" }, args))
+function M.git(args, cwd)
+  local out = vim.fn.system(vim.list_extend({ "git", "-C", cwd }, args))
   assert(vim.v.shell_error == 0, out)
   return vim.trim(out)
 end
 
----Create a temp directory and enter it.
----@return string tmp, string previous_dir The directory Neovim was in before.
-function M.tempdir()
-  local tmp = vim.fn.tempname()
-  vim.fn.mkdir(tmp, "p")
-  local previous_dir = vim.fn.chdir(tmp)
-  assert(previous_dir ~= "", "could not enter the fixture directory")
-  return tmp, previous_dir
-end
-
 ---Initialise a repo on `branch` with one empty commit, and return its SHA.
 ---@param branch string
+---@param cwd string
 ---@return string
-function M.init_repo(branch)
-  M.git({ "init", "-q", "-b", branch })
-  -- Everything below writes commits and config; a stray GIT_* var pointing
-  -- elsewhere would land them in a real repo.
-  local root = vim.fn.resolve(M.git({ "rev-parse", "--show-toplevel" }))
-  assert(root == vim.fn.resolve(vim.fn.getcwd()), "fixture git repo escaped to " .. root)
+function M.init_repo(branch, cwd)
+  M.git({ "init", "-q", "-b", branch }, cwd)
+  -- A stray GIT_* var outranks `-C`, so without this the commits and config
+  -- below would land in whatever repo it points at.
+  local root = vim.fn.resolve(M.git({ "rev-parse", "--show-toplevel" }, cwd))
+  assert(root == vim.fn.resolve(cwd), "fixture git repo escaped to " .. root)
 
-  M.git({ "config", "user.email", "test@example.com" })
-  M.git({ "config", "user.name", "Test" })
-  M.git({ "config", "commit.gpgsign", "false" })
-  M.git({ "commit", "-q", "--allow-empty", "-m", "base" })
-  return M.git({ "rev-parse", "HEAD" })
+  M.git({ "config", "user.email", "test@example.com" }, cwd)
+  M.git({ "config", "user.name", "Test" }, cwd)
+  M.git({ "config", "commit.gpgsign", "false" }, cwd)
+  M.git({ "commit", "-q", "--allow-empty", "-m", "root" }, cwd)
+  return M.git({ "rev-parse", "HEAD" }, cwd)
 end
 
 ---Stage everything and commit it, returning the new HEAD.
 ---@param message string
+---@param cwd string
 ---@return string
-function M.commit(message)
-  M.git({ "add", "-A" })
-  M.git({ "commit", "-q", "-m", message })
-  return M.git({ "rev-parse", "HEAD" })
+function M.commit(message, cwd)
+  M.git({ "add", "-A" }, cwd)
+  M.git({ "commit", "-q", "-m", message }, cwd)
+  return M.git({ "rev-parse", "HEAD" }, cwd)
 end
 
 return M

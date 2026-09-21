@@ -4,8 +4,6 @@ local Fixture = require("support.git")
 
 local ns = vim.api.nvim_get_namespaces()["changeset"]
 
-local git = Fixture.git
-
 ---@param path string
 ---@param lines string[]
 local function write(path, lines)
@@ -13,17 +11,18 @@ local function write(path, lines)
 end
 
 ---A repo on `trunk` with two files, then a `feature` branch that changes both.
-local function init_feature_repo()
-  Fixture.init_repo("trunk")
+---@param cwd string
+local function init_feature_repo(cwd)
+  Fixture.init_repo("trunk", cwd)
 
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 1", "end", "", "return M" })
   write("other.lua", { "return { a = 1 }" })
-  Fixture.commit("base")
+  Fixture.commit("base", cwd)
 
-  git({ "checkout", "-q", "-b", "feature" })
+  Fixture.git({ "checkout", "-q", "-b", "feature" }, cwd)
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 2", "end", "", "return M" })
   write("other.lua", { "return { a = 1, b = 2 }" })
-  Fixture.commit("change")
+  Fixture.commit("change", cwd)
 end
 
 ---@param buf integer
@@ -62,15 +61,20 @@ end
 describe("changeset sidebar", function()
   local tmp, previous_dir, state_home
 
+  -- The sidebar resolves its repo from the process cwd, and `write` above takes
+  -- relative paths, so the fixture has to be entered rather than merely pointed at.
   before_each(function()
-    tmp, previous_dir = Fixture.tempdir()
+    tmp = vim.fn.tempname()
+    vim.fn.mkdir(tmp, "p")
+    previous_dir = vim.fn.chdir(tmp)
+    assert(previous_dir ~= "", "could not enter the fixture directory")
     -- `prefs.path()` hangs off stdpath("state"), so without this the sidebar
     -- opens with whatever symbol kinds the developer has hidden in their own
     -- editor, and what this fixture renders changes machine to machine.
     state_home = vim.env.XDG_STATE_HOME
     vim.env.XDG_STATE_HOME = tmp .. "/state"
 
-    init_feature_repo()
+    init_feature_repo(tmp)
   end)
 
   after_each(function()

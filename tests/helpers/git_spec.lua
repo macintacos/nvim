@@ -1,13 +1,16 @@
 local Git = require("helpers.git")
 local Fixture = require("support.git")
 
-local git, init_repo = Fixture.git, Fixture.init_repo
-
 describe("helpers.git", function()
   local tmp, previous_dir
 
+  -- Every assertion here calls `Git` with no cwd, so the fixture repo has to be
+  -- the process cwd rather than merely a directory git is pointed at.
   before_each(function()
-    tmp, previous_dir = Fixture.tempdir()
+    tmp = vim.fn.tempname()
+    vim.fn.mkdir(tmp, "p")
+    previous_dir = vim.fn.chdir(tmp)
+    assert(previous_dir ~= "", "could not enter the fixture directory")
   end)
 
   after_each(function()
@@ -17,27 +20,27 @@ describe("helpers.git", function()
 
   describe("default_base", function()
     it("picks the conventional branch that exists", function()
-      init_repo("trunk")
+      Fixture.init_repo("trunk", tmp)
       assert.equal("trunk", Git.default_base())
     end)
 
     it("prefers origin/HEAD over the conventional names", function()
-      init_repo("main")
-      git({ "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/mainline" })
+      Fixture.init_repo("main", tmp)
+      Fixture.git({ "symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/mainline" }, tmp)
       assert.equal("mainline", Git.default_base())
     end)
 
     it("falls back to main when nothing matches", function()
-      init_repo("weird")
+      Fixture.init_repo("weird", tmp)
       assert.equal("main", Git.default_base())
     end)
   end)
 
   describe("merge_base", function()
     it("returns the fork point and the branch it forked from", function()
-      local fork = init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
-      git({ "commit", "-q", "--allow-empty", "-m", "work" })
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
+      Fixture.git({ "commit", "-q", "--allow-empty", "-m", "work" }, tmp)
 
       local sha, branch = Git.merge_base()
       assert.equal(fork, sha)
@@ -45,25 +48,25 @@ describe("helpers.git", function()
     end)
 
     it("names the remote ref it measured against when one exists", function()
-      local fork = init_repo("trunk")
-      git({ "update-ref", "refs/remotes/origin/trunk", fork })
-      git({ "checkout", "-q", "-b", "feature" })
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "update-ref", "refs/remotes/origin/trunk", fork }, tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
 
       local _, _, ref = Git.merge_base()
       assert.equal("origin/trunk", ref)
     end)
 
     it("names the local branch when there is no remote to measure against", function()
-      init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
+      Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
 
       local _, _, ref = Git.merge_base()
       assert.equal("trunk", ref)
     end)
 
     it("measures the repo it is given rather than the one Neovim sits in", function()
-      local fork = init_repo("trunk")
-      git({ "checkout", "-q", "-b", "feature" })
+      local fork = Fixture.init_repo("trunk", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "feature" }, tmp)
       vim.fn.chdir(previous_dir)
 
       assert.equal(fork, (Git.merge_base(tmp)))

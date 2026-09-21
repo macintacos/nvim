@@ -97,7 +97,7 @@ describe("changeset.diff._parse_name_status", function()
   end)
 end)
 
--- Real `git diff --unified=0 --no-color -M <base>` output for the same change as NUMSTAT.
+-- Real `git diff --unified=0 -M <base>` output for the same change as NUMSTAT.
 local HUNKS = vim.split(
   [[
 diff --git a/docs/guide/intro.md b/docs/tutorial/intro.md
@@ -339,24 +339,33 @@ local function collect(base, cwd)
 end
 
 describe("changeset.diff.collect", function()
-  local tmp, previous_dir
+  local tmp
 
+  -- Deliberately never entered: Neovim stays in the real repository, so a
+  -- `collect` that ignored its `cwd` argument would measure this checkout and
+  -- every assertion below would fail.
   before_each(function()
-    tmp, previous_dir = Fixture.tempdir()
+    tmp = vim.fn.tempname()
+    vim.fn.mkdir(tmp, "p")
   end)
 
   after_each(function()
-    vim.fn.chdir(previous_dir)
     vim.fn.delete(tmp, "rf")
   end)
 
+  ---@param name string Relative to the fixture repo.
+  ---@param lines string[]
+  local function write(name, lines)
+    vim.fn.writefile(lines, vim.fs.joinpath(tmp, name))
+  end
+
   it("keeps two edits three lines apart in separate hunks", function()
-    Fixture.init_repo("trunk")
-    vim.fn.writefile(TWELVE_LINES, "notes.txt")
-    local base = Fixture.commit("seed")
+    Fixture.init_repo("trunk", tmp)
+    write("notes.txt", TWELVE_LINES)
+    local base = Fixture.commit("seed", tmp)
     local edited = vim.list_slice(TWELVE_LINES)
     edited[4], edited[8] = "FOUR", "EIGHT"
-    vim.fn.writefile(edited, "notes.txt")
+    write("notes.txt", edited)
 
     assert.same({
       {
@@ -372,14 +381,71 @@ describe("changeset.diff.collect", function()
     }, collect(base, tmp))
   end)
 
+  ---Seed a one-file repo and edit it, returning the base commit.
+  ---@param cwd string
+  ---@return string
+  local function seed_edited_file(cwd)
+    Fixture.init_repo("trunk", cwd)
+    write("notes.txt", TWELVE_LINES)
+    local base = Fixture.commit("seed", cwd)
+    local edited = vim.list_slice(TWELVE_LINES)
+    edited[4] = "FOUR"
+    write("notes.txt", edited)
+    return base
+  end
+
+  it("reads hunks when the user config reshapes the diff header", function()
+    local base = seed_edited_file(tmp)
+    -- Each of these rewrites the `diff --git a/x b/x` line `_parse_hunks` keys
+    -- on, and a developer can have any of them in ~/.gitconfig.
+    Fixture.git({ "config", "diff.noprefix", "true" }, tmp)
+    Fixture.git({ "config", "diff.mnemonicPrefix", "true" }, tmp)
+    Fixture.git({ "config", "color.diff", "always" }, tmp)
+
+    assert.same({ { lnum = 4, count = 1, added = 1, removed = 1 } }, collect(base, tmp)[1].hunks)
+  end)
+
+  it("reads hunks when the user config installs an external diff driver", function()
+    local base = seed_edited_file(tmp)
+    -- An external driver replaces git's own diff output wholesale, so the
+    -- parser sees no hunk headers at all.
+    Fixture.git({ "config", "diff.external", "true" }, tmp)
+
+    assert.same({ { lnum = 4, count = 1, added = 1, removed = 1 } }, collect(base, tmp)[1].hunks)
+  end)
+
+  it("keeps a non-ASCII path as a real filename", function()
+    local base = Fixture.init_repo("trunk", tmp)
+    write("é.txt", { "a", "b" })
+
+    assert.equal("é.txt", collect(base, tmp)[1].path)
+  end)
+
+  it("reports git's stderr when the base is not a commit", function()
+    Fixture.init_repo("trunk", tmp)
+    local files, err, done
+    diff.collect("no-such-ref", tmp, function(result, message)
+      files, err, done = result, message, true
+    end)
+    assert(
+      vim.wait(10000, function()
+        return done
+      end, 10),
+      "collect never called back"
+    )
+
+    assert.is_nil(files)
+    assert.truthy(err and #err > 0)
+  end)
+
   it("reports a staged rename as one renamed file", function()
-    Fixture.init_repo("trunk")
+    Fixture.init_repo("trunk", tmp)
     -- git enables rename detection by default, so without this the argv flag is
     -- not what makes the rename show up and the test proves nothing.
-    Fixture.git({ "config", "diff.renames", "false" })
-    vim.fn.writefile({ "keep me" }, "old.txt")
-    local base = Fixture.commit("seed")
-    Fixture.git({ "mv", "old.txt", "new.txt" })
+    Fixture.git({ "config", "diff.renames", "false" }, tmp)
+    write("old.txt", { "keep me" })
+    local base = Fixture.commit("seed", tmp)
+    Fixture.git({ "mv", "old.txt", "new.txt" }, tmp)
 
     assert.same({
       { path = "new.txt", oldpath = "old.txt", status = "renamed", added = 0, removed = 0, hunks = {} },
@@ -387,12 +453,12 @@ describe("changeset.diff.collect", function()
   end)
 
   it("leaves gitignored paths out of the untracked files", function()
-    Fixture.init_repo("trunk")
-    vim.fn.writefile({ "build/" }, ".gitignore")
-    local base = Fixture.commit("seed")
-    vim.fn.mkdir("build", "p")
-    vim.fn.writefile({ "binary" }, "build/artifact.o")
-    vim.fn.writefile({ "a", "b", "c" }, "scratch.txt")
+    Fixture.init_repo("trunk", tmp)
+    write(".gitignore", { "build/" })
+    local base = Fixture.commit("seed", tmp)
+    vim.fn.mkdir(vim.fs.joinpath(tmp, "build"), "p")
+    write("build/artifact.o", { "binary" })
+    write("scratch.txt", { "a", "b", "c" })
 
     assert.same({
       {
@@ -406,13 +472,13 @@ describe("changeset.diff.collect", function()
   end)
 
   it("counts only the untracked paths it can read", function()
-    local base = Fixture.init_repo("trunk")
-    vim.fn.writefile({ "a", "b", "c" }, "scratch.txt")
+    local base = Fixture.init_repo("trunk", tmp)
+    write("scratch.txt", { "a", "b", "c" })
     -- A nested repo arrives from `ls-files` as the directory itself, and a
     -- dangling symlink as a path nothing can read.
-    Fixture.git({ "init", "-q", "nested" })
-    vim.fn.writefile({ "inner" }, "nested/file.txt")
-    assert(vim.uv.fs_symlink("missing", "dangling"))
+    Fixture.git({ "init", "-q", "nested" }, tmp)
+    write("nested/file.txt", { "inner" })
+    assert(vim.uv.fs_symlink("missing", vim.fs.joinpath(tmp, "dangling")))
 
     local files = collect(base, tmp)
 
