@@ -319,14 +319,7 @@ end)
 local TWELVE_LINES =
   { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" }
 
----Commit everything in the fixture and return the new HEAD.
----@return string
-local function commit_all()
-  Fixture.git({ "add", "-A" })
-  Fixture.git({ "commit", "-q", "-m", "seed" })
-  return Fixture.git({ "rev-parse", "HEAD" })
-end
-
+---Run `diff.collect` and block until its callback fires, failing on timeout or git error.
 ---@param base string
 ---@param cwd string
 ---@return changeset.File[]
@@ -360,7 +353,7 @@ describe("changeset.diff.collect", function()
   it("keeps two edits three lines apart in separate hunks", function()
     Fixture.init_repo("trunk")
     vim.fn.writefile(TWELVE_LINES, "notes.txt")
-    local base = commit_all()
+    local base = Fixture.commit("seed")
     local edited = vim.list_slice(TWELVE_LINES)
     edited[4], edited[8] = "FOUR", "EIGHT"
     vim.fn.writefile(edited, "notes.txt")
@@ -385,7 +378,7 @@ describe("changeset.diff.collect", function()
     -- not what makes the rename show up and the test proves nothing.
     Fixture.git({ "config", "diff.renames", "false" })
     vim.fn.writefile({ "keep me" }, "old.txt")
-    local base = commit_all()
+    local base = Fixture.commit("seed")
     Fixture.git({ "mv", "old.txt", "new.txt" })
 
     assert.same({
@@ -396,7 +389,7 @@ describe("changeset.diff.collect", function()
   it("leaves gitignored paths out of the untracked files", function()
     Fixture.init_repo("trunk")
     vim.fn.writefile({ "build/" }, ".gitignore")
-    local base = commit_all()
+    local base = Fixture.commit("seed")
     vim.fn.mkdir("build", "p")
     vim.fn.writefile({ "binary" }, "build/artifact.o")
     vim.fn.writefile({ "a", "b", "c" }, "scratch.txt")
@@ -419,7 +412,7 @@ describe("changeset.diff.collect", function()
     -- dangling symlink as a path nothing can read.
     Fixture.git({ "init", "-q", "nested" })
     vim.fn.writefile({ "inner" }, "nested/file.txt")
-    vim.uv.fs_symlink("missing", tmp .. "/dangling")
+    assert(vim.uv.fs_symlink("missing", "dangling"))
 
     local files = collect(base, tmp)
 

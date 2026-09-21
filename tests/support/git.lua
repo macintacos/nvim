@@ -1,3 +1,6 @@
+---Reachable as `support.git` only because `tests/minimal_init.lua` puts `tests/`
+---on `package.path`. Every function runs in the process cwd, so `tempdir()`
+---comes first.
 local M = {}
 
 ---Run git in the current directory, asserting it succeeded.
@@ -34,6 +37,15 @@ function M.init_repo(branch)
   M.git({ "config", "user.name", "Test" })
   M.git({ "config", "commit.gpgsign", "false" })
   M.git({ "commit", "-q", "--allow-empty", "-m", "base" })
+  return M.git({ "rev-parse", "HEAD" })
+end
+
+---Stage everything and commit it, returning the new HEAD.
+---@param message string
+---@return string
+function M.commit(message)
+  M.git({ "add", "-A" })
+  M.git({ "commit", "-q", "-m", message })
   return M.git({ "rev-parse", "HEAD" })
 end
 

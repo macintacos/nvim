@@ -18,14 +18,12 @@ local function init_repo()
 
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 1", "end", "", "return M" })
   write("other.lua", { "return { a = 1 }" })
-  git({ "add", "-A" })
-  git({ "commit", "-q", "-m", "base" })
+  Fixture.commit("base")
 
   git({ "checkout", "-q", "-b", "feature" })
   write("mod.lua", { "local M = {}", "", "function M.one()", "  return 2", "end", "", "return M" })
   write("other.lua", { "return { a = 1, b = 2 }" })
-  git({ "add", "-A" })
-  git({ "commit", "-q", "-m", "change" })
+  Fixture.commit("change")
 end
 
 ---@param buf integer

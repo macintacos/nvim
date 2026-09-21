@@ -19,6 +19,11 @@ for name in pairs(vim.fn.environ()) do
     vim.env[name] = nil
   end
 end
+-- Set after the scrub, which would otherwise delete them. The user and system
+-- configs arrive through $HOME rather than GIT_*, and options like
+-- `diff.noprefix` reshape the output the specs parse.
+vim.env.GIT_CONFIG_GLOBAL = "/dev/null"
+vim.env.GIT_CONFIG_SYSTEM = "/dev/null"
 -- Find plenary.nvim in vim.pack's install directory
 local data = vim.fn.stdpath("data") .. "/site/pack/"
 local plenary = vim.fn.glob(data .. "*/opt/plenary.nvim", false, true)[1]
@@ -31,6 +36,6 @@ end
 -- in the normal checkout this resolves to the same path as stdpath("config").
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h")
 vim.opt.rtp:prepend(root)
--- `rtp` reaches `lua/` only, so fixture modules under `tests/` need their own path.
+-- `rtp` reaches `lua/` only, so fixture modules under `tests/support/` need their own path.
 package.path = root .. "/tests/?.lua;" .. package.path
 vim.cmd("runtime plugin/plenary.vim")

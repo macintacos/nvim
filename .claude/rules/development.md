@@ -60,6 +60,8 @@ tests/<name>/
 └── ...
 ```
 
+Shared fixtures live in `tests/support/` and are required as `require("support.<name>")`; `tests/minimal_init.lua` puts `tests/` on `package.path` so they resolve. `support.git` provides `git(args)`, `tempdir()`, `init_repo(branch)` and `commit(message)` — use it rather than hand-rolling another one.
+
 Test files use `describe`/`it` blocks:
 
 ```lua
