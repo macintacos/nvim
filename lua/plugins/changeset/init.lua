@@ -158,11 +158,9 @@ local function preview_current()
   end
 end
 
----Clears every mark in `ns` first, so it must run before `hidden_note_line`.
 ---@param buf integer
 ---@param lines changeset.Line[] Rendered lines, each carrying its own marks.
 local function apply_marks(buf, lines)
-  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   for lnum, line in ipairs(lines) do
     for _, mark in ipairs(line.marks or {}) do
       vim.api.nvim_buf_set_extmark(buf, ns, lnum - 1, mark.col or 0, {
@@ -181,8 +179,9 @@ end
 ---@param buf integer
 ---@param anchor_line integer 0-based line the note hangs under.
 ---@param width integer Sidebar width; the note gets one cell less, for its leading space.
-local function hidden_note_line(buf, anchor_line, width)
-  local note = render.hidden_note(view.hiding(view.kind_counts(session.rows), session.hidden), width - 1)
+---@param hidden_kinds table Kinds being hidden, as `view.hiding` reports them.
+local function hidden_note_line(buf, anchor_line, width, hidden_kinds)
+  local note = render.hidden_note(hidden_kinds, width - 1)
   if note then
     -- A virtual line rather than a row: the cursor cannot reach it, so it needs no
     -- place in `visible` and no guard in everything that reads a row off a line.
@@ -194,14 +193,16 @@ end
 
 ---Total the branch's line changes into the sidebar's winbar.
 ---@param win integer
-local function set_header(win)
+---@param files changeset.File[]
+---@param base_ref string
+local function set_header(win, files, base_ref)
   local added, removed = 0, 0
-  for _, file in ipairs(session.files) do
+  for _, file in ipairs(files) do
     added, removed = added + (file.added or 0), removed + (file.removed or 0)
   end
   vim.wo[win].winbar = render.header({
-    base_ref = session.ref,
-    files = #session.files,
+    base_ref = base_ref,
+    files = #files,
     added = added,
     removed = removed,
   })
@@ -254,15 +255,16 @@ local function draw()
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, text)
   vim.bo[buf].modifiable = false
 
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   apply_marks(buf, lines)
-  hidden_note_line(buf, #text - 1, width)
+  hidden_note_line(buf, #text - 1, width, view.hiding(view.kind_counts(session.rows), session.hidden))
 
   local ids = vim.tbl_map(function(row)
     return row.id
   end, session.visible)
   vim.api.nvim_win_set_cursor(win, { state._reanchor(ids, wanted, previous_line), 0 })
 
-  set_header(win)
+  set_header(win, session.files, session.ref)
 end
 
 ---Text of a changed line, for captioning an orphan hunk.
@@ -330,30 +332,28 @@ local function step(delta)
 end
 
 ---Open the symbol-kind filter menu, redrawing as kinds are toggled.
----
----Assumes an open session; `set_keymaps`'s `map` guards every handler it wires.
-local function open_kind_menu()
+---@param open_session changeset.Session
+local function open_kind_menu(open_session)
   require("plugins.changeset.menu").open({
-    root = session.root,
-    branch = session.branch,
-    counts = view.kind_counts(session.rows),
-    hidden = session.hidden,
+    root = open_session.root,
+    branch = open_session.branch,
+    counts = view.kind_counts(open_session.rows),
+    hidden = open_session.hidden,
     icon = function(symbol_kind)
       return icon("lsp", symbol_kind)
     end,
     sidebar = window.win(),
     on_change = function(hidden)
-      session.hidden = hidden
+      open_session.hidden = hidden
       draw()
     end,
   })
 end
 
 ---Narrow the tree from the command line, restoring the previous query on cancel.
----
----Assumes an open session; `set_keymaps`'s `map` guards every handler it wires.
-local function prompt_filter()
-  local previous_query = session.query
+---@param open_session changeset.Session
+local function prompt_filter(open_session)
+  local previous_query = open_session.query
   local group = vim.api.nvim_create_augroup("changeset.filter", { clear = true })
   -- input() edits on the command line, so every keystroke is a CmdlineChanged
   -- — which is what lets the tree narrow as it is typed rather than at <CR>.
@@ -361,7 +361,7 @@ local function prompt_filter()
     group = group,
     desc = "changeset: filter the tree on each keystroke of the filter prompt",
     callback = function()
-      session.query = vim.fn.getcmdline()
+      open_session.query = vim.fn.getcmdline()
       draw()
       vim.cmd("redraw")
     end,
@@ -374,20 +374,50 @@ local function prompt_filter()
   })
   vim.api.nvim_del_augroup_by_id(group)
 
-  session.query = (ok and typed ~= CANCELLED) and typed or previous_query
+  open_session.query = (ok and typed ~= CANCELLED) and typed or previous_query
+  draw()
+end
+
+---What `h` does from a row: shut it, or put the cursor on its parent.
+---@param open_session changeset.Session
+local function collapse_or_parent(open_session)
+  local row, win = row_at_cursor(), window.win()
+  if not (row and win) then
+    return
+  end
+  local action, parent_lnum = state._outward(open_session.visible, vim.api.nvim_win_get_cursor(win)[1])
+  if action == "collapse" then
+    set_open(row, false)
+  elseif action == "parent" then
+    vim.api.nvim_win_set_cursor(win, { parent_lnum, 0 })
+  end
+end
+
+---@param open_session changeset.Session
+local function collapse_all_files(open_session)
+  state.collapse_all(
+    open_session.st,
+    vim.tbl_map(function(row)
+      return row.id
+    end, open_session.rows)
+  )
   draw()
 end
 
 ---@param buf integer
 local function set_keymaps(buf)
   local set, own = help.mapper(buf)
-  -- Every handler below reads the session, and the window can outlive it: a `:q`
-  -- mid-rebuild, or the tabpage's last window, which cannot be closed. A key that
-  -- does nothing beats one that raises.
+  -- The window can outlive the session: a `:q` mid-rebuild, or the tabpage's last
+  -- window, which cannot be closed. Handing the session down rather than letting
+  -- handlers reach for it means the check that it exists is the same line that
+  -- passes it on.
+  ---@param lhs string
+  ---@param fn fun(open_session: changeset.Session)
+  ---@param desc string
   local function map(lhs, fn, desc)
     set(lhs, function()
       if session then
-        fn()
+        fn(session)
       end
     end, desc)
   end
@@ -417,29 +447,10 @@ local function set_keymaps(buf)
       set_open(row, true)
     end
   end, "Expand")
-  map("h", function()
-    local row, win = row_at_cursor(), window.win()
-    if not (row and win) then
-      return
-    end
-    local action, parent_lnum = state._outward(session.visible, vim.api.nvim_win_get_cursor(win)[1])
-    if action == "collapse" then
-      set_open(row, false)
-    elseif action == "parent" then
-      vim.api.nvim_win_set_cursor(win, { parent_lnum, 0 })
-    end
-  end, "Collapse, or step out to the parent")
-  map("H", function()
-    state.collapse_all(
-      session.st,
-      vim.tbl_map(function(row)
-        return row.id
-      end, session.rows)
-    )
-    draw()
-  end, "Collapse every file")
-  map("L", function()
-    state.expand_all(session.st)
+  map("h", collapse_or_parent, "Collapse, or step out to the parent")
+  map("H", collapse_all_files, "Collapse every file")
+  map("L", function(open_session)
+    state.expand_all(open_session.st)
     draw()
   end, "Expand every file")
   map("R", M.refresh, "Rebuild the tree")
