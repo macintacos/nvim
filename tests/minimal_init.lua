@@ -5,6 +5,11 @@
 -- alongside the interactive editor; concurrent or signal-killed children
 -- interleave their writes and corrupt it (E576, then E136 on every later write).
 vim.o.shadafile = "NONE"
+-- Nor may they write swap files. A `[No Name]` buffer names its swap after the
+-- current directory, so every child plenary runs in parallel wants the same one;
+-- the rotation runs out after a dozen or so and the loser dies with E303 in
+-- whichever spec happened to call `enew`.
+vim.o.swapfile = false
 -- Find plenary.nvim in vim.pack's install directory
 local data = vim.fn.stdpath("data") .. "/site/pack/"
 local plenary = vim.fn.glob(data .. "*/opt/plenary.nvim", false, true)[1]
