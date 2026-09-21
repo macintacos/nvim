@@ -158,6 +158,7 @@ local function preview_current()
   end
 end
 
+---Clears every mark in `ns` first, so it must run before `hidden_note_line`.
 ---@param buf integer
 ---@param lines changeset.Line[] Rendered lines, each carrying its own marks.
 local function apply_marks(buf, lines)
@@ -169,16 +170,17 @@ local function apply_marks(buf, lines)
         hl_group = mark.hl,
         virt_text = mark.virt_text,
         virt_text_pos = mark.pos,
+        -- Below render's MATCH_PRIORITY, so a filter match reads over the row's own marks.
         priority = mark.priority or 199,
       })
     end
   end
 end
 
----Add the "N kinds hidden" note as a virtual line below the tree.
+---Hang the "what is being hidden" note under the tree as a virtual line.
 ---@param buf integer
----@param lnum integer 0-based line the note hangs off — the last line of the tree.
----@param width integer Sidebar width.
+---@param lnum integer 0-based line the note hangs under.
+---@param width integer Sidebar width; the note gets one cell less, for its leading space.
 local function hidden_note_line(buf, lnum, width)
   local note = render.hidden_note(view.hiding(view.kind_counts(session.rows), session.hidden), width - 1)
   if note then
@@ -190,6 +192,7 @@ local function hidden_note_line(buf, lnum, width)
   end
 end
 
+---Total the branch's line changes into the sidebar's winbar.
 ---@param win integer
 local function set_header(win)
   local added, removed = 0, 0
@@ -327,6 +330,8 @@ local function step(delta)
 end
 
 ---Open the symbol-kind filter menu, redrawing as kinds are toggled.
+---
+---Assumes an open session; `set_keymaps`'s `map` guards every handler it wires.
 local function open_kind_menu()
   require("plugins.changeset.menu").open({
     root = session.root,
@@ -345,6 +350,8 @@ local function open_kind_menu()
 end
 
 ---Narrow the tree from the command line, restoring the previous query on cancel.
+---
+---Assumes an open session; `set_keymaps`'s `map` guards every handler it wires.
 local function prompt_filter()
   local previous = session.query
   local group = vim.api.nvim_create_augroup("changeset.filter", { clear = true })

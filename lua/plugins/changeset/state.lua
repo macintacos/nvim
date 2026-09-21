@@ -1,6 +1,9 @@
 ---View state that must survive a rebuild: where the cursor was, and which rows
 ---are folded. Both are keyed by row identity rather than by line, because a
 ---refresh reorders lines whenever the file set changes.
+---
+---The `_`-prefixed functions are pure decisions alongside it: where the cursor
+---lands after a rebuild, and where `h` goes from a row.
 
 ---@class changeset.State
 ---@field collapsed table<string, true> Rows whose children are hidden.
@@ -79,9 +82,9 @@ end
 ---state, because a compressed chain shows them while it is itself still shut — so
 ---`h` closes one in the same two steps `l` opened it in.
 ---@param rows changeset.Row[] The visible rows, in display order.
----@param lnum integer
+---@param lnum integer 1-based; must index `rows`.
 ---@return "collapse"|"parent"|nil action nil on a shut row with no parent above it.
----@return integer? lnum Line of the parent, when the action is "parent".
+---@return integer? lnum 1-based line of the parent, when the action is "parent".
 function M._outward(rows, lnum)
   local depth = rows[lnum].depth
   local below = rows[lnum + 1]
