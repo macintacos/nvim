@@ -114,7 +114,9 @@ local function resolve_one(root, path, on_done)
   end)
 end
 
----Walk a queue of paths through `run`, reporting each answer as it lands.
+---Walk a queue of paths through `run`, at most `CONCURRENCY` of them in flight, reporting
+---each answer as it lands. A `run` that raises before answering is reported as no symbols,
+---so a failing step closes its lane instead of stranding it.
 ---@param queue string[]
 ---@param run fun(path: string, done: fun(items: MiniPickers.Symbol[]?))
 ---@param on_file fun(path: string, items: MiniPickers.Symbol[]?)

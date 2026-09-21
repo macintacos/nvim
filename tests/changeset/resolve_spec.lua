@@ -1,7 +1,8 @@
 local resolve = require("plugins.changeset.resolve")
 
 ---A step that parks each call so the spec decides when it answers.
----@return fun(path: string, done: fun(items: MiniPickers.Symbol[]?)), table[] pending
+---@return fun(path: string, done: fun(items: MiniPickers.Symbol[]?)) run
+---@return table[] pending
 local function deferred()
   local pending = {}
   return function(path, done)
@@ -85,6 +86,19 @@ describe("changeset.resolve", function()
       assert.equal(1, #seen)
       assert.equal("api.ts", seen[1].path)
       assert.is_nil(seen[1].items)
+    end)
+
+    it("reports the very table its step answered with", function()
+      local run, pending = deferred()
+      local answers = {}
+
+      resolve._walk({ "api.ts" }, run, function(path, items)
+        answers[path] = items
+      end)
+      local items = {}
+      pending[1].done(items)
+
+      assert.equal(items, answers["api.ts"])
     end)
   end)
 end)
