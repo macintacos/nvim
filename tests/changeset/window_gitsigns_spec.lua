@@ -1,5 +1,5 @@
 local window = require("plugins.changeset.window")
-local support = require("support.git")
+local Fixture = require("support.git")
 
 ---@type changeset.Band
 local BAND = { icon = "󰢱", icon_hl = "MiniIconsAzure", path = "src/session.ts" }
@@ -15,10 +15,10 @@ describe("changeset.window gitsigns", function()
     vim.cmd("only")
     dir = vim.fn.resolve(vim.fn.tempname())
     vim.fn.mkdir(dir, "p")
-    support.init_repo("main", dir)
+    Fixture.init_repo("main", dir)
     path = dir .. "/a.txt"
     vim.fn.writefile({ "one" }, path)
-    support.commit("add a", dir)
+    Fixture.commit("add a", dir)
     vim.fn.writefile({ "one", "two" }, path)
   end)
 
