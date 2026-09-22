@@ -275,6 +275,8 @@ function M.commit(path, lnum, how)
 
   local win = target()
   local snapshot = sidebar.borrowed[win]
+  -- Before focusing it, so the `WinEnter` that focus fires does not claim it again.
+  sidebar.borrowed[win] = nil
   vim.api.nvim_set_current_win(win)
   -- On the snapshot first, so the entry below is the user's own position rather
   -- than the last preview — and before any split, since `:tabnew` records the
@@ -300,6 +302,15 @@ function M.commit(path, lnum, how)
   end
   -- Chosen, not borrowed: this window keeps what it is showing.
   sidebar.borrowed[vim.api.nvim_get_current_win()] = nil
+end
+
+---Commit the focused window if it is showing a preview: reaching it counts as choosing it.
+function M.claim()
+  local win = vim.api.nvim_get_current_win()
+  if not (M.is_visible() and sidebar.borrowed[win]) then
+    return
+  end
+  M.commit(vim.api.nvim_buf_get_name(0), vim.api.nvim_win_get_cursor(win)[1], "reuse")
 end
 
 ---Close the sidebar. Every window it previewed into goes back to the buffer and
