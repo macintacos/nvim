@@ -10,6 +10,8 @@ vim.o.shadafile = "NONE"
 -- the rotation runs out after a dozen or so and the loser dies with E303 in
 -- whichever spec happened to call `enew`.
 vim.o.swapfile = false
+vim.env.XDG_STATE_HOME = vim.fn.tempname()
+vim.fn.mkdir(vim.env.XDG_STATE_HOME, "p")
 -- Git hooks export GIT_DIR and friends, and those override cwd-based repo
 -- discovery — under `pre-push` a spec's fixture repo would otherwise operate on
 -- the repo being pushed. No restore: each spec runs in its own child nvim.
