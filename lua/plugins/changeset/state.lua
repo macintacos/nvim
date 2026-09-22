@@ -82,6 +82,24 @@ function M._reanchor(ids, wanted, fallback)
   return math.max(1, math.min(fallback, #ids))
 end
 
+---The line showing the row with `id`, or else its deepest ancestor on screen.
+---
+---A row id extends its parent's by a `\0`-joined segment, so a row folded away,
+---filtered out, or hidden inside a compressed chain (whose line carries the head's
+---id) is stood in for by whichever of its ancestors is showing.
+---@param ids string[] Row ids, in display order.
+---@param id string?
+---@return integer? lnum 1-based; nil when nothing on screen is related.
+function M._nearest(ids, id)
+  local best, best_len = nil, 0
+  for lnum, shown in ipairs(ids) do
+    if id and #shown > best_len and (id == shown or vim.startswith(id, shown .. "\0")) then
+      best, best_len = lnum, #shown
+    end
+  end
+  return best
+end
+
 ---What `h` does from a line: shut the row, or step out to its parent.
 ---
 ---Whether children are showing is read off the next line rather than the fold
