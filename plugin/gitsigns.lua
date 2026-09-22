@@ -18,7 +18,7 @@ local applied
 local want
 
 ---@type string? Toplevel of the repository the mode acts on.
-local repo
+local toplevel
 
 ---@type table<string, true> Bases `apply` has set.
 local ours = {}
@@ -44,7 +44,7 @@ end
 ---@param git_obj Gitsigns.GitObj
 ---@return boolean
 local function owned(buf, git_obj)
-  return git_obj.repo.toplevel == repo
+  return git_obj.repo.toplevel == toplevel
     and not vim.api.nvim_buf_get_name(buf):match("^%a+://")
     and (git_obj.revision == nil or ours[git_obj.revision] == true)
 end
@@ -84,7 +84,7 @@ end
 ---@param done fun(err: string?)? Called once every move has landed, with the first error.
 local function apply(base, done)
   want = base
-  repo = require("helpers.git").lines({ "git", "rev-parse", "--show-toplevel" })[1]
+  toplevel = require("helpers.git").lines({ "git", "rev-parse", "--show-toplevel" })[1]
   if base then
     ours[base] = true
   end

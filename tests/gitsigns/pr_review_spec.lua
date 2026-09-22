@@ -5,8 +5,8 @@ vim.opt.rtp:prepend(vim.fn.glob(data .. "*/opt/gitsigns.nvim", false, true)[1])
 
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
 -- The plugin file registers an un-grouped autocmd and keeps its state at file
--- scope, so it is sourced once. `want`, `repo`, `ours` and `moving` are tied to
--- a fixture repo each teardown deletes, so they own nothing in the next case;
+-- scope, so it is sourced once. `want`, `toplevel`, `ours` and `moving` are tied
+-- to a fixture repo each teardown deletes, so they own nothing in the next case;
 -- `dismissed` and the branch memo `applied` persist, so each case opens its
 -- first buffer on a branch other than the one the case before it ended on.
 local pack_add = vim.pack.add
@@ -180,10 +180,10 @@ describe("PR Review Mode", function()
       assert.is_true(await(bufs, nil, 5000))
 
       support.git({ "switch", "-q", "lone-" .. i }, dir)
-      local mb = merge_base()
-      assert.is_true(await(bufs, mb, 10000), "iteration " .. i)
+      local base = merge_base()
+      assert.is_true(await(bufs, base, 10000), "iteration " .. i)
       assert.is_false(vim.wait(500, function()
-        return revision(bufs[1]) ~= mb
+        return revision(bufs[1]) ~= base
       end, 20))
 
       vim.cmd("silent! %bwipeout!")
@@ -217,8 +217,8 @@ describe("PR Review Mode", function()
     local tip = support.git({ "rev-parse", "HEAD" }, dir)
     vim.fn.chdir(dir)
     local bufs = edit({ "a.txt", "b.txt" })
-    local mb = merge_base()
-    assert.is_true(await(bufs, mb, 5000))
+    local base = merge_base()
+    assert.is_true(await(bufs, base, 5000))
     vim.api.nvim_buf_call(bufs[1], function()
       require("gitsigns").change_base(tip)
     end)
@@ -227,7 +227,7 @@ describe("PR Review Mode", function()
     vim.cmd.PRReview()
     assert.is_true(await({ bufs[2] }, nil, 5000))
     vim.cmd.PRReview()
-    assert.is_true(await({ bufs[2] }, mb, 5000))
+    assert.is_true(await({ bufs[2] }, base, 5000))
 
     assert.is_true(settle())
     assert.equal(tip, revision(bufs[1]))
@@ -298,15 +298,15 @@ describe("PR Review Mode", function()
     local before = moves
 
     support.git({ "switch", "-q", "counted" }, dir)
-    local mb = merge_base()
+    local base = merge_base()
     -- The first buffer reaching the base marks the switch; the rest attach while
     -- the moves run, onto the base already.
     assert.is_true(vim.wait(10000, function()
-      return revision(bufs[1]) == mb
+      return revision(bufs[1]) == base
     end, 1))
     vim.list_extend(bufs, edit(vim.list_slice(files, 13, 18)))
 
-    assert.is_true(await(bufs, mb, 10000))
+    assert.is_true(await(bufs, base, 10000))
     assert.is_true(settle())
     assert.equal(12, moves - before)
 
@@ -320,7 +320,7 @@ describe("PR Review Mode", function()
       vim.api.nvim_exec_autocmds("User", { pattern = "GitSignsUpdate" })
     end
 
-    assert.is_true(await(bufs, mb, 10000))
+    assert.is_true(await(bufs, base, 10000))
     assert.is_true(settle())
     assert.equal(#bufs, moves - before)
   end)
