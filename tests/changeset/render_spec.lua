@@ -387,10 +387,12 @@ describe("changeset.render", function()
     end)
 
     it("takes the query as plain text, not as a pattern", function()
-      local lines =
-        render.lines({ file({ name = "a(b).lua", path = "a(b).lua", id = "a(b).lua" }) }, opts({ query = "(" }))
+      local lines = render.lines({ file({ path = "a(b).lua" }) }, opts({ query = "(" }))
 
-      assert.is_not_nil(mark_over(lines[1], "("))
+      local mark = mark_over(lines[1], "(")
+
+      assert.is_not_nil(mark)
+      assert.equal(render.MATCH_HL, mark.hl)
     end)
 
     it("leaves the rows unmarked when nothing is being filtered", function()
@@ -416,9 +418,11 @@ describe("changeset.render", function()
     end)
 
     it("says '1 file', not '1 files'", function()
-      local text = shown({ base_ref = "origin/trunk", files = 1, added = 3, removed = 0 })
+      local one = shown({ base_ref = "origin/trunk", files = 1, added = 3, removed = 0 })
+      local two = shown({ base_ref = "origin/trunk", files = 2, added = 3, removed = 0 })
 
-      assert.is_true(vim.endswith(text, "1 file  +3 -0 "))
+      assert.is_true(vim.endswith(one, "1 file  +3 -0 "))
+      assert.is_true(vim.endswith(two, "2 files  +3 -0 "))
     end)
 
     it("escapes % in the base ref so the statusline does not read it as an item", function()
@@ -554,8 +558,9 @@ describe("changeset.render", function()
       for _, name in ipairs(SAVED) do
         saved[name] = group(name)
       end
-      -- `band_hl` is file-local with `band_icon` as its only writer, so without a
-      -- pin here each test inherits whichever group the last one happened to set.
+      -- `band_hl` is file-local with `band_icon` as its only writer, so without a pin
+      -- here each test inherits whichever group the last one happened to set. No getter
+      -- to read it back, so unlike the groups above it stays pinned past this block.
       vim.api.nvim_set_hl(0, "ChangesetSpecIcon", { fg = 0x00ff00 })
       render.band_icon("ChangesetSpecIcon")
     end)
@@ -595,6 +600,15 @@ describe("changeset.render", function()
       assert.equal(0xabcdef, group(render.PREVIEW_HL).bg)
     end)
 
+    it("paints the preview badge in the theme's warning colour", function()
+      vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
+      vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = 0xffaa00 })
+
+      render.define_highlights()
+
+      assert.equal(0xffaa00, group(render.PREVIEW_LABEL_HL).fg)
+    end)
+
     it("falls back to Comment for the preview badge in a theme with no warning colour", function()
       vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
       vim.api.nvim_set_hl(0, "DiagnosticWarn", {})
@@ -602,6 +616,15 @@ describe("changeset.render", function()
       render.define_highlights()
 
       assert.equal(0x336699, group(render.PREVIEW_LABEL_HL).fg)
+    end)
+
+    it("paints the header with the theme's own chrome, not the band's shade", function()
+      vim.api.nvim_set_hl(0, "CursorLine", { bg = 0x123456 })
+      vim.api.nvim_set_hl(0, "TabLine", { bg = 0x654321 })
+
+      render.define_highlights()
+
+      assert.equal(0x654321, group(render.HEADER_HL).bg)
     end)
 
     it("falls back to the band for the header in a theme that paints no chrome", function()
@@ -613,6 +636,15 @@ describe("changeset.render", function()
       assert.equal(0x123456, group(render.HEADER_HL).bg)
     end)
 
+    it("paints the header badge in the theme's directory colour", function()
+      vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
+      vim.api.nvim_set_hl(0, "Directory", { fg = 0x4488cc })
+
+      render.define_highlights()
+
+      assert.equal(0x4488cc, group(render.HEADER_LABEL_HL).fg)
+    end)
+
     it("falls back to Comment for the header badge in a theme with no directory colour", function()
       vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
       vim.api.nvim_set_hl(0, "Directory", {})
@@ -622,8 +654,6 @@ describe("changeset.render", function()
       assert.equal(0x336699, group(render.HEADER_LABEL_HL).fg)
     end)
 
-    -- Reverse rather than a background read off `Normal`, so each badge pairs its
-    -- accent with whatever the window is drawn on rather than punching through it.
     it("reverses both badges, so neither needs an opaque Normal", function()
       render.define_highlights()
 
@@ -717,7 +747,7 @@ describe("changeset.render", function()
     it("counts the kinds instead once naming them would not fit", function()
       local note = render.hidden_note({ "Constructor", "Interface", "Property", "Variable" }, 44)
 
-      assert.truthy(note:find("Hiding 4 kinds of symbol", 1, true))
+      assert.equal("Hiding 4 kinds of symbol. F to change.", note)
     end)
   end)
 end)
