@@ -54,13 +54,13 @@ describe("changeset tree", function()
     end)
 
     it("builds without opening a window", function()
-      local windows = #vim.api.nvim_list_wins()
+      local window_count = #vim.api.nvim_list_wins()
 
       assert.is_true(changeset.build())
 
       assert.is_true(wait_for_file("mod.lua"))
       assert.is_nil(window.win())
-      assert.equal(windows, #vim.api.nvim_list_wins())
+      assert.equal(window_count, #vim.api.nvim_list_wins())
     end)
 
     it("keeps the tree it already built for the same fork point", function()
