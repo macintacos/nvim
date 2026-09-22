@@ -10,6 +10,19 @@ vim.keymap.set("n", "<leader>gp", function()
   require("plugins.changeset").toggle()
 end, { desc = "Changeset (changed files & symbols)" })
 
+-- Fires: once, at startup. Builds the tree in the background so the first
+-- <leader>gp opens onto it. Scheduled so it runs after the first paint and after
+-- plugin/mini/sessions.lua has restored a session inside its own VimEnter —
+-- the tree then follows the restored buffer, not the bare one.
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    vim.schedule(function()
+      require("plugins.changeset").build()
+    end)
+  end,
+})
+
 -- Fires: after a session is restored, which brings the sidebar's window back
 -- without its contents. Refills it rather than leaving an empty window behind.
 vim.api.nvim_create_autocmd("SessionLoadPost", {

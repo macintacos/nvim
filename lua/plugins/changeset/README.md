@@ -218,16 +218,23 @@ binary change.
 
 ## What it remembers
 
-Asking a language server about every changed file is what makes the first open slow: 28
+The tree is built at startup, in the background, for the repository of the buffer
+Neovim starts on — or of the buffer a restored session lands on — and `GitSignsUpdate`
+keeps it fresh whether or not the sidebar is showing. Opening the sidebar draws that tree,
+and closing it lets go of the window only, so the first `<leader>gp` opens onto a built
+tree rather than starting the work. Outside a repository, or with nothing to fork from,
+startup builds nothing and says nothing.
+
+Asking a language server about every changed file is what makes a cold build slow: 28
 files take about nine seconds in this repo, and the tree fills a row at a time while it
 waits. Symbols are cached per file instead, stamped with the file's size and mtime, so
-reopening asks a server only about what has changed since — the same tree comes back
+the next build asks a server only about what has changed since — the same tree comes back
 complete in under 300ms, which is the `git diff` and nothing else.
 
 The cache is one JSON file per repo under `stdpath("cache")/changeset/`, holding only the
-fields the tree reads from a symbol. Every open narrows it to the files the current diff
+fields the tree reads from a symbol. Every refresh narrows it to the files the current diff
 touches, so it stays the size of a branch rather than growing with every branch ever
-reviewed, and losing it costs one slow open. Folds are remembered per repository for as long as
+reviewed, and losing it costs one slow build. Folds are remembered per repository for as long as
 Neovim is running, so reopening looks like you left it; a restart starts expanded. Per
 repository because a row is identified by a repo-relative path, which two checkouts can
 easily both have.
