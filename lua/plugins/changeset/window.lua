@@ -21,7 +21,7 @@ local SPLIT_CMD = { vsplit = "vsplit", split = "split", tab = "tabnew" }
 ---@field buf integer
 ---@field cursor integer[]
 ---@field winbar string
----@field seen integer? The buffer a preview put here while the cursor stood in the window.
+---@field standing_buf integer? The buffer a preview put here while the cursor stood in the window.
 
 ---@type { win: integer?, buf: integer?, borrowed: table<integer, changeset.Snapshot> }
 local sidebar = { borrowed = {} }
@@ -250,7 +250,7 @@ function M.preview(path, lnum, band)
   end
   local win = target()
   remember(win)
-  sidebar.borrowed[win].seen = win == vim.api.nvim_get_current_win() and buf or nil
+  sidebar.borrowed[win].standing_buf = win == vim.api.nvim_get_current_win() and buf or nil
   show(win, buf)
   vim.wo[win].winbar = render.preview_winbar(band)
   if lnum then
@@ -320,7 +320,7 @@ function M.claim()
   local win = vim.api.nvim_get_current_win()
   local snapshot = M.is_visible() and sidebar.borrowed[win]
   local buf = vim.api.nvim_win_get_buf(win)
-  if not snapshot or snapshot.seen == buf then
+  if not snapshot or snapshot.standing_buf == buf then
     return
   end
   -- The user may have scrolled the preview before reaching it; the swaps inside
