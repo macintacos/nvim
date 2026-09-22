@@ -39,14 +39,22 @@ end
 ---@param branch string? Branch to measure against; the default branch when absent.
 ---@return string? sha nil outside a repo, when `branch` doesn't exist, or when the two share no ancestor.
 ---@return string? branch The branch the fork point was taken against.
----@return string? ref The ref actually measured against, remote prefix included.
+---@return string? ref The ref whose history holds the fork point, origin's preferred when both do.
 function M.merge_base(cwd, branch)
   branch = branch or M.default_base(cwd)
-  -- origin/ first: a local branch sitting behind the remote drags the fork point
-  -- backwards. One ahead of it (an unpushed restack) loses to the older remote fork point.
-  for _, ref in ipairs({ "origin/" .. branch, branch }) do
-    local sha = M.lines({ "git", "merge-base", "HEAD", ref }, cwd)[1]
-    if sha then
+  local refs = vim.tbl_filter(function(ref)
+    return #M.lines({ "git", "rev-parse", "--verify", "--quiet", ref }, cwd) > 0
+  end, { "origin/" .. branch, branch })
+  if #refs == 0 then
+    return
+  end
+  -- Given both, git picks the newer fork point whether local is behind origin or ahead of it.
+  local sha = M.lines(vim.list_extend({ "git", "merge-base", "HEAD" }, refs), cwd)[1]
+  if not sha then
+    return
+  end
+  for _, ref in ipairs(refs) do
+    if M.lines({ "git", "merge-base", sha, ref }, cwd)[1] == sha then
       return sha, branch, ref
     end
   end
