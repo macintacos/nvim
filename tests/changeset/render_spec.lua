@@ -418,11 +418,11 @@ describe("changeset.render", function()
     end)
 
     it("says '1 file', not '1 files'", function()
-      local one = shown({ base_ref = "origin/trunk", files = 1, added = 3, removed = 0 })
-      local two = shown({ base_ref = "origin/trunk", files = 2, added = 3, removed = 0 })
+      local singular = shown({ base_ref = "origin/trunk", files = 1, added = 3, removed = 0 })
+      local plural = shown({ base_ref = "origin/trunk", files = 2, added = 3, removed = 0 })
 
-      assert.is_true(vim.endswith(one, "1 file  +3 -0 "))
-      assert.is_true(vim.endswith(two, "2 files  +3 -0 "))
+      assert.is_true(vim.endswith(singular, "1 file  +3 -0 "))
+      assert.is_true(vim.endswith(plural, "2 files  +3 -0 "))
     end)
 
     it("escapes % in the base ref so the statusline does not read it as an item", function()
@@ -544,7 +544,7 @@ describe("changeset.render", function()
   end)
 
   describe("define_highlights", function()
-    local SAVED = { "Comment", "CursorLine", "Visual", "DiagnosticWarn", "TabLine", "Directory" }
+    local GROUP_NAMES = { "Comment", "CursorLine", "Visual", "DiagnosticWarn", "TabLine", "Directory" }
     local saved
 
     ---@param name string
@@ -555,7 +555,7 @@ describe("changeset.render", function()
 
     before_each(function()
       saved = {}
-      for _, name in ipairs(SAVED) do
+      for _, name in ipairs(GROUP_NAMES) do
         saved[name] = group(name)
       end
       -- `band_hl` is file-local with `band_icon` as its only writer, so without a pin
@@ -566,7 +566,7 @@ describe("changeset.render", function()
     end)
 
     after_each(function()
-      for _, name in ipairs(SAVED) do
+      for _, name in ipairs(GROUP_NAMES) do
         vim.api.nvim_set_hl(0, name, saved[name])
       end
     end)
