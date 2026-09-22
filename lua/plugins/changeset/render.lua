@@ -75,6 +75,14 @@ M.HEADER_HL = "ChangesetHeader"
 ---@type string
 M.HEADER_LABEL_HL = "ChangesetHeaderLabel"
 
+---Background of the row last picked from the sidebar. Created by `define_highlights`.
+---@type string
+M.SELECTED_HL = "ChangesetSelected"
+
+---Background of the row for the file and line the cursor is in. Created by `define_highlights`.
+---@type string
+M.HERE_HL = "ChangesetHere"
+
 ---Group for the filetype glyph on the preview band. Recoloured by `band_icon`.
 ---@type string
 M.PREVIEW_ICON_HL = "ChangesetPreviewIcon"
@@ -496,6 +504,12 @@ function M.define_highlights()
   -- Struck through as well as dimmed: dim on its own is what ancestor rows mean,
   -- and it reads as faint rather than as switched off in a light colourscheme.
   vim.api.nvim_set_hl(0, M.HIDDEN_HL, { fg = comment.fg, strikethrough = true })
+  -- Not CursorLine for "here": the sidebar draws its own cursor line in it, and a
+  -- second row that shade reads as a second cursor.
+  vim.api.nvim_set_hl(0, M.SELECTED_HL, { bg = vim.api.nvim_get_hl(0, { name = "Visual", link = false }).bg })
+  vim.api.nvim_set_hl(0, M.HERE_HL, {
+    bg = vim.api.nvim_get_hl(0, { name = "ColorColumn", link = false }).bg or band,
+  })
   -- Last, over the band it is drawn on: a glyph left on the old theme's colour is
   -- the one thing here that can come out invisible rather than merely off-key.
   if band_hl then
