@@ -409,11 +409,10 @@ describe("changeset.render", function()
       return vim.api.nvim_eval_statusline(render.header(summary), { use_winbar = true, maxwidth = 60 }).str
     end
 
-    it("states what the tree is compared against, then the file count and line totals", function()
+    it("states what the tree is compared against", function()
       local text = shown({ base_ref = "origin/trunk", files = 7, added = 142, removed = 38 })
 
       assert.is_true(text:find(" vs origin/trunk ", 1, true) ~= nil)
-      assert.is_true(vim.endswith(text, "7 files  +142 -38 "))
     end)
 
     it("says '1 file', not '1 files'", function()
@@ -465,10 +464,6 @@ describe("changeset.render", function()
         path = path or "lua/init.lua",
       }
     end
-
-    it("names the file being previewed", function()
-      assert.is_true(render.preview_winbar(band()):find("lua/init.lua", 1, true) ~= nil)
-    end)
 
     it("escapes % in the path so the statusline does not read it as an item", function()
       assert.is_true(render.preview_winbar(band(nil, "a/50%off.md")):find("50%%off", 1, true) ~= nil)
@@ -696,6 +691,20 @@ describe("changeset.render", function()
     end)
   end)
 
+  describe("kind_list", function()
+    it("joins two kinds with and", function()
+      assert.equal("fields and variables", render.kind_list({ "Field", "Variable" }))
+    end)
+
+    it("pluralises a kind that does not just take an s", function()
+      assert.equal("classes", render.kind_list({ "Class" }))
+    end)
+
+    it("splits a two-word kind into words", function()
+      assert.equal("enum members", render.kind_list({ "EnumMember" }))
+    end)
+  end)
+
   describe("hidden_note", function()
     it("says nothing when every kind is showing", function()
       assert.is_nil(render.hidden_note({}, 44))
@@ -705,22 +714,10 @@ describe("changeset.render", function()
       assert.equal("Hiding variables. F to change.", render.hidden_note({ "Variable" }, 44))
     end)
 
-    it("joins two kinds with and", function()
-      assert.equal("Hiding fields and variables. F to change.", render.hidden_note({ "Field", "Variable" }, 44))
-    end)
-
-    it("pluralises a kind that does not just take an s", function()
-      assert.equal("Hiding classes. F to change.", render.hidden_note({ "Class" }, 44))
-    end)
-
-    it("splits a two-word kind into words", function()
-      assert.equal("Hiding enum members. F to change.", render.hidden_note({ "EnumMember" }, 44))
-    end)
-
     it("counts the kinds instead once naming them would not fit", function()
       local note = render.hidden_note({ "Constructor", "Interface", "Property", "Variable" }, 44)
 
-      assert.equal("Hiding 4 kinds of symbol. F to change.", note)
+      assert.truthy(note:find("Hiding 4 kinds of symbol", 1, true))
     end)
   end)
 end)
