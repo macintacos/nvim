@@ -34,15 +34,16 @@ function M.default_base(cwd)
   return "main"
 end
 
----Resolve the commit where HEAD forked from the default branch.
+---Resolve the commit where HEAD forked from `branch`.
 ---@param cwd string? Repository to measure; Neovim's own directory when absent.
----@return string? sha nil outside a repo, or when the two share no ancestor.
----@return string? branch The default branch the fork point was taken against.
+---@param branch string? Branch to measure against; the default branch when absent.
+---@return string? sha nil outside a repo, when `branch` doesn't exist, or when the two share no ancestor.
+---@return string? branch The branch the fork point was taken against.
 ---@return string? ref The ref actually measured against, remote prefix included.
-function M.merge_base(cwd)
-  local branch = M.default_base(cwd)
-  -- origin/ first: a local default branch sitting behind the remote drags the
-  -- fork point backwards, showing already-merged commits as this branch's work.
+function M.merge_base(cwd, branch)
+  branch = branch or M.default_base(cwd)
+  -- origin/ first: a local branch sitting behind the remote drags the fork point
+  -- backwards. One ahead of it (an unpushed restack) loses to the older remote fork point.
   for _, ref in ipairs({ "origin/" .. branch, branch }) do
     local sha = M.lines({ "git", "merge-base", "HEAD", ref }, cwd)[1]
     if sha then
