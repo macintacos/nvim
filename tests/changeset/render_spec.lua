@@ -545,26 +545,38 @@ describe("changeset.render", function()
   end)
 
   describe("define_highlights", function()
-    local comment, cursorline
+    local SAVED = { "Comment", "CursorLine", "Visual", "DiagnosticWarn", "TabLine", "Directory" }
+    local saved
+
+    ---@param name string
+    ---@return vim.api.keyset.get_hl_info
+    local function group(name)
+      return vim.api.nvim_get_hl(0, { name = name, link = false })
+    end
 
     before_each(function()
-      comment = vim.api.nvim_get_hl(0, { name = "Comment", link = false })
-      cursorline = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })
+      saved = {}
+      for _, name in ipairs(SAVED) do
+        saved[name] = group(name)
+      end
+      -- `band_hl` is file-local with `band_icon` as its only writer, so without a
+      -- pin here each test inherits whichever group the last one happened to set.
+      vim.api.nvim_set_hl(0, "ChangesetSpecIcon", { fg = 0x00ff00 })
+      render.band_icon("ChangesetSpecIcon")
     end)
 
     after_each(function()
-      vim.api.nvim_set_hl(0, "Comment", comment)
-      vim.api.nvim_set_hl(0, "CursorLine", cursorline)
+      for _, name in ipairs(SAVED) do
+        vim.api.nvim_set_hl(0, name, saved[name])
+      end
     end)
 
     it("keeps the previewed file's icon sitting on the band's new colour", function()
-      vim.api.nvim_set_hl(0, "ChangesetSpecIcon", { fg = 0x00ff00 })
-      render.band_icon("ChangesetSpecIcon")
       vim.api.nvim_set_hl(0, "CursorLine", { bg = 0x123456 })
 
       render.define_highlights()
 
-      local icon = vim.api.nvim_get_hl(0, { name = render.PREVIEW_ICON_HL, link = false })
+      local icon = group(render.PREVIEW_ICON_HL)
       assert.equal(0x123456, icon.bg)
       assert.equal(0x00ff00, icon.fg)
     end)
@@ -574,9 +586,64 @@ describe("changeset.render", function()
 
       render.define_highlights()
 
-      local meta = vim.api.nvim_get_hl(0, { name = render.META_HL, link = false })
+      local meta = group(render.META_HL)
       assert.equal(0x336699, meta.fg)
       assert.is_true(meta.italic)
+    end)
+
+    it("falls back to Visual for the band in a theme that tints no CursorLine", function()
+      vim.api.nvim_set_hl(0, "CursorLine", {})
+      vim.api.nvim_set_hl(0, "Visual", { bg = 0xabcdef })
+
+      render.define_highlights()
+
+      assert.equal(0xabcdef, group(render.PREVIEW_HL).bg)
+    end)
+
+    it("falls back to Comment for the preview badge in a theme with no warning colour", function()
+      vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
+      vim.api.nvim_set_hl(0, "DiagnosticWarn", {})
+
+      render.define_highlights()
+
+      assert.equal(0x336699, group(render.PREVIEW_LABEL_HL).fg)
+    end)
+
+    it("falls back to the band for the header in a theme that paints no chrome", function()
+      vim.api.nvim_set_hl(0, "CursorLine", { bg = 0x123456 })
+      vim.api.nvim_set_hl(0, "TabLine", {})
+
+      render.define_highlights()
+
+      assert.equal(0x123456, group(render.HEADER_HL).bg)
+    end)
+
+    it("falls back to Comment for the header badge in a theme with no directory colour", function()
+      vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
+      vim.api.nvim_set_hl(0, "Directory", {})
+
+      render.define_highlights()
+
+      assert.equal(0x336699, group(render.HEADER_LABEL_HL).fg)
+    end)
+
+    -- Reverse rather than a background read off `Normal`, so each badge pairs its
+    -- accent with whatever the window is drawn on rather than punching through it.
+    it("reverses both badges, so neither needs an opaque Normal", function()
+      render.define_highlights()
+
+      assert.is_true(group(render.PREVIEW_LABEL_HL).reverse)
+      assert.is_true(group(render.HEADER_LABEL_HL).reverse)
+    end)
+
+    it("strikes a hidden kind through as well as dimming it", function()
+      vim.api.nvim_set_hl(0, "Comment", { fg = 0x336699 })
+
+      render.define_highlights()
+
+      local hidden = group(render.HIDDEN_HL)
+      assert.equal(0x336699, hidden.fg)
+      assert.is_true(hidden.strikethrough)
     end)
   end)
   describe("kind_lines", function()
