@@ -382,7 +382,8 @@ describe("changeset.render", function()
       local match = mark_over(lines[2], "lph")
       local name = mark_over(lines[2], "Alpha")
 
-      assert.is_true((match.priority or 0) > (name.priority or 0))
+      assert.is_nil(name.priority)
+      assert.is_true(match.priority > render.MARK_PRIORITY)
     end)
 
     it("leaves the rows unmarked when nothing is being filtered", function()
