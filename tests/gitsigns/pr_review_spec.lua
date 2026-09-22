@@ -15,6 +15,20 @@ local ok, err = pcall(dofile, root .. "/plugin/gitsigns.lua")
 vim.pack.add = pack_add
 assert(ok, err)
 
+-- A fake `gh` on PATH, so no case asks GitHub about its fixture branch: it prints
+-- $FAKE_GH_PR after $FAKE_GH_DELAY seconds, and fails as if there were no PR when
+-- that is empty.
+local bin = vim.fn.tempname()
+vim.fn.mkdir(bin, "p")
+vim.fn.writefile({
+  "#!/bin/sh",
+  'sleep "${FAKE_GH_DELAY:-0}"',
+  '[ -n "$FAKE_GH_PR" ] || exit 1',
+  'printf "%s" "$FAKE_GH_PR"',
+}, bin .. "/gh")
+vim.fn.setfperm(bin .. "/gh", "rwxr-xr-x")
+vim.env.PATH = bin .. ":" .. vim.env.PATH
+
 local Obj = require("gitsigns.git").Obj
 local in_flight, moves = 0, 0
 local change_revision = Obj.change_revision
@@ -109,9 +123,19 @@ describe("PR Review Mode", function()
     support.commit("change", dir)
   end
 
+  ---`fixture`'s repo with `a.txt` changed on `parent`, then again on `child` cut from it.
+  ---@param child string
+  local function stack(child)
+    fixture("parent", { "a.txt" })
+    support.git({ "switch", "-q", "-c", child }, dir)
+    vim.fn.writefile({ "one", "two", "three" }, dir .. "/a.txt")
+    support.commit("child change", dir)
+  end
+
+  ---@param branch string?
   ---@return string
-  local function merge_base()
-    return support.git({ "merge-base", "HEAD", "main" }, dir)
+  local function merge_base(branch)
+    return support.git({ "merge-base", "HEAD", branch or "main" }, dir)
   end
 
   before_each(function()
@@ -131,6 +155,47 @@ describe("PR Review Mode", function()
     require("gitsigns").reset_base(true)
     vim.fn.chdir(cwd)
     vim.fn.delete(dir, "rf")
+    vim.env.FAKE_GH_PR = nil
+    vim.env.FAKE_GH_DELAY = nil
+  end)
+
+  it("diffs a stacked branch against its PR's target branch", function()
+    stack("stacked")
+    vim.env.FAKE_GH_PR = '{"baseRefName":"parent","state":"OPEN"}'
+    vim.fn.chdir(dir)
+
+    local bufs = edit({ "a.txt" })
+
+    assert.is_true(await(bufs, merge_base("parent"), 5000))
+  end)
+
+  it("keeps the default-branch base when the PR is not open", function()
+    stack("stacked-merged")
+    vim.env.FAKE_GH_PR = '{"baseRefName":"parent","state":"MERGED"}'
+    vim.fn.chdir(dir)
+
+    local bufs = edit({ "a.txt" })
+    local base = merge_base()
+
+    assert.is_true(await(bufs, base, 5000))
+    assert.is_true(settle())
+    assert.equal(base, revision(bufs[1]))
+  end)
+
+  it("drops a PR lookup that a toggle superseded", function()
+    stack("stacked-toggled")
+    vim.env.FAKE_GH_PR = '{"baseRefName":"parent","state":"OPEN"}'
+    vim.env.FAKE_GH_DELAY = "1"
+    vim.fn.chdir(dir)
+
+    local bufs = edit({ "a.txt" })
+    assert.is_true(await(bufs, merge_base(), 5000))
+    vim.cmd.PRReview()
+    assert.is_true(await(bufs, nil, 5000))
+
+    assert.is_false(vim.wait(1500, function()
+      return revision(bufs[1]) ~= nil
+    end, 20))
   end)
 
   it("diffs a single edited file against the merge base", function()
