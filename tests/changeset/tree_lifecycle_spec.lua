@@ -10,6 +10,11 @@ local function paths_of(tree)
   end, tree and tree.files or {})
 end
 
+---@return string
+local function sidebar_text()
+  return table.concat(vim.api.nvim_buf_get_lines(assert(window.buf()), 0, -1, false), "\n")
+end
+
 ---@param path string
 ---@return boolean
 local function wait_for_file(path)
@@ -73,12 +78,56 @@ describe("changeset tree", function()
       local tree = changeset._tree()
 
       changeset.open()
-      local text = table.concat(vim.api.nvim_buf_get_lines(assert(window.buf()), 0, -1, false), "\n")
+      local text = sidebar_text()
       changeset.close()
 
       assert.truthy(text:find("mod.lua", 1, true))
       assert.equal(tree, changeset._tree())
       assert.same({ "mod.lua" }, paths_of(changeset._tree()))
+    end)
+
+    it("rebuilds the tree for another branch at the same fork point", function()
+      changeset.build()
+      local tree = changeset._tree()
+
+      Fixture.git({ "checkout", "-q", "-b", "feature2" }, tmp)
+      changeset.build()
+
+      assert.are_not.equal(tree, changeset._tree())
+      assert.equal("feature2", changeset._tree().branch)
+    end)
+
+    it("rebuilds the tree once the fork point moves", function()
+      changeset.build()
+      local tree = changeset._tree()
+
+      Fixture.git({ "checkout", "-q", "trunk" }, tmp)
+      vim.fn.writefile({ "return 1" }, "other.lua")
+      Fixture.commit("trunk moves on", tmp)
+      Fixture.git({ "checkout", "-q", "-b", "later" }, tmp)
+      changeset.build()
+
+      assert.are_not.equal(tree, changeset._tree())
+      assert.are_not.equal(tree.base, changeset._tree().base)
+    end)
+
+    it("leaves the sidebar blank until the diff is read", function()
+      changeset.open()
+
+      assert.equal("", sidebar_text())
+      assert.is_true(vim.wait(10000, function()
+        return sidebar_text():find("mod.lua", 1, true) ~= nil
+      end, 25))
+    end)
+
+    it("re-reads the diff when the sidebar reopens on a kept tree", function()
+      changeset.build()
+      assert.is_true(wait_for_file("mod.lua"))
+
+      vim.fn.writefile({ "return 3" }, "new.lua")
+      changeset.open()
+
+      assert.is_true(wait_for_file("new.lua"))
     end)
 
     it("refreshes on a gitsigns update while the sidebar is closed", function()
@@ -107,18 +156,21 @@ describe("changeset tree", function()
     end)
 
     it("builds nothing, silently, outside a repository", function()
+      local tree = changeset._tree()
+
       assert.is_false(changeset.build())
 
-      assert.is_nil(changeset._tree())
+      assert.equal(tree, changeset._tree())
       assert.equal(0, notified)
     end)
 
     it("builds nothing, silently, in a repository with no default branch", function()
       Fixture.init_repo("work", tmp)
+      local tree = changeset._tree()
 
       assert.is_false(changeset.build())
 
-      assert.is_nil(changeset._tree())
+      assert.equal(tree, changeset._tree())
       assert.equal(0, notified)
     end)
   end)

@@ -10,14 +10,21 @@ vim.keymap.set("n", "<leader>gp", function()
   require("plugins.changeset").toggle()
 end, { desc = "Changeset (changed files & symbols)" })
 
--- Fires: once, at startup. Builds the tree in the background so the first
+-- Fires: once, at startup. Builds the tree just after startup so the first
 -- <leader>gp opens onto it. Scheduled so it runs after the first paint and after
 -- plugin/mini/sessions.lua has restored a session inside its own VimEnter —
--- the tree then follows the restored buffer, not the bare one.
+-- the tree then follows the restored buffer, not the bare one. Skipped without a
+-- UI and on git's own editor buffers (a commit message, a rebase todo): building
+-- loads every changed file and starts its language server, which nobody there
+-- will open the sidebar to see.
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
     vim.schedule(function()
+      local ft = vim.bo.filetype
+      if #vim.api.nvim_list_uis() == 0 or ft == "gitcommit" or ft == "gitrebase" or vim.bo.buftype ~= "" then
+        return
+      end
       require("plugins.changeset").build()
     end)
   end,
