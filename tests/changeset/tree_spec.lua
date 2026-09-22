@@ -383,10 +383,10 @@ describe("changeset.tree", function()
 
       it("leaves a file's total above the sum of its symbols when a hunk spans the gap between them", function()
         local file_row = build_file({ hunk(2, 8, 4) })
-        local symbols = file_row.children[1].added + file_row.children[2].added
+        local symbols_added = file_row.children[1].added + file_row.children[2].added
 
         assert.equal(8, file_row.added)
-        assert.is_true(file_row.added > symbols)
+        assert.is_true(file_row.added > symbols_added)
       end)
     end)
 
