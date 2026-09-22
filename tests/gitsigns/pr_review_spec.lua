@@ -8,7 +8,8 @@ local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
 -- scope, so it is sourced once. `want`, `toplevel`, `ours` and `moving` are tied
 -- to a fixture repo each teardown deletes, so they own nothing in the next case;
 -- `dismissed` and the branch memo `applied` persist, so each case opens its
--- first buffer on a branch other than the one the case before it ended on.
+-- first buffer on a branch other than the one the case before it ended on. A gh
+-- lookup still in flight is dropped by the next case's first apply.
 local pack_add = vim.pack.add
 vim.pack.add = function() end
 local ok, err = pcall(dofile, root .. "/plugin/gitsigns.lua")
@@ -106,7 +107,9 @@ local function edit(files)
 end
 
 describe("PR Review Mode", function()
-  local dir, cwd
+  local dir, cwd, notify, change_base
+  ---@type { msg: string, level: integer? }[]
+  local notices
 
   ---A repo on `main` with `files` committed, and `branch` carrying a change to each.
   ---@param branch string
@@ -144,6 +147,12 @@ describe("PR Review Mode", function()
     vim.fn.mkdir(dir, "p")
     support.init_repo("main", dir)
     vim.o.hidden = true
+    notices = {}
+    notify = vim.notify
+    vim.notify = function(msg, level)
+      notices[#notices + 1] = { msg = msg, level = level }
+    end
+    change_base = require("gitsigns").change_base
   end)
 
   after_each(function()
@@ -157,6 +166,71 @@ describe("PR Review Mode", function()
     vim.fn.delete(dir, "rf")
     vim.env.FAKE_GH_PR = nil
     vim.env.FAKE_GH_DELAY = nil
+    vim.notify = notify
+    require("gitsigns").change_base = change_base
+  end)
+
+  ---Every "on" notice, awaiting the first for up to `timeout` and a duplicate for a second.
+  ---@param timeout integer
+  ---@return string[]
+  local function on_notices(timeout)
+    local function on()
+      return vim.tbl_filter(
+        function(msg)
+          return msg:match(": on ") ~= nil
+        end,
+        vim.tbl_map(function(n)
+          return n.msg
+        end, notices)
+      )
+    end
+    vim.wait(timeout, function()
+      return #on() > 0
+    end, 20)
+    vim.wait(1000, function()
+      return #on() > 1
+    end, 20)
+    return on()
+  end
+
+  it("announces the PR's target branch once when toggled on", function()
+    stack("stacked-announced")
+    vim.env.FAKE_GH_PR = '{"baseRefName":"parent","state":"OPEN"}'
+    vim.fn.chdir(dir)
+    local bufs = edit({ "a.txt" })
+    assert.is_true(await(bufs, merge_base("parent"), 5000))
+    vim.cmd.PRReview()
+    assert.is_true(await(bufs, nil, 5000))
+
+    vim.cmd.PRReview()
+
+    local on = on_notices(5000)
+    assert.equal(1, #on)
+    assert.matches("vs parent", on[1])
+  end)
+
+  it("announces no success when the default-branch base fails to apply", function()
+    fixture("announce-failed", { "a.txt" })
+    vim.fn.chdir(dir)
+    local bufs = edit({ "a.txt" })
+    assert.is_true(await(bufs, merge_base(), 5000))
+    vim.cmd.PRReview()
+    assert.is_true(await(bufs, nil, 5000))
+    assert.is_true(settle())
+    require("gitsigns").change_base = function(_, _, cb)
+      vim.schedule(function()
+        cb("boom")
+      end)
+    end
+
+    vim.cmd.PRReview()
+
+    assert.is_true(vim.wait(5000, function()
+      return vim.iter(notices):any(function(n)
+        return n.level == vim.log.levels.ERROR
+      end)
+    end, 20))
+    assert.same({}, on_notices(1000))
   end)
 
   it("diffs a stacked branch against its PR's target branch", function()

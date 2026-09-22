@@ -42,8 +42,8 @@ end
 ---@return string? ref The ref actually measured against, remote prefix included.
 function M.merge_base(cwd, branch)
   branch = branch or M.default_base(cwd)
-  -- origin/ first: a local default branch sitting behind the remote drags the
-  -- fork point backwards, showing already-merged commits as this branch's work.
+  -- origin/ first: a local branch sitting behind the remote drags the fork point
+  -- backwards. One ahead of it (an unpushed restack) loses to the older remote fork point.
   for _, ref in ipairs({ "origin/" .. branch, branch }) do
     local sha = M.lines({ "git", "merge-base", "HEAD", ref }, cwd)[1]
     if sha then

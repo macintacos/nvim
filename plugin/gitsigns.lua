@@ -6,8 +6,10 @@ require("gitsigns").setup()
 -- PR Review Mode points gitsigns' base at this branch's fork point from the
 -- default branch, or from its open PR's target branch when that is another
 -- branch, so the gutter marks everything the branch changed rather than just
--- uncommitted work. It turns itself on off the default branch; `:PRReview`
--- turns it off, and each branch remembers that choice for the session.
+-- uncommitted work. The PR target comes from gh once the default-branch base is
+-- applied, so a stacked branch starts on that base and then moves. It turns
+-- itself on off the default branch; `:PRReview` turns it off, and each branch
+-- remembers that choice for the session.
 
 ---@type table<string, true> Branches the mode was switched off on.
 local dismissed = {}
@@ -119,7 +121,9 @@ end
 ---@param cb fun(target: string?) nil without an open PR, or when gh fails or times out.
 local function pr_target(cb)
   if vim.fn.executable("gh") == 0 then
-    return cb(nil)
+    return vim.schedule(function()
+      cb(nil)
+    end)
   end
   vim.system(
     { "gh", "pr", "view", "--json", "baseRefName,state" },
@@ -133,31 +137,43 @@ end
 
 ---Diff against the fork point from `target`.
 ---@param target string? The default branch when nil.
----@param report boolean Announce success; failures announce regardless.
+---@param done fun(err: string?) Called once every move has landed, with the first error.
 ---@return string? branch The branch diffed against; nil when there is no fork point.
-local function point_at(target, report)
+local function point_at(target, done)
   local base, branch = require("helpers.git").merge_base(nil, target)
-  if not base then
-    vim.notify("PR Review Mode: no merge base with " .. (target or "the default branch"), vim.log.levels.WARN)
-    return
+  if base then
+    apply(base, done)
+    return branch
   end
-  apply(base, function(err)
-    if err then
-      vim.notify("PR Review Mode: " .. err, vim.log.levels.ERROR)
-    elseif report then
-      vim.notify("PR Review Mode: on (vs " .. branch .. ")")
-    end
-  end)
-  return branch
+end
+
+---@param err string
+local function fail(err)
+  vim.notify("PR Review Mode: " .. err, vim.log.levels.ERROR)
 end
 
 ---Diff against the fork point from the default branch at once, then from the
 ---PR's target branch once gh names one that differs.
 ---@param report boolean Announce success; failures announce regardless.
 local function enable(report)
-  local default = point_at(nil, false)
+  local function on(branch)
+    if report then
+      vim.notify("PR Review Mode: on (vs " .. branch .. ")")
+    end
+  end
+  -- The default-branch notice waits on both its apply and the lookup, in either order.
+  local default, landed, settled
+  default = point_at(nil, function(err)
+    if err then
+      return fail(err)
+    end
+    landed = true
+    if settled then
+      on(default)
+    end
+  end)
   if not default then
-    return
+    return vim.notify("PR Review Mode: no merge base with the default branch", vim.log.levels.WARN)
   end
   local token = generation
   pr_target(function(target)
@@ -165,9 +181,24 @@ local function enable(report)
       return
     end
     if target and target ~= default then
-      point_at(target, report)
-    elseif report then
-      vim.notify("PR Review Mode: on (vs " .. default .. ")")
+      local moved = point_at(target, function(err)
+        if err then
+          fail(err)
+        else
+          on(target)
+        end
+      end)
+      if moved then
+        return
+      end
+      vim.notify(
+        "PR Review Mode: no merge base with " .. target .. "; diffing against " .. default,
+        vim.log.levels.WARN
+      )
+    end
+    settled = true
+    if landed then
+      on(default)
     end
   end)
 end
