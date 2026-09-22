@@ -273,17 +273,19 @@ repository's deliberate choice is none of that save's business.
 ## Behaviour that is easy to get wrong
 
 - **Preview is non-destructive.** `j`/`k` swap a window's buffer and cursor for real, but
-  `q` or `<leader>gp` puts back every window a preview borrowed, buffer *and* cursor. Only
-  `<CR>` relocates you, and only `<CR>` writes a jumplist entry, sending `<C-o>` back to
-  where the window stood before the sidebar opened rather than to the last preview —
-  previewing must not write one, or `<C-o>` becomes one entry per keypress.
+  `q` or `<leader>gp` puts back every window a preview borrowed, buffer *and* cursor.
+  Only `<CR>`, or entering the previewed window, relocates you and writes a jumplist
+  entry, sending `<C-o>` back to where the window stood before the sidebar opened rather
+  than to the last preview — previewing must not write one, or `<C-o>` becomes one entry
+  per keypress.
 - **Previews follow the window you were last in** — the focused one, or, while the cursor
   is in the sidebar, the one it came from. `winnr("#")` answers 0 once that window has
   been closed, and 0 is an alias for the current window wherever it would then be passed,
   so it has to be dropped rather than carried through. Nothing usable at all: the rest of
   the tabpage, then a split of its own.
 - **A previewed file is highlighted, not opened.** Its buffer stays unlisted until `<CR>`
-  promotes it, but it carries a filetype, so treesitter, syntax and any language server
+  promotes it, or the cursor enters its window by any route — mouse, `<C-w>`, `:wincmd`,
+  another plugin — which promotes it the same way. It carries a filetype, so treesitter, syntax and any language server
   attach to it exactly as they would to a file you opened. The filetype has to be named
   explicitly: previews happen in a `CursorMoved` callback, autocommands do not nest, and
   the read therefore skips the `BufRead` chain that would otherwise detect one. gitsigns
