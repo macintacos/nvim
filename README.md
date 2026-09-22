@@ -13,10 +13,6 @@ under its own history. [Ghostty](https://ghostty.org/) is the terminal;
 
 ## What's in the screenshots
 
-- **The start screen** — [mini.starter](https://github.com/nvim-mini/mini.starter),
-  assembled here: this project's own session pinned above everything, the few things worth
-  reaching for before a file is open, every other session most-recently-written first, and
-  a count of plugins that have moved since the lock file was written.
 - **The config editing itself** — [mini.pick](https://github.com/nvim-mini/mini.pick) over
   the project, the which-key spec that draws the leader menu, and the mini module list in
   `plugin/mini.lua`.

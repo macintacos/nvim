@@ -45,8 +45,8 @@ local function session_excluded(name)
 end
 
 -- True when this Neovim holds something worth persisting: at least one listed
--- buffer backed by a real file that survives the exclusion above. The starter
--- buffer is `nobuflisted`, so quitting straight from the start screen reports
+-- buffer backed by a real file that survives the exclusion above. The startup
+-- buffer has no name, so quitting a bare `nvim` without opening anything reports
 -- false — without this, that would overwrite the project's good session with an
 -- empty one, as would quitting with nothing but excluded buffers open.
 ---@return boolean
@@ -72,8 +72,8 @@ local function wipe_excluded_bufs()
 end
 
 require("mini.sessions").setup({
-  -- mini.starter has to win at VimEnter: autoread would restore the session
-  -- first and the start screen would never be shown.
+  -- autoread falls back to the latest session of any project; the VimEnter
+  -- autocmd below reads only the cwd's own.
   autoread = false,
   -- autowrite only fires when v:this_session is set, which is never true for a
   -- project whose session hasn't been read yet. The autocmd below owns writing
@@ -111,6 +111,20 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
   group = session_augroup,
   callback = function()
     session_write()
+  end,
+})
+
+-- Restores the cwd's session when Neovim starts bare. Fires: once, at VimEnter;
+-- skipped when files are given or stdin was read (which marks the buffer modified).
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = session_augroup,
+  nested = true,
+  once = true,
+  callback = function()
+    local name = session_name()
+    if vim.fn.argc() == 0 and not vim.bo.modified and MiniSessions.detected[name] then
+      MiniSessions.read(name)
+    end
   end,
 })
 

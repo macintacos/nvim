@@ -222,20 +222,10 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   end,
 })
 
--- Sets cursorcolumn only in the windows that have focus. The start screen is
--- centered art, so the column just adds noise there.
+-- Sets cursorcolumn only in the windows that have focus.
 vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
   callback = function()
-    vim.wo.cursorcolumn = vim.bo.filetype ~= "ministarter"
-  end,
-})
-
--- mini.starter sets its filetype after the buffer is already current, so the
--- BufEnter above ran too early to see it. Fires: when the start screen draws.
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "ministarter",
-  callback = function()
-    vim.wo.cursorcolumn = false
+    vim.wo.cursorcolumn = true
   end,
 })
 vim.api.nvim_create_autocmd({ "WinLeave" }, {

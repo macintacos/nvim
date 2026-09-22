@@ -17,5 +17,3 @@ globals:
     any: true
   MiniSessions:
     any: true
-  MiniStarter:
-    any: true
