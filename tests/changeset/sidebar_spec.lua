@@ -130,18 +130,33 @@ describe("changeset sidebar", function()
     assert.equal(expanded, #lines_of(buf))
   end)
 
-  ---Walk the selection `steps` rows with `]h`, then commit with `enter`. Asserts the
-  ---previews left the jumplist and the buffer list alone, and that the commit opened
-  ---the previewed file where it stood with `<C-o>` pointing at the pre-sidebar position.
+  ---@class changeset.spec.Previewed
+  ---@field target integer The window the previews went to.
+  ---@field from_buf integer What that window held before the sidebar opened.
+  ---@field from_lnum integer
+  ---@field from_winbar string
+  ---@field previewed integer The buffer the preview put there.
+
+  ---Open the sidebar from `mod.lua` and walk the selection `steps` rows with `]h`,
+  ---pressed with the cursor `from` the sidebar or the file window, where it stays.
+  ---Asserts the previews left the jumplist and the buffer list alone.
   ---@param steps integer
-  ---@param enter fun() Commits the preview, starting with the cursor in the sidebar.
-  local function commit_after(steps, enter)
+  ---@param from "sidebar"|"file"
+  ---@return changeset.spec.Previewed
+  local function preview(steps, from)
     vim.cmd.edit("mod.lua")
     local target = vim.api.nvim_get_current_win()
-    local from_buf = vim.api.nvim_win_get_buf(target)
-    local from_lnum = vim.api.nvim_win_get_cursor(target)[1]
-    local from_winbar = vim.wo[target].winbar
+    local staged = {
+      target = target,
+      from_buf = vim.api.nvim_win_get_buf(target),
+      from_lnum = vim.api.nvim_win_get_cursor(target)[1],
+      from_winbar = vim.wo[target].winbar,
+    }
     open_sidebar()
+    if from == "sidebar" then
+      vim.api.nvim_set_current_win(window.win())
+    end
+    local standing = vim.api.nvim_get_current_win()
     local before = vim.fn.getjumplist(target)[1]
     local listed = #vim.fn.getbufinfo({ buflisted = 1 })
 
@@ -151,25 +166,34 @@ describe("changeset sidebar", function()
 
     assert.same(before, vim.fn.getjumplist(target)[1])
     assert.equal(listed, #vim.fn.getbufinfo({ buflisted = 1 }))
-    assert.equal(target, vim.api.nvim_get_current_win())
+    assert.equal(standing, vim.api.nvim_get_current_win())
     -- The band is the proof a preview landed at all: without it an untouched
     -- jumplist would also pass when `]h` did nothing.
     assert.truthy(vim.wo[target].winbar ~= "")
-    local previewed = vim.api.nvim_win_get_buf(target)
-    local previewed_lnum = vim.api.nvim_win_get_cursor(target)[1]
+    staged.previewed = vim.api.nvim_win_get_buf(target)
+    return staged
+  end
 
-    vim.api.nvim_set_current_win(window.win())
+  ---Preview `steps` rows from the sidebar, then commit with `enter`. Asserts the
+  ---commit opened the previewed file where it stood, with `<C-o>` pointing at the
+  ---pre-sidebar position.
+  ---@param steps integer
+  ---@param enter fun() Commits the preview, starting with the cursor in the sidebar.
+  local function commit_after(steps, enter)
+    local p = preview(steps, "sidebar")
+    local previewed_lnum = vim.api.nvim_win_get_cursor(p.target)[1]
+
     enter()
 
-    assert.equal(previewed, vim.api.nvim_win_get_buf(target))
-    assert.is_true(vim.bo[previewed].buflisted)
-    assert.equal(from_winbar, vim.wo[target].winbar)
-    assert.equal(previewed_lnum, vim.api.nvim_win_get_cursor(target)[1])
-    local jumps = vim.fn.getjumplist(target)[1]
+    assert.equal(p.previewed, vim.api.nvim_win_get_buf(p.target))
+    assert.is_true(vim.bo[p.previewed].buflisted)
+    assert.equal(p.from_winbar, vim.wo[p.target].winbar)
+    assert.equal(previewed_lnum, vim.api.nvim_win_get_cursor(p.target)[1])
+    local jumps = vim.fn.getjumplist(p.target)[1]
     local last_jump = jumps[#jumps]
     assert.truthy(last_jump, "the commit recorded no jumplist entry, so <C-o> has nowhere to go")
-    assert.equal(from_buf, last_jump.bufnr)
-    assert.equal(from_lnum, last_jump.lnum)
+    assert.equal(p.from_buf, last_jump.bufnr)
+    assert.equal(p.from_lnum, last_jump.lnum)
   end
 
   local function press_enter()
@@ -195,46 +219,45 @@ describe("changeset sidebar", function()
     commit_after(3, back_to_previous_window)
   end)
 
-  ---Preview a file other than the one the sidebar was opened from, then put the
-  ---cursor in the sidebar.
-  ---@return integer target The window the preview went to.
-  ---@return integer from_buf What that window held before the sidebar opened.
-  ---@return integer previewed
-  local function preview_another_file()
-    vim.cmd.edit("mod.lua")
-    local target = vim.api.nvim_get_current_win()
-    local from_buf = vim.api.nvim_win_get_buf(target)
-    open_sidebar()
-    for _ = 1, 3 do
-      vim.cmd.normal("]h")
-    end
-    local previewed = vim.api.nvim_win_get_buf(target)
-    assert.are_not.equal(from_buf, previewed)
-    vim.api.nvim_set_current_win(window.win())
-    return target, from_buf, previewed
-  end
-
   it("keeps the file a focused preview claimed when the sidebar closes", function()
-    local target, _, previewed = preview_another_file()
+    local p = preview(3, "sidebar")
+    assert.are_not.equal(p.from_buf, p.previewed)
 
     back_to_previous_window()
     changeset.close()
 
-    assert.equal(previewed, vim.api.nvim_win_get_buf(target))
+    assert.equal(p.previewed, vim.api.nvim_win_get_buf(p.target))
+  end)
+
+  it("leaves a preview made where the cursor stands a preview when focus comes back to it", function()
+    local p = preview(3, "file")
+    assert.are_not.equal(p.from_buf, p.previewed)
+
+    local float = vim.api.nvim_open_win(vim.api.nvim_create_buf(false, true), true, {
+      relative = "editor",
+      row = 1,
+      col = 1,
+      width = 10,
+      height = 1,
+    })
+    vim.api.nvim_win_close(float, true)
+    changeset.close()
+
+    assert.equal(p.from_buf, vim.api.nvim_win_get_buf(p.target))
+    assert.is_false(vim.bo[p.previewed].buflisted)
   end)
 
   it("puts a preview back when the sidebar is closed with :q", function()
-    local target, from_buf, previewed = preview_another_file()
+    local p = preview(3, "sidebar")
+    assert.are_not.equal(p.from_buf, p.previewed)
 
     vim.cmd.quit()
-    -- The window and its buffer go at once, but the close that puts the preview back
-    -- is scheduled, and `]h` is dropped in the same pass.
     vim.wait(1000, function()
-      return vim.fn.maparg("]h", "n") == ""
+      return vim.api.nvim_win_get_buf(p.target) == p.from_buf
     end, 10)
 
-    assert.equal(from_buf, vim.api.nvim_win_get_buf(target))
-    assert.is_false(vim.bo[previewed].buflisted)
+    assert.equal(p.from_buf, vim.api.nvim_win_get_buf(p.target))
+    assert.is_false(vim.bo[p.previewed].buflisted)
   end)
 
   it("filters on a query the pattern matcher would choke on", function()

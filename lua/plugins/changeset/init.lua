@@ -596,9 +596,8 @@ function M.open()
     desc = "changeset: preview the row under the cursor without leaving the sidebar",
     callback = preview_current,
   })
-  -- Fires: the cursor entering any window while the sidebar is open. Reaching a
-  -- previewed window by any route counts as choosing it, as `<CR>` would. Nested so
-  -- the buffer swaps inside the commit fire their autocmds as `<CR>`'s do.
+  -- Fires: the cursor entering any window while the sidebar is open. Nested so the
+  -- buffer swaps inside the commit fire their autocmds as `<CR>`'s do.
   vim.api.nvim_create_autocmd("WinEnter", {
     group = augroup,
     nested = true,
