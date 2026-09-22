@@ -11,7 +11,8 @@ neither drives the other.
 Files changed between `merge-base(origin/<default>, HEAD)` — the local default branch
 when there is no `origin/` copy of it — and the working tree: the
 same range PR Review Mode's gutter marks, so the sidebar and the signs never disagree.
-Untracked files count; deleted files are listed but not navigable.
+Untracked files count. A deleted file is listed, but its row previews a notice
+in place of the file and never opens it.
 
 Under each file sit the symbols a hunk actually touched, plus the ancestors needed to
 place them. Unchanged siblings are hidden: the tree is a map of the diff, not an outline.
