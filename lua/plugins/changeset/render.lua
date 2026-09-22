@@ -79,10 +79,8 @@ M.HEADER_LABEL_HL = "ChangesetHeaderLabel"
 ---@type string
 M.PREVIEW_ICON_HL = "ChangesetPreviewIcon"
 
----The priority a mark draws at when it carries none of its own. Every group a row
----wears sits here; a filter match is the one mark on a row that goes above it.
----Nothing else writes to the sidebar's buffer or namespace, so 199 is arbitrary —
----only the step up to the match matters.
+---The priority a mark draws at when it carries none of its own. The magnitude is
+---arbitrary — only the step up to the match matters.
 ---@type integer
 M.MARK_PRIORITY = 199
 
