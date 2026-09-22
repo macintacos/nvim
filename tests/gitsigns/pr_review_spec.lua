@@ -4,8 +4,11 @@ local data = vim.fn.stdpath("data") .. "/site/pack/"
 vim.opt.rtp:prepend(vim.fn.glob(data .. "*/opt/gitsigns.nvim", false, true)[1])
 
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
--- The plugin file registers an un-grouped autocmd and keeps its branch memo at
--- file scope, so it is sourced once, and each case works on a branch of its own.
+-- The plugin file registers an un-grouped autocmd and keeps its state at file
+-- scope, so it is sourced once. `want`, `repo`, `ours` and `moving` are tied to
+-- a fixture repo each teardown deletes, so they own nothing in the next case;
+-- `dismissed` and the branch memo `applied` persist, so each case opens its
+-- first buffer on a branch other than the one the case before it ended on.
 local pack_add = vim.pack.add
 vim.pack.add = function() end
 local ok, err = pcall(dofile, root .. "/plugin/gitsigns.lua")
@@ -23,7 +26,8 @@ Obj.change_revision = function(...)
 end
 
 ---@param buf integer
----@return string? revision nil while gitsigns has not cached the buffer.
+---@return string? revision nil both before gitsigns caches the buffer and on the
+---index, so await the cache before awaiting nil.
 local function revision(buf)
   local bcache = require("gitsigns.cache").cache[buf]
   return bcache and bcache.git_obj.revision
@@ -62,14 +66,17 @@ local function await_cached(bufs)
   end, 5000)
 end
 
----Wait until no base change is in flight and every buffer sits on gitsigns' base.
+---Wait until no base change has been in flight for 200 ms.
 ---@return boolean
 local function settle()
+  local quiet_since
   return vim.wait(10000, function()
-    return in_flight == 0
-      and vim.iter(pairs(require("gitsigns.cache").cache)):all(function(buf)
-        return revision(buf) == require("gitsigns.config").config.base
-      end)
+    if in_flight > 0 then
+      quiet_since = nil
+      return false
+    end
+    quiet_since = quiet_since or vim.uv.hrtime()
+    return vim.uv.hrtime() - quiet_since >= 200e6
   end, 20)
 end
 
@@ -117,7 +124,7 @@ describe("PR Review Mode", function()
 
   after_each(function()
     -- Let every base change in flight land before its repo is deleted under it.
-    settle()
+    assert(settle(), "a base change never landed")
     vim.cmd("silent! %bwipeout!")
     -- The next fixture is another repo, where this one's merge base does not exist
     -- and every attach against it would fail.
@@ -175,7 +182,7 @@ describe("PR Review Mode", function()
       support.git({ "switch", "-q", "lone-" .. i }, dir)
       local mb = merge_base()
       assert.is_true(await(bufs, mb, 10000), "iteration " .. i)
-      assert.is_false(vim.wait(2000, function()
+      assert.is_false(vim.wait(500, function()
         return revision(bufs[1]) ~= mb
       end, 20))
 
@@ -205,6 +212,76 @@ describe("PR Review Mode", function()
     end, 20))
   end)
 
+  it("leaves a base set by hand alone while the mode toggles", function()
+    fixture("toggled", { "a.txt", "b.txt" })
+    local tip = support.git({ "rev-parse", "HEAD" }, dir)
+    vim.fn.chdir(dir)
+    local bufs = edit({ "a.txt", "b.txt" })
+    local mb = merge_base()
+    assert.is_true(await(bufs, mb, 5000))
+    vim.api.nvim_buf_call(bufs[1], function()
+      require("gitsigns").change_base(tip)
+    end)
+    assert.is_true(await({ bufs[1] }, tip, 5000))
+
+    vim.cmd.PRReview()
+    assert.is_true(await({ bufs[2] }, nil, 5000))
+    vim.cmd.PRReview()
+    assert.is_true(await({ bufs[2] }, mb, 5000))
+
+    assert.is_true(settle())
+    assert.equal(tip, revision(bufs[1]))
+  end)
+
+  it("leaves buffers from another repository alone", function()
+    local other = vim.fn.resolve(vim.fn.tempname())
+    vim.fn.mkdir(other, "p")
+    support.init_repo("main", other)
+    vim.fn.writefile({ "one" }, other .. "/x.txt")
+    support.commit("base", other)
+    fixture("scoped", { "a.txt" })
+    support.git({ "switch", "-q", "main" }, dir)
+    vim.fn.chdir(dir)
+
+    local bufs = edit({ "a.txt", other .. "/x.txt" })
+    assert.is_true(await_cached(bufs))
+    assert.is_true(await(bufs, nil, 5000))
+
+    support.git({ "switch", "-q", "scoped" }, dir)
+    assert.is_true(await({ bufs[1] }, merge_base(), 10000))
+
+    assert.is_true(settle())
+    vim.fn.delete(other, "rf")
+    assert.is_nil(revision(bufs[2]))
+  end)
+
+  it("leaves gitsigns' own blob buffers alone", function()
+    fixture("blob", { "a.txt" })
+    support.git({ "switch", "-q", "main" }, dir)
+    vim.fn.chdir(dir)
+    local bufs = edit({ "a.txt" })
+    -- diffthis reuses the source buffer's comparison text, set by its first update.
+    assert.is_true(await_all(bufs, function(buf)
+      local bcache = require("gitsigns.cache").cache[buf]
+      return bcache and bcache.compare_text ~= nil
+    end, 5000))
+    require("gitsigns").diffthis()
+    local blob
+    assert.is_true(vim.wait(5000, function()
+      blob = vim.iter(pairs(require("gitsigns.cache").cache)):find(function(buf)
+        return vim.api.nvim_buf_get_name(buf):match("^gitsigns://")
+      end)
+      return blob ~= nil
+    end, 20))
+    assert.is_nil(revision(blob))
+
+    support.git({ "switch", "-q", "blob" }, dir)
+    assert.is_true(await(bufs, merge_base(), 10000))
+
+    assert.is_true(settle())
+    assert.is_nil(revision(blob))
+  end)
+
   it("moves each buffer onto a new base once", function()
     local files = {}
     for i = 1, 18 do
@@ -222,8 +299,8 @@ describe("PR Review Mode", function()
 
     support.git({ "switch", "-q", "counted" }, dir)
     local mb = merge_base()
-    -- The first buffer reaching the base marks the start of the global walk; the
-    -- rest attach while it runs.
+    -- The first buffer reaching the base marks the switch; the rest attach while
+    -- the moves run, onto the base already.
     assert.is_true(vim.wait(10000, function()
       return revision(bufs[1]) == mb
     end, 1))
@@ -231,6 +308,20 @@ describe("PR Review Mode", function()
 
     assert.is_true(await(bufs, mb, 10000))
     assert.is_true(settle())
-    assert.is_true(moves - before <= 20, moves - before .. " base changes")
+    assert.equal(12, moves - before)
+
+    -- As if every buffer had attached on the old base, then caught a burst of
+    -- events before its move landed.
+    for _, buf in ipairs(bufs) do
+      require("gitsigns.cache").cache[buf].git_obj.revision = nil
+    end
+    before = moves
+    for _ = 1, 3 do
+      vim.api.nvim_exec_autocmds("User", { pattern = "GitSignsUpdate" })
+    end
+
+    assert.is_true(await(bufs, mb, 10000))
+    assert.is_true(settle())
+    assert.equal(#bufs, moves - before)
   end)
 end)

@@ -14,70 +14,100 @@ local dismissed = {}
 ---@type string? Branch the global base was last resolved for.
 local applied
 
--- Relies on gitsigns internals: its buffer cache, each buffer's
--- `git_obj.revision`, and non-global `change_base` resolving the current buffer
--- before it yields.
-
 ---@type string? Base every buffer should diff against; nil is the index.
 local want
 
----@type table<string, true> Bases this file has applied.
+---@type string? Toplevel of the repository the mode acts on.
+local repo
+
+---@type table<string, true> Bases `apply` has set.
 local ours = {}
 
-local pending = false
+---@type table<integer, string|false> Buffers with a move in flight, by target; false is the index.
+local moving = {}
 
+---Whether the mode is on (its intent; gitsigns may still be catching up).
 ---@return boolean
 local function is_on()
   return want ~= nil
 end
 
----Whether a buffer's base is this file's to move: hand-set and fugitive bases are not.
----@param revision string?
+-- Reaches into gitsigns internals: its buffer cache, config.base, git_obj.revision
+-- and repo.toplevel, and non-global change_base reading current_buf() before it
+-- yields.
+
+---Whether this file may move a buffer's base: buffers of another repository,
+---fugitive/gitsigns blob buffers and bases set by hand are left alone. A
+---per-buffer reset to the index is indistinguishable from the default, so the
+---mode reclaims it.
+---@param buf integer
+---@param git_obj Gitsigns.GitObj
 ---@return boolean
-local function owned(revision)
-  return revision == nil or ours[revision] == true
+local function owned(buf, git_obj)
+  return git_obj.repo.toplevel == repo
+    and not vim.api.nvim_buf_get_name(buf):match("^%a+://")
+    and (git_obj.revision == nil or ours[git_obj.revision] == true)
 end
 
----Move buffers that missed the base, such as ones attached mid-walk.
-local function reconcile()
-  -- Buffers attaching mid-walk may be visited by the walk too; moving them here
-  -- as well moves them twice. The walk's callback runs this once it ends.
-  if pending then
-    return
+---Move one buffer onto `want`, unless a move there is already in flight.
+---@param buf integer
+---@param done fun(err: string?)?
+local function move(buf, done)
+  local target = want or false
+  if moving[buf] == target then
+    return done and done()
   end
+  moving[buf] = target
+  vim.api.nvim_buf_call(buf, function()
+    require("gitsigns").change_base(want, false, function(err)
+      if moving[buf] == target then
+        moving[buf] = nil
+      end
+      if done then
+        done(err)
+      end
+    end)
+  end)
+end
+
+---Move buffers that missed the base, such as ones attached while it changed.
+local function reconcile()
   for buf, bcache in pairs(require("gitsigns.cache").cache) do
-    local have = bcache.git_obj.revision
-    if have ~= want and owned(have) then
-      vim.api.nvim_buf_call(buf, function()
-        require("gitsigns").change_base(want)
-      end)
+    if bcache.git_obj.revision ~= want and owned(buf, bcache.git_obj) then
+      move(buf)
     end
   end
 end
 
----Point every owned buffer at `base`.
+---Point every owned buffer, and every buffer attached from now on, at `base`.
 ---@param base string?
----@param done fun(err: string?)?
+---@param done fun(err: string?)? Called once every move has landed, with the first error.
 local function apply(base, done)
   want = base
+  repo = require("helpers.git").lines({ "git", "rev-parse", "--show-toplevel" })[1]
   if base then
     ours[base] = true
   end
-  -- The repo watcher refreshes each buffer right after GitSignsUpdate, reading
-  -- this field then and writing it back when the refresh lands.
-  for _, bcache in pairs(require("gitsigns.cache").cache) do
-    if owned(bcache.git_obj.revision) then
-      bcache.git_obj.revision = base
+  require("gitsigns.config").config.base = base
+  local left, first = 1, nil
+  local function landed(err)
+    first = first or err
+    left = left - 1
+    if left == 0 and done then
+      done(first)
     end
   end
-  pending = true
-  require("gitsigns").change_base(base, true, function(err)
-    pending = false
-    reconcile()
-    if done then
-      done(err)
+  for buf, bcache in pairs(require("gitsigns.cache").cache) do
+    if owned(buf, bcache.git_obj) then
+      -- The repo watcher's refresh reads this field right after GitSignsUpdate
+      -- and writes it back when it lands; setting it now makes that refresh land
+      -- on the new base.
+      bcache.git_obj.revision = base
+      left = left + 1
+      move(buf, landed)
     end
-  end)
+  end
+  landed()
 end
 
 ---Diff against the fork point from the default branch.
@@ -128,9 +158,9 @@ end, { desc = "Toggle PR Review Mode for this branch" })
 
 -- gitsigns republishes a buffer's branch on every sign refresh, including after
 -- a checkout made outside Neovim, so this doubles as a branch-change hook, and
--- each event also moves buffers that missed the base. Its
--- cwd-wide sibling event carries no buffer and is skipped: that watcher never
--- starts in a worktree, where `.git` is a file rather than a directory.
+-- each event also moves buffers that missed the base. Its cwd-wide sibling
+-- event carries no buffer and is skipped: that watcher never starts in a
+-- worktree, where `.git` is a file rather than a directory.
 vim.api.nvim_create_autocmd("User", {
   pattern = "GitSignsUpdate",
   callback = function(args)
