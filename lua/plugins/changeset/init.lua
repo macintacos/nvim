@@ -532,33 +532,39 @@ function M.refresh()
   end)
 end
 
----Open the sidebar on the current buffer's repository and kick off the first refresh.
-function M.open()
+---Let go of the tree, stopping whatever it was still gathering.
+local function drop()
   if session then
-    M.close()
+    if session.cancel then
+      session.cancel()
+    end
+    stop(session.timer)
   end
-  -- The buffer's repository, not Neovim's directory: with the two different, a base
-  -- measured in the wrong one leaves every later `git diff` on a bad object.
-  local root = Paths.root(0)
-  local preferences_file = prefs.path()
-  local base, _, ref = Git.merge_base(root)
-  if not base then
-    return vim.notify("Changeset: no merge base with the default branch", vim.log.levels.WARN)
-  end
+  session = nil
+end
 
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].filetype = "changeset"
-  vim.bo[buf].buftype = "nofile"
-  -- Wiped with its window. A scratch buffer is kept otherwise, so every close would
-  -- leave one behind, its extmarks and its fifteen mappings included.
-  vim.bo[buf].bufhidden = "wipe"
-  vim.bo[buf].modifiable = false
+---Build the tree for the current buffer's repository, unless it is already built there.
+---
+---The buffer's repository, not Neovim's directory: with the two different, a base
+---measured in the wrong one leaves every later `git diff` on a bad object.
+---@return boolean built false when the repository has no merge base with its default branch.
+function M.build()
+  local root = Paths.root(0)
+  local base, _, ref = Git.merge_base(root)
+  if session and session.root == root and session.base == base then
+    return true
+  end
+  drop()
+  if not base then
+    return false
+  end
 
   if not memo or memo.root ~= root then
     memo = { root = root, entries = cache.load(cache.path(root)) }
   end
 
   folds[root] = folds[root] or state.new()
+  local preferences_file = prefs.path()
   local default_branch = Git.default_base(root)
   local branch = Git.lines({ "git", "rev-parse", "--abbrev-ref", "HEAD" }, root)[1] or "HEAD"
   session = {
@@ -576,6 +582,33 @@ function M.open()
     query = "",
     hidden = prefs.resolve(prefs.load(preferences_file), root, branch),
   }
+  M.refresh()
+  return true
+end
+
+---The tree, for specs.
+---@return changeset.Session?
+function M._tree()
+  return session
+end
+
+---Open the sidebar on the current buffer's repository, drawing its tree.
+function M.open()
+  -- The buffer is wiped with its window, so it stands for a sidebar on any tabpage.
+  if window.buf() then
+    M.close()
+  end
+  if not M.build() then
+    return vim.notify("Changeset: no merge base with the default branch", vim.log.levels.WARN)
+  end
+
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[buf].filetype = "changeset"
+  vim.bo[buf].buftype = "nofile"
+  -- Wiped with its window. A scratch buffer is kept otherwise, so every close would
+  -- leave one behind, its extmarks and its fifteen mappings included.
+  vim.bo[buf].bufhidden = "wipe"
+  vim.bo[buf].modifiable = false
 
   render.define_highlights()
   local win = window.open(buf)
@@ -587,7 +620,7 @@ function M.open()
   vim.api.nvim_create_autocmd("WinClosed", {
     group = augroup,
     pattern = tostring(win),
-    desc = "changeset: let go of the session when its window closes another way",
+    desc = "changeset: let go of the sidebar when its window closes another way",
     callback = function()
       vim.schedule(M.close)
     end,
@@ -613,18 +646,11 @@ function M.open()
     step(-1)
   end, { desc = "Previous change (Changeset)" })
 
-  M.refresh()
+  draw()
 end
 
----Dismiss the sidebar, dropping the session, its timers and the global `]h`/`[h` keys.
+---Dismiss the sidebar and the global `]h`/`[h` keys. The tree stays, and keeps refreshing.
 function M.close()
-  if session then
-    if session.cancel then
-      session.cancel()
-    end
-    stop(session.timer)
-  end
-  session = nil
   require("plugins.changeset.menu").close()
   for _, lhs in ipairs(STEP_KEYS) do
     pcall(vim.keymap.del, "n", lhs)
