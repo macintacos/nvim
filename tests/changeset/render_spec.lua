@@ -386,6 +386,13 @@ describe("changeset.render", function()
       assert.is_true(match.priority > render.MARK_PRIORITY)
     end)
 
+    it("takes the query as plain text, not as a pattern", function()
+      local lines =
+        render.lines({ file({ name = "a(b).lua", path = "a(b).lua", id = "a(b).lua" }) }, opts({ query = "(" }))
+
+      assert.is_not_nil(mark_over(lines[1], "("))
+    end)
+
     it("leaves the rows unmarked when nothing is being filtered", function()
       local lines = render.lines({ file() }, opts())
 

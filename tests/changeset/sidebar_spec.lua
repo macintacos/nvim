@@ -159,6 +159,17 @@ describe("changeset sidebar", function()
     commit_after(1)
   end)
 
+  it("filters on a query the pattern matcher would choke on", function()
+    local buf = open_sidebar()
+    vim.api.nvim_set_current_win(window.win())
+
+    vim.api.nvim_feedkeys(vim.keycode("f(<CR>"), "xt", false)
+
+    -- `(` matches no row, so `draw` falls through to the empty message. Under a
+    -- pattern-mode `find` the filter raises instead and the tree is left standing.
+    assert.falsy(table.concat(lines_of(buf), "\n"):find("other.lua", 1, true))
+  end)
+
   it("shuts the row under the cursor", function()
     local buf = open_sidebar()
     local expanded = #lines_of(buf)
