@@ -156,7 +156,7 @@ end
 ---PR's target branch once gh names one that differs.
 ---@param report boolean Announce success; failures announce regardless.
 local function enable(report)
-  local function on(branch)
+  local function announce(branch)
     if report then
       vim.notify("PR Review Mode: on (vs " .. branch .. ")")
     end
@@ -169,7 +169,7 @@ local function enable(report)
     end
     landed = true
     if settled then
-      on(default)
+      announce(default)
     end
   end)
   if not default then
@@ -185,7 +185,7 @@ local function enable(report)
         if err then
           fail(err)
         else
-          on(target)
+          announce(target)
         end
       end)
       if moved then
@@ -198,7 +198,7 @@ local function enable(report)
     end
     settled = true
     if landed then
-      on(default)
+      announce(default)
     end
   end)
 end
