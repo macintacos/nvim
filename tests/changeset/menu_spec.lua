@@ -75,21 +75,21 @@ describe("changeset.menu", function()
   end)
 
   describe("mappings", function()
-    local tmp, file, sidebar, sidebar_buf, changed
+    local tmp, preferences_file, sidebar, sidebar_buf, reported_hidden
 
-    local function callback(lhs)
+    local function mapping_callback(lhs)
       local mapping = vim.fn.maparg(lhs, "n", false, true)
       assert.equal("function", type(mapping.callback))
       return mapping.callback
     end
 
-    local function open_menu(data, overrides)
-      write_json(file, data)
-      changed = nil
+    local function open_menu(saved_preferences, overrides)
+      write_json(preferences_file, saved_preferences)
+      reported_hidden = nil
       menu.open(vim.tbl_extend("force", {
         root = ROOT,
         branch = BRANCH,
-        file = file,
+        file = preferences_file,
         counts = { Field = 2, Method = 11, Variable = 31 },
         hidden = {},
         icon = function()
@@ -97,7 +97,7 @@ describe("changeset.menu", function()
         end,
         sidebar = sidebar,
         on_change = function(hidden)
-          changed = hidden
+          reported_hidden = hidden
         end,
       }, overrides or {}))
       return vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
@@ -106,7 +106,7 @@ describe("changeset.menu", function()
     before_each(function()
       tmp = vim.fn.tempname()
       vim.fn.mkdir(tmp, "p")
-      file = tmp .. "/filters.json"
+      preferences_file = tmp .. "/filters.json"
 
       sidebar_buf = vim.api.nvim_create_buf(false, true)
       sidebar = vim.api.nvim_open_win(sidebar_buf, false, {
@@ -135,52 +135,52 @@ describe("changeset.menu", function()
       local buf = open_menu({}, { counts = { Variable = 31 } })
       local before = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
 
-      callback("x")()
+      mapping_callback("x")()
 
       local after = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
       assert.equal("▎ K Variable", before:gsub("%s+31$", ""))
       assert.equal("  K Variable", after:gsub("%s+31$", ""))
-      assert.same({ Variable = true }, changed)
+      assert.same({ Variable = true }, reported_hidden)
     end)
 
     it("saves the hidden set globally", function()
       open_menu({}, { hidden = { Field = true, Variable = true } })
 
-      callback("<CR>")()
+      mapping_callback("<CR>")()
 
-      assert.same({ global = { "Field", "Variable" } }, read_json(file))
+      assert.same({ global = { "Field", "Variable" } }, read_json(preferences_file))
     end)
 
     it("saves the hidden set for the repository", function()
       open_menu({}, { hidden = { Field = true, Variable = true } })
 
-      callback("r")()
+      mapping_callback("r")()
 
-      assert.same({ repos = { [ROOT] = { kinds = { "Field", "Variable" } } } }, read_json(file))
+      assert.same({ repos = { [ROOT] = { kinds = { "Field", "Variable" } } } }, read_json(preferences_file))
     end)
 
     it("saves the hidden set for the branch", function()
       open_menu({}, { hidden = { Field = true, Variable = true } })
 
-      callback("b")()
+      mapping_callback("b")()
 
       assert.same({
         repos = { [ROOT] = { branches = { [BRANCH] = { "Field", "Variable" } } } },
-      }, read_json(file))
+      }, read_json(preferences_file))
     end)
 
     for _, lhs in ipairs({ "q", "<Esc>" }) do
       it(("restores the saved set and leaves the file unchanged on %s"):format(lhs), function()
         open_menu({ global = { "Variable" } }, { counts = { Variable = 31 }, hidden = { Variable = true } })
-        local before = read_bytes(file)
+        local before = read_bytes(preferences_file)
 
-        callback("x")()
-        assert.same({}, changed)
+        mapping_callback("x")()
+        assert.same({}, reported_hidden)
 
-        callback(lhs)()
+        mapping_callback(lhs)()
 
-        assert.same({ Variable = true }, changed)
-        assert.equal(before, read_bytes(file))
+        assert.same({ Variable = true }, reported_hidden)
+        assert.equal(before, read_bytes(preferences_file))
       end)
     end
 
