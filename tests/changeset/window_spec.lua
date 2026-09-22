@@ -367,8 +367,25 @@ describe("changeset.window", function()
       local buf = vim.api.nvim_win_get_buf(right)
       assert.is_false(vim.bo[buf].buflisted)
       assert.is_false(vim.bo[buf].modifiable)
-      assert.is_truthy(table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n"):find("This file was deleted"))
+      assert.truthy(
+        table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n"):find("This file was deleted", 1, true)
+      )
       assert.is_true(vim.wo[right].winbar:find(BAND.path, 1, true) ~= nil)
+    end)
+
+    it("keeps one notice highlight however often the notice is shown", function()
+      local _, right = staged()
+
+      window.preview_notice("This file was deleted", BAND)
+      window.preview_notice("This file was deleted", BAND)
+
+      local buf = vim.api.nvim_win_get_buf(right)
+      local ns = vim.api.nvim_get_namespaces()["changeset.notice"]
+      local marks = vim.api.nvim_buf_get_extmarks(buf, ns, 0, -1, {})
+      assert.equal(1, #marks)
+      assert.truthy(
+        vim.api.nvim_buf_get_lines(buf, marks[1][2], marks[1][2] + 1, false)[1]:find("This file was deleted", 1, true)
+      )
     end)
 
     it("previews a file into the window a notice is standing in", function()

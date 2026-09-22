@@ -17,12 +17,15 @@ local NAME = "changeset://"
 ---@type table<string, string>
 local SPLIT_CMD = { vsplit = "vsplit", split = "split", tab = "tabnew" }
 
+local notice_ns = vim.api.nvim_create_namespace("changeset.notice")
+
 ---@class changeset.Snapshot What a window held before the sidebar borrowed it.
 ---@field buf integer
 ---@field cursor integer[]
 ---@field winbar string
 ---@field standing_buf integer? The buffer a preview put here while the cursor stood in the window.
 
+-- `notice_buf` outlives close() and is reused.
 ---@type { win: integer?, buf: integer?, notice_buf: integer?, borrowed: table<integer, changeset.Snapshot> }
 local sidebar = { borrowed = {} }
 
@@ -75,7 +78,7 @@ function M._clamp(lnum, line_count)
   return math.max(1, math.min(lnum, line_count))
 end
 
----A window that can hold a file: still open, not the sidebar, not a special buffer.
+---A window a preview can go to: still open, not the sidebar, not a float, and holding a file or the sidebar's notice.
 ---@param win integer
 ---@return boolean
 local function usable(win)
@@ -155,6 +158,19 @@ local function remember(win)
     cursor = vim.api.nvim_win_get_cursor(win),
     winbar = vim.wo[win].winbar,
   }
+end
+
+---Put `buf` in the window a preview goes to, remembering what that window held.
+---@param buf integer
+---@param band changeset.Band
+---@return integer win
+local function borrow(buf, band)
+  local win = target()
+  remember(win)
+  sidebar.borrowed[win].standing_buf = win == vim.api.nvim_get_current_win() and buf or nil
+  show(win, buf)
+  vim.wo[win].winbar = render.preview_winbar(band)
+  return win
 end
 
 ---Whether the sidebar is on screen where the user is standing.
@@ -249,11 +265,7 @@ function M.preview(path, lnum, band)
   if ok then
     gitsigns.attach({ bufnr = buf })
   end
-  local win = target()
-  remember(win)
-  sidebar.borrowed[win].standing_buf = win == vim.api.nvim_get_current_win() and buf or nil
-  show(win, buf)
-  vim.wo[win].winbar = render.preview_winbar(band)
+  local win = borrow(buf, band)
   if lnum then
     local last = vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(win))
     vim.api.nvim_win_set_cursor(win, { M._clamp(lnum, last), 0 })
@@ -280,28 +292,23 @@ function M._centred(text, width, height)
   return lines, row
 end
 
-local notice_ns = vim.api.nvim_create_namespace("changeset.notice")
-
----Show `text` in the pinned window where a file preview would go.
+---Show `text` where a file preview would go, in place of a file.
 ---@param text string
 ---@param band changeset.Band What the band over the window says about the row.
 function M.preview_notice(text, band)
   local buf = sidebar.notice_buf
   if not (buf and vim.api.nvim_buf_is_valid(buf)) then
     buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[buf].bufhidden = "hide"
     sidebar.notice_buf = buf
   end
-  local win = target()
-  remember(win)
-  sidebar.borrowed[win].standing_buf = win == vim.api.nvim_get_current_win() and buf or nil
-  show(win, buf)
-  local lines, row = M._centred(text, vim.api.nvim_win_get_width(win), vim.api.nvim_win_get_height(win))
+  local info = vim.fn.getwininfo(borrow(buf, band))[1]
+  local lines, row = M._centred(text, info.width - info.textoff, info.height)
   vim.bo[buf].modifiable = true
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   vim.bo[buf].modifiable = false
-  vim.api.nvim_buf_set_extmark(buf, notice_ns, row, 0, { end_col = #lines[row + 1], hl_group = render.META_HL })
-  vim.wo[win].winbar = render.preview_winbar(band)
+  local line = lines[row + 1]
+  vim.api.nvim_buf_clear_namespace(buf, notice_ns, 0, -1)
+  vim.api.nvim_buf_set_extmark(buf, notice_ns, row, #line - #text, { end_col = #line, hl_group = render.META_HL })
 end
 
 ---Make `buf` the chosen contents of `win`: focus it, leave `<C-o>` pointing where

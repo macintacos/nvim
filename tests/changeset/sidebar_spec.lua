@@ -276,6 +276,7 @@ describe("changeset sidebar", function()
       for i, line in ipairs(lines_of(buf)) do
         if line:find("other.lua", 1, true) then
           lnum = i
+          break
         end
       end
       assert(lnum, "the deleted file has no row")
