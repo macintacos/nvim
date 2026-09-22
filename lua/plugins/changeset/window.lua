@@ -241,7 +241,8 @@ function M.preview(path, lnum, band)
   if not buf then
     return
   end
-  -- Loaded from inside an autocommand, the buffer skips `BufRead`, which is what gitsigns attaches on.
+  -- Previews load from a `CursorMoved` callback, where `BufRead` (gitsigns' attach
+  -- trigger) does not fire.
   local ok, gitsigns = pcall(require, "gitsigns")
   if ok then
     gitsigns.attach({ bufnr = buf })
