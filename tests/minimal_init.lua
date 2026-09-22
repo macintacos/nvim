@@ -10,7 +10,7 @@ vim.o.shadafile = "NONE"
 -- the rotation runs out after a dozen or so and the loser dies with E303 in
 -- whichever spec happened to call `enew`.
 vim.o.swapfile = false
--- Isolate stdpath("state") consumers, such as changeset preferences, to this child process.
+-- Keep stdpath("state") consumers, such as changeset preferences, isolated per test process.
 vim.env.XDG_STATE_HOME = vim.fn.tempname()
 vim.fn.mkdir(vim.env.XDG_STATE_HOME, "p")
 -- Git hooks export GIT_DIR and friends, and those override cwd-based repo
