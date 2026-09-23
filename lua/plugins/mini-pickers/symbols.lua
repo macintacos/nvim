@@ -163,7 +163,7 @@ end
 ---Trim a separator-joined trail (a breadcrumb, a directory path) from the left so it fits `width` display cells.
 ---
 ---Nearest ancestors are the informative ones, so segments are dropped from the
----front and the trim is marked — the picker window sets 'nowrap', which would
+---front and the trim is marked — the caller's window sets 'nowrap', which would
 ---otherwise cut off the end of the trail instead.
 ---@param crumb string
 ---@param width integer
