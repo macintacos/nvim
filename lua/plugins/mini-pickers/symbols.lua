@@ -165,17 +165,17 @@ end
 ---Nearest ancestors are the informative ones, so segments are dropped from the
 ---front and the trim is marked — the caller's window sets 'nowrap', which would
 ---otherwise cut off the end of the trail instead.
----@param crumb string
+---@param trail string
 ---@param width integer
 ---@param sep? string Segment separator; defaults to " › "
 ---@return string
-function M.fit(crumb, width, sep)
-  if vim.fn.strdisplaywidth(crumb) <= width then
-    return crumb
+function M.fit(trail, width, sep)
+  if vim.fn.strdisplaywidth(trail) <= width then
+    return trail
   end
 
   sep = sep or SEP
-  local parts = vim.split(crumb, sep, { plain = true })
+  local parts = vim.split(trail, sep, { plain = true })
   while #parts > 1 do
     table.remove(parts, 1)
     local trimmed = ELLIPSIS .. sep .. table.concat(parts, sep)

@@ -216,8 +216,8 @@ local function file_line(file, opts)
     - vim.fn.strdisplaywidth(RAIL .. " " .. glyph .. " ")
     - (marker and vim.fn.strdisplaywidth(marker) or 0)
     - stat_cells(stat)
-  local name, dir = vim.fs.basename(file.path), vim.fs.dirname(file.path)
-  local dir_room = room - vim.fn.strdisplaywidth(name .. " ()")
+  local filename, dir = vim.fs.basename(file.path), vim.fs.dirname(file.path)
+  local dir_room = room - vim.fn.strdisplaywidth(filename .. " ()")
   local chunks = {
     { RAIL, RAIL_HL[file.status] },
     { " " },
@@ -225,9 +225,9 @@ local function file_line(file, opts)
     { " " },
   }
   if dir ~= "." and dir_room >= 1 then
-    vim.list_extend(chunks, { { name }, { " " }, { "(" .. symbols.fit(dir, dir_room, "/") .. ")", "Comment" } })
+    vim.list_extend(chunks, { { filename }, { " " }, { "(" .. symbols.fit(dir, dir_room, "/") .. ")", "Comment" } })
   else
-    chunks[#chunks + 1] = { symbols.fit(name, room) }
+    chunks[#chunks + 1] = { symbols.fit(filename, room) }
   end
   if marker then
     chunks[#chunks + 1] = { marker, "Comment" }

@@ -125,11 +125,11 @@ describe("changeset sidebar", function()
       end
     end
     assert(line, "no row reads `nested.lua (lua/pkg)`")
-    local start = line:find("(lua/pkg)", 1, true) - 1
-    local dim = vim.tbl_filter(function(mark)
-      return mark[4].hl_group == "Comment" and mark[3] == start and mark[4].end_col == start + #"(lua/pkg)"
+    local col = line:find("(lua/pkg)", 1, true) - 1
+    local dim_marks = vim.tbl_filter(function(mark)
+      return mark[4].hl_group == "Comment" and mark[3] == col and mark[4].end_col == col + #"(lua/pkg)"
     end, vim.api.nvim_buf_get_extmarks(buf, ns, { lnum, 0 }, { lnum, -1 }, { details = true }))
-    assert.equal(1, #dim)
+    assert.equal(1, #dim_marks)
   end)
 
   it("summarises the branch in the window bar", function()
