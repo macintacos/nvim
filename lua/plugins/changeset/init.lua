@@ -59,6 +59,7 @@ local augroup = vim.api.nvim_create_augroup("changeset", { clear = true })
 ---@field request table? The refresh whose answers this session is still listening for.
 ---@field here changeset.Spot? Where the cursor is, while that is a file in this repository.
 ---@field selected changeset.Picked? The row last picked from the sidebar.
+---@field landing { id: string? }? The row focusing the sidebar put its cursor on, until the user moves it.
 
 ---@type changeset.Session?
 local session
@@ -219,6 +220,18 @@ local function track()
   local path = name ~= "" and vim.fs.relpath(session.root, vim.fs.normalize(name)) or nil
   session.here = path and { path = path, lnum = vim.api.nvim_win_get_cursor(win)[1] } or nil
   paint()
+end
+
+---Put the sidebar's cursor on "you are here", or its nearest ancestor on screen,
+---and note where it landed.
+local function land()
+  local here = session.here
+  local row = here and tree.locate(session.rows, here.path, here.lnum)
+  local lnum = row and state._nearest(visible_ids(), row.id)
+  if lnum then
+    vim.api.nvim_win_set_cursor(window.win(), { lnum, 0 })
+  end
+  session.landing = { id = (row_at_cursor() or {}).id }
 end
 
 ---Make `row` the selection. A folded chain is recorded by its tip, the symbol it jumps to.
@@ -707,6 +720,18 @@ function M.open()
     buffer = buf,
     desc = "changeset: preview the row under the cursor without leaving the sidebar",
     callback = preview_current,
+  })
+  -- Fires: the cursor entering the sidebar by any route — `<leader>gp`, a click,
+  -- `<C-w>`. Lands on the row you are on; the `CursorMoved` that follows previews it.
+  vim.api.nvim_create_autocmd("WinEnter", {
+    group = augroup,
+    buffer = buf,
+    desc = "changeset: put the sidebar's cursor on the row you are on",
+    callback = function()
+      if session then
+        land()
+      end
+    end,
   })
   -- Fires: the cursor entering any window while the sidebar is open. Nested so the
   -- buffer swaps inside the commit fire their autocmds as `<CR>`'s do.
