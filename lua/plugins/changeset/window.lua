@@ -164,7 +164,7 @@ end
 ---Put `buf` in the window a preview goes to, remembering what that window held.
 ---@param buf integer
 ---@param band changeset.Band
----@param pick any
+---@param pick any Handed back by `claim`; nil clears whatever the last preview here left.
 ---@return integer win
 local function borrow(buf, band, pick)
   local win = target()

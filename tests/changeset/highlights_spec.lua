@@ -3,7 +3,7 @@ local render = require("plugins.changeset.render")
 local window = require("plugins.changeset.window")
 local Fixture = require("support.git")
 
-local ns = vim.api.nvim_create_namespace("changeset.rows")
+local ns = assert(vim.api.nvim_get_namespaces()["changeset.rows"], "changeset.rows namespace missing")
 
 ---@param count integer
 ---@param changed table<integer, true>? Lines to rewrite.
@@ -49,21 +49,25 @@ local function open_sidebar()
   assert(settled, "the sidebar never settled")
 end
 
----The sidebar line wearing `hl`, once the scheduled tracking has run.
+---The one sidebar line wearing `hl`, once the scheduled tracking has run.
 ---@param hl string
 ---@return string?
 local function line_with(hl)
-  local found
-  vim.wait(200, function()
-    found = nil
-    for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(window.buf(), ns, 0, -1, { details = true })) do
-      if mark[4].hl_group == hl then
-        found = lines_of(window.buf())[mark[2] + 1]
-      end
+  local flushed = false
+  vim.schedule(function()
+    flushed = true
+  end)
+  vim.wait(1000, function()
+    return flushed
+  end)
+  local found = {}
+  for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(window.buf(), ns, 0, -1, { details = true })) do
+    if mark[4].hl_group == hl then
+      table.insert(found, lines_of(window.buf())[mark[2] + 1])
     end
-    return false
-  end, 10)
-  return found
+  end
+  assert(#found <= 1, ("%d lines wear %s"):format(#found, hl))
+  return found[1]
 end
 
 ---Put the sidebar's cursor on the first line containing `text`, as `j`/`k` would.

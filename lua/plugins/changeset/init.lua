@@ -35,17 +35,9 @@ local STEP_KEYS = { "]h", "[h" }
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("changeset")
--- Apart from `ns`, which `draw` clears: the tracker repaints these on every cursor move.
+-- Separate from `ns` so the tracker can repaint row backgrounds without redrawing the tree.
 local rows_ns = vim.api.nvim_create_namespace("changeset.rows")
 local augroup = vim.api.nvim_create_augroup("changeset", { clear = true })
-
----A line of a file, repo-relative.
----@class changeset.Spot
----@field path string
----@field lnum integer
-
----@class changeset.Picked : changeset.Spot
----@field id string The row picked; `path` and `lnum` stand in for it once a rebuild drops it.
 
 ---@class changeset.Session
 ---@field root string
@@ -79,6 +71,7 @@ local memo
 local save_timer
 
 ---Whether a `track` is already scheduled for this tick.
+---@type boolean
 local tracking = false
 
 ---Folds outlive the tree: a rebuild for a moved fork point, or a trip to another
@@ -168,11 +161,37 @@ end
 local function preview_current()
   local row = row_at_cursor()
   if row and row.lnum and row.kind ~= "file" then
-    window.preview(session.root .. "/" .. row.path, row.lnum, band_for(row), row)
+    window.preview(session.root .. "/" .. row.path, row.lnum, band_for(row), { row = row, session = session })
   elseif row and row.kind == "file" and row.status == "deleted" then
     window.preview_notice("This file was deleted on this branch", band_for(row))
   elseif row and row.kind == "file" then
-    window.preview(session.root .. "/" .. row.path, 1, band_for(row), row)
+    window.preview(session.root .. "/" .. row.path, 1, band_for(row), { row = row, session = session })
+  end
+end
+
+---@return string[] ids Of the rows on screen, in display order.
+local function visible_ids()
+  return vim.tbl_map(function(row)
+    return row.id
+  end, session.visible)
+end
+
+---Lay `hl` over the line showing `row`, or its nearest ancestor on screen.
+---@param buf integer
+---@param ids string[]
+---@param row changeset.Row?
+---@param hl string
+---@param priority integer
+local function paint_row(buf, ids, row, hl, priority)
+  local lnum = row and state._nearest(ids, row.id)
+  if lnum then
+    vim.api.nvim_buf_set_extmark(buf, rows_ns, lnum - 1, 0, {
+      end_row = lnum,
+      hl_group = hl,
+      hl_eol = true,
+      priority = priority,
+      strict = false,
+    })
   end
 end
 
@@ -183,31 +202,10 @@ local function paint()
     return
   end
   vim.api.nvim_buf_clear_namespace(buf, rows_ns, 0, -1)
-  local ids = vim.tbl_map(function(row)
-    return row.id
-  end, session.visible)
+  local ids = visible_ids()
   local here, picked = session.here, session.selected
-  local marks = {
-    { here and tree.locate(session.rows, here.path, here.lnum), render.HERE_HL },
-    {
-      picked and (tree.find(session.rows, picked.id) or tree.locate(session.rows, picked.path, picked.lnum)),
-      render.SELECTED_HL,
-    },
-  }
-  for i, mark in ipairs(marks) do
-    local lnum = mark[1] and state._nearest(ids, mark[1].id)
-    if lnum then
-      -- Beneath every row mark, so the rail, the colours and a filter match stay
-      -- on top; the selection over "here" when both land on one row.
-      vim.api.nvim_buf_set_extmark(buf, rows_ns, lnum - 1, 0, {
-        end_row = lnum,
-        hl_group = mark[2],
-        hl_eol = true,
-        priority = render.MARK_PRIORITY - 3 + i,
-        strict = false,
-      })
-    end
-  end
+  paint_row(buf, ids, here and tree.locate(session.rows, here.path, here.lnum), render.HERE_HL, render.HERE_PRIORITY)
+  paint_row(buf, ids, picked and tree.relocate(session.rows, picked), render.SELECTED_HL, render.SELECTED_PRIORITY)
 end
 
 ---Note the file and line the cursor is in. The sidebar and floats are not somewhere
@@ -223,6 +221,7 @@ local function track()
   paint()
 end
 
+---Make `row` the selection. A folded chain is recorded by its tip, the symbol it jumps to.
 ---@param row changeset.Row
 local function pick(row)
   session.selected = { id = row.tip or row.id, path = row.path, lnum = row.lnum or 1 }
@@ -329,10 +328,7 @@ local function draw()
   apply_marks(buf, lines)
   hidden_note_line(buf, #text - 1, width, view.hiding(view.kind_counts(session.rows), session.hidden))
 
-  local ids = vim.tbl_map(function(row)
-    return row.id
-  end, session.visible)
-  vim.api.nvim_win_set_cursor(win, { state._reanchor(ids, wanted, previous_line), 0 })
+  vim.api.nvim_win_set_cursor(win, { state._reanchor(visible_ids(), wanted, previous_line), 0 })
 
   set_header(win, session.files, session.ref)
   paint()
@@ -720,8 +716,9 @@ function M.open()
     desc = "changeset: open a previewed file once the cursor enters its window",
     callback = function()
       local claimed = window.claim()
-      if claimed and session then
-        pick(claimed)
+      -- A build for another repository, base or branch replaces the session under a preview.
+      if claimed and claimed.session == session then
+        pick(claimed.row)
       end
     end,
   })

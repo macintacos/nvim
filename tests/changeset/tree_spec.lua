@@ -627,4 +627,20 @@ describe("changeset.tree", function()
       assert.is_nil(tree.find(rows, PATH .. "\0save"))
     end)
   end)
+
+  describe("relocate", function()
+    local rows = tree.build({ file(PATH, { hunk(5, 1) }) }, { [PATH] = { sym("load", "Method", 0, 3, 8) } })
+
+    it("keeps the picked row while the tree still holds it", function()
+      local picked = { id = PATH .. "\0load", path = PATH, lnum = 30 }
+
+      assert.equal(PATH .. "\0load", tree.relocate(rows, picked).id)
+    end)
+
+    it("resolves a picked row the tree dropped from its file and line", function()
+      local picked = { id = PATH .. "\0save", path = PATH, lnum = 5 }
+
+      assert.equal(PATH .. "\0load", tree.relocate(rows, picked).id)
+    end)
+  end)
 end)

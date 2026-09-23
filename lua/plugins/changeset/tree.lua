@@ -24,6 +24,14 @@ local SEP = " › "
 ---@field resolved boolean?   File rows only: whether a server has answered for this file yet.
 ---@field children changeset.Row[]
 
+---A line of a file, repo-relative.
+---@class changeset.Spot
+---@field path string
+---@field lnum integer
+
+---@class changeset.Picked : changeset.Spot
+---@field id string The row picked; `path` and `lnum` stand in for it once a rebuild drops it.
+
 ---Text of a line of `path` in the working tree, used to caption orphan hunks.
 ---@alias changeset.LineText fun(path: string, lnum: integer): string?
 
@@ -350,6 +358,7 @@ function M.compress(rows, is_open)
   return compress_rows(rows, 0, is_open)
 end
 
+---The first of `rows` whose range holds `lnum`; siblings' ranges do not overlap.
 ---@param rows changeset.Row[]
 ---@param lnum integer
 ---@return changeset.Row?
@@ -361,6 +370,7 @@ local function enclosing(rows, lnum)
   end
 end
 
+---The innermost symbol under `row` whose range holds `lnum`.
 ---@param row changeset.Row A symbol row.
 ---@param lnum integer A line inside its range.
 ---@return changeset.Row
@@ -382,9 +392,10 @@ function M.locate(rows, path, lnum)
       if symbol then
         return deepest_symbol(symbol, lnum)
       end
-      local orphans = file.children[#file.children]
-      if orphans and orphans.kind == "orphans" and enclosing(orphans.children, lnum) then
-        return orphans
+      for _, child in ipairs(file.children) do
+        if child.kind == "orphans" and enclosing(child.children, lnum) then
+          return child
+        end
       end
       return file
     end
@@ -402,6 +413,14 @@ function M.find(rows, id)
       return found
     end
   end
+end
+
+---The row a pick stands on now: itself while the tree still holds it, else the row its line resolves to.
+---@param rows changeset.Row[]
+---@param picked changeset.Picked
+---@return changeset.Row?
+function M.relocate(rows, picked)
+  return M.find(rows, picked.id) or M.locate(rows, picked.path, picked.lnum)
 end
 
 return M

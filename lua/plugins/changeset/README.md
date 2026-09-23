@@ -97,11 +97,11 @@ last as long as the filter does, not as long as the prompt.
 Two full-line backgrounds, the only row highlights the tree has. **Selected** is the row
 last picked from the sidebar — `<CR>`, a split or tab key, or moving into a preview — in
 `Visual`'s background. **You are here** is the row for the file and line the cursor is in,
-in `ColorColumn`'s (`CursorLine`'s when a theme leaves that unset): lighter, and never
-`CursorLine` first, because the sidebar draws its own cursor line in that and a second row
-of the same shade reads as a second cursor. Back in the file you picked, both sit on one
-row and the selection wins. Both draw beneath every row mark, so the rail, the row colours
-and a filter match stay on top.
+in `ColorColumn`'s: lighter, and never `CursorLine` first, because the sidebar draws its
+own cursor line in that and a second row of the same shade reads as a second cursor.
+Either falls back to `CursorLine`'s background when a theme leaves its own unset. Back in
+the file you picked, both sit on one row and the selection wins. Both draw beneath every
+row mark, so the rail, the row colours and a filter match stay on top.
 
 A line belongs to the deepest symbol row whose body holds it, else to the file's
 `Other changes` row when one of its hunks does, else to the file row. When the row is off

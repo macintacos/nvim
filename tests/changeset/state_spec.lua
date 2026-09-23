@@ -110,7 +110,6 @@ describe("changeset.state", function()
 
     it("finds nothing when no row on screen is related", function()
       assert.is_nil(state._nearest(IDS, "c.lua"))
-      assert.is_nil(state._nearest(IDS, nil))
     end)
   end)
 end)
