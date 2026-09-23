@@ -164,6 +164,7 @@ local function untracked_file(path, lines)
   }
 end
 
+-- ponytail: plain string order, so a sibling like "a-x" can split a/'s subtree; compare segment-wise if that shows up.
 ---Sort key that keeps a directory's files together, root files first.
 ---@param path string
 ---@return string dir
@@ -173,7 +174,7 @@ local function sort_key(path)
   return dir == "." and "" or dir, vim.fs.basename(path)
 end
 
----Join the parsed git output and untracked line counts into files ordered by directory, then filename.
+---Join the parsed git output and untracked counts into files ordered by directory, then name.
 ---@param parts changeset.diff.Parts
 ---@return changeset.File[]
 function M._assemble(parts)

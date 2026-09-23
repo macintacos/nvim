@@ -33,7 +33,7 @@ local symbols = require("plugins.mini-pickers.symbols")
 ---@class changeset.Band The strip over a window the sidebar is previewing into.
 ---@field icon string       Glyph for the previewed file's type.
 ---@field icon_hl string    Group to draw it in, from `band_icon`.
----@field path string       The file, named as the sidebar's own row names it.
+---@field path string       Repo-relative path of the previewed file.
 ---@field destination string? What `<CR>` lands on; absent for a row that names nothing.
 
 ---@class changeset.Empty
@@ -204,6 +204,7 @@ local function clip_right(text, room)
   return vim.fn.strcharpart(text, 0, math.max(room - 1, 0)) .. "…"
 end
 
+---A file row: filename first, its directory dimmed in parentheses, dropped before the name is trimmed.
 ---@param file changeset.Row
 ---@param opts changeset.RenderOpts
 ---@return changeset.Line
@@ -216,8 +217,7 @@ local function file_line(file, opts)
     - (marker and vim.fn.strdisplaywidth(marker) or 0)
     - stat_cells(stat)
   local name, dir = vim.fs.basename(file.path), vim.fs.dirname(file.path)
-  -- The three cells are the space and the parentheses around the directory.
-  local dir_room = room - vim.fn.strdisplaywidth(name) - 3
+  local dir_room = room - vim.fn.strdisplaywidth(name .. " ()")
   local chunks = {
     { RAIL, RAIL_HL[file.status] },
     { " " },

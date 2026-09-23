@@ -291,7 +291,7 @@ describe("changeset.diff._assemble", function()
     assert.same({}, files[1].hunks)
   end)
 
-  it("orders tracked and untracked files together by path", function()
+  it("orders tracked and untracked files together", function()
     local files = assemble({
       statuses = { ["b.lua"] = { status = "modified" }, ["d.lua"] = { status = "added" } },
       untracked = { ["a.txt"] = 1, ["c.txt"] = 1 },

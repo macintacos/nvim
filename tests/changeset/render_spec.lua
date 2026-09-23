@@ -100,7 +100,7 @@ describe("changeset.render", function()
         end)
       end
 
-      it("puts the icon, coloured by the caller's group, between the rail and the path", function()
+      it("puts the icon, coloured by the caller's group, between the rail and the filename", function()
         local lines = render.lines({ file() }, opts())
 
         assert.equal("▎ F a.lua (src)", lines[1].text)
@@ -131,7 +131,7 @@ describe("changeset.render", function()
       end
 
       for _, status in ipairs({ "added", "modified", "untracked" }) do
-        it(("adds no text after the path for status '%s'"):format(status), function()
+        it(("adds no marker for status '%s'"):format(status), function()
           local lines = render.lines({ file({ status = status }) }, opts())
 
           assert.equal("▎ F a.lua (src)", lines[1].text)

@@ -22,7 +22,7 @@ place them. Unchanged siblings are hidden: the tree is a map of the diff, not an
   ├─󰌗 SessionStore › refresh › deadline  +8 -1
   ├─󰏿 SESSION_TTL                     +1 -0
   └─󰘦 Other changes                   +3 -2
-▎ 󰛦 legacy/auth.ts deleted
+▎ 󰛦 auth.ts (legacy) deleted
 ▎ 󰛡 Makefile                          +2 -0
   └─󰘦 Other changes                   +2 -0
 ```
