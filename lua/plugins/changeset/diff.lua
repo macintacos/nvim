@@ -164,7 +164,16 @@ local function untracked_file(path, lines)
   }
 end
 
----Join the parsed git output and untracked line counts into files ordered by path.
+---Sort key that keeps a directory's files together, root files first.
+---@param path string
+---@return string dir
+---@return string name
+local function sort_key(path)
+  local dir = vim.fs.dirname(path)
+  return dir == "." and "" or dir, vim.fs.basename(path)
+end
+
+---Join the parsed git output and untracked line counts into files ordered by directory, then filename.
 ---@param parts changeset.diff.Parts
 ---@return changeset.File[]
 function M._assemble(parts)
@@ -176,7 +185,12 @@ function M._assemble(parts)
     table.insert(files, untracked_file(path, lines))
   end
   table.sort(files, function(a, b)
-    return a.path < b.path
+    local a_dir, a_name = sort_key(a.path)
+    local b_dir, b_name = sort_key(b.path)
+    if a_dir ~= b_dir then
+      return a_dir < b_dir
+    end
+    return a_name < b_name
   end)
   return files
 end
