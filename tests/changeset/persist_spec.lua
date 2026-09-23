@@ -85,7 +85,7 @@ end
 ---`SessionLoadPost`'s refill. Focus stays where it was unless `focused`.
 ---@param position table|string A position, or the global's raw value.
 ---@param focused boolean? Whether the session left the sidebar focused.
-local function restore(position, focused)
+local function restore_session(position, focused)
   local leftover = vim.api.nvim_create_buf(true, false)
   vim.api.nvim_buf_set_name(leftover, "changeset://tree")
   vim.api.nvim_open_win(leftover, focused or false, { split = "right", win = -1, width = 44 })
@@ -147,7 +147,7 @@ describe("changeset position in a session", function()
     vim.cmd.edit("mod.lua")
     focus_terminal()
 
-    restore({ here = { path = "mod.lua", lnum = 8 }, row = { id = "other.lua", path = "other.lua" } })
+    restore_session({ here = { path = "mod.lua", lnum = 8 }, row = { id = "other.lua", path = "other.lua" } })
     settle()
     flush()
 
@@ -188,7 +188,7 @@ describe("changeset position in a session", function()
     local file_win = vim.api.nvim_get_current_win()
     focus_terminal()
 
-    restore({ here = { path = "gone.lua", lnum = 3 }, row = { id = "other.lua\0gone", path = "other.lua" } })
+    restore_session({ here = { path = "gone.lua", lnum = 3 }, row = { id = "other.lua\0gone", path = "other.lua" } })
     settle()
     flush()
 
@@ -207,7 +207,7 @@ describe("changeset position in a session", function()
     local file_win = vim.api.nvim_get_current_win()
     focus_terminal()
 
-    restore({ row = { id = "plain.lua", path = "plain.lua" } })
+    restore_session({ row = { id = "plain.lua", path = "plain.lua" } })
     settle()
     flush()
 
@@ -227,7 +227,7 @@ describe("changeset position in a session", function()
       vim.cmd.edit("mod.lua")
       focus_terminal()
 
-      restore(value)
+      restore_session(value)
       settle()
 
       assert.is_nil(changeset._tree().restoring)
@@ -282,7 +282,7 @@ describe("changeset position in a session", function()
     it("applies the recorded position once its file's symbols resolve", function()
       vim.cmd.edit("other.lua")
       focus_terminal()
-      restore({ here = { path = "mod.lua", lnum = 8 }, row = { id = "mod.lua\0step", path = "mod.lua" } })
+      restore_session({ here = { path = "mod.lua", lnum = 8 }, row = { id = "mod.lua\0step", path = "mod.lua" } })
       diff_arrived()
 
       answer("mod.lua", { symbol("step", 7, 9) })
@@ -296,7 +296,7 @@ describe("changeset position in a session", function()
       vim.cmd.edit("other.lua")
       local file_win = vim.api.nvim_get_current_win()
       focus_terminal()
-      restore({ here = { path = "mod.lua", lnum = 8 } })
+      restore_session({ here = { path = "mod.lua", lnum = 8 } })
       diff_arrived()
 
       vim.api.nvim_set_current_win(file_win)
@@ -307,7 +307,7 @@ describe("changeset position in a session", function()
     end)
 
     it("lets a row you move to in a focused sidebar win over the recorded one", function()
-      restore({ row = { id = "mod.lua", path = "mod.lua" } }, true)
+      restore_session({ row = { id = "mod.lua", path = "mod.lua" } }, true)
       diff_arrived()
 
       sidebar_cursor_to("other.lua")
