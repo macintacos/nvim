@@ -114,16 +114,25 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
   end,
 })
 
--- Restores the cwd's session when Neovim starts bare. Fires: once, at VimEnter;
--- skipped when files are given or stdin was read (which marks the buffer modified).
+-- Restores the cwd's session when Neovim starts bare, or opens the cwd's README
+-- when there is no session. Fires: once, at VimEnter; skipped when files are
+-- given or stdin was read (which marks the buffer modified).
 vim.api.nvim_create_autocmd("VimEnter", {
   group = session_augroup,
   nested = true,
   once = true,
   callback = function()
+    if vim.fn.argc() > 0 or vim.bo.modified then
+      return
+    end
     local name = session_name()
-    if vim.fn.argc() == 0 and not vim.bo.modified and MiniSessions.detected[name] then
+    if MiniSessions.detected[name] then
       MiniSessions.read(name)
+      return
+    end
+    local readme = vim.fn.glob("README*", false, true)[1]
+    if readme then
+      vim.cmd.edit(vim.fn.fnameescape(readme))
     end
   end,
 })
