@@ -62,7 +62,8 @@ local function sidebar_cursor_line()
   return vim.api.nvim_buf_get_lines(window.buf(), vim.api.nvim_win_get_cursor(win)[1] - 1, -1, false)[1]
 end
 
----Put the sidebar's cursor on the first line containing `text`, without entering it.
+---Put the sidebar's cursor on the first line containing `text`. Headless, setting a
+---cursor fires no `CursorMoved`, so this stands in for the user moving it without a preview.
 ---@param text string
 local function park_sidebar_cursor(text)
   for i, line in ipairs(vim.api.nvim_buf_get_lines(window.buf(), 0, -1, false)) do
@@ -106,7 +107,7 @@ describe("changeset sidebar focus", function()
     assert.truthy(sidebar_cursor_line():find("Other changes", 1, true))
   end)
 
-  it("lands on the row you are on again when focus returns by any route", function()
+  it("lands on the row you are on when focus arrives by a route other than <leader>gp", function()
     vim.cmd.edit("mod.lua")
     vim.api.nvim_win_set_cursor(0, { 8, 0 })
     changeset.open()
@@ -146,6 +147,55 @@ describe("changeset sidebar focus", function()
     changeset.toggle()
 
     assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+  end)
+
+  it("keeps the cursor on a landed row that you expand", function()
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 8, 0 })
+    changeset.open()
+    settle()
+    vim.api.nvim_set_current_win(window.win())
+    park_sidebar_cursor("mod.lua")
+    vim.cmd.normal("h")
+    vim.cmd.wincmd("p")
+    flush()
+    changeset.toggle()
+
+    vim.cmd.normal("l")
+
+    assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+  end)
+
+  it("steps from where the cursor is when the sidebar is the only window", function()
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 8, 0 })
+    changeset.toggle()
+    settle()
+    park_sidebar_cursor("other.lua")
+    local parked = vim.api.nvim_win_get_cursor(window.win())[1]
+    vim.cmd.only()
+
+    vim.cmd.normal("]h")
+
+    assert.equal(parked + 1, vim.api.nvim_win_get_cursor(window.win())[1])
+  end)
+
+  it("leaves the cursor alone when a float entered from the sidebar closes", function()
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 8, 0 })
+    changeset.toggle()
+    settle()
+    park_sidebar_cursor("other.lua")
+    local float = vim.api.nvim_open_win(
+      vim.api.nvim_create_buf(false, true),
+      true,
+      { relative = "editor", row = 1, col = 1, width = 10, height = 2 }
+    )
+
+    vim.api.nvim_win_close(float, true)
+
+    assert.equal(window.win(), vim.api.nvim_get_current_win())
+    assert.truthy(sidebar_cursor_line():find("other.lua", 1, true))
   end)
 
   describe("while symbols are still being read", function()
@@ -219,6 +269,19 @@ describe("changeset sidebar focus", function()
       vim.cmd.wincmd("p")
 
       answer("mod.lua", { symbol("step", 7, 9) })
+
+      assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+    end)
+
+    it("lands on the file row when a filter hides your symbol", function()
+      focus_before_symbols()
+      answer("mod.lua", { symbol("step", 7, 9) })
+      vim.api.nvim_feedkeys("fL2" .. vim.keycode("<CR>"), "xt", false)
+      assert.equal("L2", changeset._tree().query)
+      vim.cmd.wincmd("p")
+      flush()
+
+      changeset.toggle()
 
       assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
     end)
