@@ -75,6 +75,24 @@ local function focus_terminal()
   vim.cmd.terminal()
 end
 
+---The text of the line the sidebar's cursor is on.
+---@return string
+local function sidebar_cursor_line()
+  local win = assert(window.win())
+  return sidebar_lines()[vim.api.nvim_win_get_cursor(win)[1]]
+end
+
+---Restore as a session read does: a leftover sidebar window, the recorded global, then
+---`SessionLoadPost`'s refill. Focus stays where it was.
+---@param position table
+local function restore(position)
+  local leftover = vim.api.nvim_create_buf(true, false)
+  vim.api.nvim_buf_set_name(leftover, "changeset://tree")
+  vim.api.nvim_open_win(leftover, false, { split = "right", win = -1, width = 44 })
+  vim.g.ChangesetPosition = vim.json.encode(position)
+  changeset.restore()
+end
+
 describe("changeset position in a session", function()
   local tmp, previous_dir
 
@@ -105,7 +123,6 @@ describe("changeset position in a session", function()
     settle()
 
     focus_terminal()
-
     flush()
 
     assert.same({ path = "mod.lua", lnum = 8 }, changeset._tree().here)
@@ -121,5 +138,128 @@ describe("changeset position in a session", function()
     flush()
 
     assert.same({ here = { path = "mod.lua", lnum = 8 }, row = "other.lua" }, vim.json.decode(vim.g.ChangesetPosition))
+  end)
+
+  it("restores where you were and the sidebar's cursor row with focus in a terminal", function()
+    vim.cmd.edit("mod.lua")
+    focus_terminal()
+
+    restore({ here = { path = "mod.lua", lnum = 8 }, row = "other.lua" })
+    settle()
+    flush()
+
+    assert.same({ path = "mod.lua", lnum = 8 }, changeset._tree().here)
+    assert.truthy(sidebar_cursor_line():find("other.lua", 1, true))
+  end)
+
+  it("carries the recorded position through :mksession", function()
+    local sessionoptions = vim.o.sessionoptions
+    vim.o.sessionoptions = "blank,buffers,curdir,winsize,globals,terminal"
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 8, 0 })
+    changeset.open()
+    settle()
+    sidebar_cursor_to("L2")
+    focus_terminal()
+    flush()
+    local recorded = vim.g.ChangesetPosition
+    assert(recorded:find("\\u0000", 1, true), "the recorded row id should hold a NUL")
+    vim.cmd("mksession! " .. vim.fn.fnameescape(tmp .. "/Session.vim"))
+    vim.o.sessionoptions = sessionoptions
+    vim.g.ChangesetPosition = nil
+
+    -- Only the global's own line: sourcing the whole file would rebuild its layout
+    -- on top of the specs that follow.
+    for _, line in ipairs(vim.fn.readfile(tmp .. "/Session.vim")) do
+      if line:find("^let ChangesetPosition") then
+        vim.cmd(line)
+      end
+    end
+
+    assert.equal(recorded, vim.g.ChangesetPosition)
+  end)
+
+  it("ignores a recorded file and row the changeset no longer holds", function()
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 2, 0 })
+
+    restore({ here = { path = "gone.lua", lnum = 3 }, row = "other.lua\0gone" })
+    settle()
+    flush()
+
+    assert.same({ path = "mod.lua", lnum = 2 }, changeset._tree().here)
+    assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+  end)
+
+  describe("while symbols are still being read", function()
+    local resolve = require("plugins.changeset.resolve")
+    local real_start = resolve.start
+    ---@type fun(path: string, items: table[]?)
+    local answer
+
+    ---A function spanning `first`..`last` of `mod.lua`, as a server would report it.
+    local function symbol(name, first, last)
+      return {
+        name = name,
+        text = name,
+        kind = "Function",
+        path = "mod.lua",
+        lnum = first,
+        col = 1,
+        end_lnum = first,
+        end_col = #name + 1,
+        depth = 0,
+        guides = "",
+        range_lnum = first,
+        range_end_lnum = last,
+      }
+    end
+
+    local function diff_arrived()
+      assert(
+        vim.wait(10000, function()
+          return window.buf() and table.concat(sidebar_lines(), "\n"):find("other.lua", 1, true)
+        end, 25),
+        "the diff never arrived"
+      )
+    end
+
+    before_each(function()
+      resolve.start = function(_, _, on_file)
+        answer = on_file
+        return function() end
+      end
+    end)
+
+    after_each(function()
+      resolve.start = real_start
+    end)
+
+    it("applies the recorded position once its file's symbols resolve", function()
+      vim.cmd.edit("other.lua")
+      focus_terminal()
+      restore({ here = { path = "mod.lua", lnum = 8 }, row = "mod.lua\0step" })
+      diff_arrived()
+
+      answer("mod.lua", { symbol("step", 7, 9) })
+      flush()
+
+      assert.same({ path = "mod.lua", lnum = 8 }, changeset._tree().here)
+      assert.truthy(sidebar_cursor_line():find("step", 1, true))
+    end)
+
+    it("lets a file you move into before the build finishes win over the recorded one", function()
+      vim.cmd.edit("other.lua")
+      local file_win = vim.api.nvim_get_current_win()
+      focus_terminal()
+      restore({ here = { path = "mod.lua", lnum = 8 } })
+      diff_arrived()
+
+      vim.api.nvim_set_current_win(file_win)
+      flush()
+      answer("mod.lua", { symbol("step", 7, 9) })
+
+      assert.same({ path = "other.lua", lnum = 1 }, changeset._tree().here)
+    end)
   end)
 end)
