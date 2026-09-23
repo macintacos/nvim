@@ -14,8 +14,8 @@ local function numbered(count, changed)
 end
 
 ---A `feature` branch changing lines 2 and 8 of `mod.lua` and the last of `other.lua`,
----beside a `plain.lua` it leaves alone. No server answers in the specs, so every
----hunk is an orphan: `mod.lua` → "Other changes" → L2, L8.
+---beside a `plain.lua` it leaves alone. Unless a spec stubs `resolve.start`, no server
+---answers, so every hunk is an orphan: `mod.lua` → "Other changes" → L2, L8.
 ---@param cwd string
 local function init_feature_repo(cwd)
   Fixture.init_repo("trunk", cwd)
@@ -83,13 +83,14 @@ local function sidebar_cursor_line()
 end
 
 ---Restore as a session read does: a leftover sidebar window, the recorded global, then
----`SessionLoadPost`'s refill. Focus stays where it was.
----@param position table
-local function restore(position)
+---`SessionLoadPost`'s refill. Focus stays where it was unless `focused`.
+---@param position table|string A position, or the global's raw value.
+---@param focused boolean? Whether the session left the sidebar focused.
+local function restore(position, focused)
   local leftover = vim.api.nvim_create_buf(true, false)
   vim.api.nvim_buf_set_name(leftover, "changeset://tree")
-  vim.api.nvim_open_win(leftover, false, { split = "right", win = -1, width = 44 })
-  vim.g.ChangesetPosition = vim.json.encode(position)
+  vim.api.nvim_open_win(leftover, focused or false, { split = "right", win = -1, width = 44 })
+  vim.g.ChangesetPosition = type(position) == "string" and position or vim.json.encode(position)
   changeset.restore()
 end
 
@@ -137,14 +138,17 @@ describe("changeset position in a session", function()
     sidebar_cursor_to("other.lua")
     flush()
 
-    assert.same({ here = { path = "mod.lua", lnum = 8 }, row = "other.lua" }, vim.json.decode(vim.g.ChangesetPosition))
+    assert.same(
+      { here = { path = "mod.lua", lnum = 8 }, row = { id = "other.lua", path = "other.lua" } },
+      vim.json.decode(vim.g.ChangesetPosition)
+    )
   end)
 
   it("restores where you were and the sidebar's cursor row with focus in a terminal", function()
     vim.cmd.edit("mod.lua")
     focus_terminal()
 
-    restore({ here = { path = "mod.lua", lnum = 8 }, row = "other.lua" })
+    restore({ here = { path = "mod.lua", lnum = 8 }, row = { id = "other.lua", path = "other.lua" } })
     settle()
     flush()
 
@@ -182,14 +186,55 @@ describe("changeset position in a session", function()
   it("ignores a recorded file and row the changeset no longer holds", function()
     vim.cmd.edit("mod.lua")
     vim.api.nvim_win_set_cursor(0, { 2, 0 })
+    local file_win = vim.api.nvim_get_current_win()
+    focus_terminal()
 
-    restore({ here = { path = "gone.lua", lnum = 3 }, row = "other.lua\0gone" })
+    restore({ here = { path = "gone.lua", lnum = 3 }, row = { id = "other.lua\0gone", path = "other.lua" } })
     settle()
     flush()
 
-    assert.same({ path = "mod.lua", lnum = 2 }, changeset._tree().here)
-    assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+    assert.is_nil(changeset._tree().restoring)
+    assert.is_nil(changeset._tree().here)
+    vim.api.nvim_set_current_win(file_win)
+    flush()
+    assert.same({ path = "mod.lua", lnum = 2 }, vim.json.decode(vim.g.ChangesetPosition).here)
   end)
+
+  it("settles a recorded row on a file the branch deletes, then follows you again", function()
+    Fixture.git({ "rm", "-q", "plain.lua" }, tmp)
+    Fixture.commit("delete", tmp)
+    vim.cmd.edit("mod.lua")
+    vim.api.nvim_win_set_cursor(0, { 2, 0 })
+    local file_win = vim.api.nvim_get_current_win()
+    focus_terminal()
+
+    restore({ row = { id = "plain.lua", path = "plain.lua" } })
+    settle()
+    flush()
+
+    assert.is_nil(changeset._tree().restoring)
+    assert.truthy(sidebar_cursor_line():find("plain.lua", 1, true))
+    vim.api.nvim_set_current_win(file_win)
+    flush()
+    assert.same({ path = "mod.lua", lnum = 2 }, vim.json.decode(vim.g.ChangesetPosition).here)
+  end)
+
+  for name, value in pairs({
+    ["not JSON"] = "{here",
+    ["null"] = "null",
+    ["wrong types"] = vim.json.encode({ here = { path = 1, lnum = "8" }, row = { id = 2, path = {} } }),
+  }) do
+    it("opens without a position from a recorded global that is " .. name, function()
+      vim.cmd.edit("mod.lua")
+      focus_terminal()
+
+      restore(value)
+      settle()
+
+      assert.is_nil(changeset._tree().restoring)
+      assert.is_nil(changeset._tree().here)
+    end)
+  end
 
   describe("while symbols are still being read", function()
     local resolve = require("plugins.changeset.resolve")
@@ -238,7 +283,7 @@ describe("changeset position in a session", function()
     it("applies the recorded position once its file's symbols resolve", function()
       vim.cmd.edit("other.lua")
       focus_terminal()
-      restore({ here = { path = "mod.lua", lnum = 8 }, row = "mod.lua\0step" })
+      restore({ here = { path = "mod.lua", lnum = 8 }, row = { id = "mod.lua\0step", path = "mod.lua" } })
       diff_arrived()
 
       answer("mod.lua", { symbol("step", 7, 9) })
@@ -260,6 +305,16 @@ describe("changeset position in a session", function()
       answer("mod.lua", { symbol("step", 7, 9) })
 
       assert.same({ path = "other.lua", lnum = 1 }, changeset._tree().here)
+    end)
+
+    it("lets a row you move to in a focused sidebar win over the recorded one", function()
+      restore({ row = { id = "mod.lua", path = "mod.lua" } }, true)
+      diff_arrived()
+
+      sidebar_cursor_to("other.lua")
+      answer("mod.lua", {})
+
+      assert.truthy(sidebar_cursor_line():find("other.lua", 1, true))
     end)
   end)
 end)
