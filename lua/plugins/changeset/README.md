@@ -108,6 +108,12 @@ A line belongs to the deepest symbol row whose body holds it, else to the file's
 screen — folded, filtered, or inside a compressed chain — its nearest visible ancestor
 wears the highlight instead.
 
+Focusing the sidebar, by `<leader>gp`, a click or `<C-w>`, puts its cursor on that same
+row, and previews it the way moving onto it would. Focused before your file's symbols
+are in, it lands on the file row and follows you into your symbol when they arrive,
+unless you have moved the cursor or left the sidebar by then. From a file outside the
+changeset the cursor stays where you left it.
+
 ### The kind menu docks against the sidebar, and reuses its rail
 
 `F` opens the list of symbol kinds this branch touched, as a float whose right border
@@ -284,7 +290,7 @@ repository's deliberate choice is none of that save's business.
 
 | Key | Where | Does |
 | --- | --- | --- |
-| `<leader>gp` | anywhere | closed → open+focus; open+unfocused → focus; open+focused → close, restore focus |
+| `<leader>gp` | anywhere | closed → open+focus; open+unfocused → focus; open+focused → close, restore focus. Focus lands on the row you are on |
 | `j` / `k` | sidebar | move, previewing into the window you were last in, without leaving the sidebar |
 | `<CR>` | sidebar | commit: focus that window at the row's position, keep the jump |
 | `<S-CR>` | sidebar | commit, then close the sidebar behind you |
@@ -341,6 +347,10 @@ repository's deliberate choice is none of that save's business.
   whether or not the sidebar is showing, and each redraw resolves both highlights against
   the rebuilt tree, so a selected row that a rebuild removed is found again from its file
   and line.
+- **Landing happens on arrival, not on every move.** It hangs off `WinEnter` on the
+  sidebar, never `CursorMoved`, so the cursor moves freely once you are there. It sets
+  the cursor and nothing else: the preview comes from the sidebar's own `CursorMoved`,
+  which Neovim fires once the cursor is in a new window.
 - **Refresh re-anchors by identity, not line.** A rebuild keyed on `GitSignsUpdate` must
   restore the cursor to the same row *identity* and preserve collapse state, including an
   `l`-expanded chain. One key scheme serves all three.
