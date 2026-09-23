@@ -21,7 +21,7 @@ local symbols = require("plugins.mini-pickers.symbols")
 ---@class changeset.RenderOpts
 ---@field icon fun(row: changeset.Row): string, string Glyph and its highlight group; the caller wraps `MiniIcons.get`.
 ---@field collapsed fun(id: string): boolean         Whether the row with this id hides its children.
----@field width integer                              Window width in cells; long names are trimmed so stats stay visible.
+---@field width integer                              Window width in cells; long names and directories are trimmed so stats stay visible.
 ---@field query? string                               Filter text; every occurrence of it in a line is marked.
 
 ---@class changeset.Summary
@@ -215,13 +215,20 @@ local function file_line(file, opts)
     - vim.fn.strdisplaywidth(RAIL .. " " .. glyph .. " ")
     - (marker and vim.fn.strdisplaywidth(marker) or 0)
     - stat_cells(stat)
+  local name, dir = vim.fs.basename(file.path), vim.fs.dirname(file.path)
+  -- The three cells are the space and the parentheses around the directory.
+  local dir_room = room - vim.fn.strdisplaywidth(name) - 3
   local chunks = {
     { RAIL, RAIL_HL[file.status] },
     { " " },
     { glyph, icon_hl },
     { " " },
-    { symbols.fit(file.path, room) },
   }
+  if dir ~= "." and dir_room >= 1 then
+    vim.list_extend(chunks, { { name }, { " " }, { "(" .. symbols.fit(dir, dir_room, "/") .. ")", "Comment" } })
+  else
+    chunks[#chunks + 1] = { symbols.fit(name, room) }
+  end
   if marker then
     chunks[#chunks + 1] = { marker, "Comment" }
   end

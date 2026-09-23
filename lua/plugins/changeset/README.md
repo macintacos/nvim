@@ -45,6 +45,10 @@ deletion without reading a word. Everything else stays deliberately quiet. Becau
 rail carries change type, added/modified files take no text marker; only `deleted` and
 `renamed` do, where the old path is information the rail cannot hold.
 
+A file row leads with the filename, its directory dimmed in parentheses after it and
+trimmed from the front before the name ever is. Files are grouped by directory, a
+directory's own files ahead of its subdirectories'.
+
 ### Icons come from mini.icons, never hand-picked
 
 - Symbol rows: `MiniIcons.get("lsp", kind)` — the exact call `outline.lua` makes, so a
@@ -88,8 +92,8 @@ Ancestor-only rows carry no stat. They did not change; only their descendants di
 While a filter is in force every occurrence of it is painted in `Search` — the group the
 editor already uses for "the text you went looking for" — above whatever colour the row
 already carries, so a match reads over a dimmed ancestor as clearly as over a symbol name.
-The runs are found in the rendered line rather than in the row's name, so a path trimmed
-to `…a/plugins/changeset/window.lua` still lights the part you can actually see. They
+The runs are found in the rendered line rather than in the row's name, so a directory
+trimmed to `(…/plugins/changeset)` still lights the part you can actually see. They
 last as long as the filter does, not as long as the prompt.
 
 ### Two rows say where you are and what you picked
