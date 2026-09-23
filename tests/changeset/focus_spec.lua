@@ -148,6 +148,82 @@ describe("changeset sidebar focus", function()
     assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
   end)
 
+  describe("while symbols are still being read", function()
+    local resolve = require("plugins.changeset.resolve")
+    local real_start = resolve.start
+    ---@type fun(path: string, items: table[]?)
+    local answer
+
+    ---A function spanning `first`..`last` of `mod.lua`, as a server would report it.
+    local function symbol(name, first, last)
+      return {
+        name = name,
+        text = name,
+        kind = "Function",
+        path = "mod.lua",
+        lnum = first,
+        col = 1,
+        end_lnum = first,
+        end_col = #name + 1,
+        depth = 0,
+        guides = "",
+        range_lnum = first,
+        range_end_lnum = last,
+      }
+    end
+
+    ---Focus the sidebar from line 8 of `mod.lua` before its symbols are in.
+    local function focus_before_symbols()
+      vim.cmd.edit("mod.lua")
+      vim.api.nvim_win_set_cursor(0, { 8, 0 })
+      changeset.toggle()
+      assert(
+        vim.wait(10000, function()
+          return window.buf() and sidebar_text():find("other.lua", 1, true)
+        end, 25),
+        "the diff never arrived"
+      )
+    end
+
+    before_each(function()
+      resolve.start = function(_, _, on_file)
+        answer = on_file
+        return function() end
+      end
+    end)
+
+    after_each(function()
+      resolve.start = real_start
+    end)
+
+    it("lands on the file row, then follows you into your symbol once it resolves", function()
+      focus_before_symbols()
+      assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+
+      answer("mod.lua", { symbol("step", 7, 9) })
+
+      assert.truthy(sidebar_cursor_line():find("step", 1, true))
+    end)
+
+    it("stays where you moved the sidebar cursor when your symbol resolves", function()
+      focus_before_symbols()
+      park_sidebar_cursor("other.lua")
+
+      answer("mod.lua", { symbol("step", 7, 9) })
+
+      assert.truthy(sidebar_cursor_line():find("other.lua", 1, true))
+    end)
+
+    it("leaves the sidebar cursor alone when your symbol resolves after you left it", function()
+      focus_before_symbols()
+      vim.cmd.wincmd("p")
+
+      answer("mod.lua", { symbol("step", 7, 9) })
+
+      assert.truthy(sidebar_cursor_line():find("mod.lua", 1, true))
+    end)
+  end)
+
   it("closes the focused sidebar on <leader>gp and hands focus back", function()
     vim.cmd.edit("mod.lua")
     local file_win = vim.api.nvim_get_current_win()

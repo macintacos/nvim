@@ -342,6 +342,15 @@ local function draw()
   hidden_note_line(buf, #text - 1, width, view.hiding(view.kind_counts(session.rows), session.hidden))
 
   vim.api.nvim_win_set_cursor(win, { state._reanchor(visible_ids(), wanted, previous_line), 0 })
+  -- Compared before the reanchor: a first diff drawn into an empty tree moves the
+  -- cursor to line 1, which is not the user moving it.
+  if session.landing and window.is_focused() then
+    if session.landing.id == wanted then
+      land()
+    else
+      session.landing = nil
+    end
+  end
 
   set_header(win, session.files, session.ref)
   paint()
