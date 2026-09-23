@@ -6,6 +6,7 @@ This directory contains locally-defined Neovim plugins that live inside this con
 
 - [`blink-omni`](blink-omni/) — a [blink.cmp](https://github.com/Saghen/blink.cmp) source that bridges the current buffer's `omnifunc` into the completion menu (used for Ghostty config files).
 - [`blink-pairs`](blink-pairs/) — markdown emphasis pairing rules (`_`, `~`, `*`) and the symmetric-delimiter parity predicate for [blink.pairs](https://github.com/Saghen/blink.pairs), wired into its mapping schema by `plugin/blink.lua`; also takes over the engine's open/close stage for those rules, whose Rust parser misreads in-span `_` as unterminated italics.
+- [`changeset`](changeset/) — `<leader>gp` toggles a read-only sidebar mapping what this branch changed since its merge-base, each file nested by the symbols its hunks touched.
 - [`ftchooser`](ftchooser/) — `<leader>fl` sets the current buffer's filetype from a picker of human-friendly names, and remembers the choice per file across restarts.
 - [`gotoline`](gotoline/) — exposes a `:GoToLine` command that opens a centered floating popup for jumping to a line in a project file.
 - [`mini-pickers`](mini-pickers/) — customised [mini.pick](https://github.com/nvim-mini/mini.pick) registry entries: a tree-rendered LSP document-symbol outline, thinned workspace symbol pickers, and a per-line git blame picker.
