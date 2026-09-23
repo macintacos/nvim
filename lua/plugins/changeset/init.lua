@@ -216,17 +216,33 @@ local function paint()
   paint_row(buf, ids, picked and tree.relocate(session.rows, picked), render.SELECTED_HL, render.SELECTED_PRIORITY)
 end
 
----Note the file and line the cursor is in. The sidebar and floats are not somewhere
----the user is, so they leave the last place standing.
+-- Not somewhere the user is: focus visits them and the last changeset file stays yours.
+local PASSING_BUFTYPES = { terminal = true, help = true }
+
+---Note the file and line the cursor is in. The sidebar, floats, terminals and help
+---are not somewhere the user is, so they leave the last place standing.
 local function track()
   local win = vim.api.nvim_get_current_win()
-  if not session or win == window.win() or vim.api.nvim_win_get_config(win).relative ~= "" then
+  if
+    not session
+    or win == window.win()
+    or vim.api.nvim_win_get_config(win).relative ~= ""
+    or PASSING_BUFTYPES[vim.bo[vim.api.nvim_win_get_buf(win)].buftype]
+  then
     return
   end
   local name = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win))
   local path = name ~= "" and vim.fs.relpath(session.root, vim.fs.normalize(name)) or nil
   session.here = path and { path = path, lnum = vim.api.nvim_win_get_cursor(win)[1] } or nil
   paint()
+end
+
+---Keep where you are and the sidebar's cursor row in a global `:mksession` saves, so
+---every session write carries them without work of its own at write time.
+local function remember()
+  if session then
+    vim.g.ChangesetPosition = vim.json.encode({ here = session.here, row = (row_at_cursor() or {}).id })
+  end
 end
 
 ---Put the sidebar's cursor on "you are here", or its nearest ancestor on screen,
@@ -860,6 +876,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "CursorMoved", "CursorMove
       vim.schedule(function()
         tracking = false
         track()
+        remember()
       end)
     end
   end,
