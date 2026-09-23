@@ -69,7 +69,6 @@ local function sidebar_cursor_to(text)
   error("no sidebar line contains " .. text)
 end
 
----Move focus into a new terminal split.
 local function focus_terminal()
   vim.cmd("new")
   vim.cmd.terminal()
