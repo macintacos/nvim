@@ -199,10 +199,6 @@
       "rev": "ffd261c09c3dabd0bf1a438f47a8ae3b22f3c3ff",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
-    "nvim-notify": {
-      "rev": "8701bece920b38ea289b457f902e2ad184131a5d",
-      "src": "https://github.com/rcarriga/nvim-notify"
-    },
     "nvim-recorder": {
       "rev": "0ef1a24293323b3db2f56edca196f662b6551b1b",
       "src": "https://github.com/chrisgrieser/nvim-recorder"

@@ -21,7 +21,7 @@ local function ensure_loaded()
       enable_cached_venvs = true,
       activate_venv_in_terminal = true,
       set_environment_variables = true,
-      override_notify = true,
+      override_notify = false,
       search_timeout = 5,
       require_lsp_activation = true,
       picker_filter_type = "substring",

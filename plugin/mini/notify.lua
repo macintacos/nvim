@@ -15,7 +15,3 @@ require("mini.notify").setup({
     end,
   },
 })
-
--- setup() only builds the notification machinery — this is what routes
--- vim.notify through it.
-vim.notify = require("mini.notify").make_notify()
