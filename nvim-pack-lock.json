@@ -180,7 +180,7 @@
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
     "numb.nvim": {
-      "rev": "36260c446465b1303b0b1922c722904791bdb03f",
+      "rev": "53bfc4ff20e7b44cfe1d2ca62d9f2131f392f1be",
       "src": "https://github.com/nacro90/numb.nvim"
     },
     "nvim": {
@@ -196,7 +196,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "ffd261c09c3dabd0bf1a438f47a8ae3b22f3c3ff",
+      "rev": "046b1a797af1effe8e0474b9af9657a3761ec58a",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-recorder": {
@@ -260,7 +260,7 @@
       "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
     },
     "smear-cursor.nvim": {
-      "rev": "f63ff221158b5b0ca9de1d7d1ff2e0dce5649614",
+      "rev": "af2e5325760abbdc121ac5a963c8d8ceaa28552a",
       "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
     "snacks.nvim": {
