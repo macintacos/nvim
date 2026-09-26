@@ -14,6 +14,10 @@ function M.setup()
     return require("plugins.mini-pickers.files").pick()
   end
 
+  MiniPick.registry.buffers = function(local_opts)
+    return MiniPick.builtin.buffers(local_opts, { window = require("plugins.mini-pickers.preview").window() })
+  end
+
   MiniPick.registry.grep_live = function(local_opts)
     return require("plugins.mini-pickers.grep").pick(local_opts)
   end
