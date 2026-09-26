@@ -8,7 +8,9 @@ vim.api.nvim_create_autocmd("CursorMoved", {
   callback = function()
     vim.cmd.packadd("scrollEOF.nvim")
     require("scrollEOF").setup({
-      disabled_filetypes = { "minifiles" },
+      -- The changeset sidebar is a list, not a file: scrolling it past its end on open
+      -- pushes its first row off the top.
+      disabled_filetypes = { "minifiles", "changeset" },
     })
   end,
 })
