@@ -60,4 +60,23 @@ function M.merge_base(cwd, branch)
   end
 end
 
+---Ask gh which branch the current branch's open PR targets.
+---@param cwd string? Repository to ask about; Neovim's own directory when absent.
+---@param cb fun(target: string?) nil without an open PR, or when gh fails or times out.
+function M.pr_target(cwd, cb)
+  if vim.fn.executable("gh") == 0 then
+    return vim.schedule(function()
+      cb(nil)
+    end)
+  end
+  vim.system(
+    { "gh", "pr", "view", "--json", "baseRefName,state" },
+    { cwd = cwd, text = true, timeout = 5000 },
+    vim.schedule_wrap(function(res)
+      local ok, pr = pcall(vim.json.decode, res.stdout or "")
+      cb(res.code == 0 and ok and type(pr) == "table" and pr.state == "OPEN" and pr.baseRefName or nil)
+    end)
+  )
+end
+
 return M
