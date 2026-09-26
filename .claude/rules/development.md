@@ -62,6 +62,8 @@ tests/<name>/
 
 Shared fixtures live in `tests/support/` and are required as `require("support.<name>")`; `tests/minimal_init.lua` puts `tests/` on `package.path` so they resolve. `support.git` provides `git(args, cwd)`, `init_repo(branch, cwd)` and `commit(message, cwd)` — use it rather than hand-rolling another one. Every one takes the repository to run in, so a spec only needs `vim.fn.chdir` when the code under test resolves its repo from the process directory.
 
+A spec that needs a third-party plugin loads it from `.tests/deps`, which `mise run deps` fills at the revisions `nvim-pack-lock.json` pins: `vim.opt.rtp:prepend(require("support.deps").path("mini.pick"))`. A plugin not yet in `support.deps`'s list goes there first. `mise run coverage` runs the suite under luacov and prints per-file line coverage of `lua/`.
+
 Test files use `describe`/`it` blocks:
 
 ```lua

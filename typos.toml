@@ -1,0 +1,9 @@
+[default.extend-words]
+enew        = "enew"        # :enew
+fo          = "fo"          # <leader>fo, 'formatoptions'
+ba          = "ba"          # branch name in the pack-pr fixtures
+unparseable = "unparseable"
+
+[default.extend-identifiers]
+# hk.pkl's example of a JSON Schema keyword misspelled on purpose.
+aditionalProperties = "aditionalProperties"

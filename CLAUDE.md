@@ -53,18 +53,20 @@ When working with this configuration, consult the official Neovim documentation:
 │   ├── lsp.lua
 │   └── ...
 ├── lua/
-│   └── config/           # Core configuration modules
-│       ├── options.lua   # Neovim options and globals
-│       ├── keymaps.lua   # Global keybindings
-│       ├── autocmds.lua  # Autocommands
-│       ├── highlights.lua# Custom highlight groups
-│       └── helpers.lua   # Utility functions
+│   ├── config/           # Core configuration modules
+│   │   ├── options.lua   # Neovim options and globals
+│   │   ├── keymaps.lua   # Global keybindings
+│   │   ├── autocmds.lua  # Autocommands
+│   │   └── highlights.lua# Custom highlight groups
+│   ├── helpers/          # Shared utilities (mappings, git, windows, ...)
+│   └── plugins/          # Local plugins, one directory each
 ├── tests/                # Plenary specs, one directory per module
-│   └── support/          # Shared fixtures (require("support.<name>"))
+│   └── support/          # Shared fixtures (require("support.<name>")), test deps, coverage
 ├── mise.toml             # Tool versions + git-hook env (HK_MISE, postinstall)
 ├── mise.lock             # Pinned tool versions (managed by mise)
 ├── hk.pkl                # Formatters + linters + git hooks (pre-commit, pre-push)
-├── .mise/tasks/          # Task scripts: format, lint, test, preflight, setup, install
+├── .luarc.check.json     # lua-language-server config for `mise run typecheck`
+├── .mise/tasks/          # Task scripts: format, lint, test, typecheck, coverage, deps, preflight, setup, install
 ├── nvim-pack-lock.json   # Plugin version lockfile (managed by vim.pack)
 └── stylua.toml           # Lua formatter configuration
 ```
@@ -135,7 +137,7 @@ Every `plugin/*.lua` file **must** start with:
 - Local leader: `,`
 - Use `vim.keymap.set()` for keybindings
 - Include `desc` for which-key integration
-- Helper: `require("config.helpers").Cmd()` wraps commands with `<Cmd>...<CR>`
+- Helper: `require("helpers.mappings").Cmd()` wraps commands with `<Cmd>...<CR>`
 
 ### Globals
 
@@ -181,7 +183,8 @@ This configuration includes integrated Lua development tools:
 ### Type Annotations
 
 - Use LuaCATS annotations (`---@param`, `---@return`, `---@type`, `---@class`) for type safety
-- lazydev.nvim provides Neovim API completions and type definitions
+- lazydev.nvim provides Neovim API completions and type definitions in the editor
+- `mise run typecheck` runs lua-language-server over the whole repo from `.luarc.check.json`, whose library is `$VIMRUNTIME`, luv and the plugins in `.tests/deps`. It is separate from `.luarc.json` because a `workspace.library` there would override the one lazydev builds. A plugin whose types a finding needs goes in both that library and `tests/support/deps.lua`
 
 ### Formatting and Linting
 
@@ -202,12 +205,15 @@ globals:
 
 ### CLI Tools
 
-After editing files, run `mise run preflight` to lint and test, or the individual tasks below. Formatting and linting are driven by [hk](https://hk.jdx.dev) (config in `hk.pkl`): the `pre-commit` hook formats and lints staged files, and `pre-push` runs the test suite.
+After editing files, run `mise run preflight` to lint and test, or the individual tasks below. Formatting and linting are driven by [hk](https://hk.jdx.dev) (config in `hk.pkl`): the `pre-commit` hook formats and lints staged files, and `pre-push` runs the type check and the test suite.
 
-- `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, pkl, shfmt) via hk
-- `mise run lint` — run all linters (selene, rumdl, shellcheck, taplo, pkl, check-jsonschema) via hk
+- `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, pkl, shfmt, end-of-file newlines, trailing whitespace) via hk
+- `mise run lint` — check formatting and run all linters (selene, rumdl, shellcheck, taplo, pkl, check-jsonschema, typos, merge-conflict/private-key/large-file checks) plus the type check via hk; read-only
+- `mise run typecheck` — lua-language-server `--check` over the repo
 - `mise run test [path]` — run plenary tests; pass a spec file or directory to narrow the run
-- `mise run preflight` — run lint + test before pushing (the `pre-push` hook itself runs only the tests)
+- `mise run coverage` — run the suite under luacov and print per-file line coverage of `lua/`
+- `mise run deps` — check out the specs' and type check's plugins into `.tests/deps` at their `nvim-pack-lock.json` revisions (`test`, `typecheck` and `coverage` run it first)
+- `mise run preflight` — run lint + test before pushing
 - `mise run setup` — install pinned tools and register git hooks
 - `mise run install` — update Neovim plugins
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#MISE description="Run the suite under luacov and print line coverage of lua/"
+#MISE depends=["deps"]
+
+set -euo pipefail
+
+rm -rf .tests/luacov
+mkdir -p .tests/luacov
+
+# LUACOV is set from -c so only the spec processes inherit it: this outer nvim runs
+# without --noplugin, so the modules its plugin/ files load would count as covered.
+# sequential, because every spec process merges into one stats file.
+nvim --headless -u tests/minimal_init.lua \
+	-c "lua vim.env.LUACOV = '1'" \
+	-c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal_init.lua', sequential = true}"
+
+nvim -l tests/support/coverage.lua
+# The report's Summary table is sized for absolute paths; reprint it repo-relative.
+awk -v root="$PWD/" '/^Summary$/ { on = 1 } on && NF == 4 { sub(root, "", $1); printf "%-40s %6s %6s %9s\n", $1, $2, $3, $4 }' \
+	.tests/luacov/report.out
+echo "Full report: .tests/luacov/report.out"

@@ -115,6 +115,7 @@ end
 -- register after the walk instead of inheriting `balanced` from it.
 for key, rule in pairs(blink_pairs.md_rules) do
   local definitions = pairs_schema.pairs[1][key] or {}
+  ---@cast definitions blink.pairs.RuleDefinition[]
   table.insert(definitions, rule)
   pairs_schema.pairs[1][key] = definitions
 end

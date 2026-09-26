@@ -4,8 +4,8 @@ import "package://github.com/jdx/hk/releases/download/v1.55.0/hk@1.55.0#/Builtin
 
 // Keep the amends/import version in lockstep with the `hk` version in mise.toml.
 //   mise run format -> the `fix` hook   -> `formatters` (write mode)
-//   mise run lint   -> the `check` hook -> `linters` (read-only rule checks)
-// `pre-commit` runs BOTH; `pre-push` runs the test suite.
+//   mise run lint   -> the `check` hook -> `formatters` + `linters` + `typecheck` (read-only)
+// `pre-commit` runs formatters + linters; `pre-push` runs the type check and test suite.
 //
 // Step keys use a uniform `Language(Action)  [[builtins.tool]]` scheme,
 // column-aligned on the bracket tag, so hk's per-run output reads consistently.
@@ -25,6 +25,9 @@ local formatters = new Mapping<String, Step> {
   // The builtin's `types` selector detects shell by shebang, so the
   // extensionless .mise/tasks/* scripts are covered without a custom glob.
   ["Shell(Format)     [[builtins.shfmt]]"] = Builtins.shfmt
+
+  ["Text(Newline)     [[builtins.newlines]]"] = Builtins.newlines
+  ["Text(Whitespace)  [[builtins.trailing_whitespace]]"] = Builtins.trailing_whitespace
 }
 
 // Linters — check rules without rewriting.
@@ -59,10 +62,30 @@ local linters = new Mapping<String, Step> {
   // type names, malformed `pattern` regexes, and keywords given the wrong type.
   // It does NOT catch a misspelled keyword — JSON Schema treats unknown keywords
   // as legal extensions, so `aditionalProperties` silently stops constraining.
-  // Nothing else in this repo checks JSON.
   ["JSON(Lint)        [[check-jsonschema]]"] = new Step {
     glob = List("schemas/*.json")
     check = "check-jsonschema --check-metaschema {{ files }}"
+  }
+
+  // Check-only: `typos --write-changes` would also rewrite identifiers it misreads.
+  ["Text(Spelling)    [[builtins.typos]]"] = (Builtins.typos) {
+    fix = null
+  }
+
+  ["Git(Conflict)     [[builtins.check_merge_conflict]]"] = Builtins.check_merge_conflict
+  ["Git(PrivateKey)   [[builtins.detect_private_key]]"] = Builtins.detect_private_key
+  // The README's screen recording is the one large file meant to be here.
+  ["Git(LargeFile)    [[builtins.check_added_large_files]]"] = (Builtins.check_added_large_files) {
+    exclude = List("assets/preview.gif")
+  }
+}
+
+// lua-language-server checks the whole workspace in one run, whichever files
+// changed. Too slow for every commit, so it runs from `check` and `pre-push` only.
+local typecheck = new Mapping<String, Step> {
+  ["Lua(Types)        [[lua-language-server]]"] = new Step {
+    glob = List("**/*.lua", ".luarc.check.json", "nvim-pack-lock.json")
+    check = "mise run typecheck"
   }
 }
 
@@ -82,14 +105,19 @@ hooks {
     steps = formatters
   }
 
-  // `mise run lint` — linters only (rule checks); read-only.
+  // `mise run lint` — formatters in check mode, linters and the type check; read-only.
   ["check"] {
-    steps = linters
+    steps = new Mapping<String, Step> {
+      ...formatters
+      ...linters
+      ...typecheck
+    }
   }
 
-  // Runs the plenary test suite on `git push`.
+  // Runs the type check and the plenary test suite on `git push`.
   ["pre-push"] {
     steps = new Mapping<String, Step> {
+      ...typecheck
       ["Lua(Test)         [[plenary]]"] = new Step {
         check = "mise run test"
       }

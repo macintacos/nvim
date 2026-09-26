@@ -35,7 +35,7 @@ describe("yank._parse_blame", function()
   end)
 
   it("takes the author, not the committer or the author-mail", function()
-    local blame = yank._parse_blame(porcelain(sha))
+    local blame = assert(yank._parse_blame(porcelain(sha)))
     assert.equal("Julian Torres", blame.author)
     assert.equal(1740009600, blame.time)
   end)

@@ -136,7 +136,7 @@ function M.pick(opts)
   local params = { textDocument = vim.lsp.util.make_text_document_params(buf) }
   vim.lsp.buf_request_all(buf, "textDocument/documentSymbol", params, function(results)
     local items, fell_back = M._collect(results, buf, keep)
-    if fell_back then
+    if fell_back and keep then
       local requested = vim.tbl_keys(keep)
       table.sort(requested)
       vim.notify(

@@ -52,7 +52,7 @@ local function set_statuscolumn_hl()
   -- stops short of the fold column. modes.nvim gives CursorLineNr and
   -- CursorLineSign the cursorline background but leaves this one out, which is
   -- why only the modes it recolours look right.
-  local fold = vim.api.nvim_get_hl(0, { name = "CursorLineFold", link = false })
+  local fold = vim.api.nvim_get_hl(0, { name = "CursorLineFold", link = false }) --[[@as vim.api.keyset.highlight]]
   fold.bg = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false }).bg
   vim.api.nvim_set_hl(0, "CursorLineFold", fold)
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #MISE description="Run the plenary test suite, or the spec file / directory given"
+#MISE depends=["deps"]
 
 set -euo pipefail
 

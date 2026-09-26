@@ -64,7 +64,7 @@ describe("mini-pickers.render", function()
       vim.api.nvim_win_close(win, true)
       vim.api.nvim_buf_delete(buf, { force = true })
 
-      assert.has_no.errors(function()
+      assert.no_errors(function()
         render.reserve_trail_row(win, true)
       end)
     end)

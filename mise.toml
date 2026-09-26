@@ -10,6 +10,7 @@ HK_MISE = 1
 # Lua toolchain (existing) — formatter + linter for the config itself.
 "aqua:JohnnyMorganz/StyLua" = "latest"
 "aqua:Kampfkarren/selene"   = "latest"
+lua-language-server         = "latest" # type check (config in .luarc.check.json)
 
 # hk evaluates hk.pkl through pkl, so both are required. pkl also powers the
 # Pkl(Format) / Pkl(Lint) steps that lint hk.pkl itself.
@@ -23,6 +24,7 @@ taplo                   = "latest" # TOML format + lint (config in taplo.toml)
 shfmt                   = "latest" # Shell format (.mise/tasks scripts)
 shellcheck              = "latest" # Shell lint
 "pipx:check-jsonschema" = "latest" # JSON Schema lint (schemas/*.json)
+typos                   = "latest" # Spell check (config in typos.toml)
 
 # Backs the pipx: backend above, and runs the PEP 723 hook scripts in ~/.claude.
 uv = "latest"

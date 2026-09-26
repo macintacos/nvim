@@ -35,38 +35,45 @@ lazygit, zen mode, image rendering, and the big-file and quickfile guards. Its n
 input and `vim.ui.select` are switched off, each with a comment at both ends naming the
 mini module that took the job.
 
-**Local plugins are first-class.** Eight of them under `lua/plugins/`, each with a README
-and specs in `tests/`. They exist because nothing upstream did the thing: a project
+**Local plugins are first-class.** Eleven of them under `lua/plugins/`, each with specs
+in `tests/`. They exist because nothing upstream did the thing: a project
 switcher that relaunches Neovim through the fish `nvim` wrapper so the shell ends up in
 the new directory too, an update checker that runs `git ls-remote` in libuv's thread pool
 and feeds a spinner into the statusline, a picker that points a plugin's spec at an open
 PR's branch so it can be smoke-tested live.
 
 **It's maintained like a project.** A [plenary](https://github.com/nvim-lua/plenary.nvim)
-spec suite, selene and stylua over the Lua, and [hk](https://hk.jdx.dev/) on the hooks:
-format and lint on commit, the test suite on push. [mise](https://mise.jdx.dev/) pins
-every tool that does any of it.
+spec suite with a startup smoke test and luacov coverage, selene and stylua over the Lua,
+lua-language-server type-checking it, and [hk](https://hk.jdx.dev/) on the hooks: format
+and lint on commit, the type check and test suite on push. [mise](https://mise.jdx.dev/)
+pins every tool that does any of it.
 
 ## Local plugins
 
 | Plugin | What it does |
 | --- | --- |
 | [`blink-omni`](lua/plugins/blink-omni/) | Bridges a buffer's `omnifunc` into the blink.cmp menu — how Ghostty's config options reach completion. |
+| [`blink-pairs`](lua/plugins/blink-pairs/) | blink.pairs rules for Markdown emphasis that stay out of inline code spans, and the parity check that decides when a symmetric delimiter opens a new pair. |
+| [`changeset`](lua/plugins/changeset/) | `<leader>gp` — a read-only sidebar mapping what this branch changed, nested by symbol. |
 | [`ftchooser`](lua/plugins/ftchooser/) | `<leader>fl` picks a buffer's filetype from human names; the choice is remembered per file across restarts. |
 | [`gotoline`](lua/plugins/gotoline/) | `:GoToLine` — one floating prompt that fuzzy-finds a project file, previews it, then jumps to a line in it. |
 | [`mini-pickers`](lua/plugins/mini-pickers/) | Replacement mini.pick registry entries: document symbols as a real tree, thinned workspace symbols, per-line blame, and an `rg` invocation whose flags are ours. |
 | [`pack-pr`](lua/plugins/pack-pr/) | `:PackPR` — pick an open PR across managed repos and point that plugin's `vim.pack` spec at its branch, with a one-key path back. |
 | [`pack-tweaks`](lua/plugins/pack-tweaks/) | `<CR>` on a line in the `vim.pack` update buffer opens that commit or tag in the browser. |
 | [`projects`](lua/plugins/projects/) | `<leader>pp` — a [zoxide](https://github.com/ajeetdsouza/zoxide) picker that relaunches Neovim in the directory you choose, session and all. |
+| [`scratch`](lua/plugins/scratch/) | `<leader>wt` — a per-project scratch file at `.tmp/scratch.md`, created on first use. |
 | [`uv-scripts`](lua/plugins/uv-scripts/) | Filetype detection and a `ty` client pointed at the environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script. |
 
 ## Working on it
 
 ```sh
 mise run setup      # install the pinned tools, register the git hooks
-mise run preflight  # lint + test (the pre-push hook runs the tests only)
-mise run format     # stylua, rumdl, yamlfmt, taplo, pkl, shfmt
+mise run preflight  # lint (formatting, linters, type check) + test
+mise run format     # stylua, rumdl, yamlfmt, taplo, pkl, shfmt, whitespace
+mise run typecheck  # lua-language-server over the repo
 mise run test       # the plenary suite
+mise run coverage   # the suite under luacov, per-file coverage of lua/
+mise run deps       # the specs' plugins, checked out at their locked revisions
 mise run install    # update plugins via vim.pack
 ```
 

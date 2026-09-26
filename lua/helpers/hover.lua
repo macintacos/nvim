@@ -53,7 +53,7 @@ local function cursor_line_diagnostics()
 end
 
 ---Hover docs from every attached LSP client, as markdown lines.
----@param results table<integer, { err?: lsp.ResponseError, result?: lsp.Hover }>
+---@param results table<integer, { err: lsp.ResponseError?, result: lsp.Hover? }>
 ---@return string[]
 local function hover_lines(results)
   local lines = {}
@@ -69,7 +69,7 @@ end
 
 ---Show LSP hover docs for the cursor, with the cursor line's diagnostics merged above them.
 ---Without diagnostics this is plain `vim.lsp.buf.hover`.
----@param config vim.lsp.util.open_floating_preview.Opts
+---@param config vim.lsp.buf.hover.Opts
 function M.hover(config)
   local existing = vim.b.lsp_floating_preview
   if existing and vim.api.nvim_win_is_valid(existing) and vim.w[existing][FOCUS_ID] then

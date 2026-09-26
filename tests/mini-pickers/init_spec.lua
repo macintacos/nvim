@@ -1,8 +1,7 @@
-local data = vim.fn.stdpath("data") .. "/site/pack/"
-vim.opt.rtp:prepend(vim.fn.glob(data .. "*/opt/mini.pick", false, true)[1])
+vim.opt.rtp:prepend(require("support.deps").path("mini.pick"))
 require("mini.pick").setup()
 
-local registry = require("plugins.mini-pickers.init")
+local registry = require("plugins.mini-pickers")
 
 describe("mini-pickers registry", function()
   local captured, buf

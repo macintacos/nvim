@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Check out the plugins the specs and type check load, at their locked revisions"
+
+set -euo pipefail
+
+nvim -l tests/support/deps.lua
