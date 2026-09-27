@@ -16,6 +16,8 @@ smear.setup({
   -- and the plugin's own fallback (#303030) would wash out the dim end of the
   -- smear's gradient.
   transparent_bg_fallback_color = "#11121d",
+  -- The changeset sidebar hides its cursor, which a trail would still trace row to row.
+  filetypes_disabled = { "changeset" },
 })
 
 -- modes.nvim relinks 'Cursor' on every mode change (plugin/modes.lua), so the

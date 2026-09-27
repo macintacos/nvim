@@ -22,7 +22,9 @@ require("modes").setup({
   -- reach the focused window.
   set_cursorline = false,
   set_number = true,
-  ignore = { "Neotree", "TelescopePrompt" },
+  -- The changeset sidebar hides its cursor through 'guicursor', and the `a:Cursor`
+  -- modes.nvim appends there on entering a window would show it again.
+  ignore = { "Neotree", "TelescopePrompt", "changeset" },
 })
 
 -- The cursor is painted with the raw mode color, which is picked to work as a
