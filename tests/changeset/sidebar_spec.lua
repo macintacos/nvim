@@ -190,7 +190,7 @@ describe("changeset sidebar", function()
   it("footers the sidebar with the file the cursor is in", function()
     open_sidebar()
     local win = assert(window.win())
-    vim.api.nvim_win_set_cursor(win, { 1, 0 })
+    vim.api.nvim_win_set_cursor(win, { 2, 0 })
 
     local footer = vim.api.nvim_eval_statusline(vim.wo[win].statusline, { winid = win }).str
 
@@ -208,6 +208,55 @@ describe("changeset sidebar", function()
 
     assert.truthy(collapsed < expanded)
     assert.equal(expanded, #lines_of(buf))
+  end)
+
+  it("folds files under H but never a section header", function()
+    local buf = open_sidebar()
+
+    press("H")
+
+    assert.truthy(lines_of(buf)[1]:find("Implementation", 1, true))
+    assert.equal(3, #lines_of(buf))
+  end)
+
+  it("leaves a folded section folded under L", function()
+    write("README.md", { "# readme" })
+    Fixture.commit("docs", tmp)
+    local buf = open_sidebar()
+    vim.api.nvim_set_current_win((assert(window.win())))
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
+    press("h")
+
+    press("L")
+
+    local text = lines_of(buf)
+    assert.falsy(table.concat(text, "\n"):find("mod.lua", 1, true))
+    assert.truthy(table.concat(text, "\n"):find("README.md", 1, true))
+  end)
+
+  it("hands the picker one file row per changed file", function()
+    open_sidebar()
+
+    local rows = assert(changeset.rows()).rows
+
+    assert.same(
+      { "file", "file" },
+      vim.tbl_map(function(row)
+        return row.kind
+      end, rows)
+    )
+  end)
+
+  it("draws a section header's icon from mini.icons' directory icons", function()
+    vim.opt.rtp:prepend(require("support.deps").path("mini.icons"))
+    require("mini.icons").setup()
+    local buf = open_sidebar()
+    local glyph, hl = MiniIcons.get("directory", "src")
+
+    local mark = vim.api.nvim_buf_get_extmarks(buf, ns, { 0, 0 }, { 0, 0 }, { details = true })[1]
+
+    assert.equal(hl, mark[4].hl_group)
+    assert.equal(glyph, lines_of(buf)[1]:sub(1, #glyph))
   end)
 
   ---@class changeset.spec.Previewed
@@ -314,7 +363,7 @@ describe("changeset sidebar", function()
   end)
 
   it("leaves a preview made where the cursor stands a preview when focus comes back to it", function()
-    local p = preview(3, "file")
+    local p = preview(4, "file")
     assert.not_equal(p.from_buf, p.previewed)
 
     local float = vim.api.nvim_open_win(vim.api.nvim_create_buf(false, true), true, {

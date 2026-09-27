@@ -31,10 +31,21 @@ describe("changeset.state", function()
       local st = state.new()
       state.collapse_all(st, { "api.ts", "auth.ts" })
 
-      state.expand_all(st)
+      state.expand_all(st, {})
 
       assert.is_false(state.is_collapsed(st, "api.ts"))
       assert.is_false(state.is_collapsed(st, "auth.ts"))
+    end)
+
+    it("leaves the rows it is told to keep folded", function()
+      local st = state.new()
+      state.collapse_all(st, { "#tests", "#tests\0a_spec.lua" })
+
+      state.expand_all(st, { "#tests", "#docs" })
+
+      assert.is_true(state.is_collapsed(st, "#tests"))
+      assert.is_false(state.is_collapsed(st, "#docs"))
+      assert.is_false(state.is_collapsed(st, "#tests\0a_spec.lua"))
     end)
 
     it("tracks an opened-out chain separately from a collapsed row", function()
@@ -112,7 +123,13 @@ describe("changeset.state", function()
 
     it("falls back to the deepest ancestor on screen when the row is hidden", function()
       assert.equal(2, state._nearest(IDS, "a.lua\0Store\0load\0inner"))
-      assert.equal(3, state._nearest(IDS, "b.lua\0#orphans"))
+      assert.equal(3, state._nearest(IDS, "b.lua\0#orphans\0#orphan:4"))
+    end)
+
+    it("sends a hidden orphan to its group when the group is the deepest row shown", function()
+      local ids = { "a.lua", "a.lua\0#orphans" }
+
+      assert.equal(2, state._nearest(ids, "a.lua\0#orphans\0#orphan:4"))
     end)
 
     it("does not take a row whose name merely starts the same for an ancestor", function()

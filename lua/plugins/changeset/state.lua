@@ -43,10 +43,15 @@ function M.collapse_all(st, ids)
   end
 end
 
----Unfold every row, leaving opened chains as they are.
+---Unfold every row but those in `keep`, leaving opened chains as they are.
 ---@param st changeset.State
-function M.expand_all(st)
-  st.collapsed = {}
+---@param keep string[] Ids whose fold stays as it is.
+function M.expand_all(st, keep)
+  local kept = {}
+  for _, id in ipairs(keep) do
+    kept[id] = st.collapsed[id]
+  end
+  st.collapsed = kept
 end
 
 ---Whether a compressed chain is being shown at full nesting.

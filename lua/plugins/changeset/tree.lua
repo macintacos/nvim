@@ -1,3 +1,5 @@
+local sections = require("plugins.changeset.sections")
+
 local M = {}
 
 -- Must stay equal to `symbols.SEP`: `symbols.fit` trims a chain by splitting it on
@@ -5,13 +7,14 @@ local M = {}
 ---@type string
 local SEP = " › "
 
----A row of the sidebar tree. Files sit at the top; symbols, or an orphan group holding orphan hunks, nest below.
+---A row of the sidebar tree. Sections sit at the top with files under them; symbols, or an orphan group
+---holding orphan hunks, nest below.
 ---@class changeset.Row
----@field id string           Stable identity: `path` for a file, then `\0`-joined names. A `chain` row carries its head's.
----@field kind "file"|"symbol"|"orphans"|"orphan"
----@field depth integer       0 for file rows.
+---@field id string           Stable identity: `#key` for a section, then `\0`-joined segments. A `chain` row carries its head's.
+---@field kind "section"|"file"|"symbol"|"orphans"|"orphan"
+---@field depth integer       0 for a section row, 1 for a file row.
 ---@field name string         Display text; a compressed chain is joined by " › ".
----@field path string         Repo-relative file path.
+---@field path string         Repo-relative file path; empty on a section row.
 ---@field lnum integer?       1-based jump target; nil when the row is not navigable.
 ---@field symbol_kind string? LSP kind name ("Method"), for icon lookup.
 ---@field added integer?      Nil on an ancestor row or a deleted file row, which carry no stat.
@@ -22,6 +25,8 @@ local SEP = " › "
 ---@field range { [1]: integer, [2]: integer }? Lines a symbol's body or an orphan hunk covers, inclusive.
 ---@field status string?      File rows only.
 ---@field resolved boolean?   File rows only: whether a server has answered for this file yet.
+---@field files integer?     Section rows only: how many files the section holds, before any filter.
+---@field icon string?        Section rows only: the mini.icons directory name for its header.
 ---@field children changeset.Row[]
 
 ---A line of a file, repo-relative.
@@ -181,7 +186,7 @@ local function orphan_row(hunk, group, line_text)
   -- A deletion hunk has no new-file line of its own: `lnum` is the line it follows.
   local text = hunk.count > 0 and line_text and line_text(group.path, lnum) or nil
   return {
-    id = group.path .. "\0#orphan:" .. lnum,
+    id = group.id .. "\0#orphan:" .. lnum,
     kind = "orphan",
     depth = group.depth + 1,
     name = orphan_name(hunk, text and vim.trim(text)),
@@ -202,7 +207,7 @@ end
 ---@return changeset.Row
 local function orphans_row(hunks, parent, line_text)
   local group = {
-    id = parent.path .. "\0#orphans",
+    id = parent.id .. "\0#orphans",
     kind = "orphans",
     depth = parent.depth + 1,
     name = "Other changes",
@@ -230,14 +235,15 @@ end
 
 ---@param file changeset.File
 ---@param resolved boolean Whether a server has answered for this file yet.
+---@param section changeset.Row
 ---@return changeset.Row
-local function file_row(file, resolved)
+local function file_row(file, resolved, section)
   local deleted = file.status == "deleted"
   return {
-    id = file.path,
+    id = section.id .. "\0" .. file.path,
     resolved = resolved,
     kind = "file",
-    depth = 0,
+    depth = section.depth + 1,
     name = file.path,
     path = file.path,
     lnum = not deleted and first_change(file.hunks) or nil,
@@ -269,7 +275,26 @@ local function file_children(file, symbols, parent, line_text)
   return children
 end
 
----Map what a branch changed onto the symbols that own it: one row per file, changed symbols beneath
+---@param section changeset.Section
+---@return changeset.Row
+local function section_row(section)
+  return {
+    id = "#" .. section.key,
+    kind = "section",
+    depth = 0,
+    name = section.label,
+    path = "",
+    icon = section.icon,
+    files = 0,
+    added = 0,
+    removed = 0,
+    ancestor = false,
+    children = {},
+  }
+end
+
+---Map what a branch changed onto the symbols that own it: one section row per non-empty section, one row
+---per file under it, changed symbols beneath
 ---(with the ancestors needed to place them), and an "Other changes" group for hunks outside every symbol.
 ---
 ---A file absent from `symbols_by_path` is still resolving and gets no children; a file mapped to `{}`
@@ -279,16 +304,31 @@ end
 ---@param line_text changeset.LineText? Captions orphan hunks; without it they are named by line range alone.
 ---@return changeset.Row[]
 function M.build(files, symbols_by_path, line_text)
-  local rows = {}
-  for i, file in ipairs(files) do
+  local by_key = {}
+  for _, section in ipairs(sections.ORDER) do
+    by_key[section.key] = section_row(section)
+  end
+  for _, file in ipairs(files) do
+    local section = by_key[sections.classify(file.path)]
     local symbols = symbols_by_path[file.path]
-    local row = file_row(file, symbols ~= nil)
+    local row = file_row(file, symbols ~= nil, section)
     if symbols and file.status ~= "deleted" then
       row.children = file_children(file, symbols, row, line_text)
     end
-    rows[i] = row
+    section.children[#section.children + 1] = row
+    section.files = section.files + 1
+    section.added = section.added + (file.added or 0)
+    section.removed = section.removed + (file.removed or 0)
   end
-  return rows
+  return vim
+    .iter(sections.ORDER)
+    :map(function(section)
+      return by_key[section.key]
+    end)
+    :filter(function(row)
+      return row.files > 0
+    end)
+    :totable()
 end
 
 ---Follow single-child links down from a symbol row; a row with two children, or none, ends the chain.
@@ -318,7 +358,7 @@ local function unfold(row, deepest, depth, is_open)
   return vim.tbl_extend("force", row, { depth = depth, children = children })
 end
 
----@param row changeset.Row File or symbol row.
+---@param row changeset.Row Section, file or symbol row.
 ---@param depth integer
 ---@param is_open (fun(id: string): boolean)?
 ---@return changeset.Row
@@ -344,14 +384,15 @@ end
 function compress_rows(rows, depth, is_open)
   local out = {}
   for i, row in ipairs(rows) do
-    out[i] = (row.kind == "file" or row.kind == "symbol") and compress_row(row, depth, is_open) or row
+    out[i] = (row.kind == "section" or row.kind == "file" or row.kind == "symbol") and compress_row(row, depth, is_open)
+      or row
   end
   return out
 end
 
 ---Fold each maximal run of single-child symbol rows into one `chain` row named by the run and
 ---standing for its deepest symbol: position, kind and stat are the deepest's, the id is the head's.
----@param rows changeset.Row[] File rows from `build`; left unmodified.
+---@param rows changeset.Row[] Section rows from `build`; left unmodified.
 ---@param is_open (fun(id: string): boolean)? A run whose head id is open stays at full nesting.
 ---@return changeset.Row[]
 function M.compress(rows, is_open)
@@ -381,23 +422,25 @@ end
 
 ---The row a line of a file belongs to: the deepest symbol row whose body holds it, else the file's
 ---"Other changes" row when one of its hunks does, else the file row.
----@param rows changeset.Row[] File rows from `build`, uncompressed.
+---@param rows changeset.Row[] Section rows from `build`, uncompressed.
 ---@param path string Repo-relative.
 ---@param lnum integer
 ---@return changeset.Row? nil when the changeset does not hold `path`.
 function M.locate(rows, path, lnum)
-  for _, file in ipairs(rows) do
-    if file.path == path then
-      local symbol = enclosing(file.children, lnum)
-      if symbol then
-        return deepest_symbol(symbol, lnum)
-      end
-      for _, child in ipairs(file.children) do
-        if child.kind == "orphans" and enclosing(child.children, lnum) then
-          return child
+  for _, section in ipairs(rows) do
+    for _, file in ipairs(section.children) do
+      if file.path == path then
+        local symbol = enclosing(file.children, lnum)
+        if symbol then
+          return deepest_symbol(symbol, lnum)
         end
+        for _, child in ipairs(file.children) do
+          if child.kind == "orphans" and enclosing(child.children, lnum) then
+            return child
+          end
+        end
+        return file
       end
-      return file
     end
   end
 end

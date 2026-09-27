@@ -146,6 +146,9 @@ end
 ---@param row changeset.Row
 ---@return string glyph, string hl
 local function icon_for(row)
+  if row.kind == "section" then
+    return icon("directory", row.icon)
+  end
   if row.kind == "file" then
     return icon("file", row.path)
   end
@@ -319,6 +322,7 @@ local function apply_marks(buf, lines)
         hl_group = mark.hl,
         virt_text = mark.virt_text,
         virt_text_pos = mark.pos,
+        virt_lines = mark.virt_lines,
         priority = mark.priority or render.MARK_PRIORITY,
       })
     end
@@ -645,13 +649,26 @@ local function collapse_or_parent(open_session)
   end
 end
 
+---The file rows under `sections`, in display order.
+---@param sections changeset.Row[]
+---@return changeset.Row[]
+local function files_of(sections)
+  return vim
+    .iter(sections)
+    :map(function(section)
+      return section.children
+    end)
+    :flatten()
+    :totable()
+end
+
 ---@param open_session changeset.Session
 local function collapse_all_files(open_session)
   state.collapse_all(
     open_session.st,
     vim.tbl_map(function(row)
       return row.id
-    end, open_session.rows)
+    end, files_of(open_session.rows))
   )
   draw()
 end
@@ -702,7 +719,12 @@ local function set_keymaps(buf)
   map("h", collapse_or_parent, "Collapse, or step out to the parent")
   map("H", collapse_all_files, "Collapse every file")
   map("L", function(open_session)
-    state.expand_all(open_session.st)
+    state.expand_all(
+      open_session.st,
+      vim.tbl_map(function(section)
+        return section.id
+      end, open_session.rows)
+    )
     draw()
   end, "Expand every file")
   map("R", M.refresh, "Rebuild the tree")
@@ -911,7 +933,7 @@ function M.rows()
   if not session.collected then
     return nil, "still reading the diff"
   end
-  return { rows = view.by_kind(session.rows, session.hidden), root = session.root, ref = session.ref }
+  return { rows = view.by_kind(files_of(session.rows), session.hidden), root = session.root, ref = session.ref }
 end
 
 ---The tree, for specs.
