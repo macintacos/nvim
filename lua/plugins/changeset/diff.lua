@@ -249,6 +249,18 @@ local function git_commands(base)
   }
 end
 
+---`vim.system`, but a failed spawn — a repository removed under a pending refresh —
+---reaches `on_exit` as a failed result instead of raising.
+---@param argv string[]
+---@param opts vim.SystemOpts
+---@param on_exit fun(result: vim.SystemCompleted)
+local function system(argv, opts, on_exit)
+  local ok, err = pcall(vim.system, argv, opts, on_exit)
+  if not ok then
+    on_exit({ code = -1, signal = 0, stdout = "", stderr = tostring(err) })
+  end
+end
+
 ---Run every command concurrently and hand all results to `on_done` on the main loop.
 ---@param commands table<string, string[]>
 ---@param cwd string
@@ -256,7 +268,7 @@ end
 local function run_all(commands, cwd, on_done)
   local results, pending = {}, vim.tbl_count(commands)
   for name, argv in pairs(commands) do
-    vim.system(argv, { cwd = cwd, text = true }, function(result)
+    system(argv, { cwd = cwd, text = true }, function(result)
       results[name] = result
       pending = pending - 1
       if pending == 0 then
@@ -324,7 +336,7 @@ local function generated_paths(files, cwd, on_done)
   local paths = vim.tbl_map(function(file)
     return file.path
   end, files)
-  vim.system(
+  system(
     { "git", "check-attr", "-z", "--stdin", "linguist-generated" },
     { cwd = cwd, text = true, stdin = table.concat(paths, "\0") },
     function(result)

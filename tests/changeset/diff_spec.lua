@@ -595,4 +595,41 @@ describe("changeset.diff.collect", function()
     table.sort(marked)
     assert.same({ "api.pb.go", "gen/new.ts", "gen/old.ts" }, marked)
   end)
+
+  ---Run `diff.collect` and block until its callback fires, returning its error.
+  ---@param base string
+  ---@param cwd string
+  ---@return string?
+  local function collect_error(base, cwd)
+    local err, done
+    diff.collect(base, cwd, function(_, message)
+      err, done = message, true
+    end)
+    assert(
+      vim.wait(10000, function()
+        return done
+      end, 10),
+      "collect never called back"
+    )
+    return err
+  end
+
+  it("calls back when the repository vanishes before the generated-file read", function()
+    local base = seed_edited_file(tmp)
+    local system = vim.system
+    vim.system = function(argv, ...)
+      if argv[2] == "check-attr" then
+        vim.fn.delete(tmp, "rf")
+      end
+      return system(argv, ...)
+    end
+    local ok, err = pcall(collect_error, base, tmp)
+    vim.system = system
+    assert(ok, err)
+    assert.is_nil(err)
+  end)
+
+  it("reports a missing repository as an error", function()
+    assert.matches("ENOENT", collect_error("HEAD", tmp .. "/gone"))
+  end)
 end)
