@@ -13,6 +13,7 @@ local M = {}
 ---@field added integer
 ---@field removed integer
 ---@field hunks changeset.Hunk[] Ascending by line, as git emits them; empty for a binary or pure rename.
+---@field generated true? Its Go header or a linguist-generated attribute marks it; the name rules are sections.classify's.
 
 ---@class changeset.diff.Stat
 ---@field added integer
@@ -165,6 +166,34 @@ local function untracked_file(path, lines)
   }
 end
 
+---Paths `git check-attr -z` output says are `linguist-generated` (set or `true`).
+---@param stdout string `<path>\0<attribute>\0<info>\0`, repeated.
+---@return table<string, true>
+function M._parse_check_attr(stdout)
+  local marked, fields = {}, vim.split(stdout, "\0", { plain = true })
+  for i = 1, #fields - 2, 3 do
+    if fields[i + 2] == "set" or fields[i + 2] == "true" then
+      marked[fields[i]] = true
+    end
+  end
+  return marked
+end
+
+---Whether a Go file's header marks it generated: a `// Code generated … DO NOT EDIT.` line before its package clause.
+---@param lines fun(): string? Its lines, from the top.
+---@return boolean
+function M._generated_header(lines)
+  for line in lines do
+    if line:find("^package%s") then
+      return false
+    end
+    if line:find("^// Code generated .* DO NOT EDIT%.$") then
+      return true
+    end
+  end
+  return false
+end
+
 -- ponytail: plain string order, so a sibling like "a-x" can split a/'s subtree; compare segment-wise if that shows up.
 ---Sort key that keeps a directory's files together, root files first.
 ---@param path string
@@ -269,8 +298,49 @@ local function count_lines(paths, cwd)
   return counts
 end
 
+-- filereadable guards the read: io.open succeeds on a directory (a submodule gitlink) and
+-- f:lines() then raises, which would stop collect from ever calling back.
+---@param abs string
+---@return boolean
+local function header_generated(abs)
+  if vim.fn.filereadable(abs) ~= 1 then
+    return false
+  end
+  local f = assert(io.open(abs))
+  local generated = M._generated_header(f:lines())
+  f:close()
+  return generated
+end
+
+---Set `generated` on each file its Go header or `.gitattributes` marks, then call `on_done` on the main loop.
+---@param files changeset.File[]
+---@param cwd string
+---@param on_done fun()
+local function mark_generated(files, cwd, on_done)
+  local paths = vim.tbl_map(function(file)
+    return file.path
+  end, files)
+  vim.system(
+    { "git", "check-attr", "-z", "--stdin", "linguist-generated" },
+    { cwd = cwd, text = true, stdin = table.concat(paths, "\0") },
+    function(result)
+      vim.schedule(function()
+        -- A failed read only costs files their Generated section.
+        local marked = result.code == 0 and M._parse_check_attr(result.stdout) or {}
+        for _, file in ipairs(files) do
+          local go = file.status ~= "deleted" and file.path:find("%.go$")
+          if marked[file.path] or (go and header_generated(vim.fs.joinpath(cwd, file.path))) then
+            file.generated = true
+          end
+        end
+        on_done()
+      end)
+    end
+  )
+end
+
 ---Files changed between `base` and the working tree, plus untracked files, and the
----commits made since `base`.
+---commits made since `base`, each marked `generated` when its Go header or `.gitattributes` says so.
 ---Calls back on the main loop with those, or `nil` and git's stderr when any git command fails.
 ---@param base string Commit-ish to diff against.
 ---@param cwd string Repository root; untracked paths are relative to it, like the diff paths.
@@ -281,16 +351,15 @@ function M.collect(base, cwd, callback)
     if err then
       return callback(nil, err)
     end
-    callback(
-      M._assemble({
-        numstat = M._parse_numstat(stdout_lines(results.numstat)),
-        statuses = M._parse_name_status(stdout_lines(results.name_status)),
-        hunks = M._parse_hunks(stdout_lines(results.hunks)),
-        untracked = count_lines(stdout_lines(results.untracked), cwd),
-      }),
-      nil,
-      tonumber(stdout_lines(results.commits)[1])
-    )
+    local files = M._assemble({
+      numstat = M._parse_numstat(stdout_lines(results.numstat)),
+      statuses = M._parse_name_status(stdout_lines(results.name_status)),
+      hunks = M._parse_hunks(stdout_lines(results.hunks)),
+      untracked = count_lines(stdout_lines(results.untracked), cwd),
+    })
+    mark_generated(files, cwd, function()
+      callback(files, nil, tonumber(stdout_lines(results.commits)[1]))
+    end)
   end)
 end
 
