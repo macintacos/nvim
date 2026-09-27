@@ -257,7 +257,10 @@ end
 local function system(argv, opts, on_exit)
   local ok, err = pcall(vim.system, argv, opts, on_exit)
   if not ok then
-    on_exit({ code = -1, signal = 0, stdout = "", stderr = tostring(err) })
+    local result = { code = -1, signal = 0, stdout = "", stderr = tostring(err) }
+    vim.schedule(function()
+      on_exit(result)
+    end)
   end
 end
 
@@ -360,7 +363,7 @@ end
 
 ---Files changed between `base` and the working tree, plus untracked files, each marked `generated`
 ---when its Go header or `.gitattributes` says so; and the commits made since `base`.
----Calls back on the main loop with those, or `nil` and git's stderr when any git command fails.
+---Calls back on the main loop with those, or `nil` and the error when any git command fails or cannot start.
 ---@param base string Commit-ish to diff against.
 ---@param cwd string Repository root; untracked paths are relative to it, like the diff paths.
 ---@param callback fun(files: changeset.File[]?, err: string?, commits: integer?)

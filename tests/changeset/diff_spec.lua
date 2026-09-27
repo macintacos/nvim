@@ -379,14 +379,17 @@ end)
 local TWELVE_LINES =
   { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve" }
 
----Run `diff.collect` and block until its callback fires, failing on timeout or git error.
+---Run `diff.collect` and block until its callback fires, returning what it passed.
 ---@param base string
 ---@param cwd string
----@return changeset.File[]
-local function collect(base, cwd)
-  local files, err, done
-  diff.collect(base, cwd, function(result, message)
-    files, err, done = result, message, true
+---@return changeset.File[]? files
+---@return string? err
+---@return integer? commits
+local function await_collect(base, cwd)
+  local files, err, commits, done
+  diff.collect(base, cwd, function(...)
+    files, err, commits = ...
+    done = true
   end)
   assert(
     vim.wait(10000, function()
@@ -394,6 +397,15 @@ local function collect(base, cwd)
     end, 10),
     "collect never called back"
   )
+  return files, err, commits
+end
+
+---Run `diff.collect` and block until its callback fires, failing on timeout or git error.
+---@param base string
+---@param cwd string
+---@return changeset.File[]
+local function collect(base, cwd)
+  local files, err = await_collect(base, cwd)
   assert(not err, err)
   return files
 end
@@ -596,40 +608,30 @@ describe("changeset.diff.collect", function()
     assert.same({ "api.pb.go", "gen/new.ts", "gen/old.ts" }, marked)
   end)
 
-  ---Run `diff.collect` and block until its callback fires, returning its error.
-  ---@param base string
-  ---@param cwd string
-  ---@return string?
-  local function collect_error(base, cwd)
-    local err, done
-    diff.collect(base, cwd, function(_, message)
-      err, done = message, true
-    end)
-    assert(
-      vim.wait(10000, function()
-        return done
-      end, 10),
-      "collect never called back"
-    )
-    return err
-  end
-
   it("calls back when the repository vanishes before the generated-file read", function()
     local base = seed_edited_file(tmp)
     local system = vim.system
+    local fired = false
     vim.system = function(argv, ...)
-      if argv[2] == "check-attr" then
+      if vim.tbl_contains(argv, "check-attr") then
+        fired = true
         vim.fn.delete(tmp, "rf")
       end
       return system(argv, ...)
     end
-    local ok, err = pcall(collect_error, base, tmp)
+    local files, err
+    local ok, raised = pcall(function()
+      files, err = await_collect(base, tmp)
+    end)
     vim.system = system
-    assert(ok, err)
+    assert(ok, raised)
+    assert.is_true(fired)
     assert.is_nil(err)
+    assert.equal("notes.txt", files[1].path)
+    assert.is_nil(files[1].generated)
   end)
 
   it("reports a missing repository as an error", function()
-    assert.matches("ENOENT", collect_error("HEAD", tmp .. "/gone"))
+    assert.matches("ENOENT", select(2, await_collect("HEAD", tmp .. "/gone")))
   end)
 end)
