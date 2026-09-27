@@ -286,8 +286,8 @@ local function section_line(section, opts)
   local glyph, icon_hl = opts.icon(section)
   local stat = M.stat_chunks(section)
   local count = ("%d file%s"):format(section.files, section.files == 1 and "" or "s")
-  local fixed = vim.fn.strdisplaywidth(glyph .. "  " .. section.name .. count) + stat_cells(stat)
-  local pad = math.max(1, math.min(LABEL_CELLS - vim.fn.strdisplaywidth(section.name), opts.width - fixed))
+  local fixed_cells = vim.fn.strdisplaywidth(glyph .. "  " .. section.name .. count) + stat_cells(stat)
+  local pad = math.max(1, math.min(LABEL_CELLS - vim.fn.strdisplaywidth(section.name), opts.width - fixed_cells))
   return compose(section, {
     { glyph, icon_hl },
     { "  " },

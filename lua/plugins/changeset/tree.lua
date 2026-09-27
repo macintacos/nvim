@@ -318,12 +318,12 @@ end
 ---@param line_text changeset.LineText? Captions orphan hunks; without it they are named by line range alone.
 ---@return changeset.Row[]
 function M.build(files, symbols_by_path, line_text)
-  local by_key = {}
+  local section_rows = {}
   for _, section in ipairs(sections.ORDER) do
-    by_key[section.key] = section_row(section)
+    section_rows[section.key] = section_row(section)
   end
   for _, file in ipairs(files) do
-    local section = by_key[sections.classify(file.path)]
+    local section = section_rows[sections.classify(file.path)]
     local symbols = symbols_by_path[file.path]
     local row = file_row(file, symbols ~= nil, section)
     if symbols and file.status ~= "deleted" then
@@ -337,7 +337,7 @@ function M.build(files, symbols_by_path, line_text)
   return vim
     .iter(sections.ORDER)
     :map(function(section)
-      return by_key[section.key]
+      return section_rows[section.key]
     end)
     :filter(function(row)
       return row.files > 0

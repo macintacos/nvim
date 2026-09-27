@@ -26,11 +26,11 @@ local CONFIG_DIRS = { [".github"] = true }
 local SCRIPT_FILES = vim.glob.to_lpeg("{*.sh,*.bash,*.py,*.js,*.ts,*.rs,*.go,*.lua}")
 
 ---@param dirs string[]
----@param set table<string, true>
+---@param names table<string, true>
 ---@return boolean
-local function has_dir(dirs, set)
-  return vim.iter(dirs):any(function(d)
-    return set[d] ~= nil
+local function has_dir(dirs, names)
+  return vim.iter(dirs):any(function(dir)
+    return names[dir] ~= nil
   end)
 end
 

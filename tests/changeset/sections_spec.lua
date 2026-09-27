@@ -84,8 +84,8 @@ describe("sections", function()
   it("orders implementation, tests, docs, config", function()
     assert.same(
       { "implementation", "tests", "docs", "config" },
-      vim.tbl_map(function(s)
-        return s.key
+      vim.tbl_map(function(section)
+        return section.key
       end, sections.ORDER)
     )
   end)
