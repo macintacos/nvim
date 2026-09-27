@@ -610,10 +610,10 @@ describe("changeset.diff.collect", function()
   it("calls back when the repository vanishes before the generated-file read", function()
     local base = seed_edited_file(tmp)
     local system = vim.system
-    local fired = false
+    local check_attr_ran = false
     vim.system = function(argv, ...)
       if vim.tbl_contains(argv, "check-attr") then
-        fired = true
+        check_attr_ran = true
         vim.fn.delete(tmp, "rf")
       end
       return system(argv, ...)
@@ -624,7 +624,7 @@ describe("changeset.diff.collect", function()
     end)
     vim.system = system
     assert(ok, raised)
-    assert.is_true(fired)
+    assert.is_true(check_attr_ran)
     assert.is_nil(err)
     assert.equal("notes.txt", files[1].path)
     assert.is_nil(files[1].generated)

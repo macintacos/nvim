@@ -14,8 +14,8 @@ assert(ok, err)
 ---@return table<string, string> desc by lhs of the buffer-local normal maps
 local function buffer_maps(buf)
   local maps = {}
-  for _, m in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
-    maps[m.lhs] = m.desc or ""
+  for _, keymap in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
+    maps[keymap.lhs] = keymap.desc or ""
   end
   return maps
 end
