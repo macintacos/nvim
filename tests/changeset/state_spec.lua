@@ -115,15 +115,15 @@ describe("changeset.state", function()
     end)
   end)
 
-  describe("_step", function()
-    ---@param ... "section"|"file"
-    ---@return changeset.Row[]
-    local function of_kinds(...)
-      return vim.tbl_map(function(kind)
-        return { kind = kind }
-      end, { ... })
-    end
+  ---@param ... "section"|"file"
+  ---@return changeset.Row[]
+  local function of_kinds(...)
+    return vim.tbl_map(function(kind)
+      return { kind = kind }
+    end, { ... })
+  end
 
+  describe("_step", function()
     local ROWS = of_kinds("section", "file", "section", "file")
 
     it("skips a section header going down", function()
@@ -144,6 +144,38 @@ describe("changeset.state", function()
 
     it("lands on the next file from a header", function()
       assert.equal(2, state._step(ROWS, 1, 1))
+    end)
+  end)
+
+  describe("_section", function()
+    local ROWS = of_kinds("section", "file", "section", "section", "file")
+
+    it("goes down from a file to the next header", function()
+      assert.equal(3, state._section(ROWS, 2, 1))
+    end)
+
+    it("lands on a folded header right under another", function()
+      assert.equal(4, state._section(ROWS, 3, 1))
+    end)
+
+    it("stays put at the last header", function()
+      assert.equal(4, state._section(ROWS, 4, 1))
+    end)
+
+    it("stays put below the last header", function()
+      assert.equal(5, state._section(ROWS, 5, 1))
+    end)
+
+    it("goes up from a file to its own section's header", function()
+      assert.equal(4, state._section(ROWS, 5, -1))
+    end)
+
+    it("goes up from a header to the previous one", function()
+      assert.equal(1, state._section(ROWS, 3, -1))
+    end)
+
+    it("stays put at the first header", function()
+      assert.equal(1, state._section(ROWS, 1, -1))
     end)
   end)
 

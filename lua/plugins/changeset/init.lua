@@ -634,6 +634,18 @@ local function prompt_filter(open_session)
   draw()
 end
 
+---Put the cursor on the nearest section header in `delta`'s direction, if there is one.
+---@param open_session changeset.Session
+---@param delta integer 1 or -1.
+local function to_section(open_session, delta)
+  local win = window.win()
+  if not win then
+    return
+  end
+  local lnum = state._section(open_session.visible, vim.api.nvim_win_get_cursor(win)[1], delta)
+  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
+end
+
 ---What `h` does from a row: shut it, or put the cursor on its parent.
 ---@param open_session changeset.Session
 local function collapse_or_parent(open_session)
@@ -713,6 +725,12 @@ local function set_keymaps(buf)
   map("h", collapse_or_parent, "Collapse, or step out to the parent")
   map("H", collapse_all_files, "Collapse every file")
   map("L", expand_all_files, "Expand every file")
+  map("]]", function(open_session)
+    to_section(open_session, 1)
+  end, "Next section")
+  map("[[", function(open_session)
+    to_section(open_session, -1)
+  end, "Previous section")
   map("R", M.refresh, "Rebuild the tree")
   map("y", function()
     local row = row_at_cursor()
@@ -956,6 +974,7 @@ function M.open()
   render.define_highlights()
   local win = window.open(buf)
   vim.wo[win].statusline = "%{%v:lua.require'plugins.changeset'.footer()%}"
+  -- After `filetype`: illuminate maps `]]`/`[[` on every buffer at `FileType`.
   set_keymaps(buf)
 
   -- Fires: the sidebar's window going without the plugin being asked — `:q`, `:only`,

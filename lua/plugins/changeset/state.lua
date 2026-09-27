@@ -3,7 +3,7 @@
 ---refresh reorders lines whenever the file set changes.
 ---
 ---The `_`-prefixed functions are pure decisions alongside it: where the cursor
----lands after a rebuild, where `h` goes from a row, where `]h`/`[h` step to, and
+---lands after a rebuild, where `h` goes from a row, where `]h`/`[h` and `]]`/`[[` step to, and
 ---which line stands in for a row that is not on screen.
 
 ---@class changeset.State
@@ -137,6 +137,20 @@ end
 function M._step(rows, lnum, delta)
   local i = lnum + delta
   while rows[i] and rows[i].kind == "section" do
+    i = i + delta
+  end
+  return rows[i] and i or lnum
+end
+
+---Where `]]`/`[[` go from a line: the nearest section header past it in `delta`'s
+---direction, a folded one included, or the line itself when there is none that way.
+---@param rows changeset.Row[] The visible rows, in display order.
+---@param lnum integer 1-based.
+---@param delta integer 1 or -1.
+---@return integer
+function M._section(rows, lnum, delta)
+  local i = lnum + delta
+  while rows[i] and rows[i].kind ~= "section" do
     i = i + delta
   end
   return rows[i] and i or lnum
