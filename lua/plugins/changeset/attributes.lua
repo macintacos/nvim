@@ -1,11 +1,12 @@
 ---Inline tests a file's syntax marks where its symbol names cannot: a Rust item under `#[test]`,
 ---`#[<path>::test]` or `#[cfg(test)]`, and a TypeScript `if (import.meta.vitest) { … }` block.
 ---
----Takes text, not a buffer: the caller snapshots it as it asks the server, so its lines are the ones the symbols point at.
+---Takes text, not a buffer: the caller snapshots it as it asks the server, so its lines match the symbols'.
 
 local M = {}
 
--- Each extension needs a `sections` name rule too: without one `test_rule` gives the file no rule, and its flags go unread.
+-- Each extension needs a `sections` name rule too: without one `test_rule` gives the file no rule, and its flags go
+-- unread.
 ---@type table<string, string> Treesitter language by file extension.
 local LANGS = { rs = "rust", ts = "typescript", mts = "typescript", cts = "typescript", tsx = "tsx" }
 
@@ -63,7 +64,7 @@ end
 
 ---Flag the `items` inside an inline test that `path`'s syntax marks, whatever their names. An item counts by its
 ---name's line, which lies inside the marked item whether or not a server's range for it takes in the attributes.
----@param items { lnum: integer, test: true? }[] Read from `source`; flagged in place. `lnum` is 1-based, the symbol's name line.
+---@param items { lnum: integer, test: true? }[] Read from `source`; flagged in place. `lnum`: 1-based name line.
 ---@param path string Repo-relative; its extension picks the grammar.
 ---@param source string
 function M.mark(items, path, source)
