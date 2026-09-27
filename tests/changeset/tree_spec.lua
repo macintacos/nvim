@@ -150,11 +150,11 @@ describe("changeset.tree", function()
           { file("lua/a.lua", { hunk(1, 1) }), file("go.sum", { hunk(1, 1) }) },
           { ["lua/a.lua"] = {}, ["go.sum"] = {} }
         )
-        local generated = rows[2].children[1]
+        local go_sum = rows[2].children[1]
 
         assert.same({ "Other changes" }, names(rows[1].children[1].children))
-        assert.is_true(generated.resolved)
-        assert.same({}, generated.children)
+        assert.is_true(go_sum.resolved)
+        assert.same({}, go_sum.children)
       end)
 
       it("totals the whole section, a deleted file's numbers included", function()

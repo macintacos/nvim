@@ -748,18 +748,18 @@ end
 
 ---The Generated files, each filed as answered with no symbols, and the rest, which a server is asked about.
 ---@param files changeset.File[]
----@return table<string, changeset.CachedSymbol[]> generated Each Generated path mapped to `{}`.
+---@return table<string, changeset.CachedSymbol[]> generated_symbols Each Generated path mapped to `{}`.
 ---@return changeset.File[] readable The other files, in order.
 local function split_generated(files)
-  local generated, readable = {}, {}
+  local generated_symbols, readable = {}, {}
   for _, file in ipairs(files) do
     if sections.classify(file.path, file.generated) == "generated" then
-      generated[file.path] = {}
+      generated_symbols[file.path] = {}
     else
       readable[#readable + 1] = file
     end
   end
-  return generated, readable
+  return generated_symbols, readable
 end
 
 ---Gather the diff, then let symbols fill in behind it.
@@ -792,7 +792,7 @@ function M.refresh()
     session.collected = true
     -- Generated files are never asked about; filed as answered with nothing, they
     -- show no placeholder and count as read.
-    local generated, readable = split_generated(files)
+    local generated_symbols, readable = split_generated(files)
 
     -- Stamped before the request rather than after: a file edited while its
     -- symbols are being read then fails this check next time, instead of
@@ -804,7 +804,7 @@ function M.refresh()
       stamps[path] = cache.stamp(session.root .. "/" .. path)
       return stamps[path]
     end)
-    session.symbols = vim.tbl_extend("force", known, generated)
+    session.symbols = vim.tbl_extend("force", known, generated_symbols)
 
     -- Down to what this diff needs: the file caches the branch being read, not
     -- every file whose symbols have ever been asked for.
