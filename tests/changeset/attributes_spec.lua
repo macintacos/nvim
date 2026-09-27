@@ -15,9 +15,9 @@ end
 local function marked(path, lines, items)
   attributes.mark(items, path, table.concat(lines, "\n"))
   local names = {}
-  for _, it in ipairs(items) do
-    if it.test == true then
-      names[#names + 1] = it.name
+  for _, symbol in ipairs(items) do
+    if symbol.test == true then
+      names[#names + 1] = symbol.name
     end
   end
   table.sort(names)

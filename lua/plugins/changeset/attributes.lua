@@ -45,21 +45,21 @@ end
 ---@param source string
 ---@param lang string
 ---@return { [1]: integer, [2]: integer }[]
-local function regions(source, lang)
+local function test_regions(source, lang)
   local query = vim.treesitter.query.parse(lang, QUERIES[lang])
   local root = vim.treesitter.get_string_parser(source, lang, { injections = { [lang] = "" } }):parse()[1]:root()
-  local test = assert(vim.iter(pairs(query.captures)):find(function(_, name)
+  local test_capture = assert(vim.iter(pairs(query.captures)):find(function(_, name)
     return name == "test"
   end))
-  local found = {}
+  local regions = {}
   -- Matches, not captures: `iter_captures` silently drops sibling matches past its `match_limit`.
   for _, match in query:iter_matches(root, source) do
-    for _, node in ipairs(match[test]) do
+    for _, node in ipairs(match[test_capture]) do
       local first, _, last = (node:type() == "attribute_item" and item_after(node) or node):range()
-      found[#found + 1] = { first + 1, last + 1 }
+      regions[#regions + 1] = { first + 1, last + 1 }
     end
   end
-  return found
+  return regions
 end
 
 ---Flag the `items` inside an inline test that `path`'s syntax marks, whatever their names. An item counts by its
@@ -73,13 +73,13 @@ function M.mark(items, path, source)
     return
   end
   -- No parser, or a grammar without these nodes: nothing is marked, and the name rules decide alone.
-  local ok, found = pcall(regions, source, lang)
+  local ok, regions = pcall(test_regions, source, lang)
   if not ok then
     return
   end
   for _, item in ipairs(items) do
-    item.test = vim.iter(found):any(function(r)
-      return r[1] <= item.lnum and item.lnum <= r[2]
+    item.test = vim.iter(regions):any(function(region)
+      return region[1] <= item.lnum and item.lnum <= region[2]
     end) or nil
   end
 end

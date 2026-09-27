@@ -195,14 +195,17 @@ describe("changeset.resolve", function()
       enabled = name
     end
 
-    ---@param line integer 0-based
-    ---@param first integer 0-based line the range starts on
-    local function fn_symbol(name, line, first)
+    ---@param name_line integer 0-based
+    ---@param first_line integer 0-based line the range starts on
+    local function fn_symbol(name, name_line, first_line)
       return {
         name = name,
         kind = 12,
-        range = { start = { line = first, character = 0 }, ["end"] = { line = line, character = 20 } },
-        selectionRange = { start = { line = line, character = 3 }, ["end"] = { line = line, character = 3 + #name } },
+        range = { start = { line = first_line, character = 0 }, ["end"] = { line = name_line, character = 20 } },
+        selectionRange = {
+          start = { line = name_line, character = 3 },
+          ["end"] = { line = name_line, character = 3 + #name },
+        },
       }
     end
 

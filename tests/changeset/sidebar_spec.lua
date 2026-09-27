@@ -597,8 +597,8 @@ describe("changeset sidebar", function()
     it("files a cached symbol the syntax marked under Tests without asking about the file again", function()
       local cache = require("plugins.changeset.cache")
       local root = assert(vim.uv.fs_realpath(tmp))
-      local file = cache.path(root)
-      cache.save(file, {
+      local cache_file = cache.path(root)
+      cache.save(cache_file, {
         ["src/session.rs"] = {
           stamp = assert(cache.stamp(root .. "/src/session.rs")),
           symbols = {
@@ -627,7 +627,7 @@ describe("changeset sidebar", function()
         assert.truthy(tests_header() < line_of(assert(window.buf()), "load"))
         assert.is_false(vim.tbl_contains(asked, "src/session.rs"))
       end)
-      vim.fn.delete(file)
+      vim.fn.delete(cache_file)
       assert(ok, err)
     end)
   end)
