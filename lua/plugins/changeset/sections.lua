@@ -1,4 +1,4 @@
----Which part of a change a file belongs to, read off its path alone.
+---Which part of a change a file, or a symbol inside it, belongs to.
 
 local M = {}
 
@@ -50,6 +50,44 @@ function M.classify(path)
     return "config"
   end
   return "implementation"
+end
+
+---@alias changeset.SymbolRule fun(sym: { name: string, kind: string }): boolean
+
+local TEST_MODULES = { test = true, tests = true }
+local TEST_CALLS = { describe = true, it = true, test = true }
+
+---@param sym { name: string, kind: string }
+---@return boolean
+local function test_module(sym)
+  return (sym.kind == "Module" or sym.kind == "Namespace") and TEST_MODULES[sym.name] ~= nil
+end
+
+---@type table<string, changeset.SymbolRule> By file extension.
+local TEST_SYMBOLS = {
+  rs = test_module,
+  py = function(sym)
+    return test_module(sym)
+      or (sym.kind == "Function" and vim.startswith(sym.name, "test_"))
+      or (sym.kind == "Class" and vim.startswith(sym.name, "Test"))
+  end,
+  ts = function(sym)
+    -- tsserver names a callback after the call it is passed to: `describe('refresh') callback`.
+    local callee = sym.name:match("^([%w_$.]+)%(.*%) callback$")
+    return test_module(sym) or (callee ~= nil and TEST_CALLS[callee:match("^[^.]+")] ~= nil)
+  end,
+}
+TEST_SYMBOLS.tsx, TEST_SYMBOLS.mts, TEST_SYMBOLS.cts = TEST_SYMBOLS.ts, TEST_SYMBOLS.ts, TEST_SYMBOLS.ts
+
+---The rule marking `path`'s inline test symbols: one it accepts goes to Tests with everything beneath it.
+---Only Rust, Python and TypeScript files the path rules put in Implementation get one.
+---@param path string Repo-relative, `/`-separated.
+---@return changeset.SymbolRule?
+function M.test_rule(path)
+  if M.classify(path) ~= "implementation" then
+    return nil
+  end
+  return TEST_SYMBOLS[path:match("%.(%w+)$")]
 end
 
 return M
