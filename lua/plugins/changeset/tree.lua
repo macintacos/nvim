@@ -138,13 +138,13 @@ end
 ---@return integer
 local function added_in_tests(nodes, hunk)
   local first, last = span(hunk)
-  local n = 0
+  local added = 0
   for _, node in ipairs(nodes) do
     if touches(node.sym, first, last) then
-      n = n + (node.test and added_inside(hunk, node.sym) or added_in_tests(node.children, hunk))
+      added = added + (node.test and added_inside(hunk, node.sym) or added_in_tests(node.children, hunk))
     end
   end
-  return n
+  return added
 end
 
 ---Credit `file`'s hunks to its symbols.
@@ -179,11 +179,11 @@ local function split(nodes)
     if node.test then
       tests[#tests + 1] = node
     else
-      local own, nested = split(node.children)
-      kept[#kept + 1] = vim.tbl_extend("force", node, { children = own })
-      if #nested > 0 then
+      local kept_children, test_children = split(node.children)
+      kept[#kept + 1] = vim.tbl_extend("force", node, { children = kept_children })
+      if #test_children > 0 then
         tests[#tests + 1] =
-          vim.tbl_extend("force", node, { children = nested, changed = false, added = 0, removed = 0 })
+          vim.tbl_extend("force", node, { children = test_children, changed = false, added = 0, removed = 0 })
       end
     end
   end
@@ -567,17 +567,17 @@ end
 ---@param lnum integer
 ---@return changeset.Row? nil when the changeset does not hold `path`.
 function M.locate(rows, path, lnum)
-  local first, best
+  local first_copy, deepest
   for _, file in ipairs(M.files(rows)) do
     if file.path == path then
-      first = first or file
+      first_copy = first_copy or file
       local found = within(file, lnum)
-      if found and (not best or found.depth > best.depth) then
-        best = found
+      if found and (not deepest or found.depth > deepest.depth) then
+        deepest = found
       end
     end
   end
-  return best or first
+  return deepest or first_copy
 end
 
 ---The row with `id`, at any depth.

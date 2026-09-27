@@ -78,22 +78,22 @@ end
 ---with the same path (a file whose changes all turn out to be tests moves to Tests; a filter can keep one copy
 ---and drop the other), else `fallback`.
 ---@param rows changeset.Row[] On screen, in display order.
----@param was changeset.Row? The row the cursor sat on before the redraw.
+---@param previous_row changeset.Row? The row the cursor sat on before the redraw.
 ---@param fallback integer Line to keep when nothing matches.
 ---@return integer lnum 1-based, always within `rows`.
-function M._reanchor(rows, was, fallback)
+function M._reanchor(rows, previous_row, fallback)
   local same_file
   for lnum, row in ipairs(rows) do
-    if was and row.id == was.id then
+    if previous_row and row.id == previous_row.id then
       return lnum
     end
     if
       not same_file
-      and was
-      and was.kind == "file"
-      and was.depth == 1
+      and previous_row
+      and previous_row.kind == "file"
+      and previous_row.depth == 1
       and row.kind == "file"
-      and row.path == was.path
+      and row.path == previous_row.path
     then
       same_file = lnum
     end
