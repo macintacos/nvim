@@ -563,7 +563,7 @@ end
 ---@param how "reuse"|"vsplit"|"split"|"tab"
 local function commit(how)
   local row = row_at_cursor()
-  if not row then
+  if not row or row.kind == "section" then
     return
   end
   if row.kind == "file" and row.status == "deleted" then
@@ -581,8 +581,7 @@ local function step(delta)
   if not (session and win) then
     return
   end
-  local lnum = math.max(1, math.min(vim.api.nvim_win_get_cursor(win)[1] + delta, #session.visible))
-  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
+  vim.api.nvim_win_set_cursor(win, { state._step(session.visible, vim.api.nvim_win_get_cursor(win)[1], delta), 0 })
   preview_current()
 end
 
@@ -730,7 +729,7 @@ local function set_keymaps(buf)
   map("R", M.refresh, "Rebuild the tree")
   map("y", function()
     local row = row_at_cursor()
-    if row then
+    if row and row.kind ~= "section" then
       Paths.copy(row.lnum and ("%s:%d"):format(row.path, row.lnum) or row.path, "relative path:line")
     end
   end, "Yank path:line")

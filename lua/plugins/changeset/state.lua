@@ -128,4 +128,18 @@ function M._outward(rows, lnum)
   end
 end
 
+---Where `]h`/`[h` go from a line: the nearest row past it in `delta`'s direction
+---that is not a section header, or the line itself when there is none that way.
+---@param rows changeset.Row[] The visible rows, in display order.
+---@param lnum integer 1-based.
+---@param delta integer 1 or -1.
+---@return integer
+function M._step(rows, lnum, delta)
+  local i = lnum + delta
+  while rows[i] and rows[i].kind == "section" do
+    i = i + delta
+  end
+  return rows[i] and i or lnum
+end
+
 return M

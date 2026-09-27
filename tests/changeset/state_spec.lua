@@ -114,6 +114,39 @@ describe("changeset.state", function()
       assert.is_nil(state._outward(at_depths(0, 0), 1))
     end)
   end)
+
+  describe("_step", function()
+    ---@param ... "section"|"file"
+    ---@return changeset.Row[]
+    local function of_kinds(...)
+      return vim.tbl_map(function(kind)
+        return { kind = kind }
+      end, { ... })
+    end
+
+    local ROWS = of_kinds("section", "file", "section", "file")
+
+    it("skips a section header going down", function()
+      assert.equal(4, state._step(ROWS, 2, 1))
+    end)
+
+    it("skips a section header going up", function()
+      assert.equal(2, state._step(ROWS, 4, -1))
+    end)
+
+    it("stays put past the last row", function()
+      assert.equal(4, state._step(ROWS, 4, 1))
+    end)
+
+    it("stays put when only a header lies above", function()
+      assert.equal(2, state._step(ROWS, 2, -1))
+    end)
+
+    it("lands on the next file from a header", function()
+      assert.equal(2, state._step(ROWS, 1, 1))
+    end)
+  end)
+
   describe("_nearest", function()
     local IDS = { "a.lua", "a.lua\0Store", "b.lua" }
 
