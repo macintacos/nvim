@@ -46,10 +46,16 @@ end
 map_ref("]]", "next")
 map_ref("[[", "prev")
 
+-- Map reference jumps on each buffer, because buffer-local maps outrank the
+-- buffer-local `]]`/`[[` that filetype plugins such as Python's and Vim's set.
+-- Special buffers are skipped so panels like the changeset sidebar keep their own.
+-- Fires: FileType, on every buffer.
 vim.api.nvim_create_autocmd("FileType", {
-  callback = function()
-    local buffer = vim.api.nvim_get_current_buf()
-    map_ref("]]", "next", buffer)
-    map_ref("[[", "prev", buffer)
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= "" then
+      return
+    end
+    map_ref("]]", "next", args.buf)
+    map_ref("[[", "prev", args.buf)
   end,
 })
