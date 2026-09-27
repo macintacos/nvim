@@ -82,6 +82,34 @@ describe("changeset.state", function()
     end)
   end)
 
+  describe("_follow", function()
+    local impl = { id = "#implementation\0session.rs", kind = "file", path = "session.rs" }
+    local tests = { id = "#tests\0session.rs", kind = "file", path = "session.rs" }
+    local other = { id = "#implementation\0api.rs", kind = "file", path = "api.rs" }
+
+    it("keeps a row still on screen", function()
+      assert.equal(impl.id, state._follow({ other, impl, tests }, impl))
+    end)
+
+    it("follows a file row gone from screen to its path's row under another section", function()
+      assert.equal(tests.id, state._follow({ other, tests }, impl))
+    end)
+
+    it("keeps a gone file row's id when no row shows its path", function()
+      assert.equal(impl.id, state._follow({ other }, impl))
+    end)
+
+    it("keeps a gone symbol row's id", function()
+      local sym = { id = impl.id .. "\0refresh", kind = "symbol", path = "session.rs" }
+
+      assert.equal(sym.id, state._follow({ other, tests }, sym))
+    end)
+
+    it("has nothing to keep without a row", function()
+      assert.is_nil(state._follow({ other }, nil))
+    end)
+  end)
+
   describe("_outward", function()
     ---Rows carrying only the depth `_outward` reads.
     ---@param ... integer

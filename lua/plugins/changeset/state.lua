@@ -88,6 +88,24 @@ function M._reanchor(ids, wanted, fallback)
   return math.max(1, math.min(fallback, #ids))
 end
 
+---The id the cursor keeps across a rebuild: its row's own, or, for a file row the rebuilt tree no longer shows,
+---the first file row on screen with its path. A file whose changes all turn out to be inline tests moves from
+---its path's section to Tests once its symbols arrive.
+---@param rows changeset.Row[] The rows on screen after the rebuild, in display order.
+---@param row changeset.Row? The row the cursor was on before it.
+---@return string?
+function M._follow(rows, row)
+  if not (row and row.kind == "file") or vim.iter(rows):any(function(r)
+    return r.id == row.id
+  end) then
+    return row and row.id
+  end
+  local moved = vim.iter(rows):find(function(r)
+    return r.kind == "file" and r.path == row.path
+  end)
+  return (moved or row).id
+end
+
 ---The line showing the row with `id`, or else its deepest ancestor on screen.
 ---
 ---A row id extends its parent's by a `\0`-joined segment, so a row folded away,
