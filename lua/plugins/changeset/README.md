@@ -77,7 +77,7 @@ sections — not a row, so the cursor cannot land on it.
 `h` / `l` on a section header fold and unfold the section, and the fold is remembered per
 repo like a file's. `]]` / `[[` move from header to header, a folded one included.
 
-Classification reads the path alone. Rules run Tests → Docs → Config and the first match
+Classification starts from the path. Rules run Tests → Docs → Config and the first match
 wins; anything unmatched is Implementation. A directory rule matches any directory
 segment, not just the first.
 
@@ -93,6 +93,32 @@ segment, not just the first.
 So `plugin/lsp.lua` is Implementation although it configures something, and so is
 `.mise/tasks/test`: `test` there is a file name, not a directory, and a dotted directory
 is not a dotfile.
+
+Rust, Python and TypeScript keep tests inside implementation files, so for those a
+file's symbols get a second look — only when the path rules put it in Implementation, and
+only once its symbols are in. A symbol goes to Tests, with everything beneath it, when it
+is a Module or Namespace named `test` or `tests` (all three languages); a Python
+`test_*` function or `Test*` class; or a TypeScript `describe` / `it` / `test` callback,
+which tsserver names after its call, as in `describe('refresh') callback`.
+
+```text
+󰴉  Implementation      1 file   +16 -4
+▎ 󰛦 session.rs              +16 -4
+  ├─󰌗 SessionStore › refresh  +8 -1
+  └─󰘦 Other changes          +3 -2
+
+󱞊  Tests               1 file    +8 -0
+▎ 󰛦 session.rs               +8 -0
+  └─󰆧 tests › refreshes        +8 -0
+```
+
+A file whose changes reach both shows under Implementation and Tests, each copy listing
+only its own symbols; `Other changes` stays on the Implementation copy. The Tests copy's
+`+N` is the added lines inside test symbols and its `-N` the removed lines of hunks whose
+first symbol is a test; the Implementation copy takes the rest, so the two sum to the
+file's. A copy with nothing to list is left out, and the one left carries the file's
+whole stat. Go, Lua and bash get no symbol rules: their tests live in files the path rules
+already catch.
 
 ### Icons come from mini.icons, never hand-picked
 
@@ -155,7 +181,9 @@ the file you picked, both sit on one row and the selection wins. Both draw benea
 row mark, so the rail, the row colours and a filter match stay on top.
 
 A line belongs to the deepest symbol row whose body holds it, else to the file's
-`Other changes` row when one of its hunks does, else to the file row. When the row is off
+`Other changes` row when one of its hunks does, else to the file row. A file shown in two
+sections answers from the copy with the deeper match, and falls back to the path
+section's copy. When the row is off
 screen — folded, filtered, or inside a compressed chain — its nearest visible ancestor
 wears the highlight instead.
 
@@ -232,7 +260,8 @@ a bar — a bar would be decoration competing with the rail, and the rail alread
 A symbol's `+N` counts only the changed lines falling inside its own range, so a hunk
 running across two symbols gives each one its own share and the lines in the gap between
 them to neither. A file's `+N` is git's count for the whole file and can therefore exceed
-the sum of its symbols'. Removed lines have no position in the new file to split on, so a
+the sum of its symbols'. A file split across Implementation and Tests shows its own share
+on each copy, and the shares sum to git's count. Removed lines have no position in the new file to split on, so a
 hunk's `-N` goes wholly to the first symbol it reaches.
 
 ### Header
@@ -280,7 +309,8 @@ only while that window has focus, so it takes the global bar's place exactly whe
 sidebar's keys are worth naming, and hands it back the moment you leave. The badge is
 the header glyph's `Directory` colour, reversed, standing where the mode badge would. The
 position counts the files on screen — a folded section's files are not — and names no
-file while the cursor is on a section header. The filter in force is named, since once its
+file while the cursor is on a section header. A file shown in two sections counts once, at
+its first row. The filter in force is named, since once its
 prompt closes the lit matches are the only other trace of it. Only four keys are offered — `?`
 lists the rest.
 
@@ -452,7 +482,9 @@ repository's deliberate choice is none of that save's business.
   sidebar's own `CursorMoved`, which Neovim fires once the cursor is in a new window.
 - **Refresh re-anchors by identity, not line.** A rebuild keyed on `GitSignsUpdate` must
   restore the cursor to the same row *identity* and preserve collapse state, including an
-  `l`-expanded chain. One key scheme serves all three.
+  `l`-expanded chain. One key scheme serves all three. The exception is a file row that
+  moves to Tests when its symbols arrive: it has a new identity, so the cursor follows it
+  by path.
 - **Opening the sidebar is an ordinary split.** It takes its width with `winfixwidth`
   already set and then lets `'equalalways'` settle the rest, so the windows that were
   already open share out what is left instead of one of them being squashed.
