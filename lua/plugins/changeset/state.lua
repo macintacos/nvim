@@ -74,36 +74,31 @@ function M.set_chain_open(st, id, open)
   st.chains[id] = open or nil
 end
 
----The line to put the cursor on after a rebuild.
----@param ids string[] Row ids, in display order.
----@param wanted string? Id the cursor sat on before the rebuild.
----@param fallback integer Line to keep when that id is gone.
----@return integer lnum 1-based, always within `ids`.
-function M._reanchor(ids, wanted, fallback)
-  for lnum, id in ipairs(ids) do
-    if id == wanted then
+---The line to put the cursor on after any redraw: the row it sat on, else, for a file row, the first file row
+---with the same path (a file whose changes all turn out to be tests moves to Tests; a filter can keep one copy
+---and drop the other), else `fallback`.
+---@param rows changeset.Row[] On screen, in display order.
+---@param was changeset.Row? The row the cursor sat on before the redraw.
+---@param fallback integer Line to keep when nothing matches.
+---@return integer lnum 1-based, always within `rows`.
+function M._reanchor(rows, was, fallback)
+  local same_file
+  for lnum, row in ipairs(rows) do
+    if was and row.id == was.id then
       return lnum
     end
+    if
+      not same_file
+      and was
+      and was.kind == "file"
+      and was.depth == 1
+      and row.kind == "file"
+      and row.path == was.path
+    then
+      same_file = lnum
+    end
   end
-  return math.max(1, math.min(fallback, #ids))
-end
-
----The id the cursor keeps across a rebuild: its row's own, or, for a file row the rebuilt tree no longer shows,
----the first file row on screen with its path. A file whose changes all turn out to be inline tests moves from
----its path's section to Tests once its symbols arrive.
----@param rows changeset.Row[] The rows on screen after the rebuild, in display order.
----@param row changeset.Row? The row the cursor was on before it.
----@return string?
-function M._follow(rows, row)
-  if not (row and row.kind == "file") or vim.iter(rows):any(function(r)
-    return r.id == row.id
-  end) then
-    return row and row.id
-  end
-  local moved = vim.iter(rows):find(function(r)
-    return r.kind == "file" and r.path == row.path
-  end)
-  return (moved or row).id
+  return same_file or math.max(1, math.min(fallback, #rows))
 end
 
 ---The line showing the row with `id`, or else its deepest ancestor on screen.

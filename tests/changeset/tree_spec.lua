@@ -754,6 +754,13 @@ describe("changeset.tree", function()
       assert.same({ 3, 1 }, { rows[2].children[1].added, rows[1].children[1].added })
     end)
 
+    it("splits a hunk crossing into a test module between its copies", function()
+      local rows = build({ hunk(10, 25, 3) })
+
+      assert.same({ 20, 3 }, { rows[1].children[1].added, rows[1].children[1].removed })
+      assert.same({ 5, 0 }, { rows[2].children[1].added, rows[2].children[1].removed })
+    end)
+
     it("counts removed lines handed to a test on the Tests side", function()
       local rows = build({ hunk(34, 0, 4), hunk(6, 1, 1) })
 
@@ -863,6 +870,12 @@ describe("changeset.tree", function()
         local nested = build({ hunk(6, 1), hunk(33, 2) }, NESTED)
 
         assert.equal(TESTS_ID .. "\0session\0tests", tree.locate(nested, RS, 45).id)
+      end)
+
+      it("breaks an equal-depth tie toward the path section's copy", function()
+        local nested = build({ hunk(6, 1), hunk(33, 2) }, NESTED)
+
+        assert.equal(IMPL_ID .. "\0session", tree.locate(nested, RS, 20).id)
       end)
 
       it("falls back to the only copy's file row", function()

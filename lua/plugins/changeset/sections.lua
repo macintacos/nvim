@@ -52,15 +52,25 @@ function M.classify(path)
   return "implementation"
 end
 
+---Whether a symbol is an inline test; one that is takes everything beneath it to Tests.
 ---@alias changeset.SymbolRule fun(sym: { name: string, kind: string }): boolean
 
 local TEST_MODULES = { test = true, tests = true }
 local TEST_CALLS = { describe = true, it = true, test = true }
 
+---A module or namespace named `test` or `tests`, as Rust's `mod tests` is.
 ---@param sym { name: string, kind: string }
 ---@return boolean
 local function test_module(sym)
   return (sym.kind == "Module" or sym.kind == "Namespace") and TEST_MODULES[sym.name] ~= nil
+end
+
+---@type changeset.SymbolRule
+local function ts_test(sym)
+  -- tsserver names a callback after the call it is passed to: `describe('refresh') callback`; a call counts by
+  -- its head, so `it.only(…)` and `describe.skip(…)` are the blocks they wrap.
+  local callee = sym.name:match("^([%w_$.]+)%(.*%) callback$")
+  return test_module(sym) or (callee ~= nil and TEST_CALLS[callee:match("^[^.]+")] ~= nil)
 end
 
 ---@type table<string, changeset.SymbolRule> By file extension.
@@ -71,13 +81,11 @@ local TEST_SYMBOLS = {
       or (sym.kind == "Function" and vim.startswith(sym.name, "test_"))
       or (sym.kind == "Class" and vim.startswith(sym.name, "Test"))
   end,
-  ts = function(sym)
-    -- tsserver names a callback after the call it is passed to: `describe('refresh') callback`.
-    local callee = sym.name:match("^([%w_$.]+)%(.*%) callback$")
-    return test_module(sym) or (callee ~= nil and TEST_CALLS[callee:match("^[^.]+")] ~= nil)
-  end,
+  ts = ts_test,
+  tsx = ts_test,
+  mts = ts_test,
+  cts = ts_test,
 }
-TEST_SYMBOLS.tsx, TEST_SYMBOLS.mts, TEST_SYMBOLS.cts = TEST_SYMBOLS.ts, TEST_SYMBOLS.ts, TEST_SYMBOLS.ts
 
 ---The rule marking `path`'s inline test symbols: one it accepts goes to Tests with everything beneath it.
 ---Only Rust, Python and TypeScript files the path rules put in Implementation get one.

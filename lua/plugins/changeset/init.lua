@@ -451,10 +451,7 @@ local function draw()
   apply_marks(buf, lines)
   hidden_note_line(buf, #text - 1, width, view.hiding(view.kind_counts(session.rows), session.hidden))
 
-  vim.api.nvim_win_set_cursor(
-    win,
-    { state._reanchor(visible_ids(), state._follow(session.visible, was), previous_line), 0 }
-  )
+  vim.api.nvim_win_set_cursor(win, { state._reanchor(session.visible, was, previous_line), 0 })
 
   draw_header(buf, win, width)
   paint()

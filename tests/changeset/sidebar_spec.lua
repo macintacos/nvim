@@ -35,6 +35,20 @@ local function lines_of(buf)
   return vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 end
 
+---The first sidebar line containing `text` below line `after`.
+---@param buf integer
+---@param text string
+---@param after integer?
+---@return integer
+local function line_of(buf, text, after)
+  for i, line in ipairs(lines_of(buf)) do
+    if i > (after or 0) and line:find(text, 1, true) then
+      return i
+    end
+  end
+  error("no sidebar line contains " .. text)
+end
+
 ---@return integer buf
 local function open_sidebar()
   vim.cmd.edit("mod.lua")
@@ -228,18 +242,6 @@ describe("changeset sidebar", function()
       Fixture.commit("docs", tmp)
     end)
 
-    ---@param buf integer
-    ---@param text string
-    ---@return integer
-    local function line_of(buf, text)
-      for i, line in ipairs(lines_of(buf)) do
-        if line:find(text, 1, true) then
-          return i
-        end
-      end
-      error("no sidebar line contains " .. text)
-    end
-
     ---Rebuild the tree and wait until the Docs section is drawn or gone.
     ---@param buf integer
     ---@param shown boolean
@@ -376,55 +378,37 @@ describe("changeset sidebar", function()
     local answer
 
     ---A symbol spanning `first`..`last` of `path`, as a server would report it.
-    ---@param path string
-    ---@param name string
-    ---@param kind string
-    ---@param depth integer
-    ---@param first integer
-    ---@param last integer
-    local function sym(path, name, kind, depth, first, last)
+    ---@param s { path: string, name: string, kind: string, depth: integer, first: integer, last: integer }
+    local function sym(s)
       return {
-        name = name,
-        text = name,
-        kind = kind,
-        path = path,
-        lnum = first,
+        name = s.name,
+        text = s.name,
+        kind = s.kind,
+        path = s.path,
+        lnum = s.first,
         col = 1,
-        end_lnum = first,
-        end_col = #name + 1,
-        depth = depth,
+        end_lnum = s.first,
+        end_col = #s.name + 1,
+        depth = s.depth,
         guides = "",
-        range_lnum = first,
-        range_end_lnum = last,
+        range_lnum = s.first,
+        range_end_lnum = s.last,
       }
     end
 
     local SESSION = {
-      sym("src/session.rs", "load", "Function", 0, 1, 3),
-      sym("src/session.rs", "tests", "Module", 0, 5, 9),
-      sym("src/session.rs", "refreshes", "Function", 1, 6, 8),
+      sym({ path = "src/session.rs", name = "load", kind = "Function", depth = 0, first = 1, last = 3 }),
+      sym({ path = "src/session.rs", name = "tests", kind = "Module", depth = 0, first = 5, last = 9 }),
+      sym({ path = "src/session.rs", name = "refreshes", kind = "Function", depth = 1, first = 6, last = 8 }),
     }
     local ONLY_TESTS = {
-      sym("src/only_tests.rs", "tests", "Module", 0, 1, 5),
-      sym("src/only_tests.rs", "works", "Function", 1, 2, 4),
+      sym({ path = "src/only_tests.rs", name = "tests", kind = "Module", depth = 0, first = 1, last = 5 }),
+      sym({ path = "src/only_tests.rs", name = "works", kind = "Function", depth = 1, first = 2, last = 4 }),
     }
-
-    ---The first sidebar line containing `text` below line `after`.
-    ---@param text string
-    ---@param after integer?
-    ---@return integer
-    local function line_of(text, after)
-      for i, line in ipairs(lines_of(assert(window.buf()))) do
-        if i > (after or 0) and line:find(text, 1, true) then
-          return i
-        end
-      end
-      error("no sidebar line contains " .. text)
-    end
 
     ---@return integer
     local function tests_header()
-      return line_of("Tests")
+      return line_of(assert(window.buf()), "Tests")
     end
 
     ---@param lnum integer
@@ -503,24 +487,24 @@ describe("changeset sidebar", function()
 
     it("keeps the cursor on a split file's own copy when its tests land under Tests", function()
       open_unanswered()
-      cursor_to(line_of("session.rs"))
+      cursor_to(line_of(assert(window.buf()), "session.rs"))
 
       answer("src/session.rs", SESSION)
       flush()
 
-      assert.truthy(tests_header() < line_of("session.rs", tests_header()))
-      assert.equal(line_of("session.rs"), cursor_line())
+      assert.truthy(tests_header() < line_of(assert(window.buf()), "session.rs", tests_header()))
+      assert.equal(line_of(assert(window.buf()), "session.rs"), cursor_line())
       assert.truthy(cursor_line() < tests_header())
     end)
 
     it("follows a file whose changes are all tests into Tests", function()
       open_unanswered()
-      cursor_to(line_of("only_tests.rs"))
+      cursor_to(line_of(assert(window.buf()), "only_tests.rs"))
 
       answer("src/only_tests.rs", ONLY_TESTS)
       flush()
 
-      assert.equal(line_of("only_tests.rs"), cursor_line())
+      assert.equal(line_of(assert(window.buf()), "only_tests.rs"), cursor_line())
       assert.truthy(cursor_line() > tests_header())
     end)
 
@@ -528,19 +512,19 @@ describe("changeset sidebar", function()
       open_unanswered()
       answer_all()
 
-      cursor_to(line_of("session.rs", tests_header()))
+      cursor_to(line_of(assert(window.buf()), "session.rs", tests_header()))
       press("h")
-      line_of("load")
+      line_of(assert(window.buf()), "load")
       assert.has_error(function()
-        line_of("refreshes")
+        line_of(assert(window.buf()), "refreshes")
       end)
 
       press("l")
-      cursor_to(line_of("session.rs"))
+      cursor_to(line_of(assert(window.buf()), "session.rs"))
       press("h")
-      line_of("refreshes")
+      line_of(assert(window.buf()), "refreshes")
       assert.has_error(function()
-        line_of("load")
+        line_of(assert(window.buf()), "load")
       end)
     end)
 
@@ -548,15 +532,17 @@ describe("changeset sidebar", function()
       open_unanswered()
       answer_all()
 
-      local impl = line_of("session.rs")
-      assert.truthy(line_of("mod.lua") < line_of("other.lua"))
-      assert.truthy(line_of("other.lua") < impl and impl < tests_header())
-      assert.truthy(tests_header() < line_of("only_tests.rs"))
-      assert.truthy(line_of("only_tests.rs") < line_of("session.rs", tests_header()))
+      local impl = line_of(assert(window.buf()), "session.rs")
+      assert.truthy(line_of(assert(window.buf()), "mod.lua") < line_of(assert(window.buf()), "other.lua"))
+      assert.truthy(line_of(assert(window.buf()), "other.lua") < impl and impl < tests_header())
+      assert.truthy(tests_header() < line_of(assert(window.buf()), "only_tests.rs"))
+      assert.truthy(
+        line_of(assert(window.buf()), "only_tests.rs") < line_of(assert(window.buf()), "session.rs", tests_header())
+      )
 
       cursor_to(impl)
       assert.truthy(footer():find("file 3 of 4", 1, true))
-      cursor_to(line_of("session.rs", tests_header()))
+      cursor_to(line_of(assert(window.buf()), "session.rs", tests_header()))
       assert.truthy(footer():find("file 3 of 4", 1, true))
     end)
 
@@ -564,7 +550,7 @@ describe("changeset sidebar", function()
       it("opens its line on <CR>", function()
         open_unanswered()
         answer_all()
-        cursor_to(line_of("refreshes"))
+        cursor_to(line_of(assert(window.buf()), "refreshes"))
 
         press(vim.keycode("<CR>"))
 
@@ -583,11 +569,11 @@ describe("changeset sidebar", function()
         end
 
         local ok, err = pcall(function()
-          cursor_to(line_of("refreshes"))
+          cursor_to(line_of(assert(window.buf()), "refreshes"))
           press("y")
-          cursor_to(line_of("session.rs"))
+          cursor_to(line_of(assert(window.buf()), "session.rs"))
           press("y")
-          cursor_to(line_of("session.rs", tests_header()))
+          cursor_to(line_of(assert(window.buf()), "session.rs", tests_header()))
           press("y")
         end)
         Paths.copy = copy
@@ -600,7 +586,7 @@ describe("changeset sidebar", function()
         open_unanswered()
         answer_all()
 
-        cursor_to(line_of("refreshes"))
+        cursor_to(line_of(assert(window.buf()), "refreshes"))
         vim.api.nvim_exec_autocmds("CursorMoved", { buffer = window.buf() })
 
         assert.truthy(vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(target)):find("src/session.rs$"))

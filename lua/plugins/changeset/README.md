@@ -113,12 +113,12 @@ which tsserver names after its call, as in `describe('refresh') callback`.
 ```
 
 A file whose changes reach both shows under Implementation and Tests, each copy listing
-only its own symbols; `Other changes` stays on the Implementation copy. The Tests copy's
-`+N` is the added lines inside test symbols and its `-N` the removed lines of hunks whose
-first symbol is a test; the Implementation copy takes the rest, so the two sum to the
-file's. A copy with nothing to list is left out, and the one left carries the file's
-whole stat. Go, Lua and bash get no symbol rules: their tests live in files the path rules
-already catch.
+only its own symbols; `Other changes` stays on the Implementation copy. Each copy counts
+toward its own section's header. The Tests copy's `+N` is the added lines inside test
+symbols and its `-N` the removed lines of hunks whose first symbol is a test; the
+Implementation copy takes the rest, so the two sum to the file's. A copy with nothing to
+list is left out, and the one left carries the file's whole stat. Go, Lua and bash get no
+symbol rules: their tests live in files the path rules already catch.
 
 ### Icons come from mini.icons, never hand-picked
 
@@ -183,9 +183,8 @@ row mark, so the rail, the row colours and a filter match stay on top.
 A line belongs to the deepest symbol row whose body holds it, else to the file's
 `Other changes` row when one of its hunks does, else to the file row. A file shown in two
 sections answers from the copy with the deeper match, and falls back to the path
-section's copy. When the row is off
-screen — folded, filtered, or inside a compressed chain — its nearest visible ancestor
-wears the highlight instead.
+section's copy. When the row is off screen — folded, filtered, or inside a compressed
+chain — its nearest visible ancestor wears the highlight instead.
 
 Focusing the sidebar, by `<leader>gp`, a click or `<C-w>`, puts its cursor on that same
 row, and previews it the way moving onto it would. Focused before your file's symbols
@@ -261,8 +260,8 @@ A symbol's `+N` counts only the changed lines falling inside its own range, so a
 running across two symbols gives each one its own share and the lines in the gap between
 them to neither. A file's `+N` is git's count for the whole file and can therefore exceed
 the sum of its symbols'. A file split across Implementation and Tests shows its own share
-on each copy, and the shares sum to git's count. Removed lines have no position in the new file to split on, so a
-hunk's `-N` goes wholly to the first symbol it reaches.
+on each copy, and the shares sum to git's count. Removed lines have no position in the
+new file to split on, so a hunk's `-N` goes wholly to the first symbol it reaches.
 
 ### Header
 
@@ -310,9 +309,8 @@ sidebar's keys are worth naming, and hands it back the moment you leave. The bad
 the header glyph's `Directory` colour, reversed, standing where the mode badge would. The
 position counts the files on screen — a folded section's files are not — and names no
 file while the cursor is on a section header. A file shown in two sections counts once, at
-its first row. The filter in force is named, since once its
-prompt closes the lit matches are the only other trace of it. Only four keys are offered — `?`
-lists the rest.
+its first row. The filter in force is named, since once its prompt closes the lit matches
+are the only other trace of it. Only four keys are offered — `?` lists the rest.
 
 The sidebar turns off `scrollEOF.nvim`, which would otherwise scroll the tree past its end
 on opening and push its first row off the top.
@@ -482,9 +480,10 @@ repository's deliberate choice is none of that save's business.
   sidebar's own `CursorMoved`, which Neovim fires once the cursor is in a new window.
 - **Refresh re-anchors by identity, not line.** A rebuild keyed on `GitSignsUpdate` must
   restore the cursor to the same row *identity* and preserve collapse state, including an
-  `l`-expanded chain. One key scheme serves all three. The exception is a file row that
-  moves to Tests when its symbols arrive: it has a new identity, so the cursor follows it
-  by path.
+  `l`-expanded chain. One key scheme serves all three. Every redraw re-anchors the same
+  way; when the cursor's file row is gone from screen — its changes all turned out to be
+  tests, or a filter kept only one copy — the cursor moves to the first file row with that
+  path.
 - **Opening the sidebar is an ordinary split.** It takes its width with `winfixwidth`
   already set and then lets `'equalalways'` settle the rest, so the windows that were
   already open share out what is left instead of one of them being squashed.
