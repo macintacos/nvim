@@ -24,8 +24,8 @@ local M = {}
 ---@field silent true? No server answered for the file. Kept out of the file on disk: a
 ---server installed or started later must get asked, where one Neovim can stop asking.
 
--- In the file name so that a change to what an entry holds starts a new file: an older entry's stamp still
--- matches, and it would be read without the fields added since.
+-- Bump when what an entry holds or how it is derived changes: an older entry's stamp still matches, so it
+-- would be read back as it was.
 local FORMAT = 2
 
 ---Where the cache for the repo at `root` lives. Under `cache` rather than

@@ -174,7 +174,8 @@ function M._walk(queue, run, on_file)
   end
 end
 
----Resolve every changed file's symbols, reporting each as it lands.
+---Resolve every changed file's symbols, reporting each as it lands. Each item carries `test` when its syntax
+---marks it an inline test.
 ---@param root string
 ---@param files changeset.File[]
 ---@param on_file fun(path: string, items: MiniPickers.Symbol[]?)

@@ -94,7 +94,7 @@ local TEST_SYMBOLS = {
 }
 
 ---The rule marking `path`'s inline test symbols: one it accepts goes to Tests with everything beneath it. A symbol
----the syntax marked (`changeset.attributes`) counts whatever its name. Only Rust, Python and TypeScript files
+---flagged `test` (`changeset.attributes`) counts whatever its name. Only Rust, Python and TypeScript files
 ---the path rules put in Implementation get one.
 ---@param path string Repo-relative, `/`-separated.
 ---@return changeset.SymbolRule?

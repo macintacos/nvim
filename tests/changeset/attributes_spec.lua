@@ -94,6 +94,15 @@ describe("attributes", function()
       assert.same({}, marked("src/a.rs", { '#[path = "test"] mod g;' }, { item("g", 1, "Module") }))
     end)
 
+    it("marks every one of hundreds of sibling #[test] fns", function()
+      local lines, items = {}, {}
+      for i = 1, 300 do
+        vim.list_extend(lines, { "#[test]", "fn t" .. i .. "() {}" })
+        items[i] = item("t" .. i, 2 * i)
+      end
+      assert.equal(300, #marked("src/a.rs", lines, items))
+    end)
+
     it("leaves an unattributed fn named like a test", function()
       assert.same({}, marked("src/a.rs", { "fn test_helper() {}" }, { item("test_helper", 1) }))
     end)
@@ -145,6 +154,24 @@ describe("attributes", function()
       local rule = assert(sections.test_rule("src/session.rs"))
       assert.is_true(rule(items[2]))
       assert.is_false(rule(items[1]))
+    end)
+  end)
+
+  describe("when parsing raises", function()
+    local get_string_parser = vim.treesitter.get_string_parser
+
+    before_each(function()
+      vim.treesitter.get_string_parser = function()
+        error('Query error: Invalid node type "no_such_node"')
+      end
+    end)
+
+    after_each(function()
+      vim.treesitter.get_string_parser = get_string_parser
+    end)
+
+    it("marks nothing without raising", function()
+      assert.same({}, marked("src/session.rs", RUST_TEST, { item("refreshes_token", 3) }))
     end)
   end)
 end)

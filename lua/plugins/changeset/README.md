@@ -112,8 +112,8 @@ is a Module or Namespace named `test` or `tests` (all three languages); a Python
 which tsserver names after its call, as in `describe('refresh') callback`. Whatever its
 name, a symbol also goes to Tests when its syntax marks it: a Rust item under `#[test]`,
 `#[<path>::test]` (`#[tokio::test]`) or `#[cfg(test)]`, with everything inside it, and
-every symbol inside a TypeScript `if (import.meta.vitest) { … }` block. Those come from
-parsing the text the server answered for with treesitter, so a file without an installed
+every symbol inside a TypeScript `if (import.meta.vitest) { … }` block. Those rules
+parse, with treesitter, the text the server answered for, so a file without an installed
 parser keeps just the name rules. They match exactly: `cfg(test)` alone, not
 `cfg(all(test, …))`.
 
@@ -456,6 +456,8 @@ repository's deliberate choice is none of that save's business.
 
 ## Behaviour that is easy to get wrong
 
+- **A file cached before its parser was installed keeps just the name rules** until it
+  next changes: its entry was read without the syntax layer, and its stamp still matches.
 - **Preview is non-destructive.** `j`/`k` swap a window's buffer and cursor for real, but
   `q` or `<leader>gp` puts back every window a preview borrowed, buffer *and* cursor.
   Only a commit — `<CR>` and its split variants, or entering the previewed window — keeps
