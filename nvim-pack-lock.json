@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "b5f53c840cec611ba0ca5960656f3ff968892e58",
+      "rev": "76aebf485ad7c65d67f408f07c9a5371d971e179",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "blink.cmp": {
@@ -176,7 +176,7 @@
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
     "numb.nvim": {
-      "rev": "53bfc4ff20e7b44cfe1d2ca62d9f2131f392f1be",
+      "rev": "f43ee4c5ad7ae295492f0790da2b4228157447f1",
       "src": "https://github.com/nacro90/numb.nvim"
     },
     "nvim": {
