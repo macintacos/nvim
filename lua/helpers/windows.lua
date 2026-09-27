@@ -30,17 +30,34 @@ end
 -- top, so the landing line has context above it and room to read below.
 local REVEAL_RATIO = 0.3
 
----Scroll the current window so the cursor line sits ~30% down from the top.
----Scrolls the view only — the cursor stays on the same buffer line. `zt` first
----so the correction is always upward (`<C-y>` can never drag the cursor along),
----then `winline()` measures the real screen row, which keeps the result honest
----under folds, `scrolloff`, and near the ends of the buffer.
-function M.reveal_cursor()
-  vim.cmd("normal! zt")
-  local delta = math.floor(vim.api.nvim_win_get_height(0) * REVEAL_RATIO) - vim.fn.winline()
-  if delta > 0 then
-    vim.cmd("normal! " .. delta .. "\25") -- <C-y>
+---The top line that leaves at most `rows` screen lines above `lnum` in the current
+---window, a closed fold counting as one.
+---@param lnum integer
+---@param rows integer
+---@return integer
+local function top_line(lnum, rows)
+  local top = lnum
+  while top > 1 do
+    local above = vim.fn.foldclosed(top - 1)
+    above = above == -1 and top - 1 or above
+    if vim.api.nvim_win_text_height(0, { start_row = above - 1, end_row = lnum - 2 }).all > rows then
+      break
+    end
+    top = above
   end
+  return top
+end
+
+---Scroll the current window so the cursor line sits ~30% down from the top.
+---Scrolls the view only — the cursor stays on the same buffer line, and
+---'scrolloff' still wins over the 30%.
+---
+---Sets the top line instead of running `zt`/`<C-y>`: keys run here reach every
+---`vim.on_key` listener as if typed in this window, and a preview runs this in a
+---window the user is not in.
+function M.reveal_cursor()
+  local rows = math.floor(vim.api.nvim_win_get_height(0) * REVEAL_RATIO) - 1
+  vim.fn.winrestview({ topline = top_line(vim.fn.line("."), rows) })
 end
 
 ---Run an LSP jump, then reveal wherever it lands.
