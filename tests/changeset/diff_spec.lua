@@ -406,8 +406,7 @@ end
 ---@return changeset.File[]
 local function collect(base, cwd)
   local files, err = await_collect(base, cwd)
-  assert(not err, err)
-  return files
+  return assert(files, err)
 end
 
 describe("changeset.diff.collect", function()
