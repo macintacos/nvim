@@ -394,6 +394,7 @@ repository's deliberate choice is none of that save's business.
 | `q` | sidebar | close, restore focus and put back whatever the previews borrowed |
 | `h` / `l` | sidebar | collapse / expand; on a header, fold / unfold its section; `h` with nothing left to shut steps out to the parent, so repeated `h` walks up to the filename and then its section header; `l` on a compressed chain expands it to full nesting |
 | `H` / `L` | sidebar | collapse / expand every file, the whole-tree form of `h` / `l`; never folds or unfolds a section |
+| `]]` / `[[` | sidebar | move to the next / previous section header, a folded one included; stays put at the last / first header |
 | `F` | sidebar | open the symbol-kind menu |
 | `x` | kind menu | hide or show the kind under the cursor, redrawing the tree at once |
 | `<CR>` / `r` / `b` | kind menu | remember this set everywhere / for this repository / for this branch, then close |
