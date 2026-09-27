@@ -64,6 +64,8 @@ Shared fixtures live in `tests/support/` and are required as `require("support.<
 
 A spec that needs a third-party plugin loads it from `.tests/deps`, which `mise run deps` fills at the revisions `nvim-pack-lock.json` pins: `vim.opt.rtp:prepend(require("support.deps").path("mini.pick"))`. A plugin not yet in `support.deps`'s list goes there first. `mise run coverage` runs the suite under luacov and prints per-file line coverage of `lua/`.
 
+`attributes_spec` and `resolve_spec`'s two Rust cases need the `rust`, `typescript` and `tsx` treesitter parsers. The suite reads them from the editor's `stdpath("data")/site/parser`, because the test init does not isolate `XDG_DATA_HOME`, and `mise run deps` does not provision them: on a fresh clone, start Neovim once so `plugin/treesitter.lua` installs them.
+
 Test files use `describe`/`it` blocks:
 
 ```lua
