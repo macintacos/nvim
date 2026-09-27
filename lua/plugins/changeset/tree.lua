@@ -46,18 +46,22 @@ local SEP = " › "
 ---@field changed boolean
 ---@field added integer
 ---@field removed integer
+---@field test boolean In a subtree the file's test rule marked.
 
 ---Rebuild the symbol tree from `symbols.flatten`'s document-ordered list and its `depth` sequence.
 ---@param symbols MiniPickers.Symbol[]
+---@param is_test changeset.SymbolRule?
 ---@return changeset.Node[]
-local function nest(symbols)
+local function nest(symbols, is_test)
   local roots, stack = {}, {}
   for _, sym in ipairs(symbols) do
     while #stack > 0 and stack[#stack].sym.depth >= sym.depth do
       stack[#stack] = nil
     end
-    local node = { sym = sym, children = {}, changed = false, added = 0, removed = 0 }
-    local siblings = stack[#stack] and stack[#stack].children or roots
+    local parent = stack[#stack]
+    local test = (parent ~= nil and parent.test) or (is_test ~= nil and is_test(sym))
+    local node = { sym = sym, children = {}, changed = false, added = 0, removed = 0, test = test }
+    local siblings = parent and parent.children or roots
     siblings[#siblings + 1] = node
     stack[#stack + 1] = node
   end
@@ -100,13 +104,13 @@ local function added_inside(hunk, sym)
   if hunk.count == 0 then
     return 0
   end
-  return math.min(hunk.lnum + hunk.count - 1, sym.range_end_lnum) - math.max(hunk.lnum, sym.range_lnum) + 1
+  return math.max(0, math.min(hunk.lnum + hunk.count - 1, sym.range_end_lnum) - math.max(hunk.lnum, sym.range_lnum) + 1)
 end
 
 ---Credit `hunk` to the symbols it lands in.
 ---@param roots changeset.Node[]
 ---@param hunk changeset.Hunk
----@return boolean landed false when the hunk touches no symbol
+---@return changeset.Node[] hits Empty when the hunk touches no symbol.
 local function attribute(roots, hunk)
   local first, last = span(hunk)
   local hits = deepest_hits(roots, first, last, {})
@@ -116,7 +120,65 @@ local function attribute(roots, hunk)
     -- Removed lines have no new-file position to split on, so the first symbol takes them all.
     node.removed = node.removed + (i == 1 and hunk.removed or 0)
   end
-  return #hits > 0
+  return hits
+end
+
+---How many of `hunk`'s added lines fall inside a test subtree.
+---@param nodes changeset.Node[]
+---@param hunk changeset.Hunk
+---@return integer
+local function added_in_tests(nodes, hunk)
+  local n = 0
+  for _, node in ipairs(nodes) do
+    n = n + (node.test and added_inside(hunk, node.sym) or added_in_tests(node.children, hunk))
+  end
+  return n
+end
+
+---@class changeset.Stat
+---@field added integer
+---@field removed integer
+
+---Credit `file`'s hunks to its symbols.
+---@param file changeset.File
+---@param symbols MiniPickers.Symbol[]
+---@param is_test changeset.SymbolRule?
+---@return changeset.Node[] roots
+---@return changeset.Hunk[] orphans Hunks that touch no symbol.
+---@return changeset.Stat tests Added lines inside a test subtree, and a hunk's removed lines when `attribute` hands them to a test.
+local function credit(file, symbols, is_test)
+  local roots, orphans, tests = nest(symbols, is_test), {}, { added = 0, removed = 0 }
+  for _, hunk in ipairs(file.hunks) do
+    local hits = attribute(roots, hunk)
+    if #hits == 0 then
+      orphans[#orphans + 1] = hunk
+    else
+      tests.added = tests.added + added_in_tests(roots, hunk)
+      tests.removed = tests.removed + (hits[1].test and hunk.removed or 0)
+    end
+  end
+  return roots, orphans, tests
+end
+
+---Split credited `nodes` between the path section's copy and the Tests copy. A test node goes whole; a node
+---holding one goes to both, bare on the Tests side, so the test stays placed under it.
+---@param nodes changeset.Node[]
+---@return changeset.Node[] kept
+---@return changeset.Node[] tests
+local function split(nodes)
+  local kept, tests = {}, {}
+  for _, node in ipairs(nodes) do
+    if node.test then
+      tests[#tests + 1] = node
+    else
+      local own, nested = split(node.children)
+      kept[#kept + 1] = vim.tbl_extend("force", node, { children = own })
+      if #nested > 0 then
+        tests[#tests + 1] = { sym = node.sym, children = nested, changed = false, added = 0, removed = 0, test = false }
+      end
+    end
+  end
+  return kept, tests
 end
 
 ---Rows for the changed symbols under `parent` and the ancestors needed to place them.
@@ -255,26 +317,6 @@ local function file_row(file, resolved, section)
   }
 end
 
----The rows under a file: its changed symbols, then the hunks that landed in none.
----@param file changeset.File
----@param symbols MiniPickers.Symbol[]
----@param parent changeset.Row
----@param line_text changeset.LineText?
----@return changeset.Row[]
-local function file_children(file, symbols, parent, line_text)
-  local roots, orphans = nest(symbols), {}
-  for _, hunk in ipairs(file.hunks) do
-    if not attribute(roots, hunk) then
-      orphans[#orphans + 1] = hunk
-    end
-  end
-  local children = symbol_rows(roots, parent)
-  if #orphans > 0 then
-    children[#children + 1] = orphans_row(orphans, parent, line_text)
-  end
-  return children
-end
-
 ---@param key string
 ---@return string
 local function section_id(key)
@@ -307,9 +349,53 @@ local function section_row(section)
   }
 end
 
+---@param section changeset.Row
+---@param row changeset.Row
+---@param stat { added: integer?, removed: integer? } The lines `row` accounts for; a deleted file's row carries none of its own.
+local function append(section, row, stat)
+  section.children[#section.children + 1] = row
+  section.files = section.files + 1
+  section.added = section.added + (stat.added or 0)
+  section.removed = section.removed + (stat.removed or 0)
+end
+
+---File `file` under its path's section and, when its changes reach inline tests, under Tests as well: each copy
+---lists only its own symbols, "Other changes" stays on the path's copy, and a copy with neither is left out.
+---Two copies split the file's stat; a lone copy carries all of it.
+---@param section_rows table<changeset.SectionKey, changeset.Row>
+---@param file changeset.File
+---@param symbols MiniPickers.Symbol[]? nil while the file is still resolving.
+---@param line_text changeset.LineText?
+local function add_file(section_rows, file, symbols, line_text)
+  local section = section_rows[sections.classify(file.path)]
+  local home = file_row(file, symbols ~= nil, section)
+  if not symbols or file.status == "deleted" then
+    return append(section, home, file)
+  end
+  local roots, orphans, tested = credit(file, symbols, sections.test_rule(file.path))
+  local kept, tests = split(roots)
+  home.children = symbol_rows(kept, home)
+  if #orphans > 0 then
+    home.children[#home.children + 1] = orphans_row(orphans, home, line_text)
+  end
+  local copy = file_row(file, true, section_rows.tests)
+  copy.children = symbol_rows(tests, copy)
+  if #copy.children == 0 then
+    return append(section, home, file)
+  end
+  if #home.children == 0 then
+    return append(section_rows.tests, copy, file)
+  end
+  copy.added, copy.removed = tested.added, tested.removed
+  home.added, home.removed = file.added - tested.added, file.removed - tested.removed
+  append(section, home, home)
+  append(section_rows.tests, copy, copy)
+end
+
 ---Map what a branch changed onto the symbols that own it: one section row per non-empty section, one row per
 ---file under it, changed symbols beneath (with the ancestors needed to place them), and an "Other changes"
----group for hunks outside every symbol.
+---group for hunks outside every symbol. A Rust, Python or TypeScript file whose changes reach inline tests also
+---shows under Tests, holding just those tests.
 ---
 ---A file absent from `symbols_by_path` is still resolving and gets no children; a file mapped to `{}`
 ---has no symbols, so all its hunks are orphans. A deleted file never gets children.
@@ -323,16 +409,7 @@ function M.build(files, symbols_by_path, line_text)
     section_rows[section.key] = section_row(section)
   end
   for _, file in ipairs(files) do
-    local section = section_rows[sections.classify(file.path)]
-    local symbols = symbols_by_path[file.path]
-    local row = file_row(file, symbols ~= nil, section)
-    if symbols and file.status ~= "deleted" then
-      row.children = file_children(file, symbols, row, line_text)
-    end
-    section.children[#section.children + 1] = row
-    section.files = section.files + 1
-    section.added = section.added + (file.added or 0)
-    section.removed = section.removed + (file.removed or 0)
+    add_file(section_rows, file, symbols_by_path[file.path], line_text)
   end
   return vim
     .iter(sections.ORDER)
@@ -450,27 +527,43 @@ function M.files(rows)
     :totable()
 end
 
+---The deepest symbol row under `file` whose body holds `lnum`, else its "Other changes" row when one of its
+---hunks does.
+---@param file changeset.Row
+---@param lnum integer
+---@return changeset.Row?
+local function within(file, lnum)
+  local symbol = enclosing(file.children, lnum)
+  if symbol then
+    return deepest_symbol(symbol, lnum)
+  end
+  for _, child in ipairs(file.children) do
+    if child.kind == "orphans" and enclosing(child.children, lnum) then
+      return child
+    end
+  end
+end
+
 ---The row a line of a file belongs to: the deepest symbol row whose body holds it, else the file's
----"Other changes" row when one of its hunks does, else the file row.
+---"Other changes" row when one of its hunks does, else the file row. A file shown in two sections answers from
+---the copy with the deeper match, and falls back to its first copy, which is the path section's whenever that
+---copy shows.
 ---@param rows changeset.Row[] Section rows from `build`, uncompressed.
 ---@param path string Repo-relative.
 ---@param lnum integer
 ---@return changeset.Row? nil when the changeset does not hold `path`.
 function M.locate(rows, path, lnum)
+  local first, best
   for _, file in ipairs(M.files(rows)) do
     if file.path == path then
-      local symbol = enclosing(file.children, lnum)
-      if symbol then
-        return deepest_symbol(symbol, lnum)
+      first = first or file
+      local found = within(file, lnum)
+      if found and not (best and best.depth >= found.depth) then
+        best = found
       end
-      for _, child in ipairs(file.children) do
-        if child.kind == "orphans" and enclosing(child.children, lnum) then
-          return child
-        end
-      end
-      return file
     end
   end
+  return best or first
 end
 
 ---The row with `id`, at any depth.
