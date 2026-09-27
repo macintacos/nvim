@@ -965,7 +965,7 @@ function M.open()
   vim.bo[buf].filetype = "changeset"
   vim.bo[buf].buftype = "nofile"
   -- Wiped with its window. A scratch buffer is kept otherwise, so every close would
-  -- leave one behind, its extmarks and its fifteen mappings included.
+  -- leave one behind, its extmarks and mappings included.
   vim.bo[buf].bufhidden = "wipe"
   vim.bo[buf].modifiable = false
   -- The tree draws its own guides; a scope line would be a second set.
@@ -974,7 +974,7 @@ function M.open()
   render.define_highlights()
   local win = window.open(buf)
   vim.wo[win].statusline = "%{%v:lua.require'plugins.changeset'.footer()%}"
-  -- After `filetype`: illuminate maps `]]`/`[[` on every buffer at `FileType`.
+  -- After `filetype`, so these replace the `]]`/`[[` illuminate maps on every buffer at `FileType`.
   set_keymaps(buf)
 
   -- Fires: the sidebar's window going without the plugin being asked — `:q`, `:only`,

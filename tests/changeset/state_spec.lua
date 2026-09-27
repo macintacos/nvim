@@ -115,6 +115,7 @@ describe("changeset.state", function()
     end)
   end)
 
+  ---Rows carrying only the kind `_step` and `_section` read.
   ---@param ... "section"|"file"
   ---@return changeset.Row[]
   local function of_kinds(...)
@@ -148,13 +149,14 @@ describe("changeset.state", function()
   end)
 
   describe("_section", function()
+    -- Row 3 is a folded section: nothing sits between its header and the next.
     local ROWS = of_kinds("section", "file", "section", "section", "file")
 
-    it("goes down from a file to the next header", function()
+    it("goes down from a file to the next header, a folded one included", function()
       assert.equal(3, state._section(ROWS, 2, 1))
     end)
 
-    it("lands on a folded header right under another", function()
+    it("goes down from a folded header to the one right under it", function()
       assert.equal(4, state._section(ROWS, 3, 1))
     end)
 

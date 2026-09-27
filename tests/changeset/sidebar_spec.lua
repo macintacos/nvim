@@ -280,6 +280,25 @@ describe("changeset sidebar", function()
       assert.equal(line_of(buf, "Docs"), vim.api.nvim_win_get_cursor(0)[1])
     end)
 
+    it("keeps ]] over a buffer-local ]] another plugin sets at FileType", function()
+      local group = vim.api.nvim_create_augroup("changeset.spec.filetype_map", { clear = true })
+      -- Stands in for illuminate, which maps `]]` on every buffer as its filetype is set.
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        callback = function(args)
+          vim.keymap.set("n", "]]", "<Nop>", { buffer = args.buf })
+        end,
+      })
+      local buf = open_sidebar()
+      vim.api.nvim_del_augroup_by_id(group)
+      vim.api.nvim_set_current_win((assert(window.win())))
+      vim.api.nvim_win_set_cursor(0, { 2, 0 })
+
+      press("]]")
+
+      assert.equal(line_of(buf, "Docs"), vim.api.nvim_win_get_cursor(0)[1])
+    end)
+
     it("lists ]] and [[ under ?", function()
       open_sidebar()
 
