@@ -125,6 +125,7 @@ vim.schedule(function()
         end,
         desc = "Git Log File", icon = { icon = "󱋡", color = "orange" } },
       { "<leader>gH", pick("git_hunks", { scope = "unstaged" }), desc = "Git Hunks (unstaged)", icon = { icon = "󰕚", color = "orange" } },
+      { "<leader>gj", pick("changeset"), desc = "Jump to Change (Changeset)", icon = { icon = "󰙅", color = "orange" } },
       { "<leader>gP", Cmd("PRReview"), desc = "PR Review Mode (gutter vs PR base)", icon = { icon = "󰓂", color = "orange" } },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)", icon = { icon = "󰖟", color = "blue" } },
       { "<leader>gd", "<Cmd>CodeDiff<CR>", desc = "Diff Changed Files (CodeDiff)", icon = { icon = "󰢪", color = "orange" } },

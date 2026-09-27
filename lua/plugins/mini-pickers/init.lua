@@ -45,6 +45,10 @@ function M.setup()
     return require("plugins.mini-pickers.git").blame_line()
   end
 
+  MiniPick.registry.changeset = function()
+    return require("plugins.mini-pickers.changeset").pick()
+  end
+
   MiniPick.registry.which_key = function()
     return require("plugins.mini-pickers.whichkey").pick()
   end

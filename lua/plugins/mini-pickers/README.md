@@ -13,6 +13,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `lsp document_symbol` | Rendered as the file's outline — a real tree, not a flat list.            |
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
+| `changeset`       | New picker: the changeset sidebar's changes, each under a `path › Symbol` breadcrumb, the way `grep_live` hoists a path. `<leader>gj` opens it. |
 | `which_key`       | New picker: every mapping which-key's popup can reach, keyed and grouped. `<leader><leader>` opens it. |
 
 The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `gr` opens the `references` one.
@@ -127,6 +128,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `render.lua`    | The extmark namespace and the lazily-built highlight groups.             |
 | `preview.lua`   | The side preview float and the list/preview width split.                 |
 | `git.lua`       | `git_blame_line`.                                                        |
+| `changeset.lua` | The changeset picker: which rows are items, and their breadcrumb headers. |
 
 Submodules are required on first use, so opening `:Pick files` never loads the LSP or git code.
 
