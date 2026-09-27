@@ -23,14 +23,14 @@ grouped by directory within their section, a directory's own files ahead of its
 subdirectories'.
 
 ```text
-󰉋  Implementation      2 files      +12 -3
+󰴉  Implementation      2 files      +12 -3
 ▎ 󰛦 session.ts                       +12 -3
   ├─󰌗 SessionStore › refresh › deadline  +8 -1
   ├─󰏿 SESSION_TTL                     +1 -0
   └─󰘦 Other changes                   +3 -2
 ▎ 󰛦 auth.ts (legacy) deleted
 
-󰉋  Config              1 file        +2 -0
+󱁿  Config              1 file        +2 -0
 ▎ 󰛡 Makefile                          +2 -0
   └─󰘦 Other changes                   +2 -0
 ```
@@ -59,23 +59,23 @@ trimmed from the front before the name ever is.
 ### Sections
 
 ```text
-󰉋  Tests               3 files      +40 -2
+󱞊  Tests               3 files      +40 -2
 ```
 
-A header is the section's `MiniIcons.get("directory", …)` icon, its label in `Bold`, the
-file count in the meta colour, and a right-aligned `+N -N` for the whole section — the
-same stat chunks a file row draws. The count and stat are the section's own, taken before
-any filter, so they stay put while a filter thins the files beneath. A header carries no
-rail and is never lit as a filter match; it stays on screen only while one of its rows
-matches.
+A header is the section's `MiniIcons.get("directory", …)` icon, its label as plain
+content, the file count in the meta colour, and a right-aligned `+N -N` for the whole
+section — the same stat chunks a file row draws. The count and stat are the section's
+own, taken before any filter, so they stay put while a filter thins the files beneath. A
+header carries no rail and is never lit as a filter match; it stays on screen only while
+one of its rows matches.
 
 An empty section is left out. A lone section is still headed, so what a file was
 classified as is always on screen. Files are not indented under their header: the rail
 stays in column 0, where the eye already scans for it. A blank virtual line hangs between
 sections — not a row, so the cursor cannot land on it.
 
-`h` / `l` on a header fold and unfold the section, and the fold is remembered per repo
-like a file's.
+`h` / `l` on a section header fold and unfold the section, and the fold is remembered per
+repo like a file's.
 
 Classification reads the path alone. Rules run Tests → Docs → Config and the first match
 wins; anything unmatched is Implementation. A directory rule matches any directory
@@ -241,7 +241,7 @@ hunk's `-N` goes wholly to the first symbol it reaches.
   origin/jt/exc-1200-stacked-parent…  #412
   4 files            2 commits  +142 -38
 
-󰉋  Implementation      2 files      +12 -3
+󰴉  Implementation      2 files      +12 -3
 ▎ 󰛦 session.ts                       +12 -3
 ```
 
@@ -279,9 +279,9 @@ The sidebar's own `statusline`. With `laststatus=3` a window's own statusline is
 only while that window has focus, so it takes the global bar's place exactly when the
 sidebar's keys are worth naming, and hands it back the moment you leave. The badge is
 the header glyph's `Directory` colour, reversed, standing where the mode badge would. The
-position counts the files on screen, so a folded section's files are not among them, and
-names no file while the cursor is on a header; the filter in force is named, since once its prompt
-closes the lit matches are the only other trace of it. Only four keys are offered — `?`
+position counts the files on screen — a folded section's files are not — and names no
+file while the cursor is on a section header. The filter in force is named, since once its
+prompt closes the lit matches are the only other trace of it. Only four keys are offered — `?`
 lists the rest.
 
 The sidebar turns off `scrollEOF.nvim`, which would otherwise scroll the tree past its end
@@ -360,10 +360,10 @@ complete in under 300ms, which is the `git diff` and nothing else.
 The cache is one JSON file per repo under `stdpath("cache")/changeset/`, holding only the
 fields the tree reads from a symbol. Every refresh narrows it to the files the current diff
 touches, so it stays the size of a branch rather than growing with every branch ever
-reviewed, and losing it costs one slow build. Folds — a section's as well as a file's — are remembered per repository for as long as
-Neovim is running, so reopening looks like you left it; a restart starts expanded. Per
-repository because a row is identified by a repo-relative path, which two checkouts can
-easily both have.
+reviewed, and losing it costs one slow build. Folds — a section's as well as a file's —
+are remembered per repository for as long as Neovim is running, so reopening looks like
+you left it; a restart starts expanded. Per repository because a row is identified by a
+repo-relative path, which two checkouts can easily both have.
 
 ## Settings
 
@@ -389,7 +389,7 @@ repository's deliberate choice is none of that save's business.
 | --- | --- | --- |
 | `<leader>gp` | anywhere | closed → open+focus on the row you are on; open+unfocused → focus on the row you are on; open+focused → close, restore focus |
 | `j` / `k` | sidebar | move, previewing into the window you were last in, without leaving the sidebar |
-| `<CR>` | sidebar | commit: focus that window at the row's position, keep the jump; nothing on a header |
+| `<CR>` | sidebar | commit: focus that window at the row's position, keep the jump; nothing on a section header |
 | `<S-CR>` | sidebar | commit, then close the sidebar behind you |
 | `q` | sidebar | close, restore focus and put back whatever the previews borrowed |
 | `h` / `l` | sidebar | collapse / expand; on a header, fold / unfold its section; `h` with nothing left to shut steps out to the parent, so repeated `h` walks up to the filename and then its section header; `l` on a compressed chain expands it to full nesting |
@@ -400,10 +400,10 @@ repository's deliberate choice is none of that save's business.
 | `q` / `<Esc>` | kind menu | close, putting the tree back to the set on disk |
 | `f` | sidebar | filter as you type, keeping ancestors so matches stay placed and lighting every match until the filter goes; `<Esc>` restores the last filter |
 | `R` | sidebar | rebuild now |
-| `y` | sidebar | yank the row's `path:line` via `helpers.paths.copy`; nothing on a header |
+| `y` | sidebar | yank the row's `path:line` via `helpers.paths.copy`; nothing on a section header |
 | `/` `-` `<C-t>` | sidebar | commit into a vsplit / split / new tab instead |
 | `?` | sidebar | list these keys, `]h` / `[h` included: which-key's popup where it is installed, a float where it is not |
-| `]h` / `[h` | anywhere, while open | advance the sidebar's selection, previewing as it goes and stepping over headers — review without focusing the sidebar |
+| `]h` / `[h` | anywhere, while open | advance the sidebar's selection, previewing as it goes and stepping over section headers — review without focusing the sidebar |
 
 ## Behaviour that is easy to get wrong
 

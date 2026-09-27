@@ -94,8 +94,8 @@ local save_timer
 local tracking = false
 
 ---Folds outlive the tree: a rebuild for a moved fork point, or a trip to another
----repository and back, keeps them. Kept per repository: row ids start at a
----repo-relative path, so one table would share a fold between two checkouts that
+---repository and back, keeps them. Kept per repository: row ids are built from
+---repo-relative paths, so one table would share a fold between two checkouts that
 ---both have a `lua/config/options.lua`.
 ---@type table<string, changeset.State>
 local folds = {}
@@ -581,7 +581,8 @@ local function step(delta)
   if not (session and win) then
     return
   end
-  vim.api.nvim_win_set_cursor(win, { state._step(session.visible, vim.api.nvim_win_get_cursor(win)[1], delta), 0 })
+  local lnum = state._step(session.visible, vim.api.nvim_win_get_cursor(win)[1], delta)
+  vim.api.nvim_win_set_cursor(win, { lnum, 0 })
   preview_current()
 end
 
@@ -648,27 +649,21 @@ local function collapse_or_parent(open_session)
   end
 end
 
----The file rows under `sections`, in display order.
----@param sections changeset.Row[]
----@return changeset.Row[]
-local function files_of(sections)
-  return vim
-    .iter(sections)
-    :map(function(section)
-      return section.children
-    end)
-    :flatten()
-    :totable()
-end
-
 ---@param open_session changeset.Session
 local function collapse_all_files(open_session)
   state.collapse_all(
     open_session.st,
     vim.tbl_map(function(row)
       return row.id
-    end, files_of(open_session.rows))
+    end, tree.files(open_session.rows))
   )
+  draw()
+end
+
+---Keeps every section's fold, including one whose section is empty for now.
+---@param open_session changeset.Session
+local function expand_all_files(open_session)
+  state.expand_all(open_session.st, tree.section_ids())
   draw()
 end
 
@@ -717,15 +712,7 @@ local function set_keymaps(buf)
   end, "Expand")
   map("h", collapse_or_parent, "Collapse, or step out to the parent")
   map("H", collapse_all_files, "Collapse every file")
-  map("L", function(open_session)
-    state.expand_all(
-      open_session.st,
-      vim.tbl_map(function(section)
-        return section.id
-      end, open_session.rows)
-    )
-    draw()
-  end, "Expand every file")
+  map("L", expand_all_files, "Expand every file")
   map("R", M.refresh, "Rebuild the tree")
   map("y", function()
     local row = row_at_cursor()
@@ -921,7 +908,7 @@ function M.footer()
   return render.footer({ file = file, files = files, query = session.query })
 end
 
----The rows the sidebar draws, less the kinds it hides, for the current buffer's repository.
+---The file rows under the sidebar's sections, less the kinds it hides, for the current buffer's repository.
 ---@return { rows: changeset.Row[], root: string, ref: string }? tree
 ---@return string? err Why there is no tree yet.
 function M.rows()
@@ -932,7 +919,7 @@ function M.rows()
   if not session.collected then
     return nil, "still reading the diff"
   end
-  return { rows = view.by_kind(files_of(session.rows), session.hidden), root = session.root, ref = session.ref }
+  return { rows = view.by_kind(tree.files(session.rows), session.hidden), root = session.root, ref = session.ref }
 end
 
 ---The tree, for specs.

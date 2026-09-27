@@ -25,8 +25,8 @@ local SEP = " › "
 ---@field range { [1]: integer, [2]: integer }? Lines a symbol's body or an orphan hunk covers, inclusive.
 ---@field status string?      File rows only.
 ---@field resolved boolean?   File rows only: whether a server has answered for this file yet.
----@field files integer?     Section rows only: how many files the section holds, before any filter.
----@field icon string?        Section rows only: the mini.icons directory name for its header.
+---@field files integer?      Section rows only: how many files the section holds, before any filter.
+---@field icon string?        Section rows only: the mini.icons directory name for its section header.
 ---@field children changeset.Row[]
 
 ---A line of a file, repo-relative.
@@ -275,11 +275,25 @@ local function file_children(file, symbols, parent, line_text)
   return children
 end
 
+---@param key string
+---@return string
+local function section_id(key)
+  return "#" .. key
+end
+
+---Every section row's id, whether or not the section holds a file.
+---@return string[]
+function M.section_ids()
+  return vim.tbl_map(function(section)
+    return section_id(section.key)
+  end, sections.ORDER)
+end
+
 ---@param section changeset.Section
 ---@return changeset.Row
 local function section_row(section)
   return {
-    id = "#" .. section.key,
+    id = section_id(section.key),
     kind = "section",
     depth = 0,
     name = section.label,
@@ -293,9 +307,9 @@ local function section_row(section)
   }
 end
 
----Map what a branch changed onto the symbols that own it: one section row per non-empty section, one row
----per file under it, changed symbols beneath
----(with the ancestors needed to place them), and an "Other changes" group for hunks outside every symbol.
+---Map what a branch changed onto the symbols that own it: one section row per non-empty section, one row per
+---file under it, changed symbols beneath (with the ancestors needed to place them), and an "Other changes"
+---group for hunks outside every symbol.
 ---
 ---A file absent from `symbols_by_path` is still resolving and gets no children; a file mapped to `{}`
 ---has no symbols, so all its hunks are orphans. A deleted file never gets children.
@@ -346,6 +360,10 @@ end
 
 local compress_rows
 
+---The kinds `compress_row` takes.
+---@type table<string, true>
+local UNFOLDS = { section = true, file = true, symbol = true }
+
 ---Copy the run from `row` down to `deepest` one row per level, then compress what hangs below it.
 ---@param row changeset.Row
 ---@param deepest changeset.Row
@@ -384,8 +402,7 @@ end
 function compress_rows(rows, depth, is_open)
   local out = {}
   for i, row in ipairs(rows) do
-    out[i] = (row.kind == "section" or row.kind == "file" or row.kind == "symbol") and compress_row(row, depth, is_open)
-      or row
+    out[i] = UNFOLDS[row.kind] and compress_row(row, depth, is_open) or row
   end
   return out
 end
@@ -420,6 +437,19 @@ local function deepest_symbol(row, lnum)
   return inner and deepest_symbol(inner, lnum) or row
 end
 
+---The file rows under `build`'s sections, in display order.
+---@param rows changeset.Row[] Section rows.
+---@return changeset.Row[]
+function M.files(rows)
+  return vim
+    .iter(rows)
+    :map(function(section)
+      return section.children
+    end)
+    :flatten()
+    :totable()
+end
+
 ---The row a line of a file belongs to: the deepest symbol row whose body holds it, else the file's
 ---"Other changes" row when one of its hunks does, else the file row.
 ---@param rows changeset.Row[] Section rows from `build`, uncompressed.
@@ -427,20 +457,18 @@ end
 ---@param lnum integer
 ---@return changeset.Row? nil when the changeset does not hold `path`.
 function M.locate(rows, path, lnum)
-  for _, section in ipairs(rows) do
-    for _, file in ipairs(section.children) do
-      if file.path == path then
-        local symbol = enclosing(file.children, lnum)
-        if symbol then
-          return deepest_symbol(symbol, lnum)
-        end
-        for _, child in ipairs(file.children) do
-          if child.kind == "orphans" and enclosing(child.children, lnum) then
-            return child
-          end
-        end
-        return file
+  for _, file in ipairs(M.files(rows)) do
+    if file.path == path then
+      local symbol = enclosing(file.children, lnum)
+      if symbol then
+        return deepest_symbol(symbol, lnum)
       end
+      for _, child in ipairs(file.children) do
+        if child.kind == "orphans" and enclosing(child.children, lnum) then
+          return child
+        end
+      end
+      return file
     end
   end
 end

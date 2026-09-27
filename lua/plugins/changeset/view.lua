@@ -95,9 +95,9 @@ function M.kind_counts(rows)
 end
 
 ---Where the file holding line `lnum` stands among the files on screen.
----@param rows { depth: integer }[] One per line, as `render.lines` hands them back: 0 a header, 1 a file.
+---@param rows { depth: integer }[] One per line, as `render.lines` hands them back: 0 a section header, 1 a file.
 ---@param lnum integer
----@return integer? index nil on a header line, or when no file is at or above `lnum`.
+---@return integer? index nil on a section header's line, or when no file is at or above `lnum`.
 ---@return integer total
 function M.position(rows, lnum)
   local index, total = nil, 0

@@ -1,3 +1,6 @@
+vim.opt.rtp:prepend(require("support.deps").path("mini.icons"))
+require("mini.icons").setup()
+
 local changeset = require("plugins.changeset")
 local render = require("plugins.changeset.render")
 local window = require("plugins.changeset.window")
@@ -219,21 +222,6 @@ describe("changeset sidebar", function()
     assert.equal(3, #lines_of(buf))
   end)
 
-  it("leaves a folded section folded under L", function()
-    write("README.md", { "# readme" })
-    Fixture.commit("docs", tmp)
-    local buf = open_sidebar()
-    vim.api.nvim_set_current_win((assert(window.win())))
-    vim.api.nvim_win_set_cursor(0, { 1, 0 })
-    press("h")
-
-    press("L")
-
-    local text = lines_of(buf)
-    assert.falsy(table.concat(text, "\n"):find("mod.lua", 1, true))
-    assert.truthy(table.concat(text, "\n"):find("README.md", 1, true))
-  end)
-
   describe("with a second section", function()
     before_each(function()
       write("README.md", { "# readme" })
@@ -252,12 +240,57 @@ describe("changeset sidebar", function()
       error("no sidebar line contains " .. text)
     end
 
+    ---Rebuild the tree and wait until the Docs section is drawn or gone.
+    ---@param buf integer
+    ---@param shown boolean
+    local function refresh_until(buf, shown)
+      changeset.refresh()
+      assert(vim.wait(5000, function()
+        return (table.concat(lines_of(buf), "\n"):find("Docs", 1, true) ~= nil) == shown
+      end, 25))
+    end
+
+    it("leaves a folded section folded under L", function()
+      local buf = open_sidebar()
+      vim.api.nvim_set_current_win((assert(window.win())))
+      vim.api.nvim_win_set_cursor(0, { 1, 0 })
+      press("h")
+
+      press("L")
+
+      local text = lines_of(buf)
+      assert.falsy(table.concat(text, "\n"):find("mod.lua", 1, true))
+      assert.truthy(table.concat(text, "\n"):find("README.md", 1, true))
+    end)
+
+    it("leaves a folded section folded under L while the section is empty", function()
+      local buf = open_sidebar()
+      vim.api.nvim_set_current_win((assert(window.win())))
+      vim.api.nvim_win_set_cursor(0, { line_of(buf, "Docs"), 0 })
+      press("h")
+      Fixture.git({ "rm", "-q", "README.md" }, tmp)
+      Fixture.commit("no docs", tmp)
+      refresh_until(buf, false)
+
+      press("L")
+      write("README.md", { "# readme" })
+      Fixture.commit("docs again", tmp)
+      refresh_until(buf, true)
+
+      assert.falsy(table.concat(lines_of(buf), "\n"):find("README.md", 1, true))
+    end)
+
     it("draws the gap between sections without a buffer line", function()
       local buf = open_sidebar()
 
       press("H")
 
+      local above = line_of(buf, "Docs") - 2
+      local gaps = vim.tbl_filter(function(mark)
+        return mark[4].virt_lines ~= nil
+      end, vim.api.nvim_buf_get_extmarks(buf, ns, { above, 0 }, { above, -1 }, { details = true }))
       assert.equal(2 + 3, #lines_of(buf))
+      assert.equal(1, #gaps)
     end)
 
     it("previews the next section's first file with ]h from a section's last line", function()
@@ -365,14 +398,14 @@ describe("changeset sidebar", function()
   end)
 
   it("draws a section header's icon from mini.icons' directory icons", function()
-    vim.opt.rtp:prepend(require("support.deps").path("mini.icons"))
-    require("mini.icons").setup()
     local buf = open_sidebar()
     local glyph, hl = MiniIcons.get("directory", "src")
 
-    local mark = vim.api.nvim_buf_get_extmarks(buf, ns, { 0, 0 }, { 0, 0 }, { details = true })[1]
+    local marks = vim.tbl_filter(function(mark)
+      return mark[4].hl_group == hl
+    end, vim.api.nvim_buf_get_extmarks(buf, ns, { 0, 0 }, { 0, 0 }, { details = true }))
 
-    assert.equal(hl, mark[4].hl_group)
+    assert.equal(1, #marks)
     assert.equal(glyph, lines_of(buf)[1]:sub(1, #glyph))
   end)
 

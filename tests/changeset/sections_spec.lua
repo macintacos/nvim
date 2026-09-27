@@ -61,6 +61,12 @@ local cases = {
     ".github/scripts/a.rs",
     ".github/scripts/a.go",
     ".github/scripts/a.lua",
+    "a.json5",
+    "notes.md.orig",
+    "latest.ts",
+    "contest.py",
+    "testing/a.lua",
+    "mydocs/a.txt",
   },
 }
 

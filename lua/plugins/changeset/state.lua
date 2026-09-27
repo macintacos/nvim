@@ -3,8 +3,8 @@
 ---refresh reorders lines whenever the file set changes.
 ---
 ---The `_`-prefixed functions are pure decisions alongside it: where the cursor
----lands after a rebuild, where `h` goes from a row, and which line stands in for a
----row that is not on screen.
+---lands after a rebuild, where `h` goes from a row, where `]h`/`[h` step to, and
+---which line stands in for a row that is not on screen.
 
 ---@class changeset.State
 ---@field collapsed table<string, true> Rows whose children are hidden.

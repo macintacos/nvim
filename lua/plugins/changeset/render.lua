@@ -275,7 +275,7 @@ local function file_line(file, opts)
   return compose(file, chunks, stat)
 end
 
--- Cells a section label is padded to, so every header's count starts in one column.
+-- Cells a section label is padded to, so every section header's count starts in one column.
 local LABEL_CELLS = 20
 
 ---A section header: icon, label, file count, and the section's stat at the right edge. No rail.
@@ -284,13 +284,16 @@ local LABEL_CELLS = 20
 ---@return changeset.Line
 local function section_line(section, opts)
   local glyph, icon_hl = opts.icon(section)
-  local label = section.name .. (" "):rep(math.max(LABEL_CELLS - vim.fn.strdisplaywidth(section.name), 1))
+  local stat = M.stat_chunks(section)
+  local count = ("%d file%s"):format(section.files, section.files == 1 and "" or "s")
+  local fixed = vim.fn.strdisplaywidth(glyph .. "  " .. section.name .. count) + stat_cells(stat)
+  local pad = math.max(1, math.min(LABEL_CELLS - vim.fn.strdisplaywidth(section.name), opts.width - fixed))
   return compose(section, {
     { glyph, icon_hl },
     { "  " },
-    { label, "Bold" },
-    { ("%d file%s"):format(section.files, section.files == 1 and "" or "s"), M.META_HL },
-  }, M.stat_chunks(section))
+    { section.name .. (" "):rep(pad) },
+    { count, M.META_HL },
+  }, stat)
 end
 
 ---@param row changeset.Row
@@ -392,7 +395,8 @@ function M.lines(rows, opts)
   local out = {}
   for i, section in ipairs(rows) do
     if i > 1 then
-      table.insert(out[#out].marks, { col = 0, virt_lines = { { { "" } } } })
+      local marks = out[#out].marks
+      marks[#marks + 1] = { col = 0, virt_lines = { { { "" } } } }
     end
     out[#out + 1] = section_line(section, opts)
     if not opts.collapsed(section.id) then
@@ -402,9 +406,11 @@ function M.lines(rows, opts)
     end
   end
   for _, line in ipairs(out) do
-    -- A header never matches the filter: lighting its label would claim a match.
-    for _, span in ipairs(line.row.kind == "section" and {} or matches(line.text, opts.query or "")) do
-      line.marks[#line.marks + 1] = { col = span[1], end_col = span[2], hl = M.MATCH_HL, priority = MATCH_PRIORITY }
+    -- A section header never matches the filter: lighting its label would claim a match.
+    if line.row.kind ~= "section" then
+      for _, span in ipairs(matches(line.text, opts.query or "")) do
+        line.marks[#line.marks + 1] = { col = span[1], end_col = span[2], hl = M.MATCH_HL, priority = MATCH_PRIORITY }
+      end
     end
   end
   return out

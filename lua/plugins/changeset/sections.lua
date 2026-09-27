@@ -17,23 +17,13 @@ M.ORDER = {
   { key = "config", label = "Config", icon = ".config" },
 }
 
----@param globs string[]
----@return vim.lpeg.Pattern
-local function any_glob(globs)
-  local pattern = vim.glob.to_lpeg(globs[1])
-  for i = 2, #globs do
-    pattern = pattern + vim.glob.to_lpeg(globs[i])
-  end
-  return pattern
-end
-
 local TEST_DIRS = { tests = true, test = true, spec = true, __tests__ = true, testdata = true }
-local TEST_FILES = any_glob({ "*_spec.*", "*_test.*", "*.test.*", "*.spec.*", "test_*.py", "conftest.py", "*.bats" })
-local DOC_FILES = any_glob({ "*.md", "*.mdx", "*.rst", "README*", "CHANGELOG*" })
+local TEST_FILES = vim.glob.to_lpeg("{*_spec.*,*_test.*,*.test.*,*.spec.*,test_*.py,conftest.py,*.bats}")
+local DOC_FILES = vim.glob.to_lpeg("{*.md,*.mdx,*.rst,README*,CHANGELOG*}")
 local DOC_DIRS = { doc = true, docs = true }
-local CONFIG_FILES = any_glob({ "*.toml", "*.yaml", "*.yml", "*.pkl", "*.json", "*.ini", "*.cfg", ".*" })
-local CONFIG_NAMES = { Makefile = true, Dockerfile = true, ["go.mod"] = true }
-local SCRIPT_FILES = any_glob({ "*.sh", "*.bash", "*.py", "*.js", "*.ts", "*.rs", "*.go", "*.lua" })
+local CONFIG_FILES = vim.glob.to_lpeg("{*.toml,*.yaml,*.yml,*.pkl,*.json,*.ini,*.cfg,.*,Makefile,Dockerfile,go.mod}")
+local CONFIG_DIRS = { [".github"] = true }
+local SCRIPT_FILES = vim.glob.to_lpeg("{*.sh,*.bash,*.py,*.js,*.ts,*.rs,*.go,*.lua}")
 
 ---@param dirs string[]
 ---@param set table<string, true>
@@ -44,6 +34,7 @@ local function has_dir(dirs, set)
   end)
 end
 
+---The section `path` belongs in. Rules run Tests → Docs → Config and the first match wins, so `tests/README.md` is a test; anything unmatched is Implementation.
 ---@param path string Repo-relative, `/`-separated.
 ---@return changeset.SectionKey
 function M.classify(path)
@@ -55,11 +46,7 @@ function M.classify(path)
   if DOC_FILES:match(name) or (vim.endswith(name, ".txt") and has_dir(dirs, DOC_DIRS)) then
     return "docs"
   end
-  if
-    CONFIG_FILES:match(name)
-    or CONFIG_NAMES[name]
-    or (vim.list_contains(dirs, ".github") and not SCRIPT_FILES:match(name))
-  then
+  if CONFIG_FILES:match(name) or (has_dir(dirs, CONFIG_DIRS) and not SCRIPT_FILES:match(name)) then
     return "config"
   end
   return "implementation"

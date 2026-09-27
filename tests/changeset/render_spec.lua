@@ -124,6 +124,24 @@ describe("changeset.render", function()
       assert.equal(lines[1].text:find("1 file"), lines[3].text:find("1 file"))
     end)
 
+    it("shrinks the label's padding so a wide stat clears the count", function()
+      local wide = section({ files = 123, added = 15234, removed = 8123 })
+      local narrow = render.lines({ wide }, opts({ width = 42 }))[1]
+      local roomy = render.lines({ wide }, opts())[1]
+
+      assert.is_true(vim.fn.strdisplaywidth(narrow.text) + #"+15234 -8123" + 1 <= 42)
+      assert.equal(1 + 2 + 20 + 1, roomy.text:find("123 files", 1, true))
+    end)
+
+    it("draws the label as plain content and the count in the meta group", function()
+      local line = render.lines({ section({ files = 2 }) }, opts())[1]
+
+      for _, mark in ipairs(line.marks) do
+        assert.is_false(mark.end_col ~= nil and line.text:sub(mark.col + 1, mark.end_col):find("Implementation") ~= nil)
+      end
+      assert.equal(render.META_HL, mark_over(line, "2 files").hl)
+    end)
+
     it("draws the header's icon in the group the caller gives it", function()
       local line = render.lines({ section() }, opts())[1]
 
