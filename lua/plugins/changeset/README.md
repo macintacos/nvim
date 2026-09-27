@@ -78,14 +78,14 @@ sections — not a row, so the cursor cannot land on it.
 repo like a file's. `]]` / `[[` move from header to header, a folded one included.
 
 Generated renders last and starts folded the first time a repository shows it; `l` unfolds
-it and that is remembered like any other fold, but `L` never unfolds it. Its files are never
-sent to a language server, so they show no `reading symbols` row and no symbols — a
-Generated file is one line.
+it and that is remembered like any other fold, and, like every section, `L` leaves it as it
+is. Its files are never sent to a language server, so they show no `reading symbols` row
+and no symbols — a Generated file is one line.
 
-Classification starts from the path, plus whether the file marks itself generated.
-Generated is checked first and beats every other rule; then Tests → Docs → Config, and the first match
-wins; anything unmatched is Implementation. A directory rule matches any directory
-segment, not just the first.
+Classification starts from the path, plus whether the file's Go header or
+`.gitattributes` marks it generated. Generated is checked first and beats every other
+rule; then Tests → Docs → Config, and the first match wins; anything unmatched is
+Implementation. A directory rule matches any directory segment, not just the first.
 
 - **Generated** — `*.lock`, `*-lock.json`, `*-lock.yaml`, `go.sum`,
   `nvim-pack-lock.json`; a `.go` file with a `// Code generated … DO NOT EDIT.` line before
@@ -385,10 +385,10 @@ the first `<leader>gp` opens onto a built tree rather than starting the work. A 
 waiting on its first diff opens blank rather than claiming nothing changed. The tree is
 rebuilt for a different repository, fork point or branch, and a build that finds no fork
 point keeps the tree it had. Reading symbols loads each changed file the cache
-can't answer, Generated ones aside, so those buffers and their language servers arrive at startup rather than on
-the first open. Outside a repository, or with nothing to fork from, startup builds nothing
-and says nothing; without a UI, or on git's own commit-message and rebase-todo buffers, it
-does not try.
+can't answer, Generated ones aside, so those buffers and their language servers arrive at
+startup rather than on the first open. Outside a repository, or with nothing to fork
+from, startup builds nothing and says nothing; without a UI, or on git's own
+commit-message and rebase-todo buffers, it does not try.
 
 Asking a language server about every changed file is what makes a cold build slow: 28
 files take about nine seconds in this repo, and the tree fills a row at a time while it
@@ -401,8 +401,9 @@ fields the tree reads from a symbol. Every refresh narrows it to the files the c
 touches, so it stays the size of a branch rather than growing with every branch ever
 reviewed, and losing it costs one slow build. Folds — a section's as well as a file's —
 are remembered per repository for as long as Neovim is running, so reopening looks like
-you left it; a restart starts expanded, except Generated, which starts folded. Per repository because a row is identified by a
-repo-relative path, which two checkouts can easily both have.
+you left it; a restart starts expanded, except Generated, which starts folded. Per
+repository because a row is identified by a repo-relative path, which two checkouts can
+easily both have.
 
 ## Settings
 

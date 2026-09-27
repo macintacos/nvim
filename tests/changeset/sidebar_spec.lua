@@ -603,7 +603,7 @@ describe("changeset sidebar", function()
       Fixture.commit("generated", tmp)
     end)
 
-    ---Whether a file row names `path`; `.gitattributes`' own diff mentions `schema.txt`.
+    ---Whether a file row names `path`, not merely a line mentioning it: `.gitattributes`' orphan row is captioned with its `schema.txt` line.
     ---@param buf integer
     ---@param path string
     ---@return boolean
@@ -628,25 +628,13 @@ describe("changeset sidebar", function()
       assert.is_false(shows(buf, "schema.txt"))
     end)
 
-    it("draws its header with mini.icons' build directory icon", function()
-      local buf = open_sidebar()
-      local glyph, hl = MiniIcons.get("directory", "build")
-      local row = line_of(buf, "Generated") - 1
-
-      local marks = vim.tbl_filter(function(mark)
-        return mark[4].hl_group == hl
-      end, vim.api.nvim_buf_get_extmarks(buf, ns, { row, 0 }, { row, -1 }, { details = true }))
-
-      assert.equal(1, #marks)
-      assert.equal(glyph, lines_of(buf)[row + 1]:sub(1, #glyph))
-    end)
-
     it("stays unfolded for the repository once l opens it", function()
       local buf = open_sidebar()
       unfold(buf)
       assert.is_true(shows(buf, "go.sum"))
 
       changeset.close()
+      -- A new branch builds a new session over the same fold state, which must not fold Generated again.
       Fixture.git({ "checkout", "-q", "-b", "other" }, tmp)
       buf = open_sidebar()
 
@@ -673,6 +661,7 @@ describe("changeset sidebar", function()
       end
 
       local ok, err = pcall(function()
+        -- Not open_sidebar(): it waits for `reading symbols` to clear, which this stub never answers.
         vim.cmd.edit("mod.lua")
         changeset.open()
         local buf

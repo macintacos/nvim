@@ -326,9 +326,10 @@ local function file_row(file, resolved, section)
   }
 end
 
----@param key string
+---A section row's id.
+---@param key changeset.SectionKey
 ---@return string
-local function section_id(key)
+function M.section_id(key)
   return "#" .. key
 end
 
@@ -336,7 +337,7 @@ end
 ---@return string[]
 function M.section_ids()
   return vim.tbl_map(function(section)
-    return section_id(section.key)
+    return M.section_id(section.key)
   end, sections.ORDER)
 end
 
@@ -344,7 +345,7 @@ end
 ---@return changeset.Row
 local function section_row(section)
   return {
-    id = section_id(section.key),
+    id = M.section_id(section.key),
     kind = "section",
     depth = 0,
     name = section.label,

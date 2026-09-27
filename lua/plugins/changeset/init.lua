@@ -746,8 +746,9 @@ local function set_keymaps(buf)
   map("f", prompt_filter, "Filter the tree")
 end
 
+---The Generated files, each filed as answered with no symbols, and the rest, which a server is asked about.
 ---@param files changeset.File[]
----@return table<string, table> generated Each Generated path mapped to `{}`.
+---@return table<string, changeset.CachedSymbol[]> generated Each Generated path mapped to `{}`.
 ---@return changeset.File[] readable The other files, in order.
 local function split_generated(files)
   local generated, readable = {}, {}
@@ -789,14 +790,14 @@ function M.refresh()
     session.files = files
     session.commits = commits
     session.collected = true
+    -- Generated files are never asked about; filed as answered with nothing, they
+    -- show no placeholder and count as read.
+    local generated, readable = split_generated(files)
 
     -- Stamped before the request rather than after: a file edited while its
     -- symbols are being read then fails this check next time, instead of
     -- leaving behind an answer for content that has already moved on.
     assert(memo, "changeset: symbol cache not loaded")
-    -- Generated files are never asked about; filed as answered with nothing, they
-    -- show no placeholder and count as read.
-    local generated, readable = split_generated(files)
     local stamps = {}
     local known, unknown = cache.fresh(memo.entries, readable, function(path)
       assert(session, "changeset: no open session")
@@ -913,7 +914,7 @@ function M.build()
   if not folds[root] then
     folds[root] = state.new()
     -- Only on creation, so an unfold is kept like any other fold.
-    state.set_collapsed(folds[root], "#generated", true)
+    state.set_collapsed(folds[root], tree.section_id("generated"), true)
   end
   local preferences_file = prefs.path()
   local default_branch = Git.default_base(root)

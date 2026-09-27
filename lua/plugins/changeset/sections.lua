@@ -1,4 +1,4 @@
----Which part of a change a file, or a symbol inside it, belongs to; a file by its path and whether the I/O edge found it marked generated.
+---Which part of a change a file, or a symbol inside it, belongs to; a file by its path and whether its content or `.gitattributes` marks it generated.
 
 local M = {}
 
