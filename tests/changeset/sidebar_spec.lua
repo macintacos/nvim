@@ -595,6 +595,108 @@ describe("changeset sidebar", function()
     end)
   end)
 
+  describe("with generated files", function()
+    before_each(function()
+      write("go.sum", { "example.com/m v1.0.0 h1:abc=" })
+      write("schema.txt", { "generated schema" })
+      write(".gitattributes", { "schema.txt linguist-generated" })
+      Fixture.commit("generated", tmp)
+    end)
+
+    ---Whether a file row names `path`; `.gitattributes`' own diff mentions `schema.txt`.
+    ---@param buf integer
+    ---@param path string
+    ---@return boolean
+    local function shows(buf, path)
+      return vim.iter(lines_of(buf)):any(function(line)
+        return vim.endswith(line, " " .. path)
+      end)
+    end
+
+    ---@param buf integer
+    local function unfold(buf)
+      vim.api.nvim_set_current_win((assert(window.win())))
+      vim.api.nvim_win_set_cursor(0, { line_of(buf, "Generated"), 0 })
+      press("l")
+    end
+
+    it("starts folded, below every other section", function()
+      local buf = open_sidebar()
+
+      assert.equal(#lines_of(buf), line_of(buf, "Generated"))
+      assert.is_false(shows(buf, "go.sum"))
+      assert.is_false(shows(buf, "schema.txt"))
+    end)
+
+    it("draws its header with mini.icons' build directory icon", function()
+      local buf = open_sidebar()
+      local glyph, hl = MiniIcons.get("directory", "build")
+      local row = line_of(buf, "Generated") - 1
+
+      local marks = vim.tbl_filter(function(mark)
+        return mark[4].hl_group == hl
+      end, vim.api.nvim_buf_get_extmarks(buf, ns, { row, 0 }, { row, -1 }, { details = true }))
+
+      assert.equal(1, #marks)
+      assert.equal(glyph, lines_of(buf)[row + 1]:sub(1, #glyph))
+    end)
+
+    it("stays unfolded for the repository once l opens it", function()
+      local buf = open_sidebar()
+      unfold(buf)
+      assert.is_true(shows(buf, "go.sum"))
+
+      changeset.close()
+      Fixture.git({ "checkout", "-q", "-b", "other" }, tmp)
+      buf = open_sidebar()
+
+      assert.is_true(shows(buf, "go.sum"))
+    end)
+
+    it("stays folded under L", function()
+      local buf = open_sidebar()
+
+      press("L")
+
+      assert.is_false(shows(buf, "go.sum"))
+    end)
+
+    it("never asks for a generated file's symbols, nor waits on them", function()
+      local resolve = require("plugins.changeset.resolve")
+      local start = resolve.start
+      local asked = {}
+      resolve.start = function(_, files)
+        for _, f in ipairs(files) do
+          asked[#asked + 1] = f.path
+        end
+        return function() end
+      end
+
+      local ok, err = pcall(function()
+        vim.cmd.edit("mod.lua")
+        changeset.open()
+        local buf
+        assert(
+          vim.wait(10000, function()
+            buf = window.buf()
+            return buf ~= nil and pcall(line_of, buf, "Generated")
+          end, 25),
+          "the Generated section never appeared"
+        )
+        unfold(buf)
+        local lines = lines_of(buf)
+
+        assert.truthy(vim.tbl_contains(asked, "mod.lua"))
+        assert.is_false(vim.tbl_contains(asked, "go.sum"))
+        assert.is_false(vim.tbl_contains(asked, "schema.txt"))
+        assert.falsy((lines[line_of(buf, "go.sum") + 1] or ""):find("reading symbols", 1, true))
+        assert.truthy(lines[line_of(buf, "mod.lua") + 1]:find("reading symbols", 1, true))
+      end)
+      resolve.start = start
+      assert(ok, err)
+    end)
+  end)
+
   describe("on a section header", function()
     ---Open the sidebar from `mod.lua` with its cursor on the first header.
     ---@return integer buf
