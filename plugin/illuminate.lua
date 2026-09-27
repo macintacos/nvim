@@ -46,10 +46,16 @@ end
 map_ref("]]", "next")
 map_ref("[[", "prev")
 
+-- Filetype plugins such as Python's and Vim's map `]]`/`[[` on their buffer,
+-- shadowing the global maps above; this runs after them and maps over theirs.
+-- Scratch (`nofile`) buffers keep their own, if `buftype` is set before `filetype` is.
+-- Fires: whenever a buffer's filetype is set.
 vim.api.nvim_create_autocmd("FileType", {
-  callback = function()
-    local buffer = vim.api.nvim_get_current_buf()
-    map_ref("]]", "next", buffer)
-    map_ref("[[", "prev", buffer)
+  callback = function(args)
+    if vim.bo[args.buf].buftype == "nofile" then
+      return
+    end
+    map_ref("]]", "next", args.buf)
+    map_ref("[[", "prev", args.buf)
   end,
 })
