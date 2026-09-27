@@ -14,6 +14,10 @@ require("incline").setup({
   ignore = {
     floating_wins = false,
     wintypes = function(winid, wintype)
+      -- agentcomplete's boxed prompt, which the label would float inside.
+      if vim.w[winid].agentcomplete_box then
+        return true
+      end
       local zen = package.loaded["snacks"].zen
       if zen.win and not zen.win.closed then
         return winid ~= zen.win.win
