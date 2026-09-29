@@ -169,6 +169,9 @@ local GLYPH_PRIORITY = MATCH_PRIORITY + 1
 -- Cells every row leaves at the right edge for a state glyph: a gap, then the glyph.
 local GUTTER = 2
 
+-- Blank cells every tree row leaves at the left edge, as wide as the header's leading space.
+local MARGIN = 1
+
 -- How far each state's background moves from the window's toward the accent.
 local SELECTED_TINT, HERE_TINT, PICKED_TINT = 0.2, 0.12, 0.06
 
@@ -246,6 +249,15 @@ local function compose(row, chunks, stat)
   return { text = text, marks = marks, row = row }
 end
 
+---A tree row: `compose`, behind the margin every row leaves at the left edge.
+---@param row changeset.Row
+---@param chunks { [1]: string, [2]: string? }[]
+---@param stat? table[]
+---@return changeset.Line
+local function tree_line(row, chunks, stat)
+  return compose(row, vim.list_extend({ { (" "):rep(MARGIN) } }, chunks), stat)
+end
+
 ---The `+N -N` virtual text for a row.
 ---@param row changeset.Row
 ---@return table[]? chunks `nil` when the row has no stat of its own.
@@ -282,14 +294,14 @@ function M.state_marks(state, width)
   }
 end
 
----Cells a row gives up at the right edge: the state gutter, then a stat and the gap before it.
+---Cells a row gives up at its edges: the margin, the state gutter, then a stat and the gap before it.
 ---@param stat table[]? Virtual-text chunks.
 ---@return integer
 local function stat_cells(stat)
   if not stat then
-    return GUTTER
+    return MARGIN + GUTTER
   end
-  local total = GUTTER + 1
+  local total = MARGIN + GUTTER + 1
   for _, chunk in ipairs(stat) do
     total = total + vim.fn.strdisplaywidth(chunk[1])
   end
@@ -335,7 +347,7 @@ local function file_line(file, opts)
   if marker then
     chunks[#chunks + 1] = { marker, "Comment" }
   end
-  return compose(file, chunks, stat)
+  return tree_line(file, chunks, stat)
 end
 
 -- Cells a section label is padded to, so every section header's count starts in one column.
@@ -351,7 +363,7 @@ local function section_line(section, opts)
   local count = ("%d file%s"):format(section.files, section.files == 1 and "" or "s")
   local fixed_cells = vim.fn.strdisplaywidth(glyph .. "  " .. section.name .. count) + stat_cells(stat)
   local pad = math.max(1, math.min(LABEL_CELLS - vim.fn.strdisplaywidth(section.name), opts.width - fixed_cells))
-  return compose(section, {
+  return tree_line(section, {
     { glyph, icon_hl },
     { "  " },
     { section.name .. (" "):rep(pad) },
@@ -371,7 +383,7 @@ local function child_line(row, guides, opts)
   if META_KINDS[row.kind] then
     icon_hl, name, name_hl = M.META_HL, clip_right(row.name, room), M.META_HL
   end
-  return compose(row, {
+  return tree_line(row, {
     { "  " },
     { guides, "Comment" },
     { glyph, icon_hl },
@@ -390,7 +402,7 @@ local function placeholder_line(file)
     depth = file.depth + 1,
     children = {},
   })
-  return compose(row, { { "  " }, { "└─", "Comment" }, { "⋯ reading symbols", M.META_HL } })
+  return tree_line(row, { { "  " }, { "└─", "Comment" }, { "⋯ reading symbols", M.META_HL } })
 end
 
 ---@param out changeset.Line[]
