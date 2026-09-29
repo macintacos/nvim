@@ -26,16 +26,16 @@ grouped by directory within their section, a directory's own files ahead of its
 subdirectories'.
 
 ```text
-󰴉  Implementation      2 files      +12 -3
-▎ 󰛦 session.ts                       +12 -3
-  ├─󰌗 SessionStore › refresh › deadline  +8 -1
-  ├─󰏿 SESSION_TTL                     +1 -0
-  └─󰘦 Other changes                   +3 -2
-▎ 󰛦 auth.ts (legacy) deleted
+ 󰴉  Implementation      2 files      +12 -3
+ ▎ 󰛦 session.ts                       +12 -3
+   ├─󰌗 SessionStore › refresh › deadline  +8 -1
+   ├─󰏿 SESSION_TTL                     +1 -0
+   └─󰘦 Other changes                   +3 -2
+ ▎ 󰛦 auth.ts (legacy) deleted
 
-󱁿  Config              1 file        +2 -0
-▎ 󰛡 Makefile                          +2 -0
-  └─󰘦 Other changes                   +2 -0
+ 󱁿  Config              1 file        +2 -0
+ ▎ 󰛡 Makefile                          +2 -0
+   └─󰘦 Other changes                   +2 -0
 ```
 
 ## Visual system
@@ -45,7 +45,7 @@ glyph, colour and layout device below is already in use somewhere in this config
 
 ### The status rail is the one bold element
 
-Column 0 of every file row is a `▎` coloured by change type, drawn in **gitsigns' own
+Every file row leads with a `▎` coloured by change type, drawn in **gitsigns' own
 sign highlight groups** — `GitSignsAdd`, `GitSignsChange`, `GitSignsDelete`,
 `GitSignsUntracked`. The colours are therefore identical to the signs already in the
 margin, track the theme for free, and need no legend: it is the same language the gutter
@@ -62,7 +62,7 @@ trimmed from the front before the name ever is.
 ### Sections
 
 ```text
-󱞊  Tests               3 files      +40 -2
+ 󱞊  Tests               3 files      +40 -2
 ```
 
 A header is the section's `MiniIcons.get("directory", …)` icon, its label as plain
@@ -74,7 +74,9 @@ one of its rows matches.
 
 An empty section is left out. A lone section is still headed, so what a file was
 classified as is always on screen. Files are not indented under their header: the rail
-stays in column 0, where the eye already scans for it. A blank virtual line hangs between
+stays at the left edge, where the eye already scans for it. Every row leaves its first
+cell blank, a margin mirroring the state gutter at the right, so the rail and the section
+icons line up under the header's glyphs. A blank virtual line hangs between
 sections — not a row, so the cursor cannot land on it.
 
 `h` / `l` on a section header fold and unfold the section, and the fold is remembered per
@@ -121,14 +123,14 @@ parser keeps just the name rules. They match exactly: `cfg(test)` alone, not
 `cfg(all(test, …))`.
 
 ```text
-󰴉  Implementation      1 file   +16 -4
-▎ 󰛦 session.rs              +16 -4
-  ├─󰌗 SessionStore › refresh  +8 -1
-  └─󰘦 Other changes          +3 -2
+ 󰴉  Implementation      1 file   +16 -4
+ ▎ 󰛦 session.rs              +16 -4
+   ├─󰌗 SessionStore › refresh  +8 -1
+   └─󰘦 Other changes          +3 -2
 
-󱞊  Tests               1 file    +8 -0
-▎ 󰛦 session.rs               +8 -0
-  └─󰆧 tests › refreshes        +8 -0
+ 󱞊  Tests               1 file    +8 -0
+ ▎ 󰛦 session.rs               +8 -0
+   └─󰆧 tests › refreshes        +8 -0
 ```
 
 A file whose changes reach both shows under Implementation and Tests, each copy listing
@@ -191,9 +193,9 @@ last as long as the filter does, not as long as the prompt.
 ### Three rows say what is selected, where you are and what you opened
 
 ```text
-▎ 󰢱 more.lua                         +7 -0 ◀
-  ├─ M.setup                        +3 -1 •
-  └─ Other changes                  +1 -1 ◁
+ ▎ 󰢱 more.lua                         +7 -0 ◀
+   ├─ M.setup                        +3 -1 •
+   └─ Other changes                  +1 -1 ◁
 ```
 
 The only row highlights the tree has. **Selected** is the row under the sidebar's cursor,
@@ -214,11 +216,10 @@ token keeps its own colour on top. It draws beneath every row mark, so the rail,
 colours and a filter match stay on top; the glyph draws over the stat's blank tail.
 
 The cursor itself is hidden while it is in the sidebar, and the selected row stands in for
-it: the cursor would sit on each row's first cell, which on a section header is its icon.
-Only in normal and visual mode, so a prompt on the command line still shows one. It hides
-through a `'guicursor'` entry whose group is fully blended, which needs `termguicolors`; a
-plugin that appends its own entry on entering a window, as modes.nvim does, has to skip
-the `changeset` filetype or its entry wins. mini.cursorword is off in the sidebar, as the
+it. Only in normal and visual mode, so a prompt on the command line still shows one. It
+hides through a `'guicursor'` entry whose group is fully blended, which needs
+`termguicolors`; a plugin that appends its own entry on entering a window, as modes.nvim
+does, has to skip the `changeset` filetype or its entry wins. mini.cursorword is off in the sidebar, as the
 hidden cursor rests on each row's rail and it would underline that.
 
 A line belongs to the deepest symbol row whose body holds it, else to the file's
@@ -281,8 +282,8 @@ answers that, the same way it does in the sidebar.
 ### A hidden kind is admitted under the tree
 
 ```text
-▎ Makefile                            +2 -0
-  └─󰘦 Other changes                   +2 -0
+ ▎ Makefile                            +2 -0
+   └─󰘦 Other changes                   +2 -0
 
  Hiding variables and fields. F to change.
 ```
@@ -311,8 +312,8 @@ new file to split on, so a hunk's `-N` goes wholly to the first symbol it reache
   origin/jt/exc-1200-stacked-parent…  #412
   4 files            2 commits  +142 -38
 
-󰴉  Implementation      2 files      +12 -3
-▎ 󰛦 session.ts                       +12 -3
+ 󰴉  Implementation      2 files      +12 -3
+ ▎ 󰛦 session.ts                       +12 -3
 ```
 
 Two rows on one strip, the strip `TabLine`'s background: what a colorscheme paints its own
