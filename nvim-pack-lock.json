@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "919ecf35a11dce6f48ebe155a46c2fe16041d2de",
+      "rev": "e451ef33fb9eb7b190436ba9b74a297c19a77025",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "blink.cmp": {
@@ -176,7 +176,7 @@
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
     "numb.nvim": {
-      "rev": "f43ee4c5ad7ae295492f0790da2b4228157447f1",
+      "rev": "40548e23f3b053defdc5daa99943e05132b99cc9",
       "src": "https://github.com/nacro90/numb.nvim"
     },
     "nvim": {
@@ -216,7 +216,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "84ca67203a42f3780695e6e39aa9d52e6d45342f",
+      "rev": "1212014bb22a1f44a655e8e706659892b8e43e59",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
