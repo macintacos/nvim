@@ -36,3 +36,23 @@ end
 vim.api.nvim_create_autocmd({ "ModeChanged", "ColorScheme" }, { callback = sync_smear_color })
 
 sync_smear_color()
+
+-- Pauses the smear while a mini.pick picker is open. The picker reads keys in a
+-- blocking getcharstr(), during which Neovim doesn't redraw, and the smear only
+-- forces a redraw in cmdline mode -- so its frames stick on screen. FileType
+-- fires synchronously while the picker builds, in time to cancel the smear its
+-- opening key queued; MiniPickStart is scheduled and runs too late.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "minipick",
+  callback = function()
+    smear.enabled = false
+  end,
+})
+
+-- Resumes the smear as the picker closes.
+vim.api.nvim_create_autocmd("User", {
+  pattern = "MiniPickStop",
+  callback = function()
+    smear.enabled = true
+  end,
+})
