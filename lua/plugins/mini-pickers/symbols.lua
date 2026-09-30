@@ -15,8 +15,6 @@
 ---@field col integer      1-based byte column of the symbol's name.
 ---@field end_lnum integer 1-based end line of the symbol's name.
 ---@field end_col integer  1-based end byte column of the symbol's name.
----@field range_lnum integer     1-based first line of the symbol's body.
----@field range_end_lnum integer 1-based last line of the symbol's body.
 ---@field depth integer    0 for a top-level symbol.
 ---@field guides string    Tree connectors for the row, e.g. "│ └─". Empty at depth 0.
 ---@field crumb string     Ancestor names joined by "›". Empty at depth 0.
@@ -96,9 +94,6 @@ end
 ---@return MiniPickers.Symbol
 local function to_item(row, ctx, depth, guides, crumb)
   local node, range = row.node, name_range(row.node)
-  -- The name range locates a symbol; the body range is what a diff hunk lands
-  -- inside. `SymbolInformation` has only the one range, and it is the body.
-  local body = node.range or node.location.range
   return {
     name = node.name,
     text = node.name,
@@ -108,8 +103,6 @@ local function to_item(row, ctx, depth, guides, crumb)
     col = byte_col(ctx.bufnr, range.start.line, range.start.character, ctx.encoding),
     end_lnum = range["end"].line + 1,
     end_col = byte_col(ctx.bufnr, range["end"].line, range["end"].character, ctx.encoding),
-    range_lnum = body.start.line + 1,
-    range_end_lnum = body["end"].line + 1,
     depth = depth,
     guides = guides,
     crumb = crumb ~= "" and crumb or (node.containerName or ""),
@@ -160,25 +153,23 @@ function M.flatten(response, opts)
   return out
 end
 
----Trim a separator-joined trail (a breadcrumb, a directory path) from the left so it fits `width` display cells.
+---Trim a " › "-joined breadcrumb from the left so it fits `width` display cells; a file path is one segment, cut by cells.
 ---
 ---Nearest ancestors are the informative ones, so segments are dropped from the
 ---front and the trim is marked — the caller's window sets 'nowrap', which would
 ---otherwise cut off the end of the trail instead.
 ---@param trail string
 ---@param width integer
----@param sep? string Segment separator; defaults to " › "
 ---@return string
-function M.fit(trail, width, sep)
+function M.fit(trail, width)
   if vim.fn.strdisplaywidth(trail) <= width then
     return trail
   end
 
-  sep = sep or SEP
-  local parts = vim.split(trail, sep, { plain = true })
+  local parts = vim.split(trail, SEP, { plain = true })
   while #parts > 1 do
     table.remove(parts, 1)
-    local trimmed = ELLIPSIS .. sep .. table.concat(parts, sep)
+    local trimmed = ELLIPSIS .. SEP .. table.concat(parts, SEP)
     if vim.fn.strdisplaywidth(trimmed) <= width then
       return trimmed
     end

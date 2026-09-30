@@ -58,7 +58,7 @@ When working with this configuration, consult the official Neovim documentation:
 │   │   ├── keymaps.lua   # Global keybindings
 │   │   ├── autocmds.lua  # Autocommands
 │   │   └── highlights.lua# Custom highlight groups
-│   ├── helpers/          # Shared utilities (mappings, git, windows, ...)
+│   ├── helpers/          # Shared utilities (mappings, windows, ...)
 │   └── plugins/          # Local plugins, one directory each
 ├── tests/                # Plenary specs, one directory per module
 │   └── support/          # Shared fixtures (require("support.<name>")), test deps, coverage

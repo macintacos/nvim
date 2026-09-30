@@ -126,7 +126,7 @@ vim.schedule(function()
         desc = "Git Log File", icon = { icon = "󱋡", color = "orange" } },
       { "<leader>gH", pick("git_hunks", { scope = "unstaged" }), desc = "Git Hunks (unstaged)", icon = { icon = "󰕚", color = "orange" } },
       { "<leader>gj", pick("changeset"), desc = "Jump to Change (Changeset)", icon = { icon = "󰙅", color = "orange" } },
-      { "<leader>gP", Cmd("PRReview"), desc = "PR Review Mode (gutter vs PR base)", icon = { icon = "󰓂", color = "orange" } },
+      { "<leader>gP", Cmd("Changeset review"), desc = "PR Review Mode (gutter vs PR base)", icon = { icon = "󰓂", color = "orange" } },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)", icon = { icon = "󰖟", color = "blue" } },
 
       -- Help
@@ -230,7 +230,7 @@ vim.schedule(function()
       { "<leader>Tt", function() Snacks.toggle.option("showtabline", { off = 0, on = vim.o.showtabline > 0 and vim.o.showtabline or 2, name = "Tabline" }):toggle() end, desc = "Tabline", icon = { icon = "󰓩", color = "yellow" } },
       { "<leader>Tw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Word Wrap", icon = { icon = "󰖶", color = "yellow" } },
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation", icon = { icon = "󰉶", color = "yellow" } },
-      { "<leader>Tp", Cmd("PRReview"), desc = "PR Review Mode", icon = { icon = "󰓂", color = "yellow" } },
+      { "<leader>Tp", Cmd("Changeset review"), desc = "PR Review Mode", icon = { icon = "󰓂", color = "yellow" } },
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode", icon = { icon = "󱅻", color = "yellow" } },
 
       -- Project (<leader>pp is mapped in plugin/projects.lua; the entry below is
