@@ -4,6 +4,7 @@
 vim.pack.add({ "https://github.com/macintacos/changeset.nvim" })
 require("changeset").setup({
   keymaps = { next = "]h", prev = "[h" },
+  -- Off the default branch, diffs gitsigns against the fork point; `:Changeset review` (<leader>gP, <leader>Tp) errors without it.
   pr_review = { enabled = true },
 })
 

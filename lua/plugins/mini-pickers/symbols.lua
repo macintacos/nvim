@@ -153,7 +153,7 @@ function M.flatten(response, opts)
   return out
 end
 
----Trim a separator-joined trail (a breadcrumb) from the left so it fits `width` display cells.
+---Trim a separator-joined trail (a breadcrumb or a file path) from the left so it fits `width` display cells.
 ---
 ---Nearest ancestors are the informative ones, so segments are dropped from the
 ---front and the trim is marked — the caller's window sets 'nowrap', which would
