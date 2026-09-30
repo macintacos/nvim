@@ -29,11 +29,20 @@ mini.pick draws its preview *in place of* the list. `preview.lua` hangs a second
 └───────────────────────┘└────────────────────────────────────────────┘
 ```
 
-A picker opts in with `window = preview.window()` — `files`, `grep_live`, and every `lsp` scope do; `vim.ui.select` and the rest keep the single window. Below `MIN_COLUMNS` (120) no float opens and the list takes the whole width, as before; the in-place toggle still works there.
+A picker opts in with `window = preview.window()` — `files`, `grep_live`, and every `lsp` scope do; `vim.ui.select` and the rest keep the single window. Below `MIN_COLUMNS` (120) there is no room beside the list, so it takes the whole width and the preview stacks on top, each a fixed share of the editor's height:
+
+```text
+┌─ preview (40%) ───────────────┐
+│ …the file, the hit's line     │
+└───────────────────────────────┘
+┌─ list (25%) ──────────────────┐
+│ 󰢱 lua/init.lua                │
+└───────────────────────────────┘
+```
 
 The float is filled by the picker's own `source.preview`, which is what makes location items land on their line: `MiniPick.default_preview` positions the cursor in whichever window shows the buffer it is handed, not the picker's. The landing line then sits 30% down, like the LSP jumps.
 
-mini.pick fires no event when the current item moves, so the float re-renders after every key the picker reads (`vim.on_key`), on `MiniPickMatch` for async items and query changes, and re-fits itself on `VimResized`.
+mini.pick fires no event when the current item moves, so the float re-renders after every key the picker reads (`vim.on_key`), on `MiniPickMatch` for async items and query changes, and re-fits itself on `VimResized`, switching between the two layouts as the editor crosses `MIN_COLUMNS`.
 
 ## The files picker
 
@@ -126,7 +135,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `locations.lua` | `show`/`match` for references, definitions, and the other location lists. |
 | `kinds.lua`     | Which symbol kinds count as outline entries, per filetype.               |
 | `render.lua`    | The extmark namespace and the lazily-built highlight groups.             |
-| `preview.lua`   | The side preview float and the list/preview width split.                 |
+| `preview.lua`   | The side preview float and the list/preview split, beside or stacked.    |
 | `git.lua`       | `git_blame_line`.                                                        |
 | `changeset.lua` | The changeset picker: which rows are items, and their breadcrumb headers. |
 

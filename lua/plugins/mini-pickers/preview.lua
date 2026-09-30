@@ -8,7 +8,7 @@
 ---
 ---Pickers opt in by passing `window = preview.window()` to `MiniPick.start`,
 ---which also narrows the list to leave room. Below `MIN_COLUMNS` the list takes
----the whole width and no float opens; the in-place toggle still works.
+---the whole width and the preview stacks above it instead.
 
 local windows = require("helpers.windows")
 
@@ -18,42 +18,73 @@ local M = {}
 M.MIN_COLUMNS = 120
 
 local LIST_RATIO = 0.4
+local STACKED_LIST_RATIO = 0.25
+local STACKED_PREVIEW_RATIO = 0.4
 
--- Each float's border takes a column either side.
+-- Each float's border takes a cell either side.
 local BORDERS = 4
 
----Split the editor width between the list and the preview.
+---@class mini-pickers.preview.Layout
+---@field list { width: integer, height?: integer } Overrides for the list window.
+---@field beside? integer Width of a preview right of the list.
+---@field above? integer Height of a preview on top of the list.
+
+---Split the editor between the list and the preview: side by side when wide
+---enough, else stacked with the preview on top.
 ---@param columns integer
----@return { list: integer, preview?: integer } layout Widths inside the borders.
-function M._layout(columns)
-  if columns < M.MIN_COLUMNS then
-    return { list = columns }
+---@param rows integer Editor height a float can use.
+---@return mini-pickers.preview.Layout layout Sizes inside the borders.
+function M._layout(columns, rows)
+  if columns >= M.MIN_COLUMNS then
+    local list = math.floor(LIST_RATIO * columns)
+    return { list = { width = list }, beside = columns - list - BORDERS }
   end
-  local list = math.floor(LIST_RATIO * columns)
-  return { list = list, preview = columns - list - BORDERS }
+  local content = rows - BORDERS
+  if content < 2 then
+    return { list = { width = columns } }
+  end
+  local list = math.max(math.floor(STACKED_LIST_RATIO * content), 1)
+  local above = math.max(math.floor(STACKED_PREVIEW_RATIO * content), 1)
+  return { list = { width = columns, height = list }, above = above }
 end
 
----Float config for a preview of `width` columns beside the list window.
+---Float config for the preview, placed against the list window per `layout`.
 ---@param list vim.api.keyset.win_config The list window's current config.
----@param width integer
+---@param layout { beside?: integer, above?: integer }
 ---@return vim.api.keyset.win_config
-function M._float_config(list, width)
-  return {
+function M._float_config(list, layout)
+  local config = {
     relative = "editor",
     anchor = list.anchor,
-    row = list.row,
-    col = list.col + list.width + 2,
-    width = width,
-    height = list.height,
     border = list.border,
+    title = { { " PREVIEW ", "MiniPickBorderText" } },
     zindex = list.zindex,
     style = "minimal",
     focusable = false,
   }
+  if layout.beside then
+    config.row, config.col = list.row, list.col + list.width + 2
+    config.width, config.height = layout.beside, list.height
+  else
+    config.row, config.col = list.row - list.height - 2, list.col
+    config.width, config.height = list.width, layout.above
+  end
+  return config
+end
+
+---Editor height a picker float can use; mirrors mini.pick's own bound.
+---@return integer
+local function editor_rows()
+  local has_tabline = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
+  return vim.o.lines - vim.o.cmdheight - (has_tabline and 1 or 0) - (vim.o.laststatus > 0 and 1 or 0)
+end
+
+local function current_layout()
+  return M._layout(vim.o.columns, editor_rows())
 end
 
 local function window_config()
-  return { width = M._layout(vim.o.columns).list }
+  return current_layout().list
 end
 
 ---Picker `window` option that opts into the side preview.
@@ -96,18 +127,18 @@ local function attach(preview, main)
     vim.cmd.redraw()
   end
 
-  -- Opens, moves, or closes the float to fit the current editor width.
+  -- Opens, moves, or closes the float to fit the current editor size.
   local function place()
-    local width = M._layout(vim.o.columns).preview
+    local layout = current_layout()
     local open = win and vim.api.nvim_win_is_valid(win)
-    if not (width and vim.api.nvim_win_is_valid(main)) then
+    if not ((layout.beside or layout.above) and vim.api.nvim_win_is_valid(main)) then
       if open then
         vim.api.nvim_win_close(win, true)
       end
       win = nil
       return
     end
-    local config = M._float_config(vim.api.nvim_win_get_config(main), width)
+    local config = M._float_config(vim.api.nvim_win_get_config(main), layout)
     if open then
       vim.api.nvim_win_set_config(win, config)
     else

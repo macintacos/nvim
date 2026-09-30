@@ -53,25 +53,43 @@ end
 
 describe("mini-pickers.preview", function()
   describe("_layout", function()
-    it("gives a narrow editor's whole width to the list, with no preview", function()
-      assert.same({ list = preview.MIN_COLUMNS - 1 }, preview._layout(preview.MIN_COLUMNS - 1))
+    it("splits a wide editor so both floats and their borders fill its width", function()
+      local layout = preview._layout(200, 46)
+      assert.is_true(layout.list.width < layout.beside)
+      assert.equal(200, layout.list.width + layout.beside + 4)
+      assert.is_nil(layout.list.height)
     end)
 
-    it("splits a wide editor so both floats and their borders fill it", function()
-      local layout = preview._layout(200)
-      assert.is_true(layout.list < layout.preview)
-      assert.equal(200, layout.list + layout.preview + 4)
+    it("stacks a narrow editor's preview above the list, both fitting its height", function()
+      local layout = preview._layout(preview.MIN_COLUMNS - 1, 46)
+      assert.equal(preview.MIN_COLUMNS - 1, layout.list.width)
+      assert.is_true(layout.list.height < layout.above)
+      assert.is_true(layout.list.height + layout.above + 4 <= 46)
+    end)
+
+    it("gives an editor too short for a stack the whole list, with no preview", function()
+      assert.same({ list = { width = preview.MIN_COLUMNS - 1 } }, preview._layout(preview.MIN_COLUMNS - 1, 5))
     end)
   end)
 
   describe("_float_config", function()
     it("sits right of the list's border, level with it", function()
       local list = { anchor = "SW", row = 40, col = 0, width = 80, height = 24, border = "single", zindex = 251 }
-      local config = preview._float_config(list, 116)
+      local config = preview._float_config(list, { beside = 116 })
       assert.equal(82, config.col)
       assert.equal(116, config.width)
       assert.equal(40, config.row)
       assert.equal(24, config.height)
+      assert.equal("SW", config.anchor)
+    end)
+
+    it("sits on top of the list's border, as wide as it", function()
+      local list = { anchor = "SW", row = 40, col = 0, width = 117, height = 16, border = "single", zindex = 251 }
+      local config = preview._float_config(list, { above = 20 })
+      assert.equal(22, config.row)
+      assert.equal(20, config.height)
+      assert.equal(0, config.col)
+      assert.equal(117, config.width)
       assert.equal("SW", config.anchor)
     end)
   end)
@@ -136,16 +154,21 @@ describe("mini-pickers.preview", function()
       assert.equal(0, count)
     end)
 
-    it("shows no preview in an editor too narrow for one", function()
+    it("stacks the preview on the list in an editor too narrow for one beside it", function()
       vim.o.columns = preview.MIN_COLUMNS - 1
-      local count
+      local list, float
       drive({ source = { items = { numbered_file(dir, "e", 1) } }, window = preview.window() }, {
         function()
-          count = #side_floats()
+          local floats = side_floats()
+          list = vim.api.nvim_win_get_config(MiniPick.get_picker_state().windows.main)
+          float = floats[1] and vim.api.nvim_win_get_config(floats[1])
         end,
       })
 
-      assert.equal(0, count)
+      assert.is_table(float)
+      assert.equal(list.row - list.height - 2, float.row)
+      assert.is_true(float.row - float.height - 2 >= 0)
+      assert.equal(list.width, float.width)
     end)
   end)
 end)
