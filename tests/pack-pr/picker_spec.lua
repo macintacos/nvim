@@ -26,82 +26,106 @@ describe("pack-pr picker._build_items", function()
 end)
 
 describe("pack-pr picker._apply (integration)", function()
-  local tmp, saved_update, saved_notify, updated, notified
+  local install = require("plugins.pack-pr.install")
+  local tmp, saved, notified, installed, confirmed, cmds, verdict, answer
 
   local function entry()
-    return { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = tmp }
+    return { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = tmp, path = "/p" }
+  end
+
+  local function read()
+    return table.concat(vim.fn.readfile(tmp), "\n")
   end
 
   before_each(function()
     tmp = vim.fn.tempname() .. ".lua"
-    saved_update = vim.pack and vim.pack.update
-    saved_notify = vim.notify
-    updated, notified = nil, nil
-    vim.pack = vim.pack or {}
-    vim.pack.update = function(names)
-      updated = names
+    saved = { run = install.run, confirm = vim.fn.confirm, cmd = vim.cmd, notify = vim.notify }
+    notified, installed, confirmed, cmds = {}, nil, false, {}
+    verdict, answer = true, 1
+    install.run = function(e, branch, cb)
+      installed = { name = e.name, branch = branch }
+      cb(verdict)
     end
-    vim.notify = function(msg)
-      notified = msg
+    vim.fn.confirm = function()
+      confirmed = true
+      return answer
+    end
+    vim.cmd = function(c)
+      cmds[#cmds + 1] = c
+    end
+    vim.notify = function(msg, level)
+      notified[#notified + 1] = { msg = msg, level = level }
     end
   end)
 
   after_each(function()
-    if vim.pack then
-      vim.pack.update = saved_update
-    end
-    vim.notify = saved_notify
+    install.run = saved.run
+    vim.fn.confirm = saved.confirm
+    vim.cmd = saved.cmd
+    vim.notify = saved.notify
     vim.fn.delete(tmp)
   end)
 
-  it("rewrites a bare spec to the branch form and refreshes the plugin", function()
+  it("rewrites a bare spec to the PR branch, installs it, and restarts on Yes", function()
     vim.fn.writefile({ "-- header", 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
     picker._apply(entry(), "my-branch")
-    local content = table.concat(vim.fn.readfile(tmp), "\n")
-    assert.is_truthy(content:find('{ src = "https://github.com/o/a", version = "my-branch" }', 1, true))
-    assert.same({ "a" }, updated)
+    assert.is_truthy(read():find('{ src = "https://github.com/o/a", version = "my-branch" }', 1, true))
+    assert.same({ name = "a", branch = "my-branch" }, installed)
+    assert.same({ "restart +confirm\\ qall" }, cmds)
   end)
 
-  it("resets a table-form spec back to the bare string when branch is nil", function()
-    vim.fn.writefile({ "-- header", 'vim.pack.add({ { src = "https://github.com/o/a", version = "old" } })' }, tmp)
+  it("leaves Neovim running and says so when the restart is declined", function()
+    vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
+    answer = 2
+    picker._apply(entry(), "b")
+    assert.same({}, cmds)
+    assert.equal(vim.log.levels.INFO, notified[#notified].level)
+  end)
+
+  it("restores the spec file and offers no restart when the install fails", function()
+    local original = { 'vim.pack.add({ "https://github.com/o/a" })' }
+    vim.fn.writefile(original, tmp)
+    verdict = false
+    picker._apply(entry(), "b")
+    assert.equal(original[1], read())
+    assert.is_false(confirmed)
+    assert.same({}, cmds)
+    assert.equal(vim.log.levels.ERROR, notified[#notified].level)
+  end)
+
+  it("resets a table-form spec to the default branch and restarts on Yes", function()
+    vim.fn.writefile({ 'vim.pack.add({ { src = "https://github.com/o/a", version = "old" } })' }, tmp)
     picker._apply(entry(), nil)
-    local content = table.concat(vim.fn.readfile(tmp), "\n")
-    assert.is_truthy(content:find('vim.pack.add({ "https://github.com/o/a" })', 1, true))
-    assert.same({ "a" }, updated)
+    assert.is_truthy(read():find('vim.pack.add({ "https://github.com/o/a" })', 1, true))
+    assert.same({ name = "a" }, installed)
+    assert.same({ "restart +confirm\\ qall" }, cmds)
   end)
 
-  it("warns and does not refresh when the src is absent from the spec file", function()
+  it("installs without rewriting when the spec already names the target", function()
+    local original = { 'vim.pack.add({ "https://github.com/o/a" })' }
+    vim.fn.writefile(original, tmp)
+    local mtime = vim.fn.getftime(tmp)
+    verdict = false
+    picker._apply(entry(), nil)
+    assert.same({ name = "a" }, installed)
+    assert.equal(original[1], read())
+    assert.equal(mtime, vim.fn.getftime(tmp))
+  end)
+
+  it("warns and does not install when the src is absent from the spec file", function()
     vim.fn.writefile({ 'vim.pack.add({ "https://github.com/other/repo" })' }, tmp)
     local e = entry()
     e.src = "https://github.com/not/here"
     picker._apply(e, "b")
-    assert.is_truthy(notified and notified:find("no spec"))
-    assert.is_nil(updated)
-  end)
-
-  it("is a no-op when resetting a spec already on the default branch", function()
-    vim.fn.writefile({ "-- header", 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
-    picker._apply(entry(), nil)
-    assert.is_nil(updated)
-    assert.is_truthy(notified and notified:find("up to date"))
-    local content = table.concat(vim.fn.readfile(tmp), "\n")
-    assert.is_truthy(content:find('vim.pack.add({ "https://github.com/o/a" })', 1, true))
+    assert.is_truthy(notified[1].msg:find("no spec"))
+    assert.is_nil(installed)
   end)
 
   it("aborts with an error when the spec file is missing", function()
     local e = entry()
     e.spec_file = "/no/such/pack-pr-test-dir/file.lua"
     picker._apply(e, "b")
-    assert.is_nil(updated)
-    assert.is_truthy(notified and notified:find("not found"))
-  end)
-
-  it("reports an error when vim.pack.update fails", function()
-    vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
-    vim.pack.update = function()
-      error("boom")
-    end
-    picker._apply(entry(), "b")
-    assert.is_truthy(notified and notified:find("failed"))
+    assert.is_nil(installed)
+    assert.is_truthy(notified[1].msg:find("not found"))
   end)
 end)
