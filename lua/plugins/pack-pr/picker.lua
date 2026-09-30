@@ -91,7 +91,7 @@ end
 
 ---Open the PR-branch picker: gather open PRs across `repos`, present them (plus
 ---a reset sentinel per repo) in a picker, and apply the selection.
----@param repos pack-pr.Repo[]? Defaults to the configured registry.
+---@param repos pack-pr.Repo[]? Defaults to the discovered repos.
 function M.open(repos)
   repos = repos or require("plugins.pack-pr").registry()
   if vim.fn.executable("gh") == 0 then
@@ -104,7 +104,7 @@ function M.open(repos)
     end
     local items = M._build_items(prlist, repos)
     if #items == 0 then
-      vim.notify("pack-pr: no managed repos configured", vim.log.levels.INFO)
+      vim.notify("pack-pr: no matching vim.pack plugins found", vim.log.levels.INFO)
       return
     end
     if #prlist == 0 and #errors == 0 then

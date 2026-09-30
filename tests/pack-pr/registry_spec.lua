@@ -1,36 +1,59 @@
 local registry = require("plugins.pack-pr.registry")
 
-describe("pack-pr registry", function()
-  describe("normalize", function()
-    it("derives src, name, and spec_file from a bare owner/repo string", function()
-      assert.same({
-        repo = "macintacos/agentcomplete.nvim",
-        src = "https://github.com/macintacos/agentcomplete.nvim",
-        name = "agentcomplete.nvim",
-        spec_file = "plugin/agentcomplete.lua",
-      }, registry.normalize("macintacos/agentcomplete.nvim"))
-    end)
+---@param src string
+---@param active boolean?
+---@return vim.pack.PlugData
+local function plug(src, active)
+  local name = src:match("([^/]+)$")
+  return {
+    spec = { src = src, name = name },
+    path = "/pack/opt/" .. name,
+    active = active ~= false,
+    rev = "0",
+  }
+end
 
-    it("lets a table entry override any derived field", function()
-      local r = registry.normalize({ repo = "owner/Thing.nvim", spec_file = "plugin/custom.lua" })
-      assert.equal("plugin/custom.lua", r.spec_file)
-      assert.equal("Thing.nvim", r.name)
-      assert.equal("https://github.com/owner/Thing.nvim", r.src)
+describe("pack-pr registry", function()
+  describe("discover", function()
+    it("derives repo, src, name, spec_file and path from an owner's plugin", function()
+      assert.same({
+        {
+          repo = "macintacos/agentcomplete.nvim",
+          src = "https://github.com/macintacos/agentcomplete.nvim",
+          name = "agentcomplete.nvim",
+          spec_file = "plugin/agentcomplete.lua",
+          path = "/pack/opt/agentcomplete.nvim",
+        },
+      }, registry.discover({ plug("https://github.com/macintacos/agentcomplete.nvim") }, "macintacos"))
     end)
 
     it("strips a .vim suffix when deriving the spec file", function()
-      local r = registry.normalize("owner/foo.vim")
-      assert.equal("plugin/foo.lua", r.spec_file)
-      assert.equal("foo.vim", r.name)
+      local repos = registry.discover({ plug("https://github.com/macintacos/foo.vim") }, "macintacos")
+      assert.equal("plugin/foo.lua", repos[1].spec_file)
+      assert.equal("foo.vim", repos[1].name)
     end)
-  end)
 
-  describe("build", function()
-    it("normalizes every entry in the list", function()
-      local repos = registry.build({ "a/b.nvim", { repo = "c/d.nvim", name = "dee" } })
-      assert.equal(2, #repos)
-      assert.equal("b.nvim", repos[1].name)
-      assert.equal("dee", repos[2].name)
+    it("keeps only the owner's plugins", function()
+      local repos = registry.discover({
+        plug("https://github.com/macintacos/a.nvim"),
+        plug("https://github.com/other/b.nvim"),
+        plug("https://github.com/macintacos-x/y.nvim"),
+        plug("https://github.com/macintacos/c.nvim"),
+      }, "macintacos")
+      assert.same(
+        { "macintacos/a.nvim", "macintacos/c.nvim" },
+        vim.tbl_map(function(r)
+          return r.repo
+        end, repos)
+      )
+    end)
+
+    it("skips inactive plugins", function()
+      assert.same({}, registry.discover({ plug("https://github.com/macintacos/a.nvim", false) }, "macintacos"))
+    end)
+
+    it("returns an empty list for no plugins", function()
+      assert.same({}, registry.discover({}, "macintacos"))
     end)
   end)
 end)

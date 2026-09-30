@@ -2,26 +2,25 @@ local registry = require("plugins.pack-pr.registry")
 
 local M = {}
 
----@type pack-pr.Repo[]
-local repos = {}
+---@type string
+local owner
 
 ---@class pack-pr.Config
----@field repos? (string|table)[] Managed repos: bare "owner/repo" strings or override tables.
+---@field owner string GitHub owner whose installed vim.pack plugins are managed.
 
----Configure the managed-repo registry and register the `:PackPR` command.
----@param opts pack-pr.Config?
+---Store the plugin owner and register the `:PackPR` command.
+---@param opts pack-pr.Config
 function M.setup(opts)
-  opts = opts or {}
-  repos = registry.build(opts.repos or registry.DEFAULT)
+  owner = opts.owner
   vim.api.nvim_create_user_command("PackPR", function()
-    require("plugins.pack-pr.picker").open(repos)
+    require("plugins.pack-pr.picker").open(M.registry())
   end, { desc = "Pick a PR branch to track via vim.pack" })
 end
 
----The normalized managed-repo registry (populated by setup()).
+---The owner's installed vim.pack plugins, discovered afresh on each call.
 ---@return pack-pr.Repo[]
 function M.registry()
-  return repos
+  return registry.discover(vim.pack.get(nil, { info = false }), owner)
 end
 
 return M
