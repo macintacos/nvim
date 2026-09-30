@@ -27,7 +27,7 @@ end)
 
 describe("pack-pr picker._apply (integration)", function()
   local install = require("plugins.pack-pr.install")
-  local tmp, saved, notified, installed, confirmed, cmds, verdict, answer, writes, during
+  local tmp, saved, notified, installed, confirmed, cmds, install_succeeds, restart_answer, writes, during_install
 
   local function entry()
     return { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = tmp, path = "/p" }
@@ -46,14 +46,14 @@ describe("pack-pr picker._apply (integration)", function()
       notify = vim.notify,
       writefile = vim.fn.writefile,
     }
-    notified, installed, confirmed, cmds, writes, during = {}, nil, false, {}, 0, nil
-    verdict, answer = true, 1
+    notified, installed, confirmed, cmds, writes, during_install = {}, nil, false, {}, 0, nil
+    install_succeeds, restart_answer = true, 1
     install.run = function(e, branch, cb)
       installed = { name = e.name, branch = branch }
-      if during then
-        during()
+      if during_install then
+        during_install()
       end
-      cb(verdict, not verdict and "boom" or nil)
+      cb(install_succeeds, not install_succeeds and "boom" or nil)
     end
     vim.fn.writefile = function(...)
       writes = writes + 1
@@ -61,7 +61,7 @@ describe("pack-pr picker._apply (integration)", function()
     end
     vim.fn.confirm = function()
       confirmed = true
-      return answer
+      return restart_answer
     end
     vim.cmd = function(c)
       cmds[#cmds + 1] = c
@@ -90,7 +90,7 @@ describe("pack-pr picker._apply (integration)", function()
 
   it("leaves Neovim running and says so when the restart is declined", function()
     vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
-    answer = 2
+    restart_answer = 2
     picker._apply(entry(), "b")
     assert.same({}, cmds)
     assert.equal(2, #notified)
@@ -100,7 +100,7 @@ describe("pack-pr picker._apply (integration)", function()
   it("restores the spec file and offers no restart when the install fails", function()
     local original = { 'vim.pack.add({ "https://github.com/o/a" })' }
     vim.fn.writefile(original, tmp)
-    verdict = false
+    install_succeeds = false
     picker._apply(entry(), "b")
     assert.equal(original[1], read())
     assert.is_false(confirmed)
@@ -110,8 +110,8 @@ describe("pack-pr picker._apply (integration)", function()
 
   it("keeps a spec edit made during a failing install", function()
     vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
-    verdict = false
-    during = function()
+    install_succeeds = false
+    during_install = function()
       saved.writefile({ "-- edited" }, tmp)
     end
     picker._apply(entry(), "b")
@@ -129,7 +129,7 @@ describe("pack-pr picker._apply (integration)", function()
   it("installs without touching a spec that already names the target, even when the install fails", function()
     vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
     writes = 0
-    verdict = false
+    install_succeeds = false
     picker._apply(entry(), nil)
     assert.same({ name = "a" }, installed)
     assert.equal(0, writes)

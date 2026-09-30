@@ -70,22 +70,22 @@ function M._apply(entry, branch)
     vim.notify(("pack-pr: spec file not found: %s"):format(entry.spec_file), vim.log.levels.ERROR)
     return
   end
-  local content = table.concat(vim.fn.readfile(path), "\n")
-  local new, changed = spec.rewrite(content, entry.src, branch)
-  if not changed and not content:find(vim.pesc(entry.src)) then
+  local original = table.concat(vim.fn.readfile(path), "\n")
+  local rewritten, changed = spec.rewrite(original, entry.src, branch)
+  if not changed and not original:find(vim.pesc(entry.src)) then
     vim.notify(("pack-pr: no spec for %s in %s"):format(entry.src, entry.spec_file), vim.log.levels.WARN)
     return
   end
   if changed then
-    vim.fn.writefile(vim.split(new, "\n"), path)
+    vim.fn.writefile(vim.split(rewritten, "\n"), path)
   end
   local target = branch or "its default branch"
   vim.notify(("pack-pr: installing %s for %s…"):format(target, entry.name), vim.log.levels.INFO)
   install.run(entry, branch, function(ok, reason)
     if not ok then
       -- Only undo our own rewrite; a later edit or selection may own the file now.
-      if changed and table.concat(vim.fn.readfile(path), "\n") == new then
-        vim.fn.writefile(vim.split(content, "\n"), path)
+      if changed and table.concat(vim.fn.readfile(path), "\n") == rewritten then
+        vim.fn.writefile(vim.split(original, "\n"), path)
       end
       vim.notify(("pack-pr: %s did not reach %s: %s"):format(entry.name, target, reason), vim.log.levels.ERROR)
       return

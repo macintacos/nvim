@@ -14,15 +14,15 @@ local M = {}
 function M.discover(plugins, owner)
   local prefix = "https://github.com/" .. owner .. "/"
   local repos = {}
-  for _, p in ipairs(plugins) do
-    local src, name = p.spec.src, p.spec.name
-    if p.active and vim.startswith(src, prefix) then
+  for _, plugin in ipairs(plugins) do
+    local src, name = plugin.spec.src, plugin.spec.name
+    if plugin.active and vim.startswith(src, prefix) then
       repos[#repos + 1] = {
         repo = src:sub(#"https://github.com/" + 1),
         src = src,
         name = name,
         spec_file = "plugin/" .. name:gsub("%.n?vim$", "") .. ".lua",
-        path = p.path,
+        path = plugin.path,
       }
     end
   end
