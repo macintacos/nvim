@@ -37,7 +37,7 @@ end
 ---@param cmd string[]
 ---@param cb fun(res: { code: integer, stdout: string? })
 local function default_runner(cmd, cb)
-  -- They override `-C`, as vim.pack knows when it clears them for its own git calls.
+  -- An inherited GIT_DIR/GIT_WORK_TREE overrides `-C`; vim.pack clears them for the same reason.
   local env = vim.fn.environ()
   env.GIT_DIR, env.GIT_WORK_TREE = nil, nil
   vim.system(cmd, { text = true, env = env, clear_env = true }, vim.schedule_wrap(cb))
