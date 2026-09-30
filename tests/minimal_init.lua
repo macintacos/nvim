@@ -10,8 +10,7 @@ vim.o.shadafile = "NONE"
 -- the rotation runs out after a dozen or so and the loser dies with E303 in
 -- whichever spec happened to call `enew`.
 vim.o.swapfile = false
--- Keep stdpath("state") and stdpath("cache") consumers, such as changeset's
--- preferences and tree cache, isolated per test process.
+-- Keep stdpath("state") and stdpath("cache") consumers isolated per test process.
 vim.env.XDG_STATE_HOME = vim.fn.tempname()
 vim.fn.mkdir(vim.env.XDG_STATE_HOME, "p")
 vim.env.XDG_CACHE_HOME = vim.fn.tempname()

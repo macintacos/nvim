@@ -14,7 +14,6 @@ M.dir = root .. "/.tests/deps"
 local plugins = {
   "blink.lib",
   "blink.pairs",
-  "gitsigns.nvim",
   "mini.extra",
   "mini.files",
   "mini.icons",

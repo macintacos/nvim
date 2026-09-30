@@ -7,7 +7,6 @@
     "${3rd}/luv/library",
     ".tests/deps/blink.lib",
     ".tests/deps/blink.pairs",
-    ".tests/deps/gitsigns.nvim",
     ".tests/deps/mini.extra",
     ".tests/deps/mini.files",
     ".tests/deps/mini.icons",
