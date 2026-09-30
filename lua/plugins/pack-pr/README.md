@@ -9,13 +9,17 @@ Running `:PackPR`:
 1. Discovers the plugins to manage from `vim.pack` (see [Discovery](#discovery)).
 2. Runs `gh pr list` (JSON) against each discovered repo and aggregates the open PRs.
 3. Opens a [mini.pick](https://github.com/nvim-mini/mini.pick) picker listing every PR (repo, number, title, branch, author), with a preview of the PR's fields and URL.
-4. On selection, rewrites the plugin's spec file so it tracks the PR branch (`{ src = ..., version = "<branch>" }`).
+4. On selection, rewrites the plugin's spec file so it tracks the PR branch (`{ src = ..., version = "<branch>" }`). If the spec already tracks that branch, it is left as is and the install still runs, which picks up the PR's new commits.
 5. Installs the branch in a headless Neovim. It then checks that the plugin's `HEAD` matches `origin/<branch>`.
-6. Asks whether to restart now. Yes runs `:restart`; no leaves a notification to restart later.
+6. Asks whether to restart now. Yes restarts Neovim, first asking about any unsaved buffers; No leaves a notification to restart later.
 
-If the install does not reach the branch, `:PackPR` restores the spec file to its previous contents and reports an error, so the next startup does not load a broken spec.
+The running session can't switch the branch itself: `vim.pack.update` targets the spec registered at startup, and a second `vim.pack.add` for an active plugin is ignored. A throwaway headless Neovim installs the branch and exits, so a single restart loads the new code.
+
+If the install does not reach the branch, `:PackPR` restores the spec file to its previous contents (when it still holds the rewrite) and reports `pack-pr: <name> did not reach <target>: <reason>`, so the next startup does not load a broken spec. The reason is either that `origin/<branch>` (or `origin/HEAD`, for a reset) was not found, or a pointer to `nvim-pack.log` under `stdpath("log")`, where `vim.pack` logs update errors.
 
 Each managed repo also gets a **"reset … → default branch"** entry in the picker. It rewrites the spec back to its bare-string (default-branch) form, then installs it and offers the restart. A failed install restores the spec the same way.
+
+PRs from forks aren't supported: their branch is looked up on the plugin's `origin`. One whose branch isn't on `origin` fails with an error.
 
 ## Discovery
 
@@ -42,6 +46,6 @@ An authenticated `gh` on `PATH`. If `gh` is not on `PATH`, `:PackPR` shows an er
 - `spec_spec`: spec rewriting.
 - `install_spec`: the headless install commands and their verification.
 - `picker_spec`: picker item-building, and an integration test of the spec-file round-trip.
-- `init_spec`: the command wiring.
+- `init_spec`: `setup`, discovery through `registry()`, and the `:PackPR` / `<leader>Pp` wiring.
 
 Run them with `mise run test tests/pack-pr/`.

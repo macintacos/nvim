@@ -1,6 +1,6 @@
 -- Local plugin (no upstream repo)
--- :PackPR — pick an open PR of an installed macintacos/* plugin, track its branch
--- via vim.pack (or reset to default), and restart into it to smoke-test live.
+-- :PackPR — pick an open PR of one of my installed plugins, install its branch via
+-- vim.pack (or reset to default), and restart into it.
 local Cmd = require("helpers.mappings").Cmd
 
 require("plugins.pack-pr").setup({ owner = "macintacos" })

@@ -1,7 +1,9 @@
 local M = {}
 
----argv for a headless Nvim that re-sources the config (so vim.pack registers the
----rewritten spec), force-updates `name`, and quits before VimEnter.
+---Argv for a headless Nvim that sources the config (registering the rewritten
+---spec), force-updates `name`, and quits before VimEnter, so no session is read.
+---No named buffer is open, so sessions.lua skips its VimLeavePre write.
+---`-i NONE` keeps the child off the running session's ShaDa.
 ---@param name string
 ---@return string[]
 function M._update_cmd(name)
@@ -11,11 +13,11 @@ function M._update_cmd(name)
     "-i",
     "NONE",
     ("+lua vim.pack.update({ %q }, { force = true })"):format(name),
-    "+qa",
+    "+qa!",
   }
 end
 
----argv printing HEAD and the ref vim.pack checks out for `branch` (default branch when nil).
+---Argv printing HEAD and the ref vim.pack checks out for `branch` (default branch when nil).
 ---@param path string
 ---@param branch string?
 ---@return string[]
@@ -31,32 +33,46 @@ function M._verified(res)
   return res.code == 0 and #shas == 2 and shas[1] == shas[2]
 end
 
+---Spawn `cmd` and pass its result to `cb` on the main loop.
 ---@param cmd string[]
 ---@param cb fun(res: { code: integer, stdout: string? })
 local function default_runner(cmd, cb)
-  vim.system(cmd, { text = true }, vim.schedule_wrap(cb))
+  -- They override `-C`, as vim.pack knows when it clears them for its own git calls.
+  local env = vim.fn.environ()
+  env.GIT_DIR, env.GIT_WORK_TREE = nil, nil
+  vim.system(cmd, { text = true, env = env, clear_env = true }, vim.schedule_wrap(cb))
 end
 
 local runner = default_runner
 
----Check out the version `entry`'s spec file names, then report whether HEAD reached it.
+---Install the version `entry`'s spec file now names in a headless Nvim, then
+---report whether HEAD reached `branch` (the default branch when nil).
 ---@param entry pack-pr.Repo
----@param branch string?
----@param cb fun(ok: boolean)
+---@param branch string? Must match the spec file: the ref to verify, nil for the default branch.
+---@param cb fun(ok: boolean, reason: string?) `reason` says why when not `ok`.
 function M.run(entry, branch, cb)
   -- The child exits 0 even when vim.pack's update fails, so only the rev-parse decides.
   runner(M._update_cmd(entry.name), function()
     runner(M._verify_cmd(entry.path, branch), function(res)
-      cb(M._verified(res))
+      if res.code ~= 0 then
+        cb(false, branch and ("origin/%s not found (fork PR?)"):format(branch) or "origin/HEAD not found")
+      elseif M._verified(res) then
+        cb(true)
+      else
+        -- A forced vim.pack.update reports per-plugin errors only in its log.
+        cb(false, "see " .. vim.fs.joinpath(vim.fn.stdpath("log"), "nvim-pack.log"))
+      end
     end)
   end)
 end
 
+---Override the process runner (test seam).
 ---@param fn fun(cmd: string[], cb: fun(res: { code: integer, stdout: string? }))
 function M._set_runner(fn)
   runner = fn
 end
 
+---Restore the default process runner (test seam).
 function M._reset()
   runner = default_runner
 end

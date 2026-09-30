@@ -1,11 +1,12 @@
 local pack_pr = require("plugins.pack-pr")
 
 describe("pack-pr setup", function()
-  local saved_get
+  local saved_get, get_opts
 
   before_each(function()
     saved_get = vim.pack.get
-    vim.pack.get = function()
+    vim.pack.get = function(_, opts)
+      get_opts = opts
       return {
         {
           spec = { src = "https://github.com/macintacos/thing.nvim", name = "thing.nvim" },
@@ -32,6 +33,7 @@ describe("pack-pr setup", function()
     local repos = pack_pr.registry()
     assert.equal(1, #repos)
     assert.equal("macintacos/thing.nvim", repos[1].repo)
+    assert.is_false(get_opts.info)
   end)
 
   it("registers the :PackPR user command", function()

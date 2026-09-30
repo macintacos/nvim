@@ -14,7 +14,7 @@ function M.setup(opts)
   owner = opts.owner
   vim.api.nvim_create_user_command("PackPR", function()
     require("plugins.pack-pr.picker").open(M.registry())
-  end, { desc = "Pick a PR branch to track via vim.pack" })
+  end, { desc = "Pick a plugin PR, install its branch and restart into it" })
 end
 
 ---The owner's installed vim.pack plugins, discovered afresh on each call.

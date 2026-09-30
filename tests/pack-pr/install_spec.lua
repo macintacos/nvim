@@ -2,26 +2,24 @@ local install = require("plugins.pack-pr.install")
 
 describe("pack-pr install._update_cmd", function()
   it("runs a headless, ShaDa-less nvim that force-updates the plugin and quits", function()
-    local cmd = install._update_cmd("x.nvim")
-    assert.equal(vim.v.progpath, cmd[1])
-    for _, arg in ipairs({ "--headless", "-i", "NONE", "+qa" }) do
-      assert.is_true(vim.tbl_contains(cmd, arg), arg)
-    end
-    assert.is_true(vim.tbl_contains(cmd, '+lua vim.pack.update({ "x.nvim" }, { force = true })'))
+    assert.same({
+      vim.v.progpath,
+      "--headless",
+      "-i",
+      "NONE",
+      '+lua vim.pack.update({ "x.nvim" }, { force = true })',
+      "+qa!",
+    }, install._update_cmd("x.nvim"))
   end)
 end)
 
 describe("pack-pr install._verify_cmd", function()
   it("compares HEAD with the PR branch on origin", function()
-    local cmd = install._verify_cmd("/p", "feat/x")
-    assert.equal("origin/feat/x", cmd[#cmd])
-    assert.same({ "-C", "/p" }, { cmd[2], cmd[3] })
+    assert.same({ "git", "-C", "/p", "rev-parse", "HEAD", "origin/feat/x" }, install._verify_cmd("/p", "feat/x"))
   end)
 
   it("compares HEAD with origin/HEAD for the default branch", function()
-    local cmd = install._verify_cmd("/p", nil)
-    assert.equal("origin/HEAD", cmd[#cmd])
-    assert.same({ "-C", "/p" }, { cmd[2], cmd[3] })
+    assert.same({ "git", "-C", "/p", "rev-parse", "HEAD", "origin/HEAD" }, install._verify_cmd("/p", nil))
   end)
 end)
 
@@ -67,14 +65,31 @@ describe("pack-pr install.run", function()
     assert.is_true(verdict)
   end)
 
-  it("reports failure when HEAD did not reach the target", function()
+  local function run_with(res, branch)
     install._set_runner(function(_, cb)
-      cb({ code = 0, stdout = "abc\ndef\n" })
+      cb(res)
     end)
-    local verdict
-    install.run(entry, nil, function(ok)
-      verdict = ok
+    local verdict, reason
+    install.run(entry, branch, function(ok, why)
+      verdict, reason = ok, why
     end)
-    assert.is_false(verdict)
+    return verdict, reason
+  end
+
+  it("points at the vim.pack log when HEAD did not reach the target", function()
+    local ok, reason = run_with({ code = 0, stdout = "abc\ndef\n" }, nil)
+    assert.is_false(ok)
+    assert.equal("see " .. vim.fs.joinpath(vim.fn.stdpath("log"), "nvim-pack.log"), reason)
+  end)
+
+  it("names the missing branch when origin lacks it", function()
+    local ok, reason = run_with({ code = 128, stdout = "abc\n" }, "patch-1")
+    assert.is_false(ok)
+    assert.equal("origin/patch-1 not found (fork PR?)", reason)
+  end)
+
+  it("names origin/HEAD when the default branch cannot be resolved", function()
+    local _, reason = run_with({ code = 128, stdout = "abc\n" }, nil)
+    assert.equal("origin/HEAD not found", reason)
   end)
 end)

@@ -54,7 +54,7 @@ end
 ---@param target string
 local function offer_restart(name, target)
   if vim.fn.confirm(("pack-pr: %s is on %s. Restart now?"):format(name, target), "&Yes\n&No", 1) == 1 then
-    vim.cmd("restart +confirm\\ qall")
+    vim.cmd("restart +confirm\\ qall") -- +confirm: modified buffers prompt instead of aborting with E37
     return
   end
   vim.notify(("pack-pr: %s is on %s; restart to load it"):format(name, target), vim.log.levels.INFO)
@@ -81,12 +81,13 @@ function M._apply(entry, branch)
   end
   local target = branch or "its default branch"
   vim.notify(("pack-pr: installing %s for %s…"):format(target, entry.name), vim.log.levels.INFO)
-  install.run(entry, branch, function(ok)
+  install.run(entry, branch, function(ok, reason)
     if not ok then
-      if changed then
+      -- Only undo our own rewrite; a later edit or selection may own the file now.
+      if changed and table.concat(vim.fn.readfile(path), "\n") == new then
         vim.fn.writefile(vim.split(content, "\n"), path)
       end
-      vim.notify(("pack-pr: %s did not reach %s"):format(entry.name, target), vim.log.levels.ERROR)
+      vim.notify(("pack-pr: %s did not reach %s: %s"):format(entry.name, target, reason), vim.log.levels.ERROR)
       return
     end
     offer_restart(entry.name, target)

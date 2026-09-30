@@ -27,7 +27,7 @@ end)
 
 describe("pack-pr picker._apply (integration)", function()
   local install = require("plugins.pack-pr.install")
-  local tmp, saved, notified, installed, confirmed, cmds, verdict, answer
+  local tmp, saved, notified, installed, confirmed, cmds, verdict, answer, writes, during
 
   local function entry()
     return { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = tmp, path = "/p" }
@@ -39,12 +39,25 @@ describe("pack-pr picker._apply (integration)", function()
 
   before_each(function()
     tmp = vim.fn.tempname() .. ".lua"
-    saved = { run = install.run, confirm = vim.fn.confirm, cmd = vim.cmd, notify = vim.notify }
-    notified, installed, confirmed, cmds = {}, nil, false, {}
+    saved = {
+      run = install.run,
+      confirm = vim.fn.confirm,
+      cmd = vim.cmd,
+      notify = vim.notify,
+      writefile = vim.fn.writefile,
+    }
+    notified, installed, confirmed, cmds, writes, during = {}, nil, false, {}, 0, nil
     verdict, answer = true, 1
     install.run = function(e, branch, cb)
       installed = { name = e.name, branch = branch }
-      cb(verdict)
+      if during then
+        during()
+      end
+      cb(verdict, not verdict and "boom" or nil)
+    end
+    vim.fn.writefile = function(...)
+      writes = writes + 1
+      return saved.writefile(...)
     end
     vim.fn.confirm = function()
       confirmed = true
@@ -63,6 +76,7 @@ describe("pack-pr picker._apply (integration)", function()
     vim.fn.confirm = saved.confirm
     vim.cmd = saved.cmd
     vim.notify = saved.notify
+    vim.fn.writefile = saved.writefile
     vim.fn.delete(tmp)
   end)
 
@@ -79,7 +93,8 @@ describe("pack-pr picker._apply (integration)", function()
     answer = 2
     picker._apply(entry(), "b")
     assert.same({}, cmds)
-    assert.equal(vim.log.levels.INFO, notified[#notified].level)
+    assert.equal(2, #notified)
+    assert.is_truthy(notified[2].msg:find("restart to load", 1, true))
   end)
 
   it("restores the spec file and offers no restart when the install fails", function()
@@ -90,7 +105,17 @@ describe("pack-pr picker._apply (integration)", function()
     assert.equal(original[1], read())
     assert.is_false(confirmed)
     assert.same({}, cmds)
-    assert.equal(vim.log.levels.ERROR, notified[#notified].level)
+    assert.same({ msg = "pack-pr: a did not reach b: boom", level = vim.log.levels.ERROR }, notified[#notified])
+  end)
+
+  it("keeps a spec edit made during a failing install", function()
+    vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
+    verdict = false
+    during = function()
+      saved.writefile({ "-- edited" }, tmp)
+    end
+    picker._apply(entry(), "b")
+    assert.equal("-- edited", read())
   end)
 
   it("resets a table-form spec to the default branch and restarts on Yes", function()
@@ -101,15 +126,13 @@ describe("pack-pr picker._apply (integration)", function()
     assert.same({ "restart +confirm\\ qall" }, cmds)
   end)
 
-  it("installs without rewriting when the spec already names the target", function()
-    local original = { 'vim.pack.add({ "https://github.com/o/a" })' }
-    vim.fn.writefile(original, tmp)
-    local mtime = vim.fn.getftime(tmp)
+  it("installs without touching a spec that already names the target, even when the install fails", function()
+    vim.fn.writefile({ 'vim.pack.add({ "https://github.com/o/a" })' }, tmp)
+    writes = 0
     verdict = false
     picker._apply(entry(), nil)
     assert.same({ name = "a" }, installed)
-    assert.equal(original[1], read())
-    assert.equal(mtime, vim.fn.getftime(tmp))
+    assert.equal(0, writes)
   end)
 
   it("warns and does not install when the src is absent from the spec file", function()
