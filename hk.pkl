@@ -85,7 +85,7 @@ local linters = new Mapping<String, Step> {
 local typecheck = new Mapping<String, Step> {
   ["Lua(Types)        [[lua-language-server]]"] = new Step {
     glob = List("**/*.lua", ".luarc.check.json", "nvim-pack-lock.json")
-    check = "mise run typecheck"
+    check = "mise run -q typecheck"
   }
 }
 
@@ -119,7 +119,7 @@ hooks {
     steps = new Mapping<String, Step> {
       ...typecheck
       ["Lua(Test)         [[plenary]]"] = new Step {
-        check = "mise run test"
+        check = "mise run -q test"
       }
     }
   }
