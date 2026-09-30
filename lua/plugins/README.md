@@ -9,7 +9,7 @@ This directory contains locally-defined Neovim plugins that live inside this con
 - [`ftchooser`](ftchooser/) — `<leader>fl` sets the current buffer's filetype from a picker of human-friendly names, and remembers the choice per file across restarts.
 - [`gotoline`](gotoline/) — exposes a `:GoToLine` command that opens a centered floating popup for jumping to a line in a project file.
 - [`mini-pickers`](mini-pickers/) — customised [mini.pick](https://github.com/nvim-mini/mini.pick) registry entries: a tree-rendered LSP document-symbol outline, thinned workspace symbol pickers, and a per-line git blame picker.
-- [`pack-pr`](pack-pr/) — `:PackPR` picks an open PR across managed GitHub repos and points the matching `vim.pack` spec at the PR's branch for live smoke-testing.
+- [`pack-pr`](pack-pr/) — `:PackPR` (`<leader>Pp`) picks an open PR of an installed `vim.pack` plugin, installs its branch, and restarts Neovim into it for live smoke-testing.
 - [`pack-tweaks`](pack-tweaks/) — tweaks to Neovim's built-in `vim.pack` plugin manager, each wired through `setup()`.
 - [`projects`](projects/) — `<leader>pp` picks a project from [zoxide](https://github.com/ajeetdsouza/zoxide) and relaunches Neovim there, so the shell ends up in the new directory too.
 - [`scratch`](scratch/) — `<leader>wt` opens a per-project scratch file at `.tmp/scratch.md`; `<leader>wT` opens the same file in an 80% float.
