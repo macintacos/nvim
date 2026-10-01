@@ -25,6 +25,61 @@ describe("pack-pr picker._build_items", function()
   end)
 end)
 
+describe("pack-pr picker._row", function()
+  local repos = {
+    { repo = "o/a", src = "https://github.com/o/a", name = "a.nvim", spec_file = "plugin/a.lua" },
+    { repo = "o/longer", src = "https://github.com/o/longer", name = "longer.nvim", spec_file = "plugin/longer.lua" },
+  }
+  local prlist = {
+    { repo = "o/a", number = 7, title = "Short title", branch = "feat", author = "me", url = "u" },
+    { repo = "o/longer", number = 123, title = "Another one", branch = "fix-it", author = "me", url = "u" },
+  }
+
+  local function rows(items, width)
+    local columns = picker._columns(items, width)
+    return vim.tbl_map(function(item)
+      return picker._row(item, columns)
+    end, items)
+  end
+
+  local function cells_before(text, byte)
+    return vim.fn.strdisplaywidth(text:sub(1, byte - 1))
+  end
+
+  it("right-aligns PR numbers", function()
+    local r = rows(picker._build_items(prlist, repos), 80)
+    local _, end7 = r[1].text:find("#7", 1, true)
+    local _, end123 = r[2].text:find("#123", 1, true)
+    assert.equal(cells_before(r[1].text, end7 + 1), cells_before(r[2].text, end123 + 1))
+  end)
+
+  it("starts every row's title at the same column", function()
+    local r = rows(picker._build_items(prlist, repos), 80)
+    -- A reset row leaves the number cell blank, so its label is the first text
+    -- after the plugin name.
+    local function label(text, name)
+      local _, name_end = text:find("%S+", (text:find(name, 1, true)))
+      return text:find("%S", name_end + 1)
+    end
+    local starts = {
+      cells_before(r[1].text, r[1].text:find("Short title", 1, true)),
+      cells_before(r[2].text, r[2].text:find("Another one", 1, true)),
+      cells_before(r[3].text, label(r[3].text, "a")),
+      cells_before(r[4].text, label(r[4].text, "longer")),
+    }
+    assert.same({ starts[1], starts[1], starts[1], starts[1] }, starts)
+  end)
+
+  it("clips a long title and branch so the row fits the window", function()
+    local long = {
+      { repo = "o/a", number = 7, title = ("word "):rep(20), branch = ("branch-"):rep(8), author = "me", url = "u" },
+    }
+    local row = rows(picker._build_items(long, repos), 60)[1]
+    assert.is_true(vim.fn.strdisplaywidth(row.text) + 2 + vim.fn.strdisplaywidth(row.branch) <= 60)
+    assert.equal("…", vim.fn.strcharpart(row.text, vim.fn.strchars(row.text) - 1))
+  end)
+end)
+
 describe("pack-pr picker._apply (integration)", function()
   local install = require("plugins.pack-pr.install")
   local tmp, saved, notified, installed, confirmed, cmds, install_succeeds, restart_answer, writes, during_install
