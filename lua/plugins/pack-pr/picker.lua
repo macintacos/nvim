@@ -1,3 +1,4 @@
+local install = require("plugins.pack-pr.install")
 local prs = require("plugins.pack-pr.prs")
 local spec = require("plugins.pack-pr.spec")
 
@@ -48,8 +49,19 @@ function M._build_items(prlist, repos)
   return items
 end
 
----Apply a selection: rewrite the entry's spec file to track `branch` (or reset
----to the default branch when nil), then refresh the plugin via vim.pack.update.
+---Ask to restart into the freshly installed `target`.
+---@param name string
+---@param target string
+local function offer_restart(name, target)
+  if vim.fn.confirm(("pack-pr: %s is on %s. Restart now?"):format(name, target), "&Yes\n&No", 1) == 1 then
+    vim.cmd("restart +confirm\\ qall") -- +confirm: modified buffers prompt instead of aborting with E37
+    return
+  end
+  vim.notify(("pack-pr: %s is on %s; restart to load it"):format(name, target), vim.log.levels.INFO)
+end
+
+---Apply a selection: rewrite the entry's spec file to track `branch` (or the
+---default branch when nil) if needed, install it headlessly, then offer a restart.
 ---@param entry pack-pr.Repo
 ---@param branch string?
 function M._apply(entry, branch)
@@ -58,40 +70,33 @@ function M._apply(entry, branch)
     vim.notify(("pack-pr: spec file not found: %s"):format(entry.spec_file), vim.log.levels.ERROR)
     return
   end
-  local content = table.concat(vim.fn.readfile(path), "\n")
-  local new, changed = spec.rewrite(content, entry.src, branch)
-  if not changed then
-    -- No write needed: either the source isn't in this file, or it already
-    -- matches the target state (e.g. resetting a spec already on default).
-    if content:find(vim.pesc(entry.src)) then
-      vim.notify(("pack-pr: %s already up to date"):format(entry.name), vim.log.levels.INFO)
-    else
-      vim.notify(("pack-pr: no spec for %s in %s"):format(entry.src, entry.spec_file), vim.log.levels.WARN)
+  local original = table.concat(vim.fn.readfile(path), "\n")
+  local rewritten, changed = spec.rewrite(original, entry.src, branch)
+  if not changed and not original:find(vim.pesc(entry.src)) then
+    vim.notify(("pack-pr: no spec for %s in %s"):format(entry.src, entry.spec_file), vim.log.levels.WARN)
+    return
+  end
+  if changed then
+    vim.fn.writefile(vim.split(rewritten, "\n"), path)
+  end
+  local target = branch or "its default branch"
+  vim.notify(("pack-pr: installing %s for %s…"):format(target, entry.name), vim.log.levels.INFO)
+  install.run(entry, branch, function(ok, reason)
+    if not ok then
+      -- Only undo our own rewrite; a later edit or selection may own the file now.
+      if changed and table.concat(vim.fn.readfile(path), "\n") == rewritten then
+        vim.fn.writefile(vim.split(original, "\n"), path)
+      end
+      vim.notify(("pack-pr: %s did not reach %s: %s"):format(entry.name, target, reason), vim.log.levels.ERROR)
+      return
     end
-    return
-  end
-  vim.fn.writefile(vim.split(new, "\n"), path)
-  local ok, err = pcall(vim.pack.update, { entry.name })
-  if not ok then
-    vim.notify(
-      ("pack-pr: %s spec rewritten but vim.pack.update failed: %s"):format(entry.name, err),
-      vim.log.levels.ERROR
-    )
-    return
-  end
-  if branch then
-    vim.notify(
-      ("pack-pr: %s now tracks %s (restart or :lua vim.pack.update to load)"):format(entry.name, branch),
-      vim.log.levels.INFO
-    )
-  else
-    vim.notify(("pack-pr: %s reset to its default branch"):format(entry.name), vim.log.levels.INFO)
-  end
+    offer_restart(entry.name, target)
+  end)
 end
 
 ---Open the PR-branch picker: gather open PRs across `repos`, present them (plus
 ---a reset sentinel per repo) in a picker, and apply the selection.
----@param repos pack-pr.Repo[]? Defaults to the configured registry.
+---@param repos pack-pr.Repo[]? Defaults to the discovered repos.
 function M.open(repos)
   repos = repos or require("plugins.pack-pr").registry()
   if vim.fn.executable("gh") == 0 then
@@ -104,7 +109,7 @@ function M.open(repos)
     end
     local items = M._build_items(prlist, repos)
     if #items == 0 then
-      vim.notify("pack-pr: no managed repos configured", vim.log.levels.INFO)
+      vim.notify("pack-pr: no matching vim.pack plugins found", vim.log.levels.INFO)
       return
     end
     if #prlist == 0 and #errors == 0 then
