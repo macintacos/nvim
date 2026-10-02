@@ -8,6 +8,7 @@ vim.schedule(function()
   local Cmd = require("helpers.mappings").Cmd
   local Kinds = require("plugins.mini-pickers.kinds")
   local Snacks = require("snacks")
+  local Windows = require("helpers.windows")
   local Yank = require("helpers.yank")
 
   -- Call a mini.pick registry picker directly. Going through `:Pick` routes the
@@ -40,6 +41,10 @@ vim.schedule(function()
     end
     return 2
   end
+
+  -- Resize mode's keys hang off a key nobody types: under <leader>wr they would
+  -- make it a prefix as well as a mapping, which which-key settles by timing.
+  local RESIZE = "<F35>"
 
   require("which-key").setup({
     preset = "helix",
@@ -282,6 +287,16 @@ vim.schedule(function()
       { "<leader>w", group = "window", proxy = "<C-w>", icon = { icon = "󰕰", color = "blue" } },
       { "<leader>w-", Cmd("rightbelow sb"), desc = "Split Window Horizontal", icon = { icon = "󰤼", color = "blue" } },
       { "<leader>w/", Cmd("vertical rightbelow sb"), desc = "Split Window Vertical", icon = { icon = "󰤻", color = "blue" } },
+      { "<leader>wr", function() require("which-key").show({ keys = RESIZE, loop = true }) end, desc = "Resize Mode", icon = { icon = "󰩨", color = "blue" } },
+      { RESIZE, group = "resize",
+        expand = function()
+          return {
+            { "h", function() Windows.resize("h") end, desc = "Left", icon = { icon = "󰁍", color = "blue" } },
+            { "j", function() Windows.resize("j") end, desc = "Down", icon = { icon = "󰁅", color = "blue" } },
+            { "k", function() Windows.resize("k") end, desc = "Up", icon = { icon = "󰁝", color = "blue" } },
+            { "l", function() Windows.resize("l") end, desc = "Right", icon = { icon = "󰁔", color = "blue" } },
+          }
+        end },
       { "<leader>wd", "<C-w>c", desc = "Delete Window", icon = { icon = "󰖭", color = "red" } },
       { "<leader>wD",
         function()

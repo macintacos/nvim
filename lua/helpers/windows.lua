@@ -26,6 +26,30 @@ function M.scroll_hover(direction)
   return true
 end
 
+local OPPOSITE = { h = "l", j = "k", k = "j", l = "h" }
+
+---Move a border of the current window one cell toward `dir`: the border on that
+---side when a window lies there, otherwise the opposite one, so a window at the
+---screen's edge still answers every direction.
+---@param dir "h"|"j"|"k"|"l"
+function M.resize(dir)
+  local current = vim.fn.winnr()
+  local side = vim.fn.winnr(dir) ~= current and dir or OPPOSITE[dir]
+  local neighbor = vim.fn.winnr(side)
+  -- Also keeps a full-height window's status line still, which would resize the cmdline.
+  if neighbor == current then
+    return
+  end
+  -- A window owns only its right separator and bottom status line.
+  local owner = (side == "h" or side == "k") and neighbor or current
+  local offset = (dir == "h" or dir == "k") and -1 or 1
+  if dir == "h" or dir == "l" then
+    vim.fn.win_move_separator(owner, offset)
+  else
+    vim.fn.win_move_statusline(owner, offset)
+  end
+end
+
 -- Where a jump target should sit vertically in the window: 30% down from the
 -- top, so the landing line has context above it and room to read below.
 local REVEAL_RATIO = 0.3

@@ -62,3 +62,77 @@ describe("windows.reveal_cursor", function()
     assert.same({}, keys)
   end)
 end)
+
+describe("windows.resize", function()
+  before_each(function()
+    vim.o.laststatus = 3
+  end)
+
+  after_each(function()
+    vim.cmd("only")
+  end)
+
+  ---Three columns of three windows each, cursor in the top-left one.
+  local function grid()
+    vim.cmd("vsplit | vsplit")
+    for _ = 1, 3 do
+      vim.cmd("split | split | wincmd l")
+    end
+    vim.cmd("wincmd t")
+  end
+
+  ---The current window's outermost rows and columns.
+  ---@return table<string, integer>
+  local function edges()
+    local row, col = unpack(vim.api.nvim_win_get_position(0))
+    return {
+      top = row,
+      bottom = row + vim.api.nvim_win_get_height(0) - 1,
+      left = col,
+      right = col + vim.api.nvim_win_get_width(0) - 1,
+    }
+  end
+
+  ---How far each edge of the current window moves when `dir` is resized.
+  ---@param dir string
+  ---@return table<string, integer>
+  local function moved(dir)
+    local before = edges()
+    windows.resize(dir)
+    local after = edges()
+    local delta = {}
+    for edge, pos in pairs(after) do
+      if pos ~= before[edge] then
+        delta[edge] = pos - before[edge]
+      end
+    end
+    return delta
+  end
+
+  for dir, want in pairs({ h = { left = -1 }, j = { bottom = 1 }, k = { top = -1 }, l = { right = 1 } }) do
+    it(("%s pushes the edge on that side outward when a window lies there"):format(dir), function()
+      grid()
+      vim.cmd("wincmd j | wincmd l")
+
+      assert.same(want, moved(dir))
+    end)
+  end
+
+  for dir, want in pairs({ h = { right = -1 }, j = { top = 1 }, k = { bottom = -1 }, l = { left = 1 } }) do
+    it(("%s pulls the opposite edge along at the screen's %s border"):format(dir, dir), function()
+      grid()
+      vim.cmd(({ h = "wincmd t", k = "wincmd t", j = "wincmd b", l = "wincmd b" })[dir])
+
+      assert.same(want, moved(dir))
+    end)
+  end
+
+  it("leaves a lone window and 'cmdheight' as they are", function()
+    local cmdheight = vim.o.cmdheight
+
+    for _, dir in ipairs({ "h", "j", "k", "l" }) do
+      assert.same({}, moved(dir))
+    end
+    assert.equal(cmdheight, vim.o.cmdheight)
+  end)
+end)
