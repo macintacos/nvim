@@ -126,8 +126,7 @@
     },
     "mini.icons": {
       "rev": "e56797f90192d81f1fda02e662fc3e8e3d775027",
-      "src": "https://github.com/nvim-mini/mini.icons",
-      "version": "'stable'"
+      "src": "https://github.com/nvim-mini/mini.icons"
     },
     "mini.indentscope": {
       "rev": "d3f955f09b1a05d25d5a7740338fba2baaee41a3",
