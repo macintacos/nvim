@@ -91,6 +91,22 @@ M.md_rules = {
   },
 }
 
+-- blink.pairs pairs `<>` only for generics in a few languages; markdown wants
+-- it for inline HTML and autolinks.
+M.md_tag_rules = {
+  ["<"] = { "<", ">", languages = md, enter = false, space = false },
+  -- The `<` pair already left a `>` under the cursor, so `<!--` closes with
+  -- `--` instead of the stock rule's `-->`, which would stack a second `>`.
+  ["!"] = {
+    "<!--",
+    "--",
+    languages = md,
+    when = function(ctx)
+      return ctx:is_after_cursor(">")
+    end,
+  },
+}
+
 ---`<C-g>U`-guarded cursor shifts, mirroring blink.pairs' ops.shift_keycode.
 local function md_shift(amount)
   local non_undo = vim.api.nvim_get_mode().mode ~= "c" and "<C-g>U" or ""

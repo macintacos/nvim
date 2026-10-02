@@ -111,13 +111,15 @@ for key, definitions in pairs(pairs_schema.pairs[1]) do
   end
 end
 
--- Markdown emphasis rules bring their own span-aware parity predicate, so they
--- register after the walk instead of inheriting `balanced` from it.
-for key, rule in pairs(blink_pairs.md_rules) do
-  local definitions = pairs_schema.pairs[1][key] or {}
-  ---@cast definitions blink.pairs.RuleDefinition[]
-  table.insert(definitions, rule)
-  pairs_schema.pairs[1][key] = definitions
+-- Markdown rules register after the walk: the emphasis ones bring their own
+-- span-aware parity predicate instead of inheriting `balanced` from it.
+for _, rules in ipairs({ blink_pairs.md_rules, blink_pairs.md_tag_rules }) do
+  for key, rule in pairs(rules) do
+    local definitions = pairs_schema.pairs[1][key] or {}
+    ---@cast definitions blink.pairs.RuleDefinition[]
+    table.insert(definitions, rule)
+    pairs_schema.pairs[1][key] = definitions
+  end
 end
 
 require("blink.pairs").setup({
