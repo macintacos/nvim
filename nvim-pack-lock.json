@@ -22,7 +22,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "9e99e7e8b092b8857cb1fa118445a621d67374b8",
+      "rev": "dd576850b00fa2eb4fdb5c4e01a58bf5d877b286",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
@@ -231,7 +231,7 @@
       "src": "https://github.com/parwest/peeper-picker.nvim"
     },
     "pkl-neovim": {
-      "rev": "067642e6b917a00a67c2b2ecb2caf2790d796d0d",
+      "rev": "20bfa7232262f36da45470170e7a954e487f4ac6",
       "src": "https://github.com/apple/pkl-neovim"
     },
     "plenary.nvim": {
