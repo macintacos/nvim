@@ -4,7 +4,7 @@ vim.pack.add({
   "https://github.com/MeanderingProgrammer/render-markdown.nvim",
 
   -- Dependencies
-  "https://github.com/nvim-mini/mini.icons",
+  { src = "https://github.com/nvim-mini/mini.icons", version = "stable" },
   "https://github.com/nvim-treesitter/nvim-treesitter",
 })
 
