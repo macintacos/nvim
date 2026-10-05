@@ -36,10 +36,12 @@ local session_excluded_dirs = { "/private/var/folders", "/private/tmp" }
 ---@return boolean
 local function session_excluded(name)
   local resolved = vim.fn.resolve(name)
-  -- Agents drop files into a .agent-drop/ at any depth of any repo, so it is
-  -- matched by name rather than by prefix like the directories above.
-  if vim.list_contains(vim.split(resolved, "/", { plain = true }), ".agent-drop") then
-    return true
+  -- Agents drop files into these at any depth of any repo, so they are matched
+  -- by name rather than by prefix like the directories above.
+  for _, part in ipairs(vim.split(resolved, "/", { plain = true })) do
+    if part == ".agent-drop" or part == "__exec-plans__" then
+      return true
+    end
   end
   for _, dir in ipairs(session_excluded_dirs) do
     if vim.startswith(resolved, dir .. "/") then
