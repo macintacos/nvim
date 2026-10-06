@@ -22,9 +22,9 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "2638bfae2b1645e4e75fce8f0676639bb36a18a8",
+      "rev": "7c25061089ff7d9c31bed48143fe1aaec7ed6a7d",
       "src": "https://github.com/macintacos/changeset.nvim",
-      "version": "'EXC-1563/end-to-end-sandbox-check'"
+      "version": "'incorporating-feedback'"
     },
     "chezmoi.nvim": {
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",
