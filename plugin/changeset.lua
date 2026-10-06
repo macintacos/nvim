@@ -6,6 +6,8 @@ require("changeset").setup({
   keymaps = { next = "]h", prev = "[h" },
   -- Off the default branch, diffs gitsigns against the fork point; `:Changeset review` (<leader>gP, <leader>Tp) errors without it.
   pr_review = { enabled = true },
+  -- The statuscolumn draws the comment bubble in its fold slot instead.
+  review_comment = { sign = false },
 })
 
 -- Mapped here rather than in plugin/which-key.lua so it travels with the plugin.

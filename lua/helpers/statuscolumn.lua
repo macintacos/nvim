@@ -32,4 +32,19 @@ function M.wrap_mark(lnum, virtnum)
   return virtnum == (height.all - height.fill - 1) and ELBOW or STEM
 end
 
+---Fold slot for one row: changeset's review comment bubble on a line's first
+---row when it has one, the fold marker otherwise.
+---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).
+---@param virtnum integer Index of this row within that line's rows (|v:virtnum|).
+---@return string
+function M.fold(lnum, virtnum)
+  -- Requiring changeset here would load it at startup; until it loads, no line has a bubble.
+  local changeset = package.loaded.changeset
+  local glyph, hl
+  if changeset and changeset.bubble and virtnum == 0 then
+    glyph, hl = changeset.bubble(0, lnum)
+  end
+  return glyph and "%#" .. hl .. "#" .. glyph .. "%*" or "%C"
+end
+
 return M

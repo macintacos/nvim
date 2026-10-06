@@ -30,3 +30,39 @@ describe("statuscolumn.wrap_mark", function()
     assert.equal("╰", statuscolumn.wrap_mark(1, last))
   end)
 end)
+
+describe("statuscolumn.fold", function()
+  after_each(function()
+    package.loaded.changeset = nil
+  end)
+
+  it("draws the fold marker when changeset isn't loaded", function()
+    assert.equal("%C", statuscolumn.fold(1, 0))
+  end)
+
+  it("draws the fold marker when changeset has no bubble lookup", function()
+    package.loaded.changeset = {}
+    assert.equal("%C", statuscolumn.fold(1, 0))
+  end)
+
+  it("draws a line's review comment bubble in its highlight", function()
+    package.loaded.changeset = {
+      bubble = function(buf, lnum)
+        if buf == 0 and lnum == 3 then
+          return "󰍩", "ChangesetReviewComment"
+        end
+      end,
+    }
+    assert.equal("%#ChangesetReviewComment#󰍩%*", statuscolumn.fold(3, 0))
+    assert.equal("%C", statuscolumn.fold(2, 0))
+  end)
+
+  it("draws the fold marker on a wrapped row of a line with a bubble", function()
+    package.loaded.changeset = {
+      bubble = function()
+        return "󰍩", "ChangesetReviewComment"
+      end,
+    }
+    assert.equal("%C", statuscolumn.fold(3, 1))
+  end)
+end)

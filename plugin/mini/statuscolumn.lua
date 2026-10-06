@@ -9,6 +9,7 @@ local statuscolumn = require("mini.statuscolumn")
 local helper = "v:lua.require'helpers.statuscolumn'"
 local line_number = "%{" .. helper .. ".line_number(v:lnum, v:relnum)}"
 local wrap_mark = "%{" .. helper .. ".wrap_mark(v:lnum, v:virtnum)}"
+local fold_slot = "%{%" .. helper .. ".fold(v:lnum, v:virtnum)%}"
 
 -- mini's own default spec, with two changes: the numbers are drawn here rather
 -- than by `%l`, and wrapped rows draw a continuous run ending in an elbow
@@ -30,7 +31,7 @@ statuscolumn.setup({
     -- Fold markers sit ahead of the `%=`, pinning them to the left edge rather
     -- than letting the padding of a short row push them around. The space ahead
     -- of the signs keeps diagnostic icons off the digits.
-    { format = "f=ls", sign = " %s", sep = "▏" },
+    { format = "f=ls", fold = fold_slot, sign = " %s", sep = "▏" },
     { ltype = "virt", lnum = "•" },
     { ltype = "text", lnum = line_number },
     -- `%C` is evaluated per row, so a fold marker otherwise repeats down every
