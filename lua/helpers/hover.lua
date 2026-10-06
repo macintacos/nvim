@@ -4,6 +4,8 @@ local ns = vim.api.nvim_create_namespace("helpers.hover")
 
 local FOCUS_ID = "textDocument/hover"
 
+local CHANGESET = "changeset"
+
 ---@type table<vim.diagnostic.Severity, string>
 local SEVERITY_NAMES = { "Error", "Warn", "Info", "Hint" }
 
@@ -53,22 +55,30 @@ local function cursor_line_diagnostics()
 end
 
 ---Hover docs from every attached LSP client, as markdown lines.
+---The `changeset` client's review comments come apart so they can lead the popup.
 ---@param results table<integer, { err: lsp.ResponseError?, result: lsp.Hover? }>
----@return string[]
+---@return string[] review Markdown lines from the changeset client
+---@return string[] docs Every other client's docs, each preceded by a `---` rule
 local function hover_lines(results)
-  local lines = {}
-  for _, response in pairs(results) do
+  local review, docs = {}, {}
+  for client_id, response in pairs(results) do
     local contents = response.result and vim.lsp.util.convert_input_to_markdown_lines(response.result.contents)
     if contents and #contents > 0 then
-      lines[#lines + 1] = "---"
-      vim.list_extend(lines, contents)
+      local client = vim.lsp.get_client_by_id(client_id)
+      if client and client.name == CHANGESET then
+        vim.list_extend(review, contents)
+      else
+        docs[#docs + 1] = "---"
+        vim.list_extend(docs, contents)
+      end
     end
   end
-  return lines
+  return review, docs
 end
 
----Show LSP hover docs for the cursor, with the cursor line's diagnostics merged above them.
----Without diagnostics this is plain `vim.lsp.buf.hover`.
+---Show LSP hover docs for the cursor, with the cursor line's diagnostics merged above them
+---and changeset's review comments above those.
+---Without diagnostics or a changeset client this is plain `vim.lsp.buf.hover`.
 ---@param config vim.lsp.buf.hover.Opts
 function M.hover(config)
   local existing = vim.b.lsp_floating_preview
@@ -77,29 +87,43 @@ function M.hover(config)
     return
   end
 
+  local bufnr, win = vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
   local icons = vim.tbl_get(vim.diagnostic.config() or {}, "signs", "text") or { "E", "W", "I", "H" }
   local lines, highlights = format_diagnostics(cursor_line_diagnostics(), icons)
-  if #lines == 0 then
+  if #lines == 0 and #vim.lsp.get_clients({ bufnr = bufnr, name = CHANGESET }) == 0 then
     return vim.lsp.buf.hover(config)
   end
 
-  local bufnr, win = vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
   local cursor = vim.api.nvim_win_get_cursor(win)
 
+  ---@param review string[]
   ---@param docs string[]
-  local function open(docs)
-    local float_buf = vim.lsp.util.open_floating_preview(
-      vim.list_extend(vim.list_extend({}, lines), docs),
-      "markdown",
-      vim.tbl_extend("force", config, { focus_id = FOCUS_ID })
-    )
+  local function open(review, docs)
+    local content = vim.list_extend({}, review)
+    if #review > 0 and #lines > 0 then
+      content[#content + 1] = "---"
+    end
+    vim.list_extend(vim.list_extend(content, lines), docs)
+    if #lines == 0 and #review == 0 then
+      table.remove(content, 1)
+    end
+    if #content == 0 then
+      return vim.notify("No information available", vim.log.levels.INFO)
+    end
+    local float_buf =
+      vim.lsp.util.open_floating_preview(content, "markdown", vim.tbl_extend("force", config, { focus_id = FOCUS_ID }))
+    -- Markdown normalizing can reflow the review lines, so find where the diagnostics landed.
+    local first = #lines > 0 and vim.fn.index(vim.api.nvim_buf_get_lines(float_buf, 0, -1, false), lines[1]) or -1
+    if first < 0 then
+      return
+    end
     for row, group in ipairs(highlights) do
-      vim.api.nvim_buf_set_extmark(float_buf, ns, row - 1, 0, { line_hl_group = group })
+      vim.api.nvim_buf_set_extmark(float_buf, ns, first + row - 1, 0, { line_hl_group = group })
     end
   end
 
   if #vim.lsp.get_clients({ bufnr = bufnr, method = FOCUS_ID }) == 0 then
-    return open({})
+    return open({}, {})
   end
   vim.lsp.buf_request_all(bufnr, FOCUS_ID, function(client)
     return vim.lsp.util.make_position_params(win, client.offset_encoding)
