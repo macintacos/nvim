@@ -30,16 +30,18 @@ end
 -- exists to be reopened tomorrow.
 local session_excluded_dirs = { "/private/var/folders", "/private/tmp" }
 
+-- Directories agents drop files into at any depth of any repo, so they are
+-- matched by name rather than by prefix like the directories above.
+local session_excluded_names = { ".agent-drop", "__exec-plans__" }
+
 -- resolve() first because Neovim reports those paths as /var/folders/..., the
 -- unresolved symlink, so a prefix match on the real location would never hit.
 ---@param name string Absolute path: a buffer name or a working directory
 ---@return boolean
 local function session_excluded(name)
   local resolved = vim.fn.resolve(name)
-  -- Agents drop files into these at any depth of any repo, so they are matched
-  -- by name rather than by prefix like the directories above.
   for _, part in ipairs(vim.split(resolved, "/", { plain = true })) do
-    if part == ".agent-drop" or part == "__exec-plans__" then
+    if vim.list_contains(session_excluded_names, part) then
       return true
     end
   end
