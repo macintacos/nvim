@@ -44,6 +44,16 @@ local function set_link_hover_hl()
   vim.api.nvim_set_hl(0, "LinkHoverIcon", { fg = p.blue, bg = p.surface1 })
 end
 
+-- changeset.nvim's unified diff: an added or deleted line's background, and the
+-- stronger one behind the characters it changed. Overrides changeset's defaults,
+-- which it derives from the theme.
+local function set_changeset_diff_hl()
+  vim.api.nvim_set_hl(0, "ChangesetDiffAdd", { bg = "#192a1f" })
+  vim.api.nvim_set_hl(0, "ChangesetDiffAddText", { bg = "#315b32" })
+  vim.api.nvim_set_hl(0, "ChangesetDiffDelete", { bg = "#29191d" })
+  vim.api.nvim_set_hl(0, "ChangesetDiffDeleteText", { bg = "#7b3632" })
+end
+
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups.
 -- Fires when catppuccin loads at startup (plugin/catppuccin.lua) and on any
 -- later colorscheme change. The immediate call covers manual :source of this
@@ -54,9 +64,11 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     set_flash_hl()
     set_picker_match_hl()
     set_link_hover_hl()
+    set_changeset_diff_hl()
   end,
 })
 
 set_flash_hl()
 set_picker_match_hl()
 set_link_hover_hl()
+set_changeset_diff_hl()
