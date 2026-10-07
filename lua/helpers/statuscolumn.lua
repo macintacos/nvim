@@ -50,7 +50,7 @@ function M.wrap_mark(lnum, virtnum)
 end
 
 ---Fold slot for one row: changeset's review comment bubble on a line's first
----row when it has one, the fold marker otherwise.
+---row when it has one, the fold marker on a line in a fold, a blank otherwise.
 ---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).
 ---@param virtnum integer Index of this row within that line's rows (|v:virtnum|).
 ---@return string
@@ -61,7 +61,12 @@ function M.fold(lnum, virtnum)
   if changeset and changeset.bubble and virtnum == 0 then
     glyph, hl = changeset.bubble(0, lnum)
   end
-  return glyph and "%#" .. hl .. "#" .. glyph .. "%*" or "%C"
+  if glyph then
+    return "%#" .. hl .. "#" .. glyph .. "%*"
+  end
+  -- `%C` always draws in FoldColumn, but a blank takes the row's number
+  -- highlight, so changeset's added-line tint reaches the left edge.
+  return vim.fn.foldlevel(lnum) > 0 and "%C" or " "
 end
 
 return M

@@ -62,8 +62,20 @@ describe("statuscolumn.wrap_mark", function()
 end)
 
 describe("statuscolumn.fold", function()
+  -- Lines 1 to 3 sit in a fold, line 4 in none.
+  before_each(function()
+    vim.cmd("enew!")
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "a", "b", "c", "d" })
+    vim.wo.foldmethod = "manual"
+    vim.cmd("1,3fold")
+  end)
+
   after_each(function()
     package.loaded.changeset = nil
+  end)
+
+  it("draws a blank in place of the fold marker on a line in no fold, taking the row's number highlight", function()
+    assert.equal(" ", statuscolumn.fold(4, 0))
   end)
 
   it("draws the fold marker when changeset isn't loaded", function()
