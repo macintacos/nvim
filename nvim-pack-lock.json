@@ -59,7 +59,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "070a5d7b985546cc57e1fc61e5bc507fecac6045",
+      "rev": "851a051e2bd2caba97e23314c68d69f1b1cf5d19",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -136,7 +136,7 @@
       "version": "'stable'"
     },
     "mini.input": {
-      "rev": "be28a8483593b58e8bbe36ce1739dfbb70ffe885",
+      "rev": "6bee87cab7f48552fe7c18c09b65ed6559fa307e",
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.notify": {
@@ -197,7 +197,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "a9bb4d5f4276aa5cddc015faa3ecc5a7b5a26b14",
+      "rev": "33497f4930d40f28a465d38a763a00fc6902c658",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-recorder": {
@@ -209,7 +209,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "728e031f6b11d03d1f0708b7dc4fb0f1d9c8a137",
+      "rev": "e289100ff98969e118c702199d88b764ce9e7fdf",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -221,7 +221,7 @@
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "1212014bb22a1f44a655e8e706659892b8e43e59",
+      "rev": "d3939a735817a1c7309682b87e861bb9e69c8c20",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
@@ -245,7 +245,7 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "render-markdown.nvim": {
-      "rev": "640a3ec6d538bad17c328be373c7cad0293d9589",
+      "rev": "245956d67572c137df375dbf256e96bdb07e0937",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
@@ -261,7 +261,7 @@
       "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
     },
     "smear-cursor.nvim": {
-      "rev": "af2e5325760abbdc121ac5a963c8d8ceaa28552a",
+      "rev": "f6cb57c342268177f719acc3968b9d8de3ecc969",
       "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
     "snacks.nvim": {
@@ -281,7 +281,7 @@
       "src": "https://github.com/folke/ts-comments.nvim"
     },
     "tunnelvision.nvim": {
-      "rev": "c1297e231b385cccfce1ee46783aa0f22b566d21",
+      "rev": "e2b444f15aa237cba7c601ac711b63fe0c6dc81e",
       "src": "https://github.com/leolaurindo/tunnelvision.nvim"
     },
     "venv-selector.nvim": {
