@@ -62,29 +62,36 @@ describe("statuscolumn.wrap_mark", function()
 end)
 
 describe("statuscolumn.fold", function()
-  -- Lines 1 to 3 sit in a fold, line 4 in none.
+  local OPEN, CLOSED = "%#FoldColumn#v%*", "%#FoldColumn#>%*"
+
+  -- An open fold over lines 1 and 2, a closed one over lines 3 and 4, and line 5 in neither.
   before_each(function()
     vim.cmd("enew!")
-    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "a", "b", "c", "d" })
+    vim.opt.fillchars:append({ foldopen = "v", foldclose = ">" })
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "a", "b", "c", "d", "e" })
     vim.wo.foldmethod = "manual"
-    vim.cmd("1,3fold")
+    vim.cmd("1,2fold | 3,4fold | 1foldopen")
   end)
 
   after_each(function()
     package.loaded.changeset = nil
   end)
 
-  it("draws a blank in place of the fold marker on a line in no fold, taking the row's number highlight", function()
-    assert.equal(" ", statuscolumn.fold(4, 0))
+  it("draws each fold's chevron on its first line, in FoldColumn over the row's own background", function()
+    assert.same({ OPEN, CLOSED }, { statuscolumn.fold(1, 0), statuscolumn.fold(3, 0) })
   end)
 
-  it("draws the fold marker when changeset isn't loaded", function()
-    assert.equal("%C", statuscolumn.fold(1, 0))
+  it("draws a blank, which takes the row's number highlight, on a line no fold starts on", function()
+    assert.same({ " ", " " }, { statuscolumn.fold(2, 0), statuscolumn.fold(5, 0) })
   end)
 
-  it("draws the fold marker when changeset has no bubble lookup", function()
+  it("draws the chevron when changeset isn't loaded", function()
+    assert.equal(OPEN, statuscolumn.fold(1, 0))
+  end)
+
+  it("draws the chevron when changeset has no bubble lookup", function()
     package.loaded.changeset = {}
-    assert.equal("%C", statuscolumn.fold(1, 0))
+    assert.equal(OPEN, statuscolumn.fold(1, 0))
   end)
 
   it("draws a line's review comment bubble in its highlight", function()
@@ -96,15 +103,15 @@ describe("statuscolumn.fold", function()
       end,
     }
     assert.equal("%#ChangesetReviewComment#󰍩%*", statuscolumn.fold(3, 0))
-    assert.equal("%C", statuscolumn.fold(2, 0))
+    assert.equal(OPEN, statuscolumn.fold(1, 0))
   end)
 
-  it("draws the fold marker on a wrapped row of a line with a bubble", function()
+  it("draws a blank on a wrapped row of a line with a bubble and a chevron", function()
     package.loaded.changeset = {
       bubble = function()
         return "󰍩", "ChangesetReviewComment"
       end,
     }
-    assert.equal("%C", statuscolumn.fold(3, 1))
+    assert.equal(" ", statuscolumn.fold(1, 1))
   end)
 end)

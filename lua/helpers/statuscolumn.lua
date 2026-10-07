@@ -49,24 +49,55 @@ function M.wrap_mark(lnum, virtnum)
   return virtnum == (height.all - height.fill - 1) and ELBOW or STEM
 end
 
+-- Neovim exposes no open fold's start outside C; snacks.statuscolumn reads it
+-- the same way. pcall: another plugin may have declared these types already.
+local ffi = require("ffi")
+pcall(
+  ffi.cdef,
+  [[
+  typedef struct {} Error;
+  typedef struct {} win_T;
+  typedef struct { int start; int level; int llevel; int lines; } foldinfo_T;
+  foldinfo_T fold_info(win_T *wp, int lnum);
+  win_T *find_window_by_handle(int window, Error *err);
+]]
+)
+
+---The chevron 'fillchars' gives the fold starting at a line, or nil when none
+---does. Blank 'foldsep' and 'foldinner' leave nothing else for `%C` to draw.
+---@param lnum integer
+---@return string?
+local function chevron(lnum)
+  local info = ffi.C.fold_info(ffi.C.find_window_by_handle(0, ffi.new("Error")), lnum)
+  local fillchars = vim.opt.fillchars:get()
+  if info.lines > 0 then
+    return fillchars.foldclose
+  end
+  if info.level > 0 and info.start == lnum then
+    return fillchars.foldopen
+  end
+end
+
 ---Fold slot for one row: changeset's review comment bubble on a line's first
----row when it has one, the fold marker on a line in a fold, a blank otherwise.
+---row when it has one, the chevron of a fold starting on the line, a blank
+---otherwise. Drawn rather than left to `%C`, which paints FoldColumn alone and
+---so stops changeset's added-line tint one cell short of the edge; a group named
+---here only lays its colours over the row's number highlight.
 ---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).
 ---@param virtnum integer Index of this row within that line's rows (|v:virtnum|).
 ---@return string
 function M.fold(lnum, virtnum)
+  if virtnum ~= 0 then
+    return " "
+  end
   -- Requiring changeset here would load it at startup; until it loads, no line has a bubble.
   local changeset = package.loaded.changeset
   local glyph, hl
-  if changeset and changeset.bubble and virtnum == 0 then
+  if changeset and changeset.bubble then
     glyph, hl = changeset.bubble(0, lnum)
   end
-  if glyph then
-    return "%#" .. hl .. "#" .. glyph .. "%*"
-  end
-  -- `%C` always draws in FoldColumn, but a blank takes the row's number
-  -- highlight, so changeset's added-line tint reaches the left edge.
-  return vim.fn.foldlevel(lnum) > 0 and "%C" or " "
+  glyph = glyph or chevron(lnum)
+  return glyph and "%#" .. (hl or "FoldColumn") .. "#" .. glyph .. "%*" or " "
 end
 
 return M
