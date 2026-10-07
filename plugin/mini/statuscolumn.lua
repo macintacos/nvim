@@ -39,6 +39,12 @@ statuscolumn.setup({
     { ltype = "wrap", fold = " ", lnum = "%#StatuscolumnWrap#" .. wrap_mark .. "%*" },
     { pos = "cursor", ltype = "wrap", lnum = "%#CursorLineNr#" .. wrap_mark .. "%*" },
     { win = "inactive", sep = " " },
+    -- mini draws the cursor line's separator in CursorLineNr, which modes.nvim
+    -- gives the cursorline background, so a stack of virtual lines under it (a
+    -- changeset comment window's room) grows a bar down its left. A group named
+    -- in the separator wins over mini's, so these draw it plain.
+    { pos = "cursor", ltype = "virt", sep = "%#MiniStatuscolumnSep#▏" },
+    { win = "inactive", pos = "cursor", ltype = "virt", sep = "%#MiniStatuscolumnSep# " },
   }),
 })
 
