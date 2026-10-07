@@ -46,6 +46,16 @@ vim.schedule(function()
   -- make it a prefix as well as a mapping, which which-key settles by timing.
   local RESIZE = "<F35>"
 
+  -- which-key feeds <Esc> 5s after Neovim loses focus, closing a popup left
+  -- open while switching panes. Its setup runs deferred, so drop that autocmd
+  -- right after it's created.
+  local State = require("which-key.state")
+  local state_setup = State.setup
+  function State.setup()
+    state_setup()
+    vim.api.nvim_clear_autocmds({ group = "wk", event = { "FocusLost", "FocusGained" } })
+  end
+
   require("which-key").setup({
     preset = "helix",
     sort = { "order", key_class },
