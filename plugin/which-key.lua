@@ -69,11 +69,11 @@ vim.schedule(function()
       { "<leader>:", pick("history", { scope = ":" }), desc = "Command History", icon = { icon = "󰞷", color = "azure" } },
       { "<leader><leader>", pick("which_key"), desc = "Search All Keybindings", icon = { icon = "󰌌", color = "green" } },
 
-      -- Z — ZR is mapped in config/keymaps.lua; ZZ and ZQ are Vim built-ins, so
+      -- Z — ZZ is mapped in config/keymaps.lua; ZR and ZQ are built-ins, so
       -- which-key only learns them from a description-only entry (no rhs, so no
       -- mapping is created), the same way its own presets label z, g and [ ].
       { "Z", group = "quit/restart", icon = { icon = "󰗼", color = "red" } },
-      { "ZZ", desc = "Write & Quit", icon = { icon = "󰆓", color = "red" } },
+      { "ZR", desc = "Restart Neovim", icon = { icon = "󰜉", color = "red" } },
       { "ZQ", desc = "Quit Without Writing", icon = { icon = "󰅖", color = "red" } },
 
       -- Buffers
