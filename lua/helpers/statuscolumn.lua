@@ -6,18 +6,35 @@ local M = {}
 local STEM = "│"
 local ELBOW = "╰"
 
----Line number for one row of buffer text, right-aligned in a field as wide as
----Vim sizes its own number column: 'numberwidth', grown to fit the buffer's
----highest line number. `%l` emits bare digits and leaves placement to `%=`, so
----nothing reserves that room and a long number crowds the fold column to its
----left. A fixed field keeps every row's layout still.
+-- Cells plugin/mini/statuscolumn.lua draws beyond the fold, sign and number
+-- columns Neovim reserves: the space ahead of the signs, and the separator.
+local EXTRA = 2
+
+---Line number for one row of buffer text, right-aligned in a fixed field:
+---'numberwidth' less the cells the column adds elsewhere, so that the whole
+---column is as wide as Neovim measures it. `%l` emits bare digits and leaves
+---placement to `%=`, so nothing reserves that room and a long number crowds the
+---fold column to its left. A fixed field keeps every row's layout still.
 ---@param lnum integer Buffer line being drawn, 1-based (|v:lnum|).
 ---@param relnum integer Its distance from the cursor line (|v:relnum|).
 ---@return string
 function M.line_number(lnum, relnum)
   local number = (vim.wo.relativenumber and relnum ~= 0) and relnum or lnum
-  local width = math.max(vim.wo.numberwidth, #tostring(vim.api.nvim_buf_line_count(0)) + 1)
+  local width = math.max(vim.wo.numberwidth - EXTRA, #tostring(vim.api.nvim_buf_line_count(0)) + 1)
   return string.format("%" .. width .. "d", number)
+end
+
+---'numberwidth' that fits a buffer's line numbers in line_number's field.
+---
+---Neovim measures a 'statuscolumn' as 'numberwidth' plus the fold and sign
+---columns each time a buffer's line or sign count changes, and only widens it to
+---what it draws once drawing starts. gitsigns lays out its inline deleted lines
+---against that first measure, so any shortfall shows as those lines jumping
+---sideways for a frame.
+---@param line_count integer
+---@return integer
+function M.numberwidth(line_count)
+  return #tostring(line_count) + 1 + EXTRA
 end
 
 ---Marker for one soft-wrapped row, drawn so that the wrapped rows of a line

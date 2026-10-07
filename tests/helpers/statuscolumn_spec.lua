@@ -11,6 +11,36 @@ local function wrapped_line()
   return height.all - height.fill - 1
 end
 
+describe("statuscolumn.line_number", function()
+  before_each(function()
+    vim.cmd("enew!")
+    vim.wo.relativenumber = false
+  end)
+
+  it("pads to 'numberwidth' less the space and separator the column adds around it", function()
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "a", "b" })
+    vim.wo.numberwidth = 7
+
+    assert.equal("    2", statuscolumn.line_number(2, 0))
+  end)
+
+  it("grows to fit the buffer's highest line number while 'numberwidth' is short of it", function()
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.fn["repeat"]({ "x" }, 1000))
+    vim.wo.numberwidth = 4
+
+    assert.equal("   12", statuscolumn.line_number(12, 0))
+  end)
+end)
+
+describe("statuscolumn.numberwidth", function()
+  it("fits the highest line number and a space, plus the space and separator the column adds", function()
+    assert.same(
+      { 4, 6, 7 },
+      { statuscolumn.numberwidth(1), statuscolumn.numberwidth(863), statuscolumn.numberwidth(1000) }
+    )
+  end)
+end)
+
 describe("statuscolumn.wrap_mark", function()
   before_each(function()
     vim.cmd("enew!")

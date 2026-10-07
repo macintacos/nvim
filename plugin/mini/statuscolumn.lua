@@ -42,6 +42,25 @@ statuscolumn.setup({
   }),
 })
 
+-- Keeps 'numberwidth' at what the column's number field needs, so Neovim's
+-- measure of the column is its real width (see helpers.statuscolumn.numberwidth).
+-- Fires on a buffer entering a window, which takes that buffer's width, and on
+-- text changes, which only ever widen it: gitsigns' unified view widens it for
+-- the line numbers of the base it compares against, and narrowing it again would
+-- have the two take turns on every edit.
+vim.api.nvim_create_autocmd({ "BufWinEnter", "TextChanged", "TextChangedI" }, {
+  callback = function(args)
+    local width = require("helpers.statuscolumn").numberwidth(vim.api.nvim_buf_line_count(args.buf))
+    local entered = args.event == "BufWinEnter"
+    for _, win in ipairs(entered and { vim.api.nvim_get_current_win() } or vim.fn.win_findbuf(args.buf)) do
+      local current = vim.wo[win].numberwidth
+      if vim.api.nvim_win_get_buf(win) == args.buf and (width > current or (entered and width < current)) then
+        vim.wo[win].numberwidth = width
+      end
+    end
+  end,
+})
+
 local function set_statuscolumn_hl()
   -- dim_inactive rewrites CursorLineNr to MiniStatuscolumnDimCursor in every
   -- unfocused window, and that group defaults to the flat MiniStatuscolumnDim, so
