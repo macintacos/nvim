@@ -32,13 +32,16 @@ local function set_picker_match_hl()
 end
 
 -- Ctrl-hover over a link or path (helpers.links). surface1, as surface0 barely
--- differs from CursorLine.
+-- differs from CursorLine. The underline matches herdr's own ctrl-hover one,
+-- which blinks as Neovim redraws; this keeps it steady underneath.
 local function set_link_hover_hl()
   local ok, palettes = pcall(require, "catppuccin.palettes")
   if not ok then
     return
   end
-  vim.api.nvim_set_hl(0, "LinkHover", { bg = palettes.get_palette().surface1 })
+  local p = palettes.get_palette()
+  vim.api.nvim_set_hl(0, "LinkHover", { bg = p.surface1, underline = true })
+  vim.api.nvim_set_hl(0, "LinkHoverIcon", { fg = p.blue, bg = p.surface1 })
 end
 
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups.

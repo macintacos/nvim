@@ -66,6 +66,7 @@ end
 
 ---@class helpers.links.Hit
 ---@field target string URL or absolute path
+---@field kind "url"|"path"
 ---@field opts? vim.ui.open.Opts
 ---@field buf integer
 ---@field row integer 0-based
@@ -97,10 +98,14 @@ function M.at_mouse()
   if not s then
     return nil
   end
-  return { target = target, opts = opts, buf = buf, row = row, col = s, end_col = e }
+  local kind = opts and "path" or "url"
+  return { target = target, kind = kind, opts = opts, buf = buf, row = row, col = s, end_col = e }
 end
 
 local hover_ns = vim.api.nvim_create_namespace("helpers.links.hover")
+
+---@type table<"url"|"path", string>
+local ICONS = { url = "󰖟 ", path = "󰏌 " }
 
 ---@type integer? Buffer holding the hover highlight.
 local hovered
@@ -113,12 +118,19 @@ function M.unhover()
   hovered = nil
 end
 
----Highlight what a ctrl-click at the mouse would open, with `LinkHover`.
+---Highlight what a ctrl-click at the mouse would open (`LinkHover`), prefixed
+---with an icon for its kind (`LinkHoverIcon`).
 function M.hover()
-  M.unhover()
+  -- Before unhover: the mouse position is read against the icon still on screen.
   local hit = M.at_mouse()
+  M.unhover()
   if hit then
-    vim.api.nvim_buf_set_extmark(hit.buf, hover_ns, hit.row, hit.col, { end_col = hit.end_col, hl_group = "LinkHover" })
+    vim.api.nvim_buf_set_extmark(hit.buf, hover_ns, hit.row, hit.col, {
+      end_col = hit.end_col,
+      hl_group = "LinkHover",
+      virt_text = { { ICONS[hit.kind], "LinkHoverIcon" } },
+      virt_text_pos = "inline",
+    })
     hovered = hit.buf
   end
 end
