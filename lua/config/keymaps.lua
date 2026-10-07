@@ -134,3 +134,8 @@ end)
 -- Jump and center
 map("Jump to Next Empty", "n", "}", "}zz")
 map("Jump to Prev Empty", "n", "{", "{zz")
+
+-- Ctrl-hover marks what a ctrl-click would open (plugin/multicursor.lua).
+local links = require("helpers.links")
+map("Highlight link under mouse", "n", "<C-MouseMove>", links.hover)
+map("Clear link highlight", "n", "<MouseMove>", links.unhover)

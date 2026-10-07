@@ -31,6 +31,16 @@ local function set_picker_match_hl()
   vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = p.base, bg = p.teal, bold = true })
 end
 
+-- Ctrl-hover over a link or path (helpers.links). surface1, as surface0 barely
+-- differs from CursorLine.
+local function set_link_hover_hl()
+  local ok, palettes = pcall(require, "catppuccin.palettes")
+  if not ok then
+    return
+  end
+  vim.api.nvim_set_hl(0, "LinkHover", { bg = palettes.get_palette().surface1 })
+end
+
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups.
 -- Fires when catppuccin loads at startup (plugin/catppuccin.lua) and on any
 -- later colorscheme change. The immediate call covers manual :source of this
@@ -40,8 +50,10 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
     set_flash_hl()
     set_picker_match_hl()
+    set_link_hover_hl()
   end,
 })
 
 set_flash_hl()
 set_picker_match_hl()
+set_link_hover_hl()

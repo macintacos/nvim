@@ -32,7 +32,16 @@ map("Add Cursor to All Matches", { "n", "x" }, "gA", function() mc.matchAllAddCu
 map("Insert at Start of Each Line", "x", "I", mc.insertVisual)
 map("Append at End of Each Line", "x", "A", mc.appendVisual)
 
-map("Multicursor mouse down", "n", "<C-leftmouse>", mc.handleMouse)
+-- herdr opens visible http(s) URLs on ctrl-click itself and passes every
+-- other ctrl-click through, so this sees paths and the URLs it missed.
+map("Open link under mouse, or add cursor", "n", "<C-leftmouse>", function()
+  local hit = require("helpers.links").at_mouse()
+  if hit then
+    vim.ui.open(hit.target, hit.opts)
+  else
+    mc.handleMouse()
+  end
+end)
 map("Multicursor mouse drag", "n", "<C-leftdrag>", mc.handleMouseDrag)
 map("Multicursor mouse release", "n", "<C-leftrelease>", mc.handleMouseRelease)
 

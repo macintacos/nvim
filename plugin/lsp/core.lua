@@ -12,8 +12,7 @@ local jump_then_reveal = require("helpers.windows").jump_then_reveal
 
 -- If the cursor is on a URL, open it in the browser; otherwise go to definition
 map("Goto Definition / Open URL", "n", "gd", function()
-  local word = vim.fn.expand("<cWORD>")
-  local url = word:match("(https?://[%w_.~!*'();:@&=+$,/?#%%[%]%-]+)")
+  local url = require("helpers.links").url(vim.fn.expand("<cWORD>"))
   if url then
     vim.ui.open(url)
   else

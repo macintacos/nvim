@@ -61,6 +61,7 @@ opt.laststatus = 3 -- global statusline
 opt.linebreak = true -- Wrap lines at convenient points
 opt.list = true -- Show some invisible characters (tabs...
 opt.mouse = "a" -- Enable mouse mode
+opt.mousemoveevent = true -- Feeds the <C-MouseMove> link highlight in config/keymaps.lua
 opt.mousescroll = "ver:3,hor:1" -- Shift-scroll one column at a time (default hor:6 overshoots)
 opt.number = true -- Print line number
 opt.numberwidth = 1 -- Floor only: plugin/mini/statuscolumn.lua sizes the number field itself
