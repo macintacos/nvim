@@ -2,7 +2,7 @@
 ---@see https://github.com/nvim-mini/mini.statusline/blob/main/doc/mini-statusline.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" } })
 
-local pack_updates = require("config.pack-updates")
+local pack_updates = require("plugins.pack-updates")
 
 -- Override default section backgrounds to match the dark theme
 local function set_statusline_highlights()

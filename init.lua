@@ -26,7 +26,7 @@ end
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
-    local pack_updates = require("config.pack-updates")
+    local pack_updates = require("plugins.pack-updates")
     pack_updates.check()
     pack_updates.recheck_on_update()
   end,

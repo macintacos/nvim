@@ -1,4 +1,4 @@
-local pack_updates = require("config.pack-updates")
+local pack_updates = require("plugins.pack-updates")
 
 describe("build_queue", function()
   local pack_dir

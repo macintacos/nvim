@@ -258,7 +258,7 @@ vim.schedule(function()
 
       -- Plugins
       { "<leader>P", group = "plugins", icon = { icon = "󰏗", color = "azure" } },
-      { "<leader>Pc", function() require("config.pack-updates").check(true) end, desc = "Check for Updates", icon = { icon = "󰍉", color = "azure" } },
+      { "<leader>Pc", function() require("plugins.pack-updates").check(true) end, desc = "Check for Updates", icon = { icon = "󰍉", color = "azure" } },
       { "<leader>Pu", function() vim.pack.update() end, desc = "Update Plugins", icon = { icon = "󰚰", color = "azure" } },
       { "<leader>PU", function() vim.pack.update(nil, { force = true }) end, desc = "Update Plugins (force, no confirm)", icon = { icon = "󰇚", color = "azure" } },
       { "<leader>Ps", function() vim.pack.update(nil, { offline = true }) end, desc = "Show Plugin Status", icon = { icon = "󰋼", color = "azure" } },

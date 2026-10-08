@@ -9,9 +9,9 @@
 --- triggering a fresh check on next startup.
 ---
 --- Usage:
----   require("config.pack-updates").check()  -- kick off async check (respects cache)
----   require("config.pack-updates").update_count()  -- 0 until check completes
----   require("config.pack-updates").spinner_frame()  -- current spinner char or nil
+---   require("plugins.pack-updates").check()  -- kick off async check (respects cache)
+---   require("plugins.pack-updates").update_count()  -- 0 until check completes
+---   require("plugins.pack-updates").spinner_frame()  -- current spinner char or nil
 
 local M = {}
 
