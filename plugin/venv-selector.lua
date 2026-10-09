@@ -3,6 +3,12 @@
 -- PEP 723 script environments are handled in plugin/lsp/python.lua instead.
 vim.pack.add({ "https://github.com/linux-cultist/venv-selector.nvim" }, { load = false })
 
+-- The active venv's check mark in the picker. Pure green all but vanishes on
+-- Latte Warm's paper.
+local function marker_color()
+  return vim.o.background == "light" and require("catppuccin.palettes").get_palette().green or "#00FF00"
+end
+
 local loaded = false
 local function ensure_loaded()
   if loaded then
@@ -25,7 +31,7 @@ local function ensure_loaded()
       search_timeout = 5,
       require_lsp_activation = true,
       picker_filter_type = "substring",
-      selected_venv_marker_color = "#00FF00",
+      selected_venv_marker_color = marker_color(),
       selected_venv_marker_icon = "✔",
       picker_icons = {},
       picker_columns = { "marker", "search_icon", "search_name", "search_result" },
@@ -37,6 +43,14 @@ local function ensure_loaded()
         },
       },
     },
+  })
+
+  -- Follow an appearance flip, which reloads the colorscheme. The picker reads
+  -- the stored option each time it opens, so updating it in place is enough.
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    callback = function()
+      require("venv-selector.config").get_user_options().selected_venv_marker_color = marker_color()
+    end,
   })
 end
 
