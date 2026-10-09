@@ -4,6 +4,19 @@ vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version =
 
 local pack_updates = require("plugins.pack-updates")
 
+-- HSLuv lightness tracks luminance alone, so every mode deepened to it reads at
+-- the same 7:1 under base, where Latte Warm's own accents stop at 4.6:1.
+local LIGHT_MODE_LIGHTNESS = 34
+
+---@param hex string
+---@return string
+local function deepen(hex)
+  local hsluv = require("catppuccin.lib.hsluv")
+  local hsl = hsluv.hex_to_hsluv(hex)
+  hsl[3] = LIGHT_MODE_LIGHTNESS
+  return hsluv.hsluv_to_hex(hsl)
+end
+
 -- Override default section backgrounds so the line sits just off the terminal
 -- background and only the mode sections carry color. Light steps one shade past
 -- the filename's mantle, but leaves the update count on mantle: green on crust
@@ -14,9 +27,11 @@ local function set_statusline_highlights()
     vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = p.crust })
     vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = p.crust })
     vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green, bg = p.mantle })
-    -- catppuccin letters Normal in mantle, which on Latte is darker than base
-    -- and so loses contrast on blue rather than gaining it.
-    vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = p.base, bg = p.blue, bold = true })
+    local modes =
+      { Normal = p.blue, Insert = p.green, Visual = p.mauve, Replace = p.red, Command = p.peach, Other = p.teal }
+    for mode, color in pairs(modes) do
+      vim.api.nvim_set_hl(0, "MiniStatuslineMode" .. mode, { fg = p.base, bg = deepen(color), bold = true })
+    end
     return
   end
   vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = "#1a1a2e" })
