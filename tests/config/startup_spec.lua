@@ -93,10 +93,9 @@ vim.defer_fn(function()
     check("RenderMarkdownBullet", "fg", syn.builtin1)
     check("@attribute", "fg", syn.preproc)
     check("@attribute.builtin", "fg", syn.preproc)
-    for level = 1, 6 do
-      check("RenderMarkdownH" .. level .. "Bg", "bg", require("helpers.palette").blend(spec.bg1, syn.func, 0.15))
-    end
   end
+  local heading_bgs = require("render-markdown.state").get(0).heading.backgrounds
+  table.insert(pairs_seen, { "render-markdown heading backgrounds", vim.inspect(heading_bgs), "{}" })
   vim.fn.writefile({ vim.json.encode({ pairs = pairs_seen }) }, %q)
   vim.cmd("qa!")
 end, 1500)
