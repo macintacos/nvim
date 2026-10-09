@@ -5,6 +5,9 @@ vim.pack.add({ "https://github.com/macintacos/changeset.nvim" })
 require("changeset").setup({
   -- Off the default branch, diffs gitsigns against the fork point; `:Changeset review` (<leader>gP, <leader>Tp) errors without it.
   pr_review = { enabled = true },
+  review = {
+    header = "/superpowers:receiving-code-review Use /dispatch-subagent to implement the suggested changes as needed.",
+  },
   -- sign: the statuscolumn draws the comment bubble in its fold slot instead.
   -- blocks: each review comment's whole text in a box under its line; <C-g>ct hides them.
   review_comment = { sign = false, blocks = true },
