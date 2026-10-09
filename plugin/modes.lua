@@ -47,8 +47,8 @@ local function paint_mode_colors()
     Delete = p.red.base,
     Change = p.red.base,
     Format = p.orange.dim,
-    Insert = p.cyan.base,
-    Replace = p.orange.base,
+    Insert = p.green.base,
+    Replace = p.red.base,
     Select = p.magenta.base,
     Visual = p.magenta.base,
   }
@@ -65,8 +65,8 @@ local function paint_mode_colors()
   local selection = palette.blend(spec.bg1, p.magenta.base, SELECTION_OPACITY)
   vim.api.nvim_set_hl(0, "ModesVisualVisual", { bg = selection })
   vim.api.nvim_set_hl(0, "ModesSelectVisual", { bg = selection })
-  vim.api.nvim_set_hl(0, "ModesReplaceVisual", { bg = palette.blend(spec.bg1, p.orange.base, LINE_OPACITY) })
-  update_hl("ModesVisualReplaceCursorLineNr", { fg = p.orange.base })
+  vim.api.nvim_set_hl(0, "ModesReplaceVisual", { bg = palette.blend(spec.bg1, p.red.base, LINE_OPACITY) })
+  update_hl("ModesVisualReplaceCursorLineNr", { fg = p.red.base })
 end
 
 -- modes.nvim rebuilds these groups from the raw colors on every ColorScheme,

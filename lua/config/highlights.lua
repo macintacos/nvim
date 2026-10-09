@@ -14,21 +14,22 @@ end
 --
 -- The list marks matches at extmark priority 200 and the current row at 201,
 -- so the row's colours win over the match's on that row. `reverse` is a flag,
--- and flags survive the override: a match draws as a cyan block on other rows
--- and as a block of the current row's foreground on the current one.
+-- and flags survive the override: a match draws as a blue block on other rows
+-- and as a block of the current row's foreground on the current one. Blue, like
+-- the match characters of every other picker.
 local function set_picker_match_hl()
   local p, spec = require("helpers.palette").active()
-  vim.api.nvim_set_hl(0, "MiniPickMatchRanges", { fg = p.cyan.base, bg = spec.bg1, reverse = true, bold = true })
-  vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = spec.bg1, bg = p.cyan.base, bold = true })
+  vim.api.nvim_set_hl(0, "MiniPickMatchRanges", { fg = p.blue.base, bg = spec.bg1, reverse = true, bold = true })
+  vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = spec.bg1, bg = p.blue.base, bold = true })
 end
 
--- Ctrl-hover over a link or path (helpers.links). bg4, one step past
--- CursorLine's bg3. The underline matches herdr's own ctrl-hover one,
+-- Ctrl-hover over a link or path (helpers.links). sel0, the selection colour:
+-- syntax colours stay legible on it, where bg4 drops accents below 4.5. The underline matches herdr's own ctrl-hover one,
 -- which blinks as Neovim redraws; this keeps it steady underneath.
 local function set_link_hover_hl()
   local p, spec = require("helpers.palette").active()
-  vim.api.nvim_set_hl(0, "LinkHover", { bg = spec.bg4, underline = true })
-  vim.api.nvim_set_hl(0, "LinkHoverIcon", { fg = p.blue.base, bg = spec.bg4 })
+  vim.api.nvim_set_hl(0, "LinkHover", { bg = spec.sel0, underline = true })
+  vim.api.nvim_set_hl(0, "LinkHoverIcon", { fg = p.blue.base, bg = spec.sel0 })
 end
 
 -- changeset.nvim's unified diff: an added or deleted line's background, and the

@@ -19,10 +19,11 @@ end, 1500)
 ---Boot this checkout's whole config headless, editing a Lua file so the plugins
 ---that load on FileType run too.
 ---@param dir string Scratch directory, also the booted Neovim's cwd.
----@return { stderr: string, messages: string, notices: string[] }
-local function boot(dir)
+---@param probe? string Collector to run instead of the default; `%q` is the report path.
+---@return table report
+local function boot(dir, probe)
   local report = dir .. "/report.json"
-  vim.fn.writefile(vim.split(collector:format(report), "\n"), dir .. "/collect.lua")
+  vim.fn.writefile(vim.split((probe or collector):format(report), "\n"), dir .. "/collect.lua")
   local config = vim.fn.stdpath("config")
   local rtp = ("lua vim.opt.rtp:remove({ %q, %q }); vim.opt.rtp:prepend(%q); vim.opt.rtp:append(%q)"):format(
     config,
@@ -54,8 +55,36 @@ local function boot(dir)
   assert.equal(0, result.code, result.stderr)
 
   local seen = vim.json.decode(table.concat(vim.fn.readfile(report), "\n"))
-  return { stderr = result.stderr, messages = seen.messages, notices = seen.notices }
+  seen.stderr = result.stderr
+  return seen
 end
+
+-- Pairs each highlight attribute the config paints with the palette role it should
+-- carry, under both backgrounds, so a fox swap or retune cannot drift them apart.
+local palette_probe = [[
+vim.defer_fn(function()
+  local function hex(n) return n and ("#%%06x"):format(n) or "none" end
+  local pairs_seen = {}
+  for _, bg in ipairs({ "dark", "light" }) do
+    vim.o.background = bg
+    local p, spec = require("helpers.palette").active()
+    local function check(group, attr, want)
+      local got = vim.api.nvim_get_hl(0, { name = group, link = false })[attr]
+      table.insert(pairs_seen, { bg .. " " .. group .. "." .. attr, hex(got), want:lower() })
+    end
+    check("PmenuSel", "bg", spec.sel0)
+    check("PmenuSel", "fg", spec.fg1)
+    check("MiniPickMatchCurrent", "bg", spec.sel0)
+    check("MiniPickMatchRanges", "fg", p.blue.base)
+    check("LinkHover", "bg", spec.sel0)
+    check("LinkHoverIcon", "bg", spec.sel0)
+    check("ModesInsertCursor", "bg", p.green.base)
+    check("ModesReplaceCursor", "bg", p.red.base)
+  end
+  vim.fn.writefile({ vim.json.encode({ pairs = pairs_seen }) }, %q)
+  vim.cmd("qa!")
+end, 1500)
+]]
 
 describe("startup", function()
   local dir
@@ -76,5 +105,11 @@ describe("startup", function()
     assert.equal("", seen.stderr)
     assert.equal("", seen.messages)
     assert.same({}, seen.notices)
+  end)
+
+  it("paints selection, match, link and mode colours from the fox's palette roles", function()
+    for _, pair in ipairs(boot(dir, palette_probe).pairs) do
+      assert.equal(pair[3], pair[2], pair[1])
+    end
   end)
 end)
