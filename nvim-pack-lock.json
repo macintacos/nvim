@@ -195,6 +195,10 @@
       "rev": "704b99f10a72cc05d370cfeb294ff83412a8ab55",
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
+    "nightfox.nvim": {
+      "rev": "4dacd3f0185a2227bdf3b6c0975a8f0bf87cac9a",
+      "src": "https://github.com/EdenEast/nightfox.nvim"
+    },
     "noice.nvim": {
       "rev": "7bfd942445fb63089b59f97ca487d605e715f155",
       "src": "ssh://git@github.com/folke/noice.nvim"
@@ -210,10 +214,6 @@
     "numb.nvim": {
       "rev": "40548e23f3b053defdc5daa99943e05132b99cc9",
       "src": "https://github.com/nacro90/numb.nvim"
-    },
-    "nvim": {
-      "rev": "79e2049a0fdf7ec840f8463fe1d962c94493196b",
-      "src": "https://github.com/catppuccin/nvim"
     },
     "nvim-bqf": {
       "rev": "c282a62bec6c0621a1ef5132aa3f4c9fc4dcc2c7",

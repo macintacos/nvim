@@ -35,6 +35,11 @@ lazygit, zen mode, image rendering, and the big-file and quickfile guards. Its n
 input and `vim.ui.select` are switched off, each with a comment at both ends naming the
 mini module that took the job.
 
+**The colours follow the terminal.** [nightfox.nvim](https://github.com/EdenEast/nightfox.nvim)'s
+Duskfox and Dawnfox, retuned for contrast from `~/.config/palette/nightfox.json`, which the
+dotfiles deploy; without that file the stock foxes load. `colors/fox.lua` picks the fox from
+`'background'`, so a macOS appearance flip re-themes a running editor.
+
 **Local plugins are first-class.** Ten of them under `lua/plugins/`, each with specs
 in `tests/`. They exist because nothing upstream did the thing: a project
 switcher that relaunches Neovim through the fish `nvim` wrapper so the shell ends up in
