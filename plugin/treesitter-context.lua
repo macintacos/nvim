@@ -20,8 +20,8 @@ require("treesitter-context").setup({
   separator = "─",
 })
 
--- Catppuccin styles the underline that `separator` replaces, and links the
--- separator to FloatBorder (blue). Point it at the group the theme already
--- uses for dividers so the line sits at that contrast.
+-- The plugin underlines the context's last line, which `separator` replaces,
+-- and links the separator to FloatBorder. Point it at the group the theme
+-- already uses for dividers so the line sits at that contrast.
 vim.api.nvim_set_hl(0, "TreesitterContextBottom", {})
 vim.api.nvim_set_hl(0, "TreesitterContextSeparator", { link = "WinSeparator" })

@@ -16,11 +16,11 @@ smear.setup({
   filetypes_disabled = { "changeset" },
 })
 
--- Ghostty's background in each appearance (Catppuccin Mocha Deep, Latte Warm).
--- catppuccin runs transparent, so 'Normal' has no bg and the plugin's own
--- fallback (#303030) would wash out the dim end of the smear's gradient.
+-- The fox's bg1, which is Ghostty's background. The fox runs transparent, so
+-- 'Normal' has no bg and the plugin's own fallback (#303030) would wash out the
+-- dim end of the smear's gradient.
 local function sync_smear_background()
-  smear.transparent_bg_fallback_color = vim.o.background == "light" and "#f3f0ec" or "#11121d"
+  smear.transparent_bg_fallback_color = select(2, require("helpers.palette").active()).bg1
 end
 
 -- A 'background' flip reloads the colorscheme, so this follows the appearance.

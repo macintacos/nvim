@@ -82,17 +82,13 @@ local function set_statuscolumn_hl()
   fold.bg = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false }).bg
   vim.api.nvim_set_hl(0, "CursorLineFold", fold)
 
-  -- One palette step below LineNr's surface1, so the run down a wrapped line
-  -- reads quieter than the numbers it hangs off.
-  local ok, palettes = pcall(require, "catppuccin.palettes")
-  if ok then
-    vim.api.nvim_set_hl(0, "StatuscolumnWrap", { fg = palettes.get_palette().surface0 })
-  end
+  -- Quieter than LineNr's fg3, so the run down a wrapped line reads below the
+  -- numbers it hangs off.
+  local _, spec = require("helpers.palette").active()
+  vim.api.nvim_set_hl(0, "StatuscolumnWrap", { fg = spec.bg4 })
 end
 
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups and
 -- mini.statuscolumn's own ColorScheme handler then restores its default link.
 -- Registered after setup() so it runs after that handler.
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statuscolumn_hl })
-
-set_statuscolumn_hl()
