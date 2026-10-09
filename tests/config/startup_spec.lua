@@ -63,14 +63,14 @@ end
 -- carry, under both backgrounds, so a fox swap or retune cannot drift them apart.
 local palette_probe = [[
 vim.defer_fn(function()
-  local function hex(n) return n and ("#%%06x"):format(n) or "none" end
+  local function hex(n) return type(n) == "number" and ("#%%06x"):format(n) or tostring(n or "none") end
   local pairs_seen = {}
   for _, bg in ipairs({ "dark", "light" }) do
     vim.o.background = bg
     local p, spec = require("helpers.palette").active()
     local function check(group, attr, want)
       local got = vim.api.nvim_get_hl(0, { name = group, link = false })[attr]
-      table.insert(pairs_seen, { bg .. " " .. group .. "." .. attr, hex(got), want:lower() })
+      table.insert(pairs_seen, { bg .. " " .. group .. "." .. attr, hex(got), tostring(want):lower() })
     end
     check("PmenuSel", "bg", spec.sel0)
     check("PmenuSel", "fg", spec.fg1)
@@ -80,6 +80,22 @@ vim.defer_fn(function()
     check("LinkHoverIcon", "bg", spec.sel0)
     check("ModesInsertCursor", "bg", p.green.base)
     check("ModesReplaceCursor", "bg", p.red.base)
+    local syn = spec.syntax
+    check("@markup.heading", "fg", syn.func)
+    check("@markup.heading", "bold", true)
+    check("@markup.strong", "fg", spec.fg1)
+    check("@markup.strong", "bold", true)
+    check("@markup.italic", "italic", true)
+    check("@markup.raw", "fg", p.cyan.base)
+    check("@markup.link.label", "fg", syn.func)
+    check("@markup.link.url", "fg", syn.const)
+    check("@markup.list", "fg", syn.builtin1)
+    check("RenderMarkdownBullet", "fg", syn.builtin1)
+    check("@attribute", "fg", syn.preproc)
+    check("@attribute.builtin", "fg", syn.preproc)
+    for level = 1, 6 do
+      check("RenderMarkdownH" .. level .. "Bg", "bg", require("helpers.palette").blend(spec.bg1, syn.func, 0.15))
+    end
   end
   vim.fn.writefile({ vim.json.encode({ pairs = pairs_seen }) }, %q)
   vim.cmd("qa!")
@@ -107,7 +123,7 @@ describe("startup", function()
     assert.same({}, seen.notices)
   end)
 
-  it("paints selection, match, link and mode colours from the fox's palette roles", function()
+  it("paints selection, match, link, mode, markdown and attribute colours from the fox's palette roles", function()
     for _, pair in ipairs(boot(dir, palette_probe).pairs) do
       assert.equal(pair[3], pair[2], pair[1])
     end

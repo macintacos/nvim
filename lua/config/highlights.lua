@@ -43,6 +43,16 @@ local function set_changeset_diff_hl()
   vim.api.nvim_set_hl(0, "ChangesetDiffDeleteText", { bg = spec.diff.text })
 end
 
+-- render-markdown's heading bands, one tint of the heading colour for every level.
+-- Its defaults are the diff backgrounds, which make an H4 read as a deleted line.
+local function set_heading_band_hl()
+  local _, spec = require("helpers.palette").active()
+  local band = require("helpers.palette").blend(spec.bg1, spec.syntax.func, 0.15)
+  for level = 1, 6 do
+    vim.api.nvim_set_hl(0, "RenderMarkdownH" .. level .. "Bg", { bg = band })
+  end
+end
+
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups.
 -- Fires when the fox loads at startup (plugin/nightfox.lua) and on every
 -- 'background' flip, which reloads it.
@@ -53,5 +63,6 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     set_picker_match_hl()
     set_link_hover_hl()
     set_changeset_diff_hl()
+    set_heading_band_hl()
   end,
 })

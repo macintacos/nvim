@@ -17,6 +17,10 @@ require("nightfox").setup({
       MiniPickMatchCurrent = { bg = "sel0" },
       BlinkCmpMenu = { bg = "NONE" },
       BlinkCmpDoc = { bg = "NONE" },
+      ["@markup.strong"] = { fg = "fg1", style = "bold" },
+      ["@attribute"] = { link = "PreProc" },
+      ["@attribute.builtin"] = { link = "PreProc" },
+      RenderMarkdownBullet = { link = "@markup.list" },
     },
   },
 })
