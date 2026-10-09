@@ -48,6 +48,20 @@ end
 -- stronger one behind the characters it changed. Overrides changeset's defaults,
 -- which it derives from the theme.
 local function set_changeset_diff_hl()
+  if vim.o.background == "light" then
+    -- Latte Warm tints, at the 20% and 35% blends delta's light diffs use.
+    local ok, palettes = pcall(require, "catppuccin.palettes")
+    if not ok then
+      return
+    end
+    local p = palettes.get_palette()
+    local blend = require("catppuccin.utils.colors").blend
+    vim.api.nvim_set_hl(0, "ChangesetDiffAdd", { bg = blend(p.green, p.base, 0.20) })
+    vim.api.nvim_set_hl(0, "ChangesetDiffAddText", { bg = blend(p.green, p.base, 0.35) })
+    vim.api.nvim_set_hl(0, "ChangesetDiffDelete", { bg = blend(p.red, p.base, 0.20) })
+    vim.api.nvim_set_hl(0, "ChangesetDiffDeleteText", { bg = blend(p.red, p.base, 0.35) })
+    return
+  end
   vim.api.nvim_set_hl(0, "ChangesetDiffAdd", { bg = "#192a1f" })
   vim.api.nvim_set_hl(0, "ChangesetDiffAddText", { bg = "#315b32" })
   vim.api.nvim_set_hl(0, "ChangesetDiffDelete", { bg = "#29191d" })

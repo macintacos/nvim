@@ -12,13 +12,21 @@ smear.setup({
   trailing_stiffness = 0.55,
   damping = 0.9,
   distance_stop_animating = 0.3,
-  -- Ghostty's background. catppuccin runs transparent, so 'Normal' has no bg
-  -- and the plugin's own fallback (#303030) would wash out the dim end of the
-  -- smear's gradient.
-  transparent_bg_fallback_color = "#11121d",
   -- The changeset sidebar hides its cursor, which a trail would still trace row to row.
   filetypes_disabled = { "changeset" },
 })
+
+-- Ghostty's background in each appearance (Catppuccin Mocha Deep, Latte Warm).
+-- catppuccin runs transparent, so 'Normal' has no bg and the plugin's own
+-- fallback (#303030) would wash out the dim end of the smear's gradient.
+local function sync_smear_background()
+  smear.transparent_bg_fallback_color = vim.o.background == "light" and "#f3f0ec" or "#11121d"
+end
+
+-- A 'background' flip reloads the colorscheme, so this follows the appearance.
+vim.api.nvim_create_autocmd("ColorScheme", { callback = sync_smear_background })
+
+sync_smear_background()
 
 -- modes.nvim relinks 'Cursor' on every mode change (plugin/modes.lua), so the
 -- smear tracks the mode by reading that group back -- already lifted clear of

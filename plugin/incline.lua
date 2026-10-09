@@ -39,7 +39,7 @@ require("incline").setup({
       " ",
       { filename, gui = modified and "bold,italic" or "bold" },
       " ",
-      guibg = "#090a0d",
+      guibg = vim.o.background == "light" and require("catppuccin.palettes").get_palette().surface0 or "#090a0d",
     }
   end,
 })

@@ -48,9 +48,60 @@ local function lift_cursor_colors()
   end
 end
 
--- modes.nvim rebuilds these groups from the raw colors on every ColorScheme.
--- Its own handler is registered by the setup() call above, and autocmds fire in
--- registration order, so this one always sees the freshly rebuilt values.
-vim.api.nvim_create_autocmd("ColorScheme", { callback = lift_cursor_colors })
+-- Light rebuilds the groups instead. modes.nvim blends against 'Normal', which
+-- catppuccin's transparency leaves without a bg, and its light fallback is the
+-- decimal 255255255 rather than 0xffffff -- a saturated teal. Latte Warm's
+-- accents already read as a solid cursor, and its base is what the terminal shows.
+local LIGHT_LINE_OPACITY = 0.14
+local LIGHT_SELECTION_OPACITY = 0.18
 
-lift_cursor_colors()
+local function update_hl(name, attrs)
+  local current = vim.api.nvim_get_hl(0, { name = name, link = false })
+  vim.api.nvim_set_hl(0, name, vim.tbl_extend("force", current, attrs))
+end
+
+local function paint_light_modes()
+  local p = require("catppuccin.palettes").get_palette()
+  local blend = require("catppuccin.utils.colors").blend
+  local scenes = {
+    Copy = p.yellow,
+    Delete = p.red,
+    Change = p.red,
+    Format = p.rosewater,
+    Insert = p.teal,
+    Replace = p.peach,
+    Select = p.mauve,
+    Visual = p.mauve,
+  }
+  for scene, color in pairs(scenes) do
+    -- Visual and Select leave the line to the selection, as modes.nvim does.
+    local line = (scene == "Visual" or scene == "Select") and "NONE" or blend(color, p.base, LIGHT_LINE_OPACITY)
+    vim.api.nvim_set_hl(0, ("Modes%sCursorLine"):format(scene), { bg = line })
+    update_hl(("Modes%sCursorLineNr"):format(scene), { fg = color, bg = line })
+    vim.api.nvim_set_hl(0, ("Modes%sCursorLineSign"):format(scene), { bg = line })
+    vim.api.nvim_set_hl(0, ("Modes%sCursorLineFold"):format(scene), { bg = line })
+    vim.api.nvim_set_hl(0, ("Modes%sCursor"):format(scene), { bg = color })
+    vim.api.nvim_set_hl(0, ("Modes%sModeMsg"):format(scene), { fg = color })
+  end
+  local selection = blend(p.mauve, p.base, LIGHT_SELECTION_OPACITY)
+  vim.api.nvim_set_hl(0, "ModesVisualVisual", { bg = selection })
+  vim.api.nvim_set_hl(0, "ModesSelectVisual", { bg = selection })
+  vim.api.nvim_set_hl(0, "ModesReplaceVisual", { bg = blend(p.peach, p.base, LIGHT_LINE_OPACITY) })
+  update_hl("ModesVisualReplaceCursorLineNr", { fg = p.peach })
+end
+
+local function paint_mode_colors()
+  if vim.o.background == "light" then
+    paint_light_modes()
+  else
+    lift_cursor_colors()
+  end
+end
+
+-- modes.nvim rebuilds these groups from the raw colors on every ColorScheme,
+-- which a 'background' flip fires too. Its own handler is registered by the
+-- setup() call above, and autocmds fire in registration order, so this one
+-- always sees the freshly rebuilt values.
+vim.api.nvim_create_autocmd("ColorScheme", { callback = paint_mode_colors })
+
+paint_mode_colors()
