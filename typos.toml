@@ -2,6 +2,7 @@
 enew        = "enew"        # :enew
 fo          = "fo"          # <leader>fo, 'formatoptions'
 ba          = "ba"          # branch name in the pack-pr fixtures
+noice       = "noice"       # folke/noice.nvim plugin name
 unparseable = "unparseable"
 
 [default.extend-identifiers]

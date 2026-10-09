@@ -68,8 +68,12 @@ local linters = new Mapping<String, Step> {
   }
 
   // Check-only: `typos --write-changes` would also rewrite identifiers it misreads.
+  // The builtin check_diff prints nothing when typos has several candidate fixes,
+  // so both checks run plain typos to report the word and location.
   ["Text(Spelling)    [[builtins.typos]]"] = (Builtins.typos) {
     fix = null
+    check = "typos --force-exclude {{ files }}"
+    check_diff = "typos --force-exclude {{ files }}"
   }
 
   ["Git(Conflict)     [[builtins.check_merge_conflict]]"] = Builtins.check_merge_conflict
