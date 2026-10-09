@@ -4,13 +4,19 @@ vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version =
 
 local pack_updates = require("plugins.pack-updates")
 
--- Override default section backgrounds to match the dark theme. Light keeps
--- catppuccin's own sections, with the update count on the filename's mantle:
--- green on Devinfo's surface1 reads at under 3:1.
+-- Override default section backgrounds so the line sits just off the terminal
+-- background and only the mode sections carry color. Light steps one shade past
+-- the filename's mantle, but leaves the update count on mantle: green on crust
+-- reads at under 4:1.
 local function set_statusline_highlights()
   if vim.o.background == "light" then
     local p = require("catppuccin.palettes").get_palette()
+    vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = p.crust })
+    vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = p.crust })
     vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green, bg = p.mantle })
+    -- catppuccin letters Normal in mantle, which on Latte is darker than base
+    -- and so loses contrast on blue rather than gaining it.
+    vim.api.nvim_set_hl(0, "MiniStatuslineModeNormal", { fg = p.base, bg = p.blue, bold = true })
     return
   end
   vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = "#1a1a2e" })
