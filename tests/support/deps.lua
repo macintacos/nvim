@@ -21,6 +21,7 @@ local plugins = {
   "mini.pick",
   "mini.sessions",
   "mini.statusline",
+  "nightfox.nvim",
   "plenary.nvim",
   "snacks.nvim",
   "which-key.nvim",
