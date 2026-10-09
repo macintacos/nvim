@@ -22,9 +22,8 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "0663fcc4a9278cb1d10f17ef6efffab285362922",
-      "src": "https://github.com/macintacos/changeset.nvim",
-      "version": "'incorporating-feedback'"
+      "rev": "6080ae2ad71aac80de45022403d3e2b347b790eb",
+      "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",
