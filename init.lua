@@ -5,6 +5,7 @@ require("config.autocmds")
 require("config.keymaps")
 require("config.highlights")
 require("config.diagnostics")
+require("config.cursorline")
 
 -- Locate a plugin's install directory on disk. vim.pack stores plugins
 -- under <data>/site/pack/<pack_name>/{opt,start}/<plugin>/, where
