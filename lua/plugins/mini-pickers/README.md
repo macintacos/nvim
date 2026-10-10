@@ -51,7 +51,7 @@ mini.pick fires no event when the current item moves, so the float re-renders af
 rg --files --color=never --hidden --glob '!.git' . CLAUDE.md
 ```
 
-`--hidden` is what puts `.mise/tasks/`, `.luarc.json`, and `.github/` in the results at all; rg walks past dotfiles without it, and `!.git` is then the one directory it must be kept out of.
+`--hidden` is what puts `.mise/tasks/`, `.emmyrc.json`, and `.github/` in the results at all; rg walks past dotfiles without it, and `!.git` is then the one directory it must be kept out of.
 
 Files an ignore file hides are a separate problem, and **`M.extra` in `files.lua` is the list of them** — `CLAUDE.md` and `.env` to start with. They are appended as literal path arguments, which is the only spelling that beats `.gitignore` while leaving the rest of the listing alone:
 

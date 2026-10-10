@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/EmmyLuaLs/emmylua-analyzer-rust/refs/heads/main/crates/emmylua_code_analysis/resources/schema.json",
+  "runtime": {
+    "version": "LuaJIT",
+    "requirePattern": ["lua/?.lua", "lua/?/init.lua", "tests/?.lua"]
+  },
+  "workspace": {
+    "library": [
+      "$VIMRUNTIME",
+      ".tests/deps/luassert/library",
+      ".tests/deps/busted/library",
+      ".tests/deps/luacov/src",
+      ".tests/deps/agentcomplete.nvim",
+      ".tests/deps/blink.cmp",
+      ".tests/deps/blink.lib",
+      ".tests/deps/blink.pairs",
+      ".tests/deps/chezmoi.nvim",
+      ".tests/deps/dial.nvim",
+      ".tests/deps/incline.nvim",
+      ".tests/deps/mason-lspconfig.nvim",
+      ".tests/deps/mason-tool-installer.nvim",
+      ".tests/deps/mason.nvim",
+      ".tests/deps/mini.extra",
+      ".tests/deps/mini.files",
+      ".tests/deps/mini.icons",
+      ".tests/deps/mini.input",
+      ".tests/deps/mini.pick",
+      ".tests/deps/mini.sessions",
+      ".tests/deps/mini.statusline",
+      ".tests/deps/mkdnflow.nvim",
+      ".tests/deps/multicursor.nvim",
+      ".tests/deps/nvim-bqf",
+      ".tests/deps/nvim-lint",
+      ".tests/deps/nvim-recorder",
+      ".tests/deps/nvim-treesitter",
+      ".tests/deps/otter.nvim",
+      ".tests/deps/peeper-picker.nvim",
+      {
+        "path": ".tests/deps/plenary.nvim",
+        "ignoreGlobs": ["lua/luassert/**", "lua/plenary/_meta/_luassert.lua", "lua/plenary/busted.lua"]
+      },
+      ".tests/deps/quicker.nvim",
+      ".tests/deps/smear-cursor.nvim",
+      ".tests/deps/snacks.nvim",
+      ".tests/deps/venv-selector.nvim",
+      ".tests/deps/vim-illuminate",
+      ".tests/deps/vim-matchup",
+      ".tests/deps/which-key.nvim"
+    ],
+    "ignoreDir": [".tests", ".tmp"]
+  }
+}

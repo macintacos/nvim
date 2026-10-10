@@ -62,10 +62,11 @@ When working with this configuration, consult the official Neovim documentation:
 │   └── plugins/          # Local plugins, one directory each
 ├── tests/                # Plenary specs, one directory per module
 │   └── support/          # Shared fixtures (require("support.<name>")), test deps, coverage
+├── types/                # `---@meta` declarations for what the type check cannot infer
 ├── mise.toml             # Tool versions + git-hook env (HK_MISE, postinstall)
 ├── mise.lock             # Pinned tool versions (managed by mise)
 ├── hk.pkl                # Formatters + linters + git hooks (pre-commit, pre-push)
-├── .luarc.check.json     # lua-language-server config for `mise run typecheck`
+├── .emmyrc.json          # emmylua config for `mise run typecheck` and the editor's emmylua_ls
 ├── .mise/tasks/          # Task scripts: format, lint, test, typecheck, coverage, deps, preflight, setup, install
 ├── nvim-pack-lock.json   # Plugin version lockfile (managed by vim.pack)
 └── stylua.toml           # Lua formatter configuration
@@ -183,8 +184,8 @@ This configuration includes integrated Lua development tools:
 ### Type Annotations
 
 - Use LuaCATS annotations (`---@param`, `---@return`, `---@type`, `---@class`) for type safety
-- lazydev.nvim provides Neovim API completions and type definitions in the editor
-- `mise run typecheck` runs lua-language-server over the whole repo from `.luarc.check.json`, whose library is `$VIMRUNTIME`, luv and the plugins in `.tests/deps`. It is separate from `.luarc.json` because a `workspace.library` there would override the one lazydev builds. A plugin whose types a finding needs goes in both that library and `tests/support/deps.lua`
+- lazydev.nvim completes `require("…")` module names from the runtimepath, through blink's `lazydev` source
+- `.emmyrc.json` drives both `mise run typecheck` (emmylua_check over the whole repo) and the editor's emmylua_ls in this repo. Its library is `$VIMRUNTIME`, the LuaCATS luassert and busted definitions, luacov and the plugins in `.tests/deps`, so the editor sees those only once `mise run deps` has run. Every plugin the config `require`s goes in both that library and `tests/support/deps.lua`, or the check reports `unresolved-require`. luassert stays listed before busted: busted types the global `assert` from `require("luassert")`, which emmylua only resolves against a library it has already loaded. plenary's own luassert types are excluded because emmylua cannot read their generic aliases. `types/` declares what emmylua cannot infer from the libraries: the mini.nvim globals, the nvim-web-devicons module mini.icons mocks, and luassert's call form
 
 ### Formatting and Linting
 
@@ -209,7 +210,7 @@ After editing files, run `mise run preflight` to lint and test, or the individua
 
 - `mise run format` — auto-fix formatting (stylua, rumdl, yamlfmt, taplo, pkl, shfmt, end-of-file newlines, trailing whitespace) via hk
 - `mise run lint` — check formatting and run all linters (selene, rumdl, shellcheck, taplo, pkl, check-jsonschema, typos, merge-conflict/private-key/large-file checks) plus the type check via hk; read-only
-- `mise run typecheck` — lua-language-server `--check` over the repo
+- `mise run typecheck` — emmylua_check over the repo
 - `mise run test [path]` — run plenary tests; pass a spec file or directory to narrow the run
 - `mise run coverage` — run the suite under luacov and print per-file line coverage of `lua/`
 - `mise run deps` — check out the specs' and type check's plugins into `.tests/deps` at their `nvim-pack-lock.json` revisions (`test`, `typecheck` and `coverage` run it first)
@@ -225,4 +226,4 @@ Tool versions are managed by mise (`mise install` to install, `mise.lock` pins e
 2. Save a Lua file — confirm stylua auto-formats
 3. Check for linting warnings in the diagnostics
 4. Run `:ConformInfo` to verify formatter config
-5. Run `:LspInfo` to verify lua_ls is attached
+5. Run `:LspInfo` to verify emmylua_ls is attached

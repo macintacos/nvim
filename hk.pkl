@@ -84,11 +84,11 @@ local linters = new Mapping<String, Step> {
   }
 }
 
-// lua-language-server checks the whole workspace in one run, whichever files
-// changed. Too slow for every commit, so it runs from `check` and `pre-push` only.
+// emmylua_check checks the whole workspace in one run, whichever files changed,
+// so it runs from `check` and `pre-push` rather than on every commit.
 local typecheck = new Mapping<String, Step> {
-  ["Lua(Types)        [[lua-language-server]]"] = new Step {
-    glob = List("**/*.lua", ".luarc.check.json", "nvim-pack-lock.json")
+  ["Lua(Types)        [[emmylua_check]]"] = new Step {
+    glob = List("**/*.lua", ".emmyrc.json", "nvim-pack-lock.json")
     check = "mise run -q typecheck"
   }
 }

@@ -23,6 +23,7 @@ url = "https://github.com/JohnnyMorganz/StyLua/releases/download/v2.5.2/stylua-l
 [tools."aqua:JohnnyMorganz/StyLua"."platforms.macos-arm64"]
 checksum = "sha256:92ff0889e16324801bc072692974bb67f8161e62010fc90f96c62a17f81f32c7"
 url = "https://github.com/JohnnyMorganz/StyLua/releases/download/v2.5.2/stylua-macos-aarch64.zip"
+url_api = "https://api.github.com/repos/JohnnyMorganz/StyLua/releases/assets/421901102"
 
 [tools."aqua:JohnnyMorganz/StyLua"."platforms.macos-x64"]
 checksum = "sha256:53c50a1605d0a6345d160a1a5a21db40bcf2bf9cd23c17f7c277a63a1bff3a7f"
@@ -47,6 +48,7 @@ url = "https://github.com/Kampfkarren/selene/releases/download/0.31.0/selene-0.3
 [tools."aqua:Kampfkarren/selene"."platforms.macos-arm64"]
 checksum = "sha256:67f644e57e14ccb74a0c272bc44af0dc7909d8bdff58e4e59bb3524717da5741"
 url = "https://github.com/Kampfkarren/selene/releases/download/0.31.0/selene-0.31.0-macos.zip"
+url_api = "https://api.github.com/repos/Kampfkarren/selene/releases/assets/425780014"
 
 [tools."aqua:Kampfkarren/selene"."platforms.macos-x64"]
 checksum = "sha256:67f644e57e14ccb74a0c272bc44af0dc7909d8bdff58e4e59bb3524717da5741"
@@ -95,6 +97,48 @@ checksum = "sha256:07f80ce5d741eb4b0a9380ac78a19c7cb5bd44e2a9a47a5a04839e3ba54dd
 url = "https://github.com/google/yamlfmt/releases/download/v0.21.0/yamlfmt_0.21.0_Windows_x86_64.tar.gz"
 url_api = "https://api.github.com/repos/google/yamlfmt/releases/assets/336650206"
 
+[[tools."github:EmmyLuaLs/emmylua-analyzer-rust"]]
+version = "0.25.1"
+backend = "github:EmmyLuaLs/emmylua-analyzer-rust"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust".options]
+matching = "emmylua_check"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.linux-arm64"]
+checksum = "sha256:62a9a56d3ff5d0e108909332cb91582a0c1a4ebbfdce1a4422e7ae74d4a7f8b1"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-linux-aarch64-glibc.2.17.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398175"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.linux-arm64-musl"]
+checksum = "sha256:62a9a56d3ff5d0e108909332cb91582a0c1a4ebbfdce1a4422e7ae74d4a7f8b1"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-linux-aarch64-glibc.2.17.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398175"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.linux-x64"]
+checksum = "sha256:e4a700af4921e2d908e2f7299eaa86e3e1b3b265e27225ab33c7eb03ebc2187d"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-linux-x64-glibc.2.17.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398186"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.linux-x64-musl"]
+checksum = "sha256:6ce2e19d0a82ed901c2c67a18567b340447682f843c7a0a82098e50e8d2f107e"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398182"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.macos-arm64"]
+checksum = "sha256:eeaad59d173cb8d7cb0fe778936d7b584fe114a3eb46587ef3e4aec24b605af4"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398192"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.macos-x64"]
+checksum = "sha256:e91fe82c361d8dece8e2ce9aeb2313b8809b4714f72bbbeab5a27e754d8de2c6"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398193"
+
+[tools."github:EmmyLuaLs/emmylua-analyzer-rust"."platforms.windows-x64"]
+checksum = "sha256:577982e68d925972d8ae35f54b5f384ad77a84a2e31e340bd663d1efd2ef5983"
+url = "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-win32-x64.zip"
+url_api = "https://api.github.com/repos/EmmyLuaLs/emmylua-analyzer-rust/releases/assets/514398153"
+
 [[tools.hk]]
 version = "1.55.0"
 backend = "aqua:jdx/hk"
@@ -128,45 +172,6 @@ url_api = "https://api.github.com/repos/jdx/hk/releases/assets/510729670"
 checksum = "sha256:402b3c9c5f9a5b3cb8ab6229d0f6d169b122fc3db1e39fc2fa53421a1aa24fc5"
 url = "https://github.com/jdx/hk/releases/download/v1.55.0/hk-x86_64-pc-windows-msvc.zip"
 url_api = "https://api.github.com/repos/jdx/hk/releases/assets/510729674"
-
-[[tools.lua-language-server]]
-version = "3.18.2"
-backend = "aqua:LuaLS/lua-language-server"
-
-[tools.lua-language-server."platforms.linux-arm64"]
-checksum = "sha256:273af33f26f4a1143f27c96d9f9e1188aba619c71e0807042134f66b4bd27f24"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396268278"
-
-[tools.lua-language-server."platforms.linux-arm64-musl"]
-checksum = "sha256:273af33f26f4a1143f27c96d9f9e1188aba619c71e0807042134f66b4bd27f24"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396268278"
-
-[tools.lua-language-server."platforms.linux-x64"]
-checksum = "sha256:ca71415dd19f19e30aaa35a4915aefca9fdb5fec31b98331cc3d77f778d539c5"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396268957"
-
-[tools.lua-language-server."platforms.linux-x64-musl"]
-checksum = "sha256:ca71415dd19f19e30aaa35a4915aefca9fdb5fec31b98331cc3d77f778d539c5"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396268957"
-
-[tools.lua-language-server."platforms.macos-arm64"]
-checksum = "sha256:cec99d70b1f612acec4a10a79a03664e3aa0c229d4d8a586cb3f928ec37d509e"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396268945"
-
-[tools.lua-language-server."platforms.macos-x64"]
-checksum = "sha256:e26cfefe423dd7326fc7c649539e4d4aaa4f35f34d2fefd8af2ed7090b72c556"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396267609"
-
-[tools.lua-language-server."platforms.windows-x64"]
-checksum = "sha256:a4439a8f5e8e9e6505c11f045a7bf45db602124a1e246371c1dbe34924f3cf71"
-url = "https://github.com/LuaLS/lua-language-server/releases/download/3.18.2/lua-language-server-3.18.2-win32-x64.zip"
-url_api = "https://api.github.com/repos/LuaLS/lua-language-server/releases/assets/396269455"
 
 [[tools."pipx:check-jsonschema"]]
 version = "0.38.0"

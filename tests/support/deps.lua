@@ -12,8 +12,16 @@ M.dir = root .. "/.tests/deps"
 
 ---@type string[]
 local plugins = {
+  "agentcomplete.nvim",
+  "blink.cmp",
   "blink.lib",
   "blink.pairs",
+  "chezmoi.nvim",
+  "dial.nvim",
+  "incline.nvim",
+  "mason-lspconfig.nvim",
+  "mason-tool-installer.nvim",
+  "mason.nvim",
   "mini.extra",
   "mini.files",
   "mini.icons",
@@ -21,13 +29,31 @@ local plugins = {
   "mini.pick",
   "mini.sessions",
   "mini.statusline",
+  "mkdnflow.nvim",
+  "multicursor.nvim",
+  "nvim-bqf",
+  "nvim-lint",
+  "nvim-recorder",
+  "nvim-treesitter",
+  "otter.nvim",
+  "peeper-picker.nvim",
   "plenary.nvim",
+  "quicker.nvim",
+  "smear-cursor.nvim",
   "snacks.nvim",
+  "venv-selector.nvim",
+  "vim-illuminate",
+  "vim-matchup",
   "which-key.nvim",
 }
 
----No lockfile pins luacov, which is a library rather than a plugin. v0.17.0.
-local luacov = { src = "https://github.com/lunarmodules/luacov", rev = "b1f9eae400da976b93edb7f94cf5d05f538a0655" }
+---No lockfile pins these, which are libraries rather than plugins: luacov v0.17.0, and
+---the LuaCATS busted and luassert definitions the type check reads in place of plenary's.
+local libraries = {
+  luacov = { src = "https://github.com/lunarmodules/luacov", rev = "b1f9eae400da976b93edb7f94cf5d05f538a0655" },
+  busted = { src = "https://github.com/LuaCATS/busted", rev = "5ed85d0e016a5eb5eca097aa52905eedf1b180f1" },
+  luassert = { src = "https://github.com/LuaCATS/luassert", rev = "d3528bb679302cbfdedefabb37064515ab95f7b9" },
+}
 
 ---@class support.deps.Pin
 ---@field src string
@@ -87,7 +113,7 @@ end
 ---Sync every dependency to its pin, raising if any failed.
 function M.install()
   local lock = vim.json.decode(table.concat(vim.fn.readfile(root .. "/nvim-pack-lock.json"), "\n")).plugins
-  local pins = { luacov = luacov }
+  local pins = vim.deepcopy(libraries)
   for _, name in ipairs(plugins) do
     pins[name] = { src = lock[name].src, rev = lock[name].rev }
   end

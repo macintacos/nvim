@@ -10,7 +10,8 @@ HK_MISE = 1
 # Lua toolchain (existing) — formatter + linter for the config itself.
 "aqua:JohnnyMorganz/StyLua" = "latest"
 "aqua:Kampfkarren/selene"   = "latest"
-lua-language-server         = "latest" # type check (config in .luarc.check.json)
+# Type check (config in .emmyrc.json); no registry entry, so the release asset.
+"github:EmmyLuaLs/emmylua-analyzer-rust" = { version = "latest", matching = "emmylua_check" }
 
 # hk evaluates hk.pkl through pkl, so both are required. pkl also powers the
 # Pkl(Format) / Pkl(Lint) steps that lint hk.pkl itself.

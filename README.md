@@ -53,7 +53,7 @@ PR's branch so it can be smoke-tested live.
 
 **It's maintained like a project.** A [plenary](https://github.com/nvim-lua/plenary.nvim)
 spec suite with a startup smoke test and luacov coverage, selene and stylua over the Lua,
-lua-language-server type-checking it, and [hk](https://hk.jdx.dev/) on the hooks: format
+emmylua_check type-checking it, and [hk](https://hk.jdx.dev/) on the hooks: format
 and lint on commit, the type check and test suite on push. [mise](https://mise.jdx.dev/)
 pins every tool that does any of it.
 
@@ -78,10 +78,10 @@ pins every tool that does any of it.
 mise run setup      # install the pinned tools, register the git hooks
 mise run preflight  # lint (formatting, linters, type check) + test
 mise run format     # stylua, rumdl, yamlfmt, taplo, pkl, shfmt, whitespace
-mise run typecheck  # lua-language-server over the repo
+mise run typecheck  # emmylua_check over the repo
 mise run test       # the plenary suite
 mise run coverage   # the suite under luacov, per-file coverage of lua/
-mise run deps       # the specs' plugins, checked out at their locked revisions
+mise run deps       # the plugins the specs and type check read, at their locked revisions
 mise run install    # update plugins via vim.pack
 ```
 

@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-#MISE description="Type-check the Lua with lua-language-server (config in .luarc.check.json)"
+#MISE description="Type-check the Lua with emmylua_check (config in .emmyrc.json)"
 #MISE depends=["deps"]
 
 set -euo pipefail
 
-# .luarc.check.json resolves `$VIMRUNTIME` from the environment, which only a
+# .emmyrc.json resolves `$VIMRUNTIME` from the environment, which only a
 # running nvim sets.
 VIMRUNTIME="$(nvim --clean --headless --cmd 'lua io.write(vim.env.VIMRUNTIME)' --cmd 'qa!')"
 export VIMRUNTIME
 
-lua-language-server --check=. --configpath=.luarc.check.json --checklevel=Warning \
-	--check_format=pretty --logpath=.tests/luals
+emmylua_check --config .emmyrc.json --severity warn --warnings-as-errors .

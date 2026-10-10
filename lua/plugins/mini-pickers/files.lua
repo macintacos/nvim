@@ -20,7 +20,7 @@ M.extra = { "CLAUDE.md", ".env" }
 ---@param cwd string Directory the picker lists.
 ---@return string[]
 function M._command(cwd)
-  -- `--hidden` reaches dotfiles like `.mise/tasks/` and `.luarc.json`, which
+  -- `--hidden` reaches dotfiles like `.mise/tasks/` and `.emmyrc.json`, which
   -- rg skips by default; `.git` is the one directory it must not follow into.
   local command = { "rg", "--files", "--color=never", "--hidden", "--glob", "!.git", "." }
   for _, path in ipairs(M.extra) do
