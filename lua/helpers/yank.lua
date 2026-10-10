@@ -22,7 +22,7 @@ end
 ---@class helpers.yank.Blame
 ---@field sha string      Full commit SHA.
 ---@field author string   Author name.
----@field time integer    Author time, as a Unix timestamp.
+---@field time number     Author time, as a Unix timestamp.
 ---@field summary string  Commit subject line.
 
 ---Parse `git blame --porcelain` output covering a single line.

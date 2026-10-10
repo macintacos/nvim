@@ -1,5 +1,6 @@
----Navigate and edit the filesystem as a column-view text buffer.
----@see https://github.com/nvim-mini/mini.files/blob/main/doc/mini-files.txt
+-- github.com/nvim-mini/mini.files
+-- Navigate and edit the filesystem as a column-view text buffer.
+-- Docs: https://github.com/nvim-mini/mini.files/blob/main/doc/mini-files.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.files", version = "stable" } })
 
 local map = require("helpers.mappings").map
@@ -22,6 +23,7 @@ local function directory_content_width(buf_id)
   for _, line in ipairs(lines) do
     local icon, name = line:match("^/%d+/(.-)/(.*)")
     if icon then
+      ---@cast name -?
       found = true
       local w = vim.fn.strdisplaywidth(icon) + vim.fn.strdisplaywidth(name)
       if w > max_width then
@@ -36,7 +38,7 @@ end
 local cut_line = nil
 
 -- Ignored entry names keyed by the directory holding them.
----@type table<string, table<string, true>>
+---@type table<string, table<string, true>?>
 local ignored_cache = {}
 
 -- How many direct children each directory hides, for the window footer.
@@ -111,6 +113,7 @@ vim.api.nvim_create_autocmd("VimResized", {
     if not ok then
       return
     end
+    ---@cast files -?
     local width = preview_width()
     files.config.windows.width_preview = width
     pcall(files.refresh, { windows = { width_preview = width } })

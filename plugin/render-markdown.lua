@@ -36,4 +36,11 @@ require("render-markdown").setup({
     language_pad = 2,
     background_inset = 0,
   },
+
+  -- LSP hovers and other floats: code blocks sit on the float's own background.
+  overrides = {
+    buftype = {
+      nofile = { code = { disable_background = true, highlight_border = false } },
+    },
+  },
 })

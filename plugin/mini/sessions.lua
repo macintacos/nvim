@@ -1,5 +1,6 @@
----Reads and writes `:mksession` files, one per project directory.
----@see https://github.com/nvim-mini/mini.sessions/blob/main/doc/mini-sessions.txt
+-- github.com/nvim-mini/mini.sessions
+-- Reads and writes `:mksession` files, one per project directory.
+-- Docs: https://github.com/nvim-mini/mini.sessions/blob/main/doc/mini-sessions.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.sessions", version = "stable" } })
 
 local session_name = require("helpers.sessions").name

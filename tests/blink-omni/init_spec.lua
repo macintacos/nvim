@@ -1,6 +1,7 @@
 local source_mod = require("plugins.blink-omni")
 
 describe("blink-omni source", function()
+  ---@type blink-omni.Source
   local src
 
   before_each(function()
@@ -40,9 +41,9 @@ describe("blink-omni source", function()
     it("maps a list of strings to label/insertText", function()
       local items = source_mod._to_items({ "font-family", "font-size" })
       assert.equal(2, #items)
-      assert.equal("font-family", items[1].label)
-      assert.equal("font-family", items[1].insertText)
-      assert.equal("font-size", items[2].label)
+      assert.equal("font-family", assert(items[1]).label)
+      assert.equal("font-family", assert(items[1]).insertText)
+      assert.equal("font-size", assert(items[2]).label)
     end)
 
     it("maps a list of dicts, preferring abbr for label and word for insertText", function()
@@ -50,23 +51,23 @@ describe("blink-omni source", function()
         { word = "font-family", abbr = "font-family (opt)", menu = "string", info = "Sets the font" },
       })
       assert.equal(1, #items)
-      assert.equal("font-family (opt)", items[1].label)
-      assert.equal("font-family", items[1].insertText)
-      assert.equal("string", items[1].detail)
-      assert.equal("Sets the font", items[1].documentation)
+      assert.equal("font-family (opt)", assert(items[1]).label)
+      assert.equal("font-family", assert(items[1]).insertText)
+      assert.equal("string", assert(items[1]).detail)
+      assert.equal("Sets the font", assert(items[1]).documentation)
     end)
 
     it("falls back to word for label when abbr is empty", function()
       local items = source_mod._to_items({ { word = "theme", abbr = "" } })
-      assert.equal("theme", items[1].label)
-      assert.equal("theme", items[1].insertText)
+      assert.equal("theme", assert(items[1]).label)
+      assert.equal("theme", assert(items[1]).insertText)
     end)
 
     it("unwraps the { words = {...} } dict form", function()
       local items = source_mod._to_items({ words = { "a", "b" }, refresh = "always" })
       assert.equal(2, #items)
-      assert.equal("a", items[1].label)
-      assert.equal("b", items[2].label)
+      assert.equal("a", assert(items[1]).label)
+      assert.equal("b", assert(items[2]).label)
     end)
 
     it("returns empty list for a non-table result", function()
@@ -93,6 +94,7 @@ describe("blink-omni source", function()
       vim.api.nvim_set_current_buf(buf)
       vim.bo[buf].omnifunc = "TestOmniStrings"
 
+      ---@type blink.cmp.CompletionResponse
       local results
       local ctx = { line = "font font-", cursor = { 1, 10 }, bufnr = buf }
       src:get_completions(ctx, function(response)
@@ -101,7 +103,7 @@ describe("blink-omni source", function()
 
       assert.is_truthy(results)
       assert.equal(2, #results.items)
-      assert.equal("font-family", results.items[1].label)
+      assert.equal("font-family", assert(results.items[1]).label)
 
       vim.api.nvim_buf_delete(buf, { force = true })
     end)
@@ -111,13 +113,14 @@ describe("blink-omni source", function()
       vim.api.nvim_set_current_buf(buf)
       vim.bo[buf].omnifunc = "TestOmniStrings"
 
+      ---@type blink.cmp.CompletionResponse
       local results
       local ctx = { line = "font font-", cursor = { 1, 10 }, bufnr = buf }
       src:get_completions(ctx, function(response)
         results = response
       end)
 
-      local edit = results.items[1].textEdit
+      local edit = assert(results.items[1]).textEdit --[[@as lsp.TextEdit]]
       assert.is_truthy(edit)
       assert.equal(5, edit.range.start.character)
       assert.equal(10, edit.range["end"].character)
@@ -131,6 +134,7 @@ describe("blink-omni source", function()
       vim.api.nvim_set_current_buf(buf)
       vim.bo[buf].omnifunc = ""
 
+      ---@type blink.cmp.CompletionResponse
       local results
       local ctx = { line = "", cursor = { 1, 0 }, bufnr = buf }
       src:get_completions(ctx, function(response)
@@ -156,6 +160,7 @@ describe("blink-omni source", function()
       vim.api.nvim_set_current_buf(buf)
       vim.bo[buf].omnifunc = "TestOmniNoMatch"
 
+      ---@type blink.cmp.CompletionResponse
       local results
       local ctx = { line = "abc", cursor = { 1, 3 }, bufnr = buf }
       src:get_completions(ctx, function(response)

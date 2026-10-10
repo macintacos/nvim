@@ -60,7 +60,7 @@ function M.run(entry, branch, cb)
         cb(true)
       else
         -- A forced vim.pack.update reports per-plugin errors only in its log.
-        cb(false, "see " .. vim.fs.joinpath(vim.fn.stdpath("log"), "nvim-pack.log"))
+        cb(false, "see " .. vim.fs.joinpath(vim.fn.stdpath("log") --[[@as string]], "nvim-pack.log"))
       end
     end)
   end)

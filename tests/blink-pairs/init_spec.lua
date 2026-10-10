@@ -3,7 +3,8 @@ local md_pairs = require("plugins.blink-pairs")
 -- The rules under test read only the two slice/compare methods a Context
 -- provides. blink.pairs builds Contexts through its Rust-backed parser path,
 -- which these specs stay out of, so make_ctx mirrors those methods' semantics
--- verbatim from blink.pairs' context/init.lua.
+-- verbatim from blink.pairs' context/init.lua. The cast covers the Context
+-- members the rules never read.
 ---A Context positioned at 0-based column `col` on `line`.
 ---@param is_escaped? boolean
 local function make_ctx(line, col, is_escaped)
@@ -14,7 +15,7 @@ local function make_ctx(line, col, is_escaped)
   function ctx:is_after_cursor(text)
     return self.line:sub(self.cursor.col + 1, self.cursor.col + #text) == text
   end
-  return ctx
+  return ctx --[[@as blink.pairs.Context]]
 end
 
 describe("markdown emphasis pairing", function()
@@ -65,8 +66,9 @@ describe("open_or_close override for markdown emphasis", function()
   -- rule.opening/opening mirror what blink.pairs' rule_from_def builds; the
   -- open_or_close closure must be the module's own, since the override
   -- identifies its rules by that closure's identity.
+  -- Only the fields wrap_open_or_close reads are set; the cast covers the rest of blink.pairs.Rule.
   local function md_rule(char)
-    return { opening = char, closing = char, open_or_close = md_pairs.md_rules[char].open_or_close }
+    return { opening = char, closing = char, open_or_close = md_pairs.md_rules[char].open_or_close } --[[@as blink.pairs.Rule]]
   end
 
   local wrapped = md_pairs.wrap_open_or_close(function(_ctx, key, _rule)
@@ -86,13 +88,15 @@ describe("open_or_close override for markdown emphasis", function()
   end)
 
   it("passes other rules through to the wrapped original", function()
-    local rule = {
-      opening = "`",
-      closing = "`",
-      open_or_close = function()
-        return true
-      end,
-    }
-    assert.equal("ORIG:`", wrapped(make_ctx("a `x` ", 6), "`", rule))
+    local function other_rule()
+      return {
+        opening = "`",
+        closing = "`",
+        open_or_close = function()
+          return true
+        end,
+      } --[[@as blink.pairs.Rule]]
+    end
+    assert.equal("ORIG:`", wrapped(make_ctx("a `x` ", 6), "`", other_rule()))
   end)
 end)

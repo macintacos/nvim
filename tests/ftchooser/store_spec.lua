@@ -1,6 +1,7 @@
 local store = require("plugins.ftchooser.store")
 
 describe("ftchooser.store", function()
+  ---@type string
   local file
 
   before_each(function()

@@ -11,6 +11,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   callback = function(ev)
     vim.cmd.packadd("crates.nvim")
     require("crates").setup()
-    vim.api.nvim_exec_autocmds(ev.event, { buffer = ev.buf, modeline = false })
+    -- ev.event is BufRead or BufNewFile, both valid vim.api.keyset.events.
+    vim.api.nvim_exec_autocmds(ev.event --[[@as vim.api.keyset.events]], { buffer = ev.buf, modeline = false })
   end,
 })

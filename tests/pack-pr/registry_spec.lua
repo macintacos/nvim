@@ -4,7 +4,7 @@ local registry = require("plugins.pack-pr.registry")
 ---@param active boolean?
 ---@return vim.pack.PlugData
 local function plug(src, active)
-  local name = src:match("([^/]+)$")
+  local name = assert(src:match("([^/]+)$"))
   return {
     spec = { src = src, name = name },
     path = "/pack/opt/" .. name,
@@ -29,8 +29,8 @@ describe("pack-pr registry", function()
 
     it("strips a .vim suffix when deriving the spec file", function()
       local repos = registry.discover({ plug("https://github.com/macintacos/foo.vim") }, "macintacos")
-      assert.equal("plugin/foo.lua", repos[1].spec_file)
-      assert.equal("foo.vim", repos[1].name)
+      assert.equal("plugin/foo.lua", assert(repos[1]).spec_file)
+      assert.equal("foo.vim", assert(repos[1]).name)
     end)
 
     it("keeps only the owner's plugins", function()

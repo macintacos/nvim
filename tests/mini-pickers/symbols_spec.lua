@@ -46,7 +46,7 @@ describe("mini-pickers.symbols", function()
     it("resolves numeric LSP kinds to their names", function()
       local items = symbols.flatten({ sym("f", KIND.Function, 0) })
 
-      assert.equal("Function", items[1].kind)
+      assert.equal("Function", assert(items[1]).kind)
     end)
 
     it("closes the last child's branch and tees the others", function()
@@ -112,7 +112,7 @@ describe("mini-pickers.symbols", function()
       local items = symbols.flatten({ item }, { bufnr = buf })
 
       -- "é" is two bytes, so UTF-16 character 10 sits at byte 11 (col 12).
-      assert.equal(12, items[1].col)
+      assert.equal(12, assert(items[1]).col)
       vim.api.nvim_buf_delete(buf, { force = true })
     end)
 
@@ -132,7 +132,7 @@ describe("mini-pickers.symbols", function()
       assert.same({ "method" }, field(items, "name"))
       assert.same({ "Widget" }, field(items, "crumb"))
       assert.same({ 0 }, field(items, "depth"))
-      assert.equal(5, items[1].lnum)
+      assert.equal(5, assert(items[1]).lnum)
     end)
   end)
 

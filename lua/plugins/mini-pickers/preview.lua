@@ -48,8 +48,15 @@ function M._layout(columns, rows)
   return { list = { width = columns, height = list }, above = above }
 end
 
+---The geometry of a floating window, as `nvim_win_get_config` reports it for one.
+---@class mini-pickers.preview.Placement : vim.api.keyset.win_config
+---@field row integer
+---@field col integer
+---@field width integer
+---@field height integer
+
 ---Float config for the preview, placed against the list window per `layout`.
----@param list vim.api.keyset.win_config The list window's current config.
+---@param list mini-pickers.preview.Placement The list window's current config.
 ---@param layout { beside?: integer, above?: integer }
 ---@return vim.api.keyset.win_config
 function M._float_config(list, layout)
@@ -107,7 +114,9 @@ end
 local function attach(preview, main)
   local ns = vim.api.nvim_create_namespace("mini_pick_side_preview")
   local group = vim.api.nvim_create_augroup("MiniPickers.PreviewSession", { clear = true })
-  local win, shown
+  ---@type integer?
+  local win
+  local shown
 
   local function render()
     local matches = MiniPick.is_picker_active() and MiniPick.get_picker_matches()
@@ -130,16 +139,16 @@ local function attach(preview, main)
   -- Opens, moves, or closes the float to fit the current editor size.
   local function place()
     local layout = current_layout()
-    local open = win and vim.api.nvim_win_is_valid(win)
     if not ((layout.beside or layout.above) and vim.api.nvim_win_is_valid(main)) then
-      if open then
+      if win and vim.api.nvim_win_is_valid(win) then
         vim.api.nvim_win_close(win, true)
       end
       win = nil
       return
     end
-    local config = M._float_config(vim.api.nvim_win_get_config(main), layout)
-    if open then
+    local main_config = vim.api.nvim_win_get_config(main) --[[@as mini-pickers.preview.Placement]]
+    local config = M._float_config(main_config, layout)
+    if win and vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_set_config(win, config)
     else
       win = vim.api.nvim_open_win(scratch(), false, vim.tbl_extend("force", config, { noautocmd = true }))

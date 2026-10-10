@@ -1,4 +1,4 @@
-local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h:h")
 -- Only this file's maps are under test, so the plugin is stubbed rather than checked out into .tests/deps.
 package.preload.illuminate = function()
   return { configure = function() end }

@@ -1,5 +1,6 @@
----Floating notifications and LSP progress reports.
----@see https://github.com/nvim-mini/mini.notify/blob/main/doc/mini-notify.txt
+-- github.com/nvim-mini/mini.notify
+-- Floating notifications and LSP progress reports.
+-- Docs: https://github.com/nvim-mini/mini.notify/blob/main/doc/mini-notify.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.notify", version = "stable" } })
 
 -- Replaces the snacks notifier, which plugin/snacks.lua disables. Notifications

@@ -2,7 +2,7 @@
 ---deploy. Every colour is distinct, so a spec can tell which role a highlight took.
 
 ---@param lead string First hex digit, keeping the two variants apart.
----@return table
+---@return palette.Roles
 local function variant(lead)
   local count = 0
   local function colour()
@@ -28,7 +28,7 @@ local function variant(lead)
   for i = 1, 16 do
     v.ansi[i] = colour()
   end
-  return v
+  return v --[[@as palette.Roles]]
 end
 
 local M = { dark = variant("1"), light = variant("2") }

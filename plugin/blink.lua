@@ -6,6 +6,8 @@ vim.pack.add({
   "https://github.com/Saghen/blink.lib",
 })
 
+-- blink's *ConfigPartial classes make every inherited field required under emmylua, but setup() accepts any subset.
+---@diagnostic disable-next-line: param-type-mismatch
 require("blink.cmp").setup({
   enabled = function()
     if vim.b.gotoline_prompt then
@@ -13,8 +15,11 @@ require("blink.cmp").setup({
     end
     return vim.bo.filetype ~= "minifiles"
   end,
+  ---@diagnostic disable-next-line: missing-fields
   fuzzy = { implementation = "prefer_rust_with_warning" },
+  ---@diagnostic disable-next-line: missing-fields
   appearance = { nerd_font_variant = "mono" },
+  ---@diagnostic disable-next-line: missing-fields
   sources = {
     default = { "lazydev", "lsp", "path", "snippets", "buffer" },
     per_filetype = {
@@ -37,6 +42,7 @@ require("blink.cmp").setup({
       },
     },
   },
+  ---@diagnostic disable-next-line: missing-fields
   cmdline = {
     enabled = true,
     keymap = { preset = "cmdline" },
@@ -51,14 +57,20 @@ require("blink.cmp").setup({
     },
   },
   completion = {
+    ---@diagnostic disable-next-line: missing-fields
     list = { selection = { auto_insert = false, preselect = false } },
+    ---@diagnostic disable-next-line: missing-fields
     accept = { auto_brackets = { enabled = true } },
+    ---@diagnostic disable-next-line: missing-fields
     menu = { border = "rounded", draw = { treesitter = { "lsp" } } },
+    ---@diagnostic disable-next-line: missing-fields
     documentation = {
       auto_show = true,
       auto_show_delay_ms = 200,
+      ---@diagnostic disable-next-line: missing-fields
       window = { border = "rounded" },
     },
+    ---@diagnostic disable-next-line: missing-fields
     ghost_text = { enabled = vim.g.ai_cmp },
   },
   keymap = {
@@ -101,6 +113,7 @@ local blink_pairs = require("plugins.blink-pairs")
 -- blink.pairs' own rule.rule_from_def() derives them.
 for key, definitions in pairs(pairs_schema.pairs[1]) do
   if type(definitions) == "table" then
+    ---@cast definitions blink.pairs.RuleDefinition[]
     for _, def in ipairs(definitions) do
       local closing = #def == 1 and def[1] or def[2]
       local opening = #def == 2 and def[1] or key
@@ -122,11 +135,15 @@ for _, rules in ipairs({ blink_pairs.md_rules, blink_pairs.md_tag_rules }) do
   end
 end
 
+-- blink.pairs' *ConfigPartial classes make every inherited field required under emmylua, but setup() accepts any subset.
 require("blink.pairs").setup({
+  ---@diagnostic disable-next-line: missing-fields
   mappings = { enabled = true, disabled_filetypes = {} },
+  ---@diagnostic disable-next-line: missing-fields, assign-type-mismatch
   highlights = {
     enabled = true,
     groups = {},
+    ---@diagnostic disable-next-line: missing-fields
     matchparen = { enabled = true, group = "BlinkPairsMatchParen" },
   },
   debug = false,

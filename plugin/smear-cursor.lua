@@ -22,6 +22,8 @@ smear.setup({
 local function sync_smear_color()
   local bg = vim.api.nvim_get_hl(0, { name = "Cursor", link = false }).bg
   if bg then
+    -- The module's __newindex routes this write into its color config; its annotations omit the field.
+    ---@diagnostic disable-next-line: inject-field
     smear.cursor_color = ("#%06x"):format(bg)
   end
 end

@@ -32,6 +32,7 @@ end
 local function symbol_parts(item)
   local ok, icon, hl = pcall(MiniIcons.get, "lsp", item.kind)
   icon = ok and icon or " "
+  ---@cast icon string
   -- Drop mini.extra's position prefix, or the icon it prepended when there is
   -- no position prefix, then split off Neovim's own "[Kind] " label.
   local raw = item.text:match("^.*│ (.*)$")
@@ -97,10 +98,11 @@ end
 ---mini.pick derives its match strings from each item's raw `text`, which still
 ---carries the path and the "[Kind]" label, so both would otherwise be
 ---queryable. Matching against the cleaned names keeps the query honest.
----@param keep table<string, true>? Kinds to list, or nil to list every kind.
+---@param keep table<string, true?>? Kinds to list, or nil to list every kind.
 ---@return fun(stritems: string[], inds: integer[], query: string[]): integer[]
 local function make_match(keep)
   return function(stritems, inds, query)
+    ---@type table<integer, { kind?: string }>
     local items = MiniPick.get_picker_items() or {}
     local names = {}
     for i, stritem in ipairs(stritems) do

@@ -46,7 +46,7 @@ describe("gotoline.preview", function()
         for _, m in ipairs(marks) do
           rows[#rows + 1] = m[2]
         end
-        assert.is_true(vim.tbl_contains(rows, 2), "extmark on row 2 (0-indexed)")
+        assert.is_true(vim.tbl_contains(rows, 2))
       end)
     end)
   end)

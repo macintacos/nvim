@@ -37,6 +37,7 @@ local SEVERITIES = {
 ---@param last integer 1-indexed last folded line
 ---@return string[] Empty when the fold hides nothing of note
 local function diagnostic_counts(first, last)
+  ---@type table<integer, integer?>
   local counts = {}
   for _, diagnostic in ipairs(vim.diagnostic.get(0)) do
     if diagnostic.lnum >= first - 1 and diagnostic.lnum <= last - 1 then
@@ -111,7 +112,7 @@ end
 ---the number column have taken theirs.
 ---@return integer
 local function text_width()
-  local win = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
+  local win = assert(vim.fn.getwininfo(vim.api.nvim_get_current_win())[1], "current window has no getwininfo entry")
   return win.width - win.textoff
 end
 
@@ -120,7 +121,7 @@ end
 function M.foldtext()
   local first, last = vim.v.foldstart, vim.v.foldend
   -- Tabs expanded so the bar starts at the same column as the block it replaces.
-  local line = vim.fn.getline(first):gsub("\t", (" "):rep(vim.bo.tabstop))
+  local line = tostring(vim.fn.getline(first)):gsub("\t", (" "):rep(vim.bo.tabstop))
   local indent = line:match("^%s*")
   local hidden = last - first
 

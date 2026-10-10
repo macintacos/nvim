@@ -83,7 +83,8 @@ function handlers.resolve_target(parsed, origin_file, root)
     if not origin_file then
       return nil
     end
-    return { file = origin_file, line = parsed.line }
+    local line = parsed.line --[[@as integer]]
+    return { file = origin_file, line = line }
   end
   if parsed.mode == "locked" then
     return { file = root .. "/" .. parsed.file, line = parsed.line or 1 }
@@ -160,7 +161,7 @@ end
 ---@return string|nil hl_group
 local function file_icon(file_path)
   local ok, icons = pcall(require, "mini.icons")
-  if not ok then
+  if not ok or not icons then
     return nil, nil
   end
   local icon, hl = icons.get("file", vim.fn.fnamemodify(file_path, ":t"))
@@ -294,10 +295,8 @@ local function redraw()
   if parsed.mode == "empty" then
     clear_results()
   elseif parsed.mode == "filename" then
-    render_results_list(parsed.file_query, function()
-      if state then
-        paint_prompt_hint(parsed, #state.results)
-      end
+    render_results_list(parsed.file_query --[[@as string]], function()
+      paint_prompt_hint(parsed, #state.results)
     end)
   elseif parsed.mode == "line_only" then
     local f = origin_file()
@@ -306,7 +305,7 @@ local function redraw()
     else
       clear_results()
     end
-  elseif parsed.mode == "locked" then
+  else
     -- Locked file paths are relative to the project root.
     local root = files.root(vim.api.nvim_buf_get_name(state.origin_buf))
     render_preview_for(root .. "/" .. parsed.file, parsed.line or 1)
@@ -358,6 +357,8 @@ local function confirm()
 end
 
 function M.open()
+  -- `state` is nil whenever the popup is closed, which its declared type hides.
+  ---@diagnostic disable-next-line: unnecessary-if
   if state then
     return
   end
@@ -415,7 +416,8 @@ function M.open()
   vim.wo[results_win].number = false
   vim.wo[results_win].relativenumber = false
 
-  state = {
+  ---@type gotoline.State
+  local opened = {
     prompt_buf = prompt_buf,
     prompt_win = prompt_win,
     results_buf = results_buf,
@@ -426,6 +428,7 @@ function M.open()
     results = {},
     selected = 1,
   }
+  state = opened
 
   -- Render a fixed " $ " prefix as inline virt_text. It's not part of the
   -- buffer, so the user can't backspace through it and `get_prompt()` keeps
@@ -498,7 +501,7 @@ function M.close()
     return
   end
   local s = state
-  ---@diagnostic disable-next-line: cast-local-type -- closing the popup ends `state`'s lifetime
+  ---@diagnostic disable-next-line: assign-type-mismatch -- closing the popup ends `state`'s lifetime
   state = nil
   for _, w in ipairs({ s.prompt_win, s.results_win }) do
     if w and vim.api.nvim_win_is_valid(w) then

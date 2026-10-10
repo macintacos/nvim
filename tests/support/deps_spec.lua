@@ -2,7 +2,12 @@ local deps = require("support.deps")
 local support = require("support.git")
 
 describe("support.deps.sync", function()
-  local tmp, upstream, dir
+  ---@type string
+  local tmp
+  ---@type string
+  local upstream
+  ---@type string
+  local dir
 
   before_each(function()
     tmp = vim.fn.tempname()
@@ -39,6 +44,6 @@ describe("support.deps.sync", function()
     local errors = deps.sync({ plugin = { src = upstream, rev = string.rep("0", 40) } }, dir)
 
     assert.equal(1, #errors)
-    assert.truthy(errors[1]:find("^plugin: "))
+    assert.truthy(assert(errors[1]):find("^plugin: "))
   end)
 end)

@@ -30,7 +30,7 @@ vim.env.GIT_CONFIG_SYSTEM = "/dev/null"
 -- Run against the repo tree this init lives in (the repo root is two levels up
 -- from tests/minimal_init.lua), so the suite also works from a git worktree —
 -- in the normal checkout this resolves to the same path as stdpath("config").
-local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h")
+local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h")
 vim.opt.rtp:prepend(root)
 -- `rtp` reaches `lua/` only, so fixture modules under `tests/support/` need their own path.
 package.path = root .. "/tests/?.lua;" .. package.path

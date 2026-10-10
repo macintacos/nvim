@@ -8,7 +8,7 @@ local M = {}
 ---The distinct "ftchooser" name avoids collisions with other tooling.
 ---@return string
 function M.path()
-  return vim.fs.joinpath(vim.fn.stdpath("state"), "ftchooser.json")
+  return vim.fs.joinpath(vim.fn.stdpath("state") --[[@as string]], "ftchooser.json")
 end
 
 ---Read the path->ft map from `file`. Missing or corrupt file yields {}.

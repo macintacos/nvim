@@ -1,8 +1,11 @@
----@module 'blink.cmp'
 ---A blink.cmp source that bridges the current buffer's `omnifunc` into the
 ---completion menu, so `<C-x><C-o>` suggestions show up like any other source.
----@class blink.cmp.Source
+---@class blink-omni.Source : blink.cmp.Source
+---@field _to_items fun(result: any): blink-omni.Item[]
 local source = {}
+
+---@class blink-omni.Item : lsp.CompletionItem
+---@field insertText string
 
 ---Vim complete-item `kind` letters → LSP CompletionItemKind.
 ---@type table<string, integer>
@@ -18,7 +21,7 @@ local KIND = {
 ---Handles the three shapes omnifunc may return: a list of strings, a list of
 ---complete-item dicts (`word`/`abbr`/`menu`/`info`/`kind`), or `{ words = ... }`.
 ---@param result any Raw value returned by the omnifunc in results mode.
----@return lsp.CompletionItem[]
+---@return blink-omni.Item[]
 local function to_items(result)
   local words = result
   if type(result) == "table" and result.words ~= nil then
@@ -58,7 +61,7 @@ source._to_items = to_items
 ---@type { items: lsp.CompletionItem[], is_incomplete_forward: boolean, is_incomplete_backward: boolean }
 local EMPTY_RESPONSE = { items = {}, is_incomplete_forward = false, is_incomplete_backward = false }
 
----@return blink.cmp.Source
+---@return blink-omni.Source
 function source.new()
   return setmetatable({}, { __index = source })
 end
@@ -72,7 +75,7 @@ end
 ---Drive the buffer's omnifunc and return its suggestions as blink items.
 ---Mirrors how the editor itself calls omnifunc: first in findstart mode to
 ---locate the base column, then in results mode with the typed prefix.
----@param ctx { line: string, cursor: integer[], bufnr: integer }
+---@param ctx { line: string, cursor: [integer, integer], bufnr: integer }
 ---@param callback fun(response: { items: lsp.CompletionItem[], is_incomplete_forward: boolean, is_incomplete_backward: boolean })
 ---@return (fun(): nil)? cancel Nothing to cancel — omnifunc is called synchronously.
 function source:get_completions(ctx, callback)
@@ -87,6 +90,7 @@ function source:get_completions(ctx, callback)
     callback(EMPTY_RESPONSE)
     return nil
   end
+  ---@cast start_col integer
 
   local base = ctx.line:sub(start_col + 1, ctx.cursor[2])
   local got, result = pcall(vim.fn.call, omnifunc, { 0, base })

@@ -163,6 +163,7 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function(event)
     local ok, wk = pcall(require, "which-key")
     if ok then
+      ---@cast wk -?
       wk.add({
         { "<localleader>", group = "markdown", buffer = event.buf, icon = { icon = "󰍔", color = "blue" } },
       })
@@ -260,7 +261,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = vim.api.nvim_create_augroup("gotmpl_highlight", { clear = true }),
   pattern = "*.tmpl",
   callback = function()
-    local filename = vim.fn.expand("%:t")
+    local filename = tostring(vim.fn.expand("%:t"))
     local ext = filename:match(".*%.(.-)%.tmpl$")
 
     -- Add more extension to syntax mappings here if you need to.

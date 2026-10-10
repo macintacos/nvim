@@ -24,7 +24,9 @@ local function hl(group, attr)
 end
 
 describe("dracula-pro colorscheme", function()
-  local dir, path, packpath
+  ---@type string
+  local dir
+  local path, packpath
 
   before_each(function()
     dir = vim.fn.tempname()

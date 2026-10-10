@@ -36,7 +36,7 @@ describe("pack-pr prs.parse", function()
   it("falls back to '?' when the author is missing", function()
     local json = vim.json.encode({ { number = 1, title = "t", headRefName = "b", url = "u" } })
     local rows = prs.parse(json, "o/r")
-    assert.equal("?", rows[1].author)
+    assert.equal("?", assert(rows[1]).author)
   end)
 
   it("maps multiple PRs in order", function()
@@ -46,8 +46,8 @@ describe("pack-pr prs.parse", function()
     })
     local rows = prs.parse(json, "o/r")
     assert.equal(2, #rows)
-    assert.equal(1, rows[1].number)
-    assert.equal(2, rows[2].number)
+    assert.equal(1, assert(rows[1]).number)
+    assert.equal(2, assert(rows[2]).number)
   end)
 end)
 
@@ -56,8 +56,17 @@ describe("pack-pr prs.gather", function()
     prs._reset()
   end)
 
+  ---@param name string "owner/repo"
+  ---@return pack-pr.Repo
   local function repo(name)
-    return { repo = name }
+    local plugin = assert(name:match("[^/]+$"))
+    return {
+      repo = name,
+      src = "https://github.com/" .. name,
+      name = plugin,
+      spec_file = "plugin/" .. plugin .. ".lua",
+      path = "/p/" .. plugin,
+    }
   end
 
   it("aggregates PRs across repos and reports no errors on success", function()
@@ -67,7 +76,10 @@ describe("pack-pr prs.gather", function()
         or { { number = 2, title = "b", headRefName = "bb", author = { login = "y" }, url = "u2" } }
       cb({ code = 0, stdout = vim.json.encode(data), stderr = "" })
     end)
-    local got_prs, got_errors
+    ---@type pack-pr.PR[]
+    local got_prs
+    ---@type { repo: string, message: string }[]
+    local got_errors
     prs.gather({ repo("o/a"), repo("o/b") }, function(p, e)
       got_prs, got_errors = p, e
     end)
@@ -83,14 +95,18 @@ describe("pack-pr prs.gather", function()
         cb({ code = 0, stdout = "[]", stderr = "" })
       end
     end)
-    local got_prs, got_errors
+    ---@type pack-pr.PR[]
+    local got_prs
+    ---@type { repo: string, message: string }[]
+    local got_errors
     prs.gather({ repo("o/ok"), repo("o/bad") }, function(p, e)
       got_prs, got_errors = p, e
     end)
     assert.equal(0, #got_prs)
     assert.equal(1, #got_errors)
-    assert.equal("o/bad", got_errors[1].repo)
-    assert.is_truthy(got_errors[1].message:find("401"))
+    local err = assert(got_errors[1])
+    assert.equal("o/bad", err.repo)
+    assert.is_truthy(err.message:find("401"))
   end)
 
   it("invokes the callback immediately for an empty repo list", function()

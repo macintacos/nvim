@@ -31,6 +31,12 @@ describe("palette.blend", function()
     assert.equal("#404040", palette.blend("#000000", "#ffffff", 0.25))
     assert.equal("#bf4000", palette.blend("#ff0000", "#00ff00", 0.25))
   end)
+
+  it("rejects a colour that is not hex", function()
+    assert.has_error(function()
+      palette.blend("not-a-colour", "#ffffff", 0.5)
+    end, "not a hex colour: not-a-colour")
+  end)
 end)
 
 describe("palette.dracula_pro", function()

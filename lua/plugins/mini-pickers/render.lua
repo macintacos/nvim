@@ -15,7 +15,7 @@ M.ns = vim.api.nvim_create_namespace("mini_pick_lsp_symbols")
 -- as Comment.
 local KIND_MIX = 0.5
 
----@type table<string, true>
+---@type table<string, boolean>
 local made = {}
 
 ---Mix two 0xRRGGBB colours, keeping `alpha` of the first.

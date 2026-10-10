@@ -31,7 +31,7 @@ local M = {}
 ---@field ansi string[]
 
 ---@type string
-M.PATH = vim.fn.expand("~/.config/palette/palette.json")
+M.PATH = vim.fn.expand("~/.config/palette/palette.json") --[[@as string]]
 
 ---Both variants from the palette file at `path`, or nil when it is missing or
 ---unreadable.
@@ -59,7 +59,8 @@ end
 ---@param f number
 ---@return string
 function M.blend(a, b, f)
-  local x, y = tonumber(a:sub(2), 16), tonumber(b:sub(2), 16)
+  local x = assert(tonumber(a:sub(2), 16), "not a hex colour: " .. a)
+  local y = assert(tonumber(b:sub(2), 16), "not a hex colour: " .. b)
   local out = 0
   for _, shift in ipairs({ 65536, 256, 1 }) do
     local ca, cb = math.floor(x / shift) % 256, math.floor(y / shift) % 256

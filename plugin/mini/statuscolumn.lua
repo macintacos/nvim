@@ -1,5 +1,6 @@
----Builds 'statuscolumn' out of the number, sign, and fold columns.
----@see https://github.com/nvim-mini/mini.statuscolumn/blob/main/doc/mini-statuscolumn.txt
+-- github.com/nvim-mini/mini.statuscolumn
+-- Builds 'statuscolumn' out of the number, sign, and fold columns.
+-- Docs: https://github.com/nvim-mini/mini.statuscolumn/blob/main/doc/mini-statuscolumn.txt
 -- In beta with no stable tag yet — tracks main.
 vim.pack.add({ "https://github.com/nvim-mini/mini.statuscolumn" })
 

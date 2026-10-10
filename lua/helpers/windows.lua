@@ -5,7 +5,10 @@ local M = {}
 function M.close_all_floating_wins()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local config = vim.api.nvim_win_get_config(win)
-    if config.relative ~= "" then
+    -- A normal window's `relative` is "", which the runtime's union type leaves out.
+    ---@type string
+    local relative = config.relative
+    if relative ~= "" then
       vim.api.nvim_win_close(win, false)
     end
   end
@@ -16,7 +19,11 @@ end
 ---@return boolean scrolled true if a hover popup was found and scrolled
 function M.scroll_hover(direction)
   local ok, winid = pcall(vim.api.nvim_buf_get_var, 0, "lsp_floating_preview")
-  if not ok or not winid or not vim.api.nvim_win_is_valid(winid) then
+  if not ok or type(winid) ~= "number" then
+    return false
+  end
+  ---@cast winid integer
+  if not vim.api.nvim_win_is_valid(winid) then
     return false
   end
   local key = vim.api.nvim_replace_termcodes(direction == "down" and "<C-d>" or "<C-u>", true, false, true)

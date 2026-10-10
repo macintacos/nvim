@@ -57,7 +57,10 @@ function M.tab_window_buffers()
   local seen = {}
   local result = {}
   for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if vim.api.nvim_win_get_config(w).relative == "" then
+    -- A normal window's `relative` is "", which the runtime's union type leaves out.
+    ---@type string
+    local relative = vim.api.nvim_win_get_config(w).relative
+    if relative == "" then
       local buf = vim.api.nvim_win_get_buf(w)
       if vim.api.nvim_buf_get_name(buf) ~= "" and not seen[buf] then
         seen[buf] = true

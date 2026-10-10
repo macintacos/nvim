@@ -30,6 +30,7 @@ end
 
 describe("mini-pickers.outline", function()
   describe("_collect", function()
+    ---@type integer
     local buf
 
     before_each(function()

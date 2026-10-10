@@ -59,7 +59,7 @@ local function attach(bufnr)
     vim.system({ "uv", "python", "find", "--script", file }, { text = true }, function(found)
       vim.schedule(function()
         done()
-        if found.code ~= 0 or not vim.api.nvim_buf_is_valid(bufnr) then
+        if found.code ~= 0 or not found.stdout or not vim.api.nvim_buf_is_valid(bufnr) then
           return
         end
         vim.lsp.start(M.client_config(file, vim.trim(found.stdout)), { bufnr = bufnr })

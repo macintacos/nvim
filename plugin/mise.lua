@@ -5,14 +5,15 @@
 -- Gates after/queries/toml/injections.scm: only inject `run = "..."` bodies in
 -- files whose name matches *mise*.toml (e.g. mise.toml, .mise.toml, mise.local.toml).
 require("vim.treesitter.query").add_predicate("is-mise?", function(_, _, bufnr, _)
-  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(tonumber(bufnr) or 0), ":t")
+  -- math.floor narrows tonumber's number to the integer nvim_buf_get_name takes.
+  local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(math.floor(tonumber(bufnr) or 0)), ":t")
   return string.match(filename, ".*mise.*%.toml$") ~= nil
 end, { force = true, all = false })
 
 -- Gates after/queries/bash/injections.scm: only inject TOML/KDL into #MISE / #USAGE
 -- comments in bash files that live in a mise tasks directory.
 require("vim.treesitter.query").add_predicate("is-mise-task?", function(_, _, bufnr, _)
-  local path = vim.api.nvim_buf_get_name(tonumber(bufnr) or 0)
+  local path = vim.api.nvim_buf_get_name(math.floor(tonumber(bufnr) or 0))
   return path:match("[/\\]%.?mise%-tasks?[/\\]") ~= nil or path:match("[/\\]%.?mise[/\\]tasks?[/\\]") ~= nil
 end, { force = true, all = false })
 

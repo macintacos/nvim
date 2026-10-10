@@ -15,7 +15,8 @@ require("incline").setup({
       if vim.w[winid].agentcomplete_box then
         return true
       end
-      local zen = package.loaded["snacks"].zen
+      -- snacks.zen's class omits the win field that zen.lua sets on its module table.
+      local zen = package.loaded["snacks"].zen --[[@as { win: snacks.win? }]]
       if zen.win and not zen.win.closed then
         return winid ~= zen.win.win
       end
@@ -32,7 +33,7 @@ require("incline").setup({
     local ft_icon, ft_color = devicons.get_icon_color(filename)
     local modified = vim.bo[props.buf].modified
     return {
-      ft_icon and { " ", ft_icon, " ", guibg = ft_color, guifg = helpers.contrast_color(ft_color) } or "",
+      ft_icon and ft_color and { " ", ft_icon, " ", guibg = ft_color, guifg = helpers.contrast_color(ft_color) } or "",
       " ",
       { filename, gui = modified and "bold,italic" or "bold" },
       " ",

@@ -24,7 +24,7 @@ local function resolve(spec_file)
   if spec_file:sub(1, 1) == "/" then
     return spec_file
   end
-  return vim.fs.joinpath(vim.fn.stdpath("config"), spec_file)
+  return vim.fs.joinpath(vim.fn.stdpath("config") --[[@as string]], spec_file)
 end
 
 ---Build picker items: one per open PR, plus a "reset to default branch"
@@ -33,6 +33,7 @@ end
 ---@param repos pack-pr.Repo[]
 ---@return table[] items Picker items (each carries `text`, `plugin`, `entry`, `branch`, `kind`).
 function M._build_items(prlist, repos)
+  ---@type table<string, pack-pr.Repo?>
   local by_repo = {}
   for _, r in ipairs(repos) do
     by_repo[r.repo] = r

@@ -20,7 +20,7 @@ vim.schedule(function()
   ---@return fun()
   local function pick(name, local_opts)
     return function()
-      MiniPick.registry[name](local_opts)
+      assert(MiniPick.registry[name], "no mini.pick registry picker named " .. name)(local_opts)
     end
   end
 
@@ -56,6 +56,8 @@ vim.schedule(function()
     vim.api.nvim_clear_autocmds({ group = "wk", event = { "FocusLost", "FocusGained" } })
   end
 
+  -- setup() deep-merges this onto its defaults, but wk.Opts declares every key required.
+  ---@diagnostic disable-next-line: missing-fields, param-type-mismatch
   require("which-key").setup({
     preset = "helix",
     sort = { "order", key_class },
@@ -85,6 +87,8 @@ vim.schedule(function()
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers", icon = { icon = "󰱝", color = "red" } },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text", icon = { icon = "󰅍", color = "yellow" } },
       { "<leader>bs", pick("buf_lines", { scope = "current" }), desc = "Search Buffer Lines", icon = { icon = "󱎸", color = "green" } },
+      -- snacks' zen overload requires opts, but zen() applies its defaults for nil.
+      ---@diagnostic disable-next-line: missing-parameter
       { "<leader>bz", function() Snacks.zen() end, desc = "Zen Mode", icon = { icon = "󱅻", color = "purple" } },
 
       -- Files
@@ -246,6 +250,8 @@ vim.schedule(function()
       { "<leader>Tw", function() Snacks.toggle.option("wrap", { name = "Wrap" }):toggle() end, desc = "Word Wrap", icon = { icon = "󰖶", color = "yellow" } },
       { "<leader>Ti", function() Snacks.toggle.indent():toggle() end, desc = "Indentation", icon = { icon = "󰉶", color = "yellow" } },
       { "<leader>Tp", Cmd("Changeset review"), desc = "PR Review Mode", icon = { icon = "󰓂", color = "yellow" } },
+      -- snacks' zen overload requires opts, but zen() applies its defaults for nil.
+      ---@diagnostic disable-next-line: missing-parameter
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode", icon = { icon = "󱅻", color = "yellow" } },
 
       -- Project (<leader>pp is mapped in plugin/projects.lua; the entry below is
@@ -300,12 +306,13 @@ vim.schedule(function()
       { "<leader>wr", function() require("which-key").show({ keys = RESIZE, loop = true }) end, desc = "Resize Mode", icon = { icon = "󰩨", color = "blue" } },
       { RESIZE, group = "resize",
         expand = function()
+          -- wk.Spec's [1] and [2] fields type a single mapping, so a list of mappings needs the cast below.
           return {
             { "h", function() Windows.resize("h") end, desc = "Left", icon = { icon = "󰁍", color = "blue" } },
             { "j", function() Windows.resize("j") end, desc = "Down", icon = { icon = "󰁅", color = "blue" } },
             { "k", function() Windows.resize("k") end, desc = "Up", icon = { icon = "󰁝", color = "blue" } },
             { "l", function() Windows.resize("l") end, desc = "Right", icon = { icon = "󰁔", color = "blue" } },
-          }
+          } --[[@as wk.Spec]]
         end },
       { "<leader>wd", "<C-w>c", desc = "Delete Window", icon = { icon = "󰖭", color = "red" } },
       { "<leader>wD",
@@ -324,6 +331,8 @@ vim.schedule(function()
         desc = "Delete Other Windows", icon = { icon = "󰖯", color = "red" } },
       { "<leader>wt", function() require("plugins.scratch").open() end, desc = "Scratch Buffer", icon = { icon = "󱞁", color = "blue" } },
       { "<leader>wT", function() require("plugins.scratch").float() end, desc = "Scratch Buffer (Float)", icon = { icon = "󱂬", color = "blue" } },
+      -- snacks' zen overload requires opts, but zen() applies its defaults for nil.
+      ---@diagnostic disable-next-line: missing-parameter
       { "<leader>wz", function() Snacks.zen() end, desc = "Zen Mode", icon = { icon = "󱅻", color = "blue" } },
 
       -- Actions (things that change the code under the cursor)

@@ -15,7 +15,7 @@ local function dial(increment, g)
   local is_visual = mode == "v" or mode == "V" or mode == "\22"
   local func = (increment and "inc" or "dec") .. (g and "_g" or "_") .. (is_visual and "visual" or "normal")
   local group = vim.g.dials_by_ft[vim.bo.filetype] or "default"
-  return require("dial.map")[func](group)
+  return assert(require("dial.map")[func], "no dial.map function " .. func)(group)
 end
 
 -- Registers all augend groups and filetype mappings on first use.

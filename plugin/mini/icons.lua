@@ -1,5 +1,6 @@
----Filetype, LSP-kind, and directory icons, exposed as the global `MiniIcons`.
----@see https://github.com/nvim-mini/mini.icons/blob/main/doc/mini-icons.txt
+-- github.com/nvim-mini/mini.icons
+-- Filetype, LSP-kind, and directory icons, exposed as the global `MiniIcons`.
+-- Docs: https://github.com/nvim-mini/mini.icons/blob/main/doc/mini-icons.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.icons", version = "stable" } })
 
 -- Both mini.pick and mini.extra check for the global at render time and

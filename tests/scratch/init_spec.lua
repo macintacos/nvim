@@ -2,7 +2,14 @@ local scratch = require("plugins.scratch")
 
 describe("scratch.float", function()
   local cwd
+  ---@type string
   local tmpdir
+
+  ---@param win integer
+  ---@return boolean
+  local function is_float(win)
+    return vim.api.nvim_win_get_config(win).relative ~= ""
+  end
 
   before_each(function()
     cwd = vim.fn.getcwd()
@@ -15,7 +22,7 @@ describe("scratch.float", function()
     vim.cmd.cd(cwd)
     vim.fn.delete(tmpdir, "rf")
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-      if vim.api.nvim_win_get_config(win).relative ~= "" then
+      if is_float(win) then
         vim.api.nvim_win_close(win, true)
       end
     end
@@ -26,7 +33,7 @@ describe("scratch.float", function()
   local function float_count()
     local n = 0
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-      if vim.api.nvim_win_get_config(win).relative ~= "" then
+      if is_float(win) then
         n = n + 1
       end
     end

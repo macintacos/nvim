@@ -91,6 +91,7 @@ function M.fold(lnum, virtnum)
     return " "
   end
   -- Requiring changeset here would load it at startup; until it loads, no line has a bubble.
+  ---@type { bubble?: fun(buf: integer, lnum: integer): string?, string? }?
   local changeset = package.loaded.changeset
   local glyph, hl
   if changeset and changeset.bubble then

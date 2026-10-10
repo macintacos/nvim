@@ -44,7 +44,8 @@ function M.blame_line()
       name = ("Git blame line %d"):format(lnum),
       preview = show_commit,
       choose = function(item)
-        local win = (MiniPick.get_picker_state().windows or {}).target
+        local state = MiniPick.get_picker_state()
+        local win = state and (state.windows or {}).target
         if win == nil or not vim.api.nvim_win_is_valid(win) then
           return
         end

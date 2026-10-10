@@ -1,5 +1,6 @@
----Fuzzy picker driving `:Pick`, and the `vim.ui.select()` implementation.
----@see https://github.com/nvim-mini/mini.pick/blob/main/doc/mini-pick.txt
+-- github.com/nvim-mini/mini.pick
+-- Fuzzy picker driving `:Pick`, and the `vim.ui.select()` implementation.
+-- Docs: https://github.com/nvim-mini/mini.pick/blob/main/doc/mini-pick.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.pick", version = "stable" } })
 
 ---Re-type `key` into the picker, so a second key runs the action bound to the
@@ -34,7 +35,7 @@ local function half_page(sign)
         break
       end
     end
-    local height = vim.api.nvim_win_get_height(MiniPick.get_picker_state().windows.main)
+    local height = vim.api.nvim_win_get_height(assert(MiniPick.get_picker_state(), "no picker is open").windows.main)
     local target = pos + sign * math.max(math.floor(height / 2), 1)
     MiniPick.set_picker_match_inds({ inds[math.min(math.max(target, 1), #inds)] }, "current")
   end

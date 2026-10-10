@@ -19,12 +19,20 @@
 ---@field guides string    Tree connectors for the row, e.g. "│ └─". Empty at depth 0.
 ---@field crumb string     Ancestor names joined by "›". Empty at depth 0.
 
+---@alias MiniPickers.Encoding "utf-8"|"utf-16"|"utf-32"
+
 ---@class MiniPickers.SymbolOpts
 ---@field bufnr? integer             Buffer the symbols describe (default: current).
 ---@field path? string               Path recorded on each item (default: `bufnr`'s name).
----@field encoding? string           Client offset encoding (default: "utf-16").
+---@field encoding? MiniPickers.Encoding Client offset encoding (default: "utf-16").
 ---@field kinds? table<string, true> Kinds to keep. Others are dropped and their
 ---                                  children promoted. Default: keep everything.
+
+---@class MiniPickers.SymbolCtx
+---@field bufnr integer
+---@field path string
+---@field encoding MiniPickers.Encoding
+---@field kinds? table<string, true>
 
 local M = {}
 
@@ -54,7 +62,7 @@ end
 ---@param bufnr integer
 ---@param line integer
 ---@param character integer
----@param encoding string
+---@param encoding MiniPickers.Encoding
 ---@return integer
 local function byte_col(bufnr, line, character, encoding)
   local text = vim.api.nvim_buf_get_lines(bufnr, line, line + 1, false)[1]
@@ -87,7 +95,7 @@ local function level(nodes, kinds)
 end
 
 ---@param row { node: table, kind: string }
----@param ctx MiniPickers.SymbolOpts
+---@param ctx MiniPickers.SymbolCtx
 ---@param depth integer
 ---@param guides string
 ---@param crumb string
@@ -111,7 +119,7 @@ end
 
 ---@param out MiniPickers.Symbol[]
 ---@param nodes table[]
----@param ctx MiniPickers.SymbolOpts
+---@param ctx MiniPickers.SymbolCtx
 ---@param depth integer
 ---@param bars string Ancestor bars this level's connectors hang off.
 ---@param crumb string
@@ -141,6 +149,7 @@ end
 function M.flatten(response, opts)
   opts = opts or {}
   local bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
+  ---@type MiniPickers.SymbolCtx
   local ctx = {
     bufnr = bufnr,
     path = opts.path or vim.api.nvim_buf_get_name(bufnr),
@@ -176,11 +185,12 @@ function M.fit(trail, width)
   end
 
   -- One segment, still too wide: keep its tail.
+  local segment = assert(parts[1], "a split always leaves one segment")
   local keep = width - 1
   if keep < 1 then
     return ELLIPSIS
   end
-  return ELLIPSIS .. vim.fn.strcharpart(parts[1], vim.fn.strchars(parts[1]) - keep)
+  return ELLIPSIS .. vim.fn.strcharpart(segment, vim.fn.strchars(segment) - keep)
 end
 
 return M

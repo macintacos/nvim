@@ -27,7 +27,7 @@ end
 ---@return string? src The plugin's source URL, or nil if none precedes `lnum`.
 local function find_source(lines, lnum)
   for i = lnum, 1, -1 do
-    local src = lines[i]:match("^Source:%s+(.+)$")
+    local src = assert(lines[i], "lnum is within the buffer"):match("^Source:%s+(.+)$")
     if src then
       return src
     end
@@ -54,7 +54,7 @@ end
 local function open_at_cursor()
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local lnum = vim.fn.line(".")
-  local target, kind = parse_target(lines[lnum])
+  local target, kind = parse_target(assert(lines[lnum], "cursor line is within the buffer"))
   if not target then
     return
   end

@@ -10,6 +10,7 @@ local function buf_with(lines)
 end
 
 describe("uv-scripts.detect", function()
+  ---@type integer[]
   local bufs
 
   before_each(function()

@@ -4,13 +4,15 @@ require("mini.pick").setup()
 local preview = require("plugins.mini-pickers.preview")
 preview.setup()
 
----Every float except the picker's own window.
+---Every float except the picker's own window and the filename labels incline
+---draws over floats, which the test environment loads from the repo's `plugin/`.
 ---@return integer[]
 local function side_floats()
   local state = MiniPick.get_picker_state()
   local main = state and state.windows.main
   return vim.tbl_filter(function(win)
-    return win ~= main and vim.api.nvim_win_get_config(win).relative ~= ""
+    local buf = vim.api.nvim_win_get_buf(win)
+    return win ~= main and vim.api.nvim_win_get_config(win).relative ~= "" and vim.bo[buf].filetype ~= "incline"
   end, vim.api.nvim_list_wins())
 end
 
@@ -55,16 +57,18 @@ describe("mini-pickers.preview", function()
   describe("_layout", function()
     it("splits a wide editor so both floats and their borders fill its width", function()
       local layout = preview._layout(200, 46)
-      assert.is_true(layout.list.width < layout.beside)
-      assert.equal(200, layout.list.width + layout.beside + 4)
+      local beside = assert(layout.beside)
+      assert.is_true(layout.list.width < beside)
+      assert.equal(200, layout.list.width + beside + 4)
       assert.is_nil(layout.list.height)
     end)
 
     it("stacks a narrow editor's preview above the list, both fitting its height", function()
       local layout = preview._layout(preview.MIN_COLUMNS - 1, 46)
+      local list_height, above = assert(layout.list.height), assert(layout.above)
       assert.equal(preview.MIN_COLUMNS - 1, layout.list.width)
-      assert.is_true(layout.list.height < layout.above)
-      assert.is_true(layout.list.height + layout.above + 4 <= 46)
+      assert.is_true(list_height < above)
+      assert.is_true(list_height + above + 4 <= 46)
     end)
 
     it("gives an editor too short for a stack the whole list, with no preview", function()
@@ -95,7 +99,9 @@ describe("mini-pickers.preview", function()
   end)
 
   describe("in a running picker", function()
-    local dir, columns
+    ---@type string
+    local dir
+    local columns
 
     before_each(function()
       dir = vim.fn.tempname()
@@ -116,12 +122,13 @@ describe("mini-pickers.preview", function()
         function()
           local floats = side_floats()
           seen.count = #floats
-          seen.first = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(floats[1]), 0, 1, false)[1]
+          local win = assert(floats[1])
+          seen.first = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, 1, false)[1]
           vim.api.nvim_input("<C-n>")
         end,
         function()
-          local floats = side_floats()
-          seen.second = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(floats[1]), 0, 1, false)[1]
+          local win = assert(side_floats()[1])
+          seen.second = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, 1, false)[1]
         end,
       })
 
@@ -136,7 +143,8 @@ describe("mini-pickers.preview", function()
       local line
       drive({ source = { items = { { text = "c", path = path, lnum = 120 } } }, window = preview.window() }, {
         function()
-          line = vim.api.nvim_win_get_cursor(side_floats()[1])[1]
+          local win = assert(side_floats()[1])
+          line = vim.api.nvim_win_get_cursor(win)[1]
         end,
       })
 
@@ -156,19 +164,23 @@ describe("mini-pickers.preview", function()
 
     it("stacks the preview on the list in an editor too narrow for one beside it", function()
       vim.o.columns = preview.MIN_COLUMNS - 1
-      local list, float
+      ---@type mini-pickers.preview.Placement
+      local list
+      ---@type mini-pickers.preview.Placement?
+      local float
       drive({ source = { items = { numbered_file(dir, "e", 1) } }, window = preview.window() }, {
         function()
           local floats = side_floats()
-          list = vim.api.nvim_win_get_config(MiniPick.get_picker_state().windows.main)
-          float = floats[1] and vim.api.nvim_win_get_config(floats[1])
+          local main = assert(MiniPick.get_picker_state()).windows.main
+          list = vim.api.nvim_win_get_config(main) --[[@as mini-pickers.preview.Placement]]
+          float = floats[1] and vim.api.nvim_win_get_config(floats[1]) --[[@as mini-pickers.preview.Placement]]
         end,
       })
 
-      assert.is_table(float)
-      assert.equal(list.row - list.height - 2, float.row)
-      assert.is_true(float.row - float.height - 2 >= 0)
-      assert.equal(list.width, float.width)
+      local placed = assert(float, "no side preview opened in a stacked editor")
+      assert.equal(list.row - list.height - 2, placed.row)
+      assert.is_true(placed.row - placed.height - 2 >= 0)
+      assert.equal(list.width, placed.width)
     end)
   end)
 end)

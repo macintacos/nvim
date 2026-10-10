@@ -2,7 +2,7 @@
 ---`.tests/deps` at the revisions `nvim-pack-lock.json` pins, so neither depends on
 ---what the editor happens to have installed. `nvim -l tests/support/deps.lua`
 ---installs them; `require("support.deps")` only locates them.
-local this = debug.getinfo(1, "S").source:sub(2)
+local this = assert(debug.getinfo(1, "S")).source:sub(2)
 local root = vim.fn.fnamemodify(this, ":p:h:h:h")
 
 local M = {}

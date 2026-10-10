@@ -1,12 +1,14 @@
 local pack_pr = require("plugins.pack-pr")
 
 describe("pack-pr setup", function()
-  local saved_get, get_opts
+  local saved_get
+  ---@type vim.pack.keyset.get
+  local get_opts
 
   before_each(function()
     saved_get = vim.pack.get
     vim.pack.get = function(_, opts)
-      get_opts = opts
+      get_opts = assert(opts)
       return {
         {
           spec = { src = "https://github.com/macintacos/thing.nvim", name = "thing.nvim" },
@@ -32,7 +34,7 @@ describe("pack-pr setup", function()
     pack_pr.setup({ owner = "macintacos" })
     local repos = pack_pr.registry()
     assert.equal(1, #repos)
-    assert.equal("macintacos/thing.nvim", repos[1].repo)
+    assert.equal("macintacos/thing.nvim", assert(repos[1]).repo)
     assert.is_false(get_opts.info)
   end)
 
@@ -42,7 +44,7 @@ describe("pack-pr setup", function()
   end)
 
   it("binds <leader>Pp to :PackPR", function()
-    local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+    local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h:h")
     dofile(root .. "/plugin/pack-pr.lua")
     assert.equal("<Cmd>PackPR<CR>", vim.fn.maparg("<leader>Pp", "n"))
   end)

@@ -1,7 +1,10 @@
 local windows = require("helpers.windows")
 
 describe("windows.reveal_cursor", function()
-  local buf, win
+  ---@type integer
+  local buf
+  ---@type integer
+  local win
 
   before_each(function()
     buf = vim.api.nvim_create_buf(false, true)
@@ -63,6 +66,18 @@ describe("windows.reveal_cursor", function()
   end)
 end)
 
+describe("windows.scroll_hover", function()
+  after_each(function()
+    vim.b.lsp_floating_preview = nil
+  end)
+
+  it("reports nothing scrolled when the popup marker is not a window id", function()
+    vim.b.lsp_floating_preview = "not a window"
+
+    assert.is_false(windows.scroll_hover("down"))
+  end)
+end)
+
 describe("windows.resize", function()
   before_each(function()
     vim.o.laststatus = 3
@@ -94,7 +109,7 @@ describe("windows.resize", function()
   end
 
   ---How far each edge of the current window moves when `dir` is resized.
-  ---@param dir string
+  ---@param dir "h"|"j"|"k"|"l"
   ---@return table<string, integer>
   local function moved(dir)
     local before = edges()

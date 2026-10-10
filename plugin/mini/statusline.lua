@@ -1,5 +1,6 @@
----Builds 'statusline' out of mode, git, diagnostic, filename, and location sections.
----@see https://github.com/nvim-mini/mini.statusline/blob/main/doc/mini-statusline.txt
+-- github.com/nvim-mini/mini.statusline
+-- Builds 'statusline' out of mode, git, diagnostic, filename, and location sections.
+-- Docs: https://github.com/nvim-mini/mini.statusline/blob/main/doc/mini-statusline.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version = "stable" } })
 
 local pack_updates = require("plugins.pack-updates")

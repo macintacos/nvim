@@ -126,6 +126,7 @@ describe("pack-tweaks open_commit (integration)", function()
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.api.nvim_set_current_buf(buf)
     oc.attach(buf)
+    ---@type (fun())?
     local cb
     for _, m in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
       if m.desc == "Open commit/tag in remote" then
@@ -184,6 +185,6 @@ describe("pack-tweaks open_commit (integration)", function()
   it("warns and does not open when no Source precedes the line", function()
     attach_and_press({ "## orphan", "> a1b2c3d │ x" }, 2)
     assert.is_nil(opened)
-    assert.not_nil(notified)
+    assert.is_not_nil(notified)
   end)
 end)

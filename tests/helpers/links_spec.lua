@@ -1,7 +1,10 @@
 local links = require("helpers.links")
 
 describe("links.under_cursor", function()
-  local root, cwd
+  ---@type string
+  local root
+  ---@type string
+  local cwd
 
   ---Edit `name` under the fixture root holding `line`, cursor on `col` (0-based).
   ---@param name string

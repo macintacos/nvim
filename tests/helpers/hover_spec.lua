@@ -9,7 +9,16 @@ local icons = { [severity.ERROR] = "E", [severity.WARN] = "W", [severity.INFO] =
 ---@param message string
 ---@return vim.Diagnostic
 local function diag(lnum, col, sev, message)
-  return { lnum = lnum, col = col, end_lnum = lnum, end_col = col + 1, severity = sev, message = message }
+  -- emmylua reports the inherited optional `source` as missing, so the literal is cast.
+  return {
+    bufnr = 0,
+    lnum = lnum,
+    col = col,
+    end_lnum = lnum,
+    end_col = col + 1,
+    severity = sev,
+    message = message,
+  } --[[@as vim.Diagnostic]]
 end
 
 describe("hover._format_diagnostics", function()
@@ -37,6 +46,7 @@ describe("hover._format_diagnostics", function()
 end)
 
 describe("hover.hover", function()
+  ---@type integer
   local buf
 
   before_each(function()
@@ -78,6 +88,7 @@ describe("hover.hover", function()
         return clients[id]
       end
       vim.lsp.get_clients = function(filter)
+        filter = filter or {}
         return vim.tbl_filter(
           function(c)
             return not filter.name or c.name == filter.name
@@ -87,8 +98,13 @@ describe("hover.hover", function()
           end, attached)
         )
       end
-      vim.lsp.buf_request_all = function(_, _, _, handler)
-        handler(results)
+      vim.lsp.buf_request_all = function(_, method, _, handler)
+        local responses = {}
+        for id, response in pairs(results) do
+          responses[id] = { result = response.result, context = { client_id = id, method = method } }
+        end
+        handler(responses, { client_id = 0, method = method })
+        return function() end
       end
     end
 
@@ -139,7 +155,7 @@ describe("hover.hover", function()
       local float_buf = vim.api.nvim_win_get_buf(vim.b[buf].lsp_floating_preview)
       local row = vim.fn.index(lines, "E broken")
       local marks = vim.api.nvim_buf_get_extmarks(float_buf, -1, { row, 0 }, { row, -1 }, { details = true })
-      assert.equal("DiagnosticFloatingError", marks[1] and marks[1][4].line_hl_group)
+      assert.equal("DiagnosticFloatingError", assert(assert(marks[1])[4]).line_hl_group)
     end)
 
     it("shows diagnostics above other docs when no changeset client is attached", function()

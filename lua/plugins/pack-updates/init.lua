@@ -60,7 +60,7 @@ local function read_cache()
   local data = f:read("*a")
   f:close()
   local ok, decoded = pcall(vim.json.decode, data)
-  if not ok then
+  if not ok or type(decoded) ~= "table" or type(decoded.checked_at) ~= "number" or type(decoded.count) ~= "number" then
     return nil
   end
   return decoded
@@ -202,6 +202,7 @@ function M.check(force)
   local completed = 0
   local idx = 0
 
+  ---@type fun()
   local spawn_next
 
   local function on_complete()
@@ -223,7 +224,7 @@ function M.check(force)
       return
     end
 
-    local entry = queue[idx]
+    local entry = assert(queue[idx], "idx is within the queue")
 
     -- Resolve remote ref from version constraint
     local ref_args
@@ -291,5 +292,7 @@ function M.update_count()
 end
 
 M._build_queue = build_queue
+M._cache_is_valid = cache_is_valid
+M._cache_path = CACHE_PATH
 
 return M

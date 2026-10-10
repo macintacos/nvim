@@ -33,6 +33,8 @@ vim.api.nvim_create_autocmd("FileType", {
         return
       end
       vim.keymap.set("n", "<CR>", function()
+        -- bqf's own open(true) keymap passes only the close flag; qwinid and idx fall back to the current window and cursor line.
+        ---@diagnostic disable-next-line: missing-parameter
         require("bqf.qfwin.handler").open(true)
         -- Reveal the landing line 30% down the window, matching the LSP goto
         -- maps. Scheduled so bqf has finished jumping and closed the list.

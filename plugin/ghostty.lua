@@ -4,6 +4,7 @@
 -- $GHOSTTY_RESOURCES_DIR points at whichever terminal launched nvim (cmux on this
 -- machine, which ships no vim/ support), so fall back to the Ghostty.app bundle.
 -- First existing directory wins; if none exist this file is a no-op.
+---@type string?
 local vimfiles
 for _, dir in ipairs({
   (vim.env.GHOSTTY_RESOURCES_DIR or "") .. "/../vim/vimfiles",

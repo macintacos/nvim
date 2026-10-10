@@ -2,33 +2,40 @@ local picker = require("plugins.pack-pr.picker")
 
 describe("pack-pr picker._build_items", function()
   local repos = {
-    { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = "plugin/a.lua" },
+    { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = "plugin/a.lua", path = "/p" },
   }
 
   it("builds a PR item plus a reset sentinel per repo", function()
     local prlist = { { repo = "o/a", number = 7, title = "T", branch = "feat", author = "me", url = "u" } }
     local items = picker._build_items(prlist, repos)
     assert.equal(2, #items)
-    assert.equal("pr", items[1].kind)
-    assert.equal("feat", items[1].branch)
-    assert.equal(repos[1], items[1].entry)
-    assert.equal("reset", items[2].kind)
-    assert.is_nil(items[2].branch)
-    assert.equal(repos[1], items[2].entry)
+    local pr_item, reset_item = assert(items[1]), assert(items[2])
+    assert.equal("pr", pr_item.kind)
+    assert.equal("feat", pr_item.branch)
+    assert.equal(repos[1], pr_item.entry)
+    assert.equal("reset", reset_item.kind)
+    assert.is_nil(reset_item.branch)
+    assert.equal(repos[1], reset_item.entry)
   end)
 
   it("skips PRs whose repo is not in the registry", function()
     local prlist = { { repo = "x/y", number = 1, title = "t", branch = "b", author = "a", url = "u" } }
     local items = picker._build_items(prlist, repos)
     assert.equal(1, #items)
-    assert.equal("reset", items[1].kind)
+    assert.equal("reset", assert(items[1]).kind)
   end)
 end)
 
 describe("pack-pr picker._row", function()
   local repos = {
-    { repo = "o/a", src = "https://github.com/o/a", name = "a.nvim", spec_file = "plugin/a.lua" },
-    { repo = "o/longer", src = "https://github.com/o/longer", name = "longer.nvim", spec_file = "plugin/longer.lua" },
+    { repo = "o/a", src = "https://github.com/o/a", name = "a.nvim", spec_file = "plugin/a.lua", path = "/p" },
+    {
+      repo = "o/longer",
+      src = "https://github.com/o/longer",
+      name = "longer.nvim",
+      spec_file = "plugin/longer.lua",
+      path = "/p",
+    },
   }
   local prlist = {
     { repo = "o/a", number = 7, title = "Short title", branch = "feat", author = "me", url = "u" },
@@ -82,7 +89,15 @@ end)
 
 describe("pack-pr picker._apply (integration)", function()
   local install = require("plugins.pack-pr.install")
-  local tmp, saved, notified, installed, confirmed, cmds, install_succeeds, restart_answer, writes, during_install
+  ---@type string
+  local tmp
+  ---@type table
+  local saved
+  ---@type { msg: string, level: integer? }[]
+  local notified
+  ---@type (fun())?
+  local during_install
+  local installed, confirmed, cmds, install_succeeds, restart_answer, writes
 
   local function entry()
     return { repo = "o/a", src = "https://github.com/o/a", name = "a", spec_file = tmp, path = "/p" }
@@ -105,6 +120,8 @@ describe("pack-pr picker._apply (integration)", function()
     install_succeeds, restart_answer = true, 1
     install.run = function(e, branch, cb)
       installed = { name = e.name, branch = branch }
+      -- Each test assigns this after before_each has built the closure.
+      ---@cast during_install (fun())?
       if during_install then
         during_install()
       end
@@ -118,6 +135,8 @@ describe("pack-pr picker._apply (integration)", function()
       confirmed = true
       return restart_answer
     end
+    -- vim.cmd is callable at runtime through a metatable; its stub types it as a table of command shortcuts.
+    ---@diagnostic disable-next-line: assign-type-mismatch
     vim.cmd = function(c)
       cmds[#cmds + 1] = c
     end
@@ -149,7 +168,7 @@ describe("pack-pr picker._apply (integration)", function()
     picker._apply(entry(), "b")
     assert.same({}, cmds)
     assert.equal(2, #notified)
-    assert.is_truthy(notified[2].msg:find("restart to load", 1, true))
+    assert.is_truthy(assert(notified[2]).msg:find("restart to load", 1, true))
   end)
 
   it("restores the spec file and offers no restart when the install fails", function()
@@ -195,7 +214,7 @@ describe("pack-pr picker._apply (integration)", function()
     local e = entry()
     e.src = "https://github.com/not/here"
     picker._apply(e, "b")
-    assert.is_truthy(notified[1].msg:find("no spec"))
+    assert.is_truthy(assert(notified[1]).msg:find("no spec"))
     assert.is_nil(installed)
   end)
 
@@ -204,6 +223,6 @@ describe("pack-pr picker._apply (integration)", function()
     e.spec_file = "/no/such/pack-pr-test-dir/file.lua"
     picker._apply(e, "b")
     assert.is_nil(installed)
-    assert.is_truthy(notified[1].msg:find("not found"))
+    assert.is_truthy(assert(notified[1]).msg:find("not found"))
   end)
 end)

@@ -59,7 +59,7 @@ describe("uv-scripts.setup", function()
     it("names clients per script so two in one directory stay separate", function()
       local a = uv_scripts.client_config("/home/u/bin/deploy", "/cache/a/bin/python3")
       local b = uv_scripts.client_config("/home/u/bin/report", "/cache/b/bin/python3")
-      assert.not_equal(a.name, b.name)
+      assert.are_not_equal(a.name, b.name)
     end)
 
     it("runs the ty language server", function()

@@ -79,7 +79,7 @@ describe("pack-pr install.run", function()
   it("points at the vim.pack log when HEAD did not reach the target", function()
     local ok, reason = run_with({ code = 0, stdout = "abc\ndef\n" }, nil)
     assert.is_false(ok)
-    assert.equal("see " .. vim.fs.joinpath(vim.fn.stdpath("log"), "nvim-pack.log"), reason)
+    assert.equal("see " .. vim.fs.joinpath(vim.fn.stdpath("log") --[[@as string]], "nvim-pack.log"), reason)
   end)
 
   it("names the missing branch when origin lacks it", function()

@@ -1,6 +1,7 @@
 local pack_updates = require("plugins.pack-updates")
 
 describe("build_queue", function()
+  ---@type string
   local pack_dir
 
   before_each(function()
@@ -72,5 +73,34 @@ describe("recheck_on_update", function()
   it("leaves the count alone when a batch only downloaded", function()
     finish_batch()
     assert.same({}, checks)
+  end)
+end)
+
+describe("cache_is_valid", function()
+  before_each(function()
+    vim.fn.mkdir(vim.fn.fnamemodify(pack_updates._cache_path, ":h"), "p")
+  end)
+
+  after_each(function()
+    vim.fn.delete(pack_updates._cache_path)
+  end)
+
+  it("accepts a fresh cache object", function()
+    vim.fn.writefile({ vim.json.encode({ checked_at = os.time(), count = 2 }) }, pack_updates._cache_path)
+    local valid, cache = pack_updates._cache_is_valid()
+    assert.is_true(valid)
+    assert.equal(2, assert(cache).count)
+  end)
+
+  it("treats a cache file that does not decode to an object as absent", function()
+    vim.fn.writefile({ "5" }, pack_updates._cache_path)
+    local valid = pack_updates._cache_is_valid()
+    assert.is_false(valid)
+  end)
+
+  it("treats a cache object without a numeric checked_at as absent", function()
+    vim.fn.writefile({ "{}" }, pack_updates._cache_path)
+    local valid = pack_updates._cache_is_valid()
+    assert.is_false(valid)
   end)
 end)

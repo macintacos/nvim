@@ -16,7 +16,9 @@ local function paint(background)
 end
 
 describe("highlights", function()
-  local dir, path
+  ---@type string
+  local dir
+  local path
 
   before_each(function()
     dir = vim.fn.tempname()

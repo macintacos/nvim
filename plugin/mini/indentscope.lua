@@ -1,5 +1,6 @@
----Draws a vertical line marking the indent scope the cursor sits in.
----@see https://github.com/nvim-mini/mini.indentscope/blob/main/doc/mini-indentscope.txt
+-- github.com/nvim-mini/mini.indentscope
+-- Draws a vertical line marking the indent scope the cursor sits in.
+-- Docs: https://github.com/nvim-mini/mini.indentscope/blob/main/doc/mini-indentscope.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.indentscope", version = "stable" } })
 
 -- Scope indicator only: the `ii`/`ai` textobjects and `[i`/`]i` motions it maps

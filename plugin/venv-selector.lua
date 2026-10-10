@@ -16,6 +16,8 @@ local function ensure_loaded()
   end
   loaded = true
   vim.cmd.packadd("venv-selector.nvim")
+  -- marker_color() is nil without a palette; setup() then keeps venv-selector's own default.
+  ---@diagnostic disable-next-line: param-type-mismatch
   require("venv-selector").setup({
     cache = { file = "~/.cache/venv-selector/venvs2.json" },
     hooks = {},
@@ -67,6 +69,7 @@ vim.api.nvim_create_autocmd("FileType", {
     local bufnr = ev.buf
     local ok, wk = pcall(require, "which-key")
     if ok then
+      ---@cast wk -?
       wk.add({
         { "<localleader>v", group = "venv", buffer = bufnr, icon = { icon = "󰌠", color = "green" } },
         { "<localleader>vs", "<Cmd>VenvSelect<CR>", buffer = bufnr, desc = "Select Virtualenv" },

@@ -25,11 +25,11 @@ end
 ---@return vim.ui.open.Opts? opts
 ---@return string? text The buffer text naming the target.
 function M.under_cursor()
-  local url = M.url(vim.fn.expand("<cWORD>"))
+  local url = M.url(vim.fn.expand("<cWORD>") --[[@as string]])
   if url then
     return url, nil, url
   end
-  local name = vim.fn.expand("<cfile>")
+  local name = vim.fn.expand("<cfile>") --[[@as string]]
   if name == "" then
     return nil
   end
@@ -40,7 +40,8 @@ function M.under_cursor()
   if found == "" then
     return nil
   end
-  return vim.fn.fnamemodify(found, ":p"), BLOOM, name
+  local path = vim.fn.fnamemodify(found, ":p") --[[@as string]]
+  return path, BLOOM, name
 end
 
 ---0-based, end-exclusive byte span of the occurrence of `text` in `line` that
@@ -81,6 +82,7 @@ function M.at_mouse()
     return nil
   end
   local row, col = pos.line - 1, pos.column - 1
+  ---@type string?, vim.ui.open.Opts?, string?
   local target, opts, text
   vim.api.nvim_win_call(pos.winid, function()
     local saved = vim.api.nvim_win_get_cursor(0)
@@ -92,10 +94,11 @@ function M.at_mouse()
     return nil
   end
   local buf = vim.api.nvim_win_get_buf(pos.winid)
-  local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
+  -- The cursor was just placed on this row, so the line exists.
+  local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1] --[[@as string]]
   -- <cWORD> and <cfile> reach forward to the next word from blank space.
   local s, e = M._span(line, col, text --[[@as string]])
-  if not s then
+  if not s or not e then
     return nil
   end
   local kind = opts and "path" or "url"

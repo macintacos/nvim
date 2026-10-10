@@ -31,10 +31,10 @@ local M = {}
 local function parse(item)
   local str = tostring(item)
   local path, lnum, col, text = str:match("^(.-)%z(%d+)%z(%d+)%z(.*)$")
-  if not path then
+  if not (path and lnum and col and text) then
     return nil, nil, str
   end
-  return path, lnum, (text:gsub("^%s+", "")), tonumber(col)
+  return path, lnum, (text:gsub("^%s+", "")), tonumber(col, 10)
 end
 
 -- Characters Vim's very-magic regex treats as operators but rg's regex reads
@@ -59,7 +59,7 @@ local function match_end(line, col, pattern, ignore_case)
     return nil
   end
   local from, to = regex:match_str(line:sub(col))
-  if from ~= 0 then
+  if from ~= 0 or not to then
     return nil
   end
   return col - 1 + to
@@ -75,7 +75,7 @@ local function preview(buf_id, item)
   if not (lnum and col) or pattern == "" then
     return
   end
-  local row = tonumber(lnum) - 1
+  local row = assert(tonumber(lnum, 10)) - 1
   local line = vim.api.nvim_buf_get_lines(buf_id, row, row + 1, false)[1]
   -- Mirrors the case flag `grep_live` hands rg.
   local ignore_case = vim.o.ignorecase and not (vim.o.smartcase and pattern:find("%u"))

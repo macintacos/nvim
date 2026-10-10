@@ -1,6 +1,7 @@
----Extra pickers for mini.pick — lsp, keymaps, manpages, git_commits, and more —
----reachable as `:Pick <name>`.
----@see https://github.com/nvim-mini/mini.extra/blob/main/doc/mini-extra.txt
+-- github.com/nvim-mini/mini.extra
+-- Extra pickers for mini.pick — lsp, keymaps, manpages, git_commits, and more —
+-- reachable as `:Pick <name>`.
+-- Docs: https://github.com/nvim-mini/mini.extra/blob/main/doc/mini-extra.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.extra", version = "stable" } })
 
 -- Registration into MiniPick.registry is mutual — whichever of MiniExtra.setup()

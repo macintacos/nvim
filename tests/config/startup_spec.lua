@@ -1,4 +1,4 @@
-local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h:h")
 
 -- Runs inside the booted Neovim once the scheduled and deferred plugin setup has had
 -- a moment to run, then writes what it saw to the path substituted for %q.
@@ -229,6 +229,7 @@ end)
 ]])
 
 describe("startup", function()
+  ---@type string
   local dir
 
   before_each(function()

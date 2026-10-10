@@ -34,15 +34,15 @@ describe("mini-pickers.locations", function()
       local buf = vim.api.nvim_create_buf(false, true)
       locations._show(buf, { location("lua/a.lua", 40, 12, "local x = 1") }, {})
 
-      local line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
+      local line = assert(vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1])
       assert.is_truthy(line:find("lua/a.lua$"))
       assert.is_nil(line:find("local x"))
 
       local marks = vim.api.nvim_buf_get_extmarks(buf, render.ns, 0, -1, { details = true })
-      local position = vim.tbl_filter(function(mark)
-        return mark[4].virt_text_pos == "right_align"
-      end, marks)[1]
-      assert.same({ { "40:12", "LineNr" } }, position[4].virt_text)
+      local position = assert(vim.tbl_filter(function(mark)
+        return assert(mark[4]).virt_text_pos == "right_align"
+      end, marks)[1])
+      assert.same({ { "40:12", "LineNr" } }, assert(position[4]).virt_text)
       vim.api.nvim_buf_delete(buf, { force = true })
     end)
   end)

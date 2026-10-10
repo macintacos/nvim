@@ -1,6 +1,6 @@
 local M = {}
 
----@type table<string, string[]>
+---@type table<string, string[]?>
 local cache = {}
 
 ---Asynchronously list project files via `rg`. The default lister; replaceable in tests.
