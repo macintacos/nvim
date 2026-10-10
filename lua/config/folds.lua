@@ -18,6 +18,9 @@ local ITEM_SEP = " · "
 local SECTION_SEP = " ⣹⣿⣏ "
 local ELLIPSIS = "…"
 
+-- Text column the bar stops at, however wide the window.
+local MAX_WIDTH = 100
+
 -- The chevron 'fillchars' foldclose puts in the gutter (U+F460), repeated on the
 -- line so both marks for one fold match.
 local COLLAPSED = ""
@@ -125,7 +128,7 @@ function M.foldtext()
     .. bar(
       ("%s %s"):format(COLLAPSED, vim.trim(line)),
       summary(hidden, diagnostic_counts(first, last), vim.api.nvim_buf_line_count(0)),
-      text_width() - #indent
+      math.min(text_width(), MAX_WIDTH) - #indent
     )
 end
 

@@ -20,6 +20,18 @@ describe("bar", function()
   end)
 end)
 
+describe("foldtext", function()
+  it("stops at column 100 in a wider window", function()
+    vim.o.columns = 200
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, { "function foo()", "  return 1", "  -- two", "end" })
+    vim.bo.shiftwidth = 2
+    vim.wo.foldmethod = "indent"
+    vim.wo.foldtext = "v:lua.require'config.folds'.foldtext()"
+    vim.cmd("normal! zM")
+    assert.equal(100, vim.api.nvim_strwidth(vim.fn.foldtextresult(2)))
+  end)
+end)
+
 describe("summary", function()
   it("says line, not lines, for a single hidden line", function()
     assert.equal("1 line · 12.5%", folds._summary(1, {}, 8))
