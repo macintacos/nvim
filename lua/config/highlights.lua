@@ -175,6 +175,8 @@ local function plugin_groups(p)
     MiniPickPromptPrefix = { fg = p.green.base },
     MiniPickHeader = { fg = p.comment },
     MiniIndentscopeSymbol = { fg = p.purple.base },
+    -- Pro pills visual mode in yellow; here it's pink, like modes.nvim's visual cursor.
+    MiniStatuslineModeVisual = { fg = p.bg1, bg = p.pink.base },
     GotolineSelected = { bg = p.sel0 },
     GotolineMatch = { fg = p.cyan.base },
     SnacksPickerMatch = { fg = p.cyan.base },

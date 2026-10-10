@@ -50,8 +50,8 @@ local function paint_mode_colors()
     Format = p.orange.base,
     Insert = p.green.base,
     Replace = p.orange.base,
-    Select = p.yellow.base,
-    Visual = p.yellow.base,
+    Select = p.pink.base,
+    Visual = p.pink.base,
   }
   for scene, color in pairs(scenes) do
     -- Visual and Select leave the line to the selection, as modes.nvim does.
