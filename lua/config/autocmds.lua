@@ -221,10 +221,11 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   end,
 })
 
--- Sets cursorcolumn only in the windows that have focus.
+-- Sets cursorcolumn only in the windows that have focus. mini.files is left out:
+-- it conceals each line's path prefix, so the column lands right of the cursor.
 vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
   callback = function()
-    vim.wo.cursorcolumn = true
+    vim.wo.cursorcolumn = vim.bo.filetype ~= "minifiles"
   end,
 })
 vim.api.nvim_create_autocmd({ "WinLeave" }, {
