@@ -59,8 +59,11 @@ end
 -- Neovim's own groups, where Dracula Pro leaves Neovim's default colours in place
 -- or the palette's role table names a different role than Pro does.
 ---@param p palette.Roles
+---@param background "dark"|"light"
 ---@return table<string, vim.api.keyset.highlight>
-local function ui_groups(p)
+local function ui_groups(p, background)
+  -- Alucard's bg0 is white, which would raise floats above the editor.
+  local float_bg = background == "light" and p.bg1 or p.bg0
   return {
     DiagnosticOk = { fg = p.green.base },
     DiagnosticUnderlineOk = { sp = p.green.base, underline = true },
@@ -81,7 +84,8 @@ local function ui_groups(p)
     FoldColumn = { fg = p.fg3 },
     NonText = { fg = p.bg4 },
     WinSeparator = { fg = p.bg4 },
-    FloatBorder = { fg = p.bg4, bg = p.bg0 },
+    NormalFloat = { bg = float_bg },
+    FloatBorder = { fg = p.bg4, bg = float_bg },
     ColorColumn = { bg = p.bg2 },
     Folded = { fg = p.comment, bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
@@ -166,9 +170,9 @@ local function plugin_groups(p)
     GitSignsChangeLn = { bg = p.diff.change },
     GitSignsDeleteLn = { bg = p.diff.delete },
     -- blink.cmp leaves matches unmarked unless it mimics nvim-cmp, and its borders
-    -- in the menu's text colour.
+    -- in the menu's text colour. The menu sits on Pmenu, not the float background.
     BlinkCmpLabelMatch = { fg = p.cyan.base },
-    BlinkCmpMenuBorder = { link = "FloatBorder" },
+    BlinkCmpMenuBorder = { fg = p.bg4, bg = p.bg0 },
     BlinkCmpDocBorder = { link = "FloatBorder" },
     BlinkCmpSignatureHelpBorder = { link = "FloatBorder" },
     MiniPickMatchCurrent = { bg = p.sel0 },
@@ -233,7 +237,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     if not p then
       return
     end
-    set_groups(ui_groups(p))
+    set_groups(ui_groups(p, vim.o.background))
     set_groups(markdown_groups(p))
     set_groups(syntax_groups(p))
     set_groups(plugin_groups(p))
