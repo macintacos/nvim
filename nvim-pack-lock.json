@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "6bb2d9d8d50cc1e205fe7d2516a99dd57e2f601f",
+      "rev": "545d9562e2ac9445330e253d90a62a3774652123",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -30,7 +30,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "cafd44f30f8416a1f32d718c7265e9b8c74b9f08",
+      "rev": "a40fec1c7bbe67bb9a2cc87ff70d40ba666f52fa",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
@@ -66,7 +66,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "65119f965d39a657020daf9198a657f6d1f718fd",
+      "rev": "f64bab291f0229187908f21025770698fc9c8b1e",
       "src": "ssh://git@github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -240,11 +240,11 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "1a4f47b03dfe92d28de7d5654c67327ef008c9e6",
+      "rev": "e289100ff98969e118c702199d88b764ce9e7fdf",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
-      "rev": "8decd73460d26ef0a0befb745d022dd1fc2c38b8",
+      "rev": "48b9ebc4322c7dd9b8f99f38b2372901079bd67f",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
     "obsidian.nvim": {
@@ -280,7 +280,7 @@
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
-      "rev": "9a292d5b75139555fe92e464a07623fdd5de2357",
+      "rev": "e462b9a07b8166c3e8011f1dcbc6bf68b67cd8d7",
       "src": "https://github.com/Aasim-A/scrollEOF.nvim"
     },
     "smart-paste.nvim": {
