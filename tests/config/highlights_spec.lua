@@ -32,23 +32,21 @@ describe("highlights", function()
     vim.fn.delete(dir, "rf")
   end)
 
-  it("sinks Van Helsing's floats below the editor", function()
+  it("sinks Van Helsing's floats and menus below the editor", function()
     paint("dark")
 
     assert.equal(fixture.dark.bg0, hl("NormalFloat", "bg"))
     assert.equal(fixture.dark.bg0, hl("FloatBorder", "bg"))
+    assert.equal(fixture.dark.bg0, hl("Pmenu", "bg"))
   end)
 
-  it("keeps Alucard's floats on the editor background", function()
+  it("keeps Alucard's floats and menus on the editor background", function()
     paint("light")
 
     assert.equal(fixture.light.bg1, hl("NormalFloat", "bg"))
     assert.equal(fixture.light.bg1, hl("FloatBorder", "bg"))
-  end)
-
-  it("borders the completion menu on its own background", function()
-    paint("light")
-
-    assert.equal(fixture.light.bg0, hl("BlinkCmpMenuBorder", "bg"))
+    assert.equal(fixture.light.bg1, hl("Pmenu", "bg"))
+    assert.equal(fixture.light.bg1, hl("PmenuSbar", "bg"))
+    assert.equal(fixture.light.bg1, hl("PmenuMatch", "bg"))
   end)
 end)

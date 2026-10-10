@@ -12,9 +12,7 @@ elseif roles then
   vim.g["dracula_pro#palette"] = palette.dracula_pro(roles, background)
   vim.cmd.runtime("colors/dracula-pro-base.vim")
   if background == "light" then
-    -- Alucard's own links: its menus and inactive status lines sit off the editor.
-    vim.api.nvim_set_hl(0, "Pmenu", { link = "DraculaBgLighter" })
-    vim.api.nvim_set_hl(0, "PmenuSbar", { link = "DraculaBgLighter" })
+    -- Alucard's own link: its inactive status lines sit off the editor.
     vim.api.nvim_set_hl(0, "StatusLineNC", { link = "TabLine" })
   end
 else

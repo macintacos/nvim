@@ -62,7 +62,7 @@ end
 ---@param background "dark"|"light"
 ---@return table<string, vim.api.keyset.highlight>
 local function ui_groups(p, background)
-  -- Alucard's bg0 is white, which would raise floats above the editor.
+  -- Alucard's bg0 is white, which would raise floats and menus above the editor.
   local float_bg = background == "light" and p.bg1 or p.bg0
   return {
     DiagnosticOk = { fg = p.green.base },
@@ -86,6 +86,8 @@ local function ui_groups(p, background)
     WinSeparator = { fg = p.bg4 },
     NormalFloat = { bg = float_bg },
     FloatBorder = { fg = p.bg4, bg = float_bg },
+    Pmenu = { bg = float_bg },
+    PmenuSbar = { bg = float_bg },
     ColorColumn = { bg = p.bg2 },
     Folded = { fg = p.comment, bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
@@ -94,8 +96,7 @@ local function ui_groups(p, background)
     StatusLine = { bg = p.bg0, bold = true },
     StatusLineTerm = { bg = p.bg0, bold = true },
     Search = { bg = p.sel1 },
-    -- Pro gives matches the dark menu's background, which Alucard's raised menu isn't.
-    PmenuMatch = { fg = p.cyan.base, bg = p.bg0 },
+    PmenuMatch = { fg = p.cyan.base, bg = float_bg },
     DiffAdd = { bg = p.diff.add },
     DiffChange = { bg = p.diff.change },
     DiffDelete = { bg = p.diff.delete },
@@ -170,9 +171,9 @@ local function plugin_groups(p)
     GitSignsChangeLn = { bg = p.diff.change },
     GitSignsDeleteLn = { bg = p.diff.delete },
     -- blink.cmp leaves matches unmarked unless it mimics nvim-cmp, and its borders
-    -- in the menu's text colour. The menu sits on Pmenu, not the float background.
+    -- in the menu's text colour.
     BlinkCmpLabelMatch = { fg = p.cyan.base },
-    BlinkCmpMenuBorder = { fg = p.bg4, bg = p.bg0 },
+    BlinkCmpMenuBorder = { link = "FloatBorder" },
     BlinkCmpDocBorder = { link = "FloatBorder" },
     BlinkCmpSignatureHelpBorder = { link = "FloatBorder" },
     MiniPickMatchCurrent = { bg = p.sel0 },

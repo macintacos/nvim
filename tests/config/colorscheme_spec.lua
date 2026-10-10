@@ -8,7 +8,6 @@ local pro = {
   ["dracula-pro-base.vim"] = {
     "highlight clear",
     "let g:colors_name = 'dracula-pro'",
-    "execute 'highlight DraculaBgLighter guibg=' . g:dracula_pro#palette.bglighter[0]",
     "execute 'highlight Normal guibg=' . g:dracula_pro#palette.bg[0]",
     "set background=dark",
   },
@@ -56,14 +55,6 @@ describe("dracula-pro colorscheme", function()
     vim.cmd.colorscheme("dracula-pro")
 
     assert.equal("light", vim.o.background)
-  end)
-
-  it("raises Alucard's menus onto its float background", function()
-    vim.o.background = "light"
-    vim.cmd.colorscheme("dracula-pro")
-
-    assert.equal("DraculaBgLighter", vim.api.nvim_get_hl(0, { name = "Pmenu" }).link)
-    assert.equal(fixture.light.bg0, hl("Pmenu", "bg"))
   end)
 
   it("reloads in the other variant when the background flips", function()
