@@ -5,26 +5,16 @@ vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version =
 local pack_updates = require("plugins.pack-updates")
 
 -- Override default section backgrounds so the line sits just off the terminal
--- background and only the mode sections carry color.
+-- background and only the mode sections carry color. The mode sections are the
+-- colorscheme's.
 local function set_statusline_highlights()
-  local p, spec = require("helpers.palette").active()
-  -- The shade the fox's spec uses for its louder syntax roles, which clears 7:1
-  -- under bg1 in both foxes.
-  local shade = vim.o.background == "light" and "dim" or "bright"
-  vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = spec.bg0 })
-  vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = spec.bg0 })
-  vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green.base, bg = spec.bg0 })
-  local modes = {
-    Normal = p.blue,
-    Insert = p.green,
-    Visual = p.magenta,
-    Replace = p.red,
-    Command = p.orange,
-    Other = p.cyan,
-  }
-  for mode, color in pairs(modes) do
-    vim.api.nvim_set_hl(0, "MiniStatuslineMode" .. mode, { fg = spec.bg1, bg = color[shade], bold = true })
+  local p = require("helpers.palette").active()
+  if not p then
+    return
   end
+  vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = p.bg0 })
+  vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = p.bg0 })
+  vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green.base, bg = p.bg0 })
 end
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statusline_highlights })
 

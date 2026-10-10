@@ -14,7 +14,6 @@
     ".tests/deps/mini.pick",
     ".tests/deps/mini.sessions",
     ".tests/deps/mini.statusline",
-    ".tests/deps/nightfox.nvim",
     ".tests/deps/plenary.nvim",
     ".tests/deps/snacks.nvim",
     ".tests/deps/which-key.nvim"

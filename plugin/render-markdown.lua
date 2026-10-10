@@ -20,7 +20,7 @@ require("render-markdown").setup({
 
   -- Active features
   bullet = { enabled = true },
-  -- No bands: any tint lands next to sel0 or the cursor line in Dawnfox.
+  -- No bands: any tint lands next to sel0 or the cursor line in Alucard.
   heading = { enabled = true, backgrounds = {} },
   link = { enabled = true },
   pipe_table = { enabled = true },

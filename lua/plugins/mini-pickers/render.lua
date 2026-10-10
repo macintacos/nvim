@@ -11,8 +11,8 @@ M.ns = vim.api.nvim_create_namespace("mini_pick_lsp_symbols")
 -- Subdued italic labels for the right-aligned kind annotation: one highlight
 -- group per kind, coloured by mixing that kind's icon colour with Comment so
 -- each hue stays recognisable while sitting back from the symbol name. Mixing
--- toward Comment rather than toward the background is deliberate — the
--- colorscheme runs transparent, so Normal has no bg to blend with.
+-- toward Comment rather than toward the background keeps the label as legible
+-- as Comment.
 local KIND_MIX = 0.5
 
 ---@type table<string, true>

@@ -35,10 +35,14 @@ lazygit, zen mode, image rendering, and the big-file and quickfile guards. Its n
 input and `vim.ui.select` are switched off, each with a comment at both ends naming the
 mini module that took the job.
 
-**The colours follow the terminal.** [nightfox.nvim](https://github.com/EdenEast/nightfox.nvim)'s
-Duskfox and Dawnfox, retuned for contrast from `~/.config/palette/nightfox.json`, which the
-dotfiles deploy; without that file the stock foxes load. `colors/fox.lua` picks the fox from
-`'background'`, so a macOS appearance flip re-themes a running editor.
+**The colours follow the terminal.** Dracula Pro's Van Helsing (dark) and Alucard (light),
+in the colours of the shared palette the dotfiles deploy to `~/.config/palette/palette.json`.
+Dracula Pro is a paid theme, so this repo doesn't ship it: the dotfiles deploy its vim scheme
+privately as a start package. `colors/dracula-pro.lua` picks the variant from
+`'background'`, which Neovim keeps in step with the terminal, so an appearance flip re-themes
+a running editor. Without the palette file Pro's own variant loads; without Dracula Pro,
+Neovim's default scheme does, under this config's own groups in the palette's colours when
+the palette file exists.
 
 **Local plugins are first-class.** Ten of them under `lua/plugins/`, each with specs
 in `tests/`. They exist because nothing upstream did the thing: a project

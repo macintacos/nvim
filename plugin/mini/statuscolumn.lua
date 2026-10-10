@@ -84,8 +84,10 @@ local function set_statuscolumn_hl()
 
   -- Quieter than LineNr's fg3, so the run down a wrapped line reads below the
   -- numbers it hangs off.
-  local _, spec = require("helpers.palette").active()
-  vim.api.nvim_set_hl(0, "StatuscolumnWrap", { fg = spec.bg4 })
+  local p = require("helpers.palette").active()
+  if p then
+    vim.api.nvim_set_hl(0, "StatuscolumnWrap", { fg = p.bg4 })
+  end
 end
 
 -- Re-apply on ColorScheme because setting a colorscheme clears custom groups and

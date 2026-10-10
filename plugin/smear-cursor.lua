@@ -16,18 +16,6 @@ smear.setup({
   filetypes_disabled = { "changeset" },
 })
 
--- The fox's bg1, which is Ghostty's background. The fox runs transparent, so
--- 'Normal' has no bg and the plugin's own fallback (#303030) would wash out the
--- dim end of the smear's gradient.
-local function sync_smear_background()
-  smear.transparent_bg_fallback_color = select(2, require("helpers.palette").active()).bg1
-end
-
--- A 'background' flip reloads the colorscheme, so this follows the appearance.
-vim.api.nvim_create_autocmd("ColorScheme", { callback = sync_smear_background })
-
-sync_smear_background()
-
 -- modes.nvim relinks 'Cursor' on every mode change (plugin/modes.lua), so the
 -- smear tracks the mode by reading that group back -- already lifted clear of
 -- the background there, which a thin trail needs even more than the cursor does.

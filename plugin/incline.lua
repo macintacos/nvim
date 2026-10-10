@@ -1,9 +1,6 @@
 -- github.com/b0o/incline.nvim
 -- Floating filename labels at the bottom-right of each window
-vim.pack.add({
-  "https://github.com/b0o/incline.nvim",
-  "https://github.com/nvim-tree/nvim-web-devicons",
-})
+vim.pack.add({ "https://github.com/b0o/incline.nvim" })
 
 require("incline").setup({
   window = {
@@ -39,7 +36,6 @@ require("incline").setup({
       " ",
       { filename, gui = modified and "bold,italic" or "bold" },
       " ",
-      guibg = select(2, require("helpers.palette").active()).bg0,
     }
   end,
 })

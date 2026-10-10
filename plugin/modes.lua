@@ -27,12 +27,10 @@ require("modes").setup({
   ignore = { "Neotree", "TelescopePrompt", "changeset" },
 })
 
--- Rebuilds the groups from the palette. modes.nvim blends against 'Normal',
--- which transparency leaves without a bg, and its light fallback is the decimal
--- 255255255 rather than 0xffffff -- a saturated teal. The fox's accents already
--- read as a solid cursor, and its bg1 is what the terminal shows.
+-- Rebuilds the groups from the palette rather than modes.nvim's own colours.
+-- Insert, Replace and Visual match their statusline pills, and each line tint
+-- blends the mode's colour into bg1, the editor background.
 local LINE_OPACITY = 0.14
-local SELECTION_OPACITY = 0.18
 
 local function update_hl(name, attrs)
   local current = vim.api.nvim_get_hl(0, { name = name, link = false })
@@ -41,20 +39,23 @@ end
 
 local function paint_mode_colors()
   local palette = require("helpers.palette")
-  local p, spec = palette.active()
+  local p = palette.active()
+  if not p then
+    return
+  end
   local scenes = {
     Copy = p.yellow.base,
     Delete = p.red.base,
     Change = p.red.base,
-    Format = p.orange.dim,
+    Format = p.orange.base,
     Insert = p.green.base,
-    Replace = p.red.base,
-    Select = p.magenta.base,
-    Visual = p.magenta.base,
+    Replace = p.orange.base,
+    Select = p.yellow.base,
+    Visual = p.yellow.base,
   }
   for scene, color in pairs(scenes) do
     -- Visual and Select leave the line to the selection, as modes.nvim does.
-    local line = (scene == "Visual" or scene == "Select") and "NONE" or palette.blend(spec.bg1, color, LINE_OPACITY)
+    local line = (scene == "Visual" or scene == "Select") and "NONE" or palette.blend(p.bg1, color, LINE_OPACITY)
     vim.api.nvim_set_hl(0, ("Modes%sCursorLine"):format(scene), { bg = line })
     update_hl(("Modes%sCursorLineNr"):format(scene), { fg = color, bg = line })
     vim.api.nvim_set_hl(0, ("Modes%sCursorLineSign"):format(scene), { bg = line })
@@ -62,11 +63,10 @@ local function paint_mode_colors()
     vim.api.nvim_set_hl(0, ("Modes%sCursor"):format(scene), { bg = color })
     vim.api.nvim_set_hl(0, ("Modes%sModeMsg"):format(scene), { fg = color })
   end
-  local selection = palette.blend(spec.bg1, p.magenta.base, SELECTION_OPACITY)
-  vim.api.nvim_set_hl(0, "ModesVisualVisual", { bg = selection })
-  vim.api.nvim_set_hl(0, "ModesSelectVisual", { bg = selection })
-  vim.api.nvim_set_hl(0, "ModesReplaceVisual", { bg = palette.blend(spec.bg1, p.red.base, LINE_OPACITY) })
-  update_hl("ModesVisualReplaceCursorLineNr", { fg = p.red.base })
+  vim.api.nvim_set_hl(0, "ModesVisualVisual", { bg = p.sel0 })
+  vim.api.nvim_set_hl(0, "ModesSelectVisual", { bg = p.sel0 })
+  vim.api.nvim_set_hl(0, "ModesReplaceVisual", { bg = palette.blend(p.bg1, p.orange.base, LINE_OPACITY) })
+  update_hl("ModesVisualReplaceCursorLineNr", { fg = p.orange.base })
 end
 
 -- modes.nvim rebuilds these groups from the raw colors on every ColorScheme,

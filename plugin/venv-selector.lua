@@ -3,9 +3,10 @@
 -- PEP 723 script environments are handled in plugin/lsp/python.lua instead.
 vim.pack.add({ "https://github.com/linux-cultist/venv-selector.nvim" }, { load = false })
 
--- The active venv's check mark in the picker.
+-- The active venv's check mark in the picker; venv-selector's own without a palette file.
 local function marker_color()
-  return require("helpers.palette").active().green.base
+  local p = require("helpers.palette").active()
+  return p and p.green.base
 end
 
 local loaded = false
