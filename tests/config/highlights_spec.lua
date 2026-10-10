@@ -49,4 +49,18 @@ describe("highlights", function()
     assert.equal(fixture.light.bg1, hl("PmenuSbar", "bg"))
     assert.equal(fixture.light.bg1, hl("PmenuMatch", "bg"))
   end)
+
+  it("keeps Van Helsing's strings and characters on the yellow role", function()
+    paint("dark")
+
+    assert.equal(fixture.dark.yellow.base, hl("String", "fg"))
+    assert.equal(fixture.dark.yellow.base, hl("Character", "fg"))
+  end)
+
+  it("draws Alucard's strings and characters in teal", function()
+    paint("light")
+
+    assert.equal("#108881", hl("String", "fg"))
+    assert.equal("#108881", hl("Character", "fg"))
+  end)
 end)

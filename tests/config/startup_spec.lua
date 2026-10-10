@@ -75,8 +75,9 @@ local function boot(dir, probe, args)
 end
 
 -- Pairs each highlight attribute the config paints with the palette role it should
--- carry, as startup leaves it and under both backgrounds, so a palette retune or a
--- scheme swap cannot drift them apart. The synthetic palette sits in the booted
+-- carry (or a colour per background, where a variant leaves the palette), as startup
+-- leaves it and under both backgrounds, so a palette retune or a scheme swap cannot
+-- drift them apart. The synthetic palette sits in the booted
 -- Neovim's cwd.
 local palette_probe = [[
 vim.defer_fn(function()
@@ -116,8 +117,10 @@ vim.defer_fn(function()
     { "@markup.link.url", "fg", "cyan.base" },
     { "@markup.list", "fg", "cyan.base" },
     { "RenderMarkdownBullet", "fg", "cyan.base" },
-    { "Character", "fg", "yellow.base" },
-    { "@character", "fg", "yellow.base" },
+    { "String", "fg", { dark = "yellow.base", light = "#108881" } },
+    { "@string", "fg", { dark = "yellow.base", light = "#108881" } },
+    { "Character", "fg", { dark = "yellow.base", light = "#108881" } },
+    { "@character", "fg", { dark = "yellow.base", light = "#108881" } },
     { "@string.regexp", "fg", "red.base" },
     { "@string.regex", "fg", "red.base" },
     { "@exception", "fg", "pink.base" },
@@ -185,7 +188,10 @@ vim.defer_fn(function()
 
   local pairs_seen = { { "scheme at startup", tostring(vim.g.colors_name), "dracula-pro" } }
   local function expect(label, got, want, bg)
-    if type(want) == "string" then
+    if type(want) == "table" then
+      want = want[bg]
+    end
+    if type(want) == "string" and not vim.startswith(want, "#") then
       want = vim.tbl_get(variants[bg], unpack(vim.split(want, ".", { plain = true })))
     end
     table.insert(pairs_seen, { label, hex(got), tostring(want):lower() })

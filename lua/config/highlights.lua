@@ -129,10 +129,15 @@ end
 -- Syntax where Pro's scheme strays from the palette's role table, which every other
 -- tool follows. Pro routes regexes through the escape groups, which stay pink.
 ---@param p palette.Roles
+---@param background "dark"|"light"
 ---@return table<string, vim.api.keyset.highlight>
-local function syntax_groups(p)
+local function syntax_groups(p, background)
   return {
-    Character = { fg = p.yellow.base },
+    -- Alucard's yellow role is an orchid that crowds its pink keywords and purple
+    -- constants, so its strings take a teal halfway between green and cyan, at 4:1
+    -- on bg1.
+    String = { fg = background == "light" and "#108881" or p.yellow.base },
+    Character = { link = "String" },
     ["@string.regexp"] = { fg = p.red.base },
     ["@string.regex"] = { link = "@string.regexp" },
     ["@exception"] = { fg = p.pink.base },
@@ -240,7 +245,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     end
     set_groups(ui_groups(p, vim.o.background))
     set_groups(markdown_groups(p))
-    set_groups(syntax_groups(p))
+    set_groups(syntax_groups(p, vim.o.background))
     set_groups(plugin_groups(p))
     set_flash_hl(p)
     set_picker_match_hl(p)
