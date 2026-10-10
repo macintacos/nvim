@@ -34,6 +34,16 @@ describe("highlights", function()
     vim.fn.delete(dir, "rf")
   end)
 
+  it("paints the editor from the palette before the scheme loads", function()
+    vim.o.background = "light"
+    package.loaded["config.highlights"] = nil
+    require("config.highlights")
+
+    assert.equal(fixture.light.bg1, hl("Normal", "bg"))
+    assert.equal(fixture.light.fg1, hl("Normal", "fg"))
+    assert.equal(fixture.light.fg3, hl("LineNr", "fg"))
+  end)
+
   it("sinks Van Helsing's floats and menus below the editor", function()
     paint("dark")
 

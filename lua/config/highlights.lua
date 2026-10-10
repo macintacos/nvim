@@ -255,3 +255,11 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     set_changeset_diff_hl(p)
   end,
 })
+
+-- The scheme waits for VimEnter (plugin/dracula-pro.lua), but plugins redraw before
+-- then, and those frames would flash Neovim's default colours.
+local p = require("helpers.palette").active()
+if p then
+  vim.api.nvim_set_hl(0, "Normal", { fg = p.fg1, bg = p.bg1 })
+  set_groups(ui_groups(p, vim.o.background))
+end
