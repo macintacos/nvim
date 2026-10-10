@@ -58,12 +58,13 @@ map("Show Signature Help", "i", "<C-k>", function()
 end, { silent = true })
 
 -- LSP server configs
-vim.lsp.config("lua_ls", {
+vim.lsp.config("emmylua_ls", {
   settings = {
-    Lua = {
+    emmylua = {
       diagnostics = { globals = { "vim" } },
-      completion = { callSnippet = "Replace" },
-      hint = { enable = true },
+      completion = { callSnippet = true },
+      -- the runtime's LuaCATS stubs (vim.api, vim.uv): no other source supplies them to emmylua_ls
+      workspace = { library = { vim.env.VIMRUNTIME .. "/lua" } },
     },
   },
 })
@@ -132,10 +133,10 @@ vim.lsp.config("mq", {
 
 vim.lsp.enable({
   "bashls",
+  "emmylua_ls",
   "gopls",
   "jsonls",
   "just",
-  "lua_ls",
   "mq",
   -- rumdl: Markdown lint/format LSP. Binary comes from mise (not Mason), so it
   -- is absent from ensure_installed below. Uses nvim-lspconfig's shipped config
@@ -159,9 +160,9 @@ require("mason-lspconfig").setup({ automatic_enable = false })
 require("mason-tool-installer").setup({
   ensure_installed = {
     "bash-language-server",
+    "emmylua_ls",
     "json-lsp",
     "just-lsp",
-    "lua-language-server",
     "ruff",
     "rust-analyzer",
     "selene",

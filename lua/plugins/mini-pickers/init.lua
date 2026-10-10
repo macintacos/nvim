@@ -28,10 +28,10 @@ function M.setup()
     if scope == "document_symbol" then
       return require("plugins.mini-pickers.outline").pick(local_opts)
     end
-    -- mini.extra sends `workspace/symbol` with an empty query unless given one,
-    -- and every server here but lua_ls answers that with nothing — so an
-    -- unseeded workspace picker opens empty. The word under the cursor is the
-    -- seed.
+    -- mini.extra sends `workspace/symbol` with an empty query unless given one.
+    -- emmylua_ls answers that with every symbol, but other servers may answer
+    -- nothing, so an unseeded workspace picker can open empty. The word under
+    -- the cursor is the seed.
     if scope == "workspace_symbol" and local_opts.symbol_query == nil then
       local_opts.symbol_query = vim.fn.expand("<cword>")
     end

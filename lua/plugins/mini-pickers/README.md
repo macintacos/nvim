@@ -141,7 +141,7 @@ Submodules are required on first use, so opening `:Pick files` never loads the L
 
 ## Notes
 
-- **Kind filtering** (`kinds.lua`) exists because servers emit a symbol per table key — without it a Lua outline is mostly `[1]`, `[2]`, and `desc`. Data filetypes (`toml`, `json`, `yaml`, `markdown`) are exempt, since there `Object`/`Array`/`String` *are* the structure. lua_ls additionally reports every `if`/`for`/`else`/`elseif` block as a `Package` symbol, which is excluded for `lua` only — other languages use `Package` for real packages.
+- **Kind filtering** (`kinds.lua`) exists because servers emit a symbol per table key — without it a Lua outline is mostly `[1]`, `[2]`, and `desc`. Data filetypes (`toml`, `json`, `yaml`, `markdown`) are exempt, since there `Object`/`Array`/`String` *are* the structure.
 - **Italics** on the breadcrumb come from `MiniPickSymbolCrumb`. Terminals whose font ships Oblique rather than Italic faces render it upright; that is a font-matching issue, not a highlight one.
 - Servers answering with flat `SymbolInformation[]` instead of `DocumentSymbol[]` have no `children`; the outline degrades to a flat list and takes its breadcrumb from `containerName`.
 
