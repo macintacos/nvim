@@ -80,6 +80,8 @@ local function ui_groups(p, background)
     LineNr = { fg = p.fg3 },
     -- Pro links it, and modes.nvim's `:hi CursorLineNr guibg=` drops a link.
     CursorLineNr = { fg = p.yellow.base },
+    -- Alucard's bg3, lifted toward bg1: at full strength it reads heavy.
+    CursorLine = { bg = background == "light" and "#ebe8e2" or p.bg3 },
     SignColumn = { fg = p.fg3 },
     FoldColumn = { fg = p.fg3 },
     NonText = { fg = p.bg4 },
