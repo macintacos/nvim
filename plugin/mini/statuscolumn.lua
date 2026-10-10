@@ -74,6 +74,13 @@ local function set_statuscolumn_hl()
   -- CursorLineNr: the other lines stay dimmed, the cursor line stays readable.
   vim.api.nvim_set_hl(0, "MiniStatuscolumnDimCursor", { link = "CursorLineNr" })
 
+  -- mini gives MiniStatuscolumnDim Normal's background, which in an unfocused
+  -- window covers a row's number highlight in the fold and separator cells, so
+  -- changeset's diff tint stops short of the edge in a preview.
+  local dim = vim.api.nvim_get_hl(0, { name = "MiniStatuscolumnDim", link = false }) --[[@as vim.api.keyset.highlight]]
+  dim.bg, dim.default = nil, nil
+  vim.api.nvim_set_hl(0, "MiniStatuscolumnDim", dim)
+
   -- CursorLineFold ships without a background, so the cursor line's highlight
   -- stops short of the fold column. modes.nvim gives CursorLineNr and
   -- CursorLineSign the cursorline background but leaves this one out, which is
