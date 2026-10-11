@@ -2,8 +2,8 @@
 
 A `<leader>pp` project picker backed by [zoxide](https://github.com/ajeetdsouza/zoxide).
 Selecting a directory relaunches Neovim there — as if you had quit, `cd`'d into it,
-and run `nvim` — so you land on that project's start screen and your shell ends up
-there too.
+and run `nvim` — so that project's session reopens and your shell ends up there
+too.
 
 ## Usage
 
@@ -21,7 +21,7 @@ Neovim cannot change its parent shell's directory. So switching is a **relaunch*
 2. A `VimLeavePre` autocmd writes that path to the file named by `$NVIM_CWD_FILE`.
 3. The fish `nvim` wrapper (see below) reads that file, `cd`s there, and reopens
    `nvim`. [mini.sessions](https://github.com/nvim-mini/mini.sessions) saves the old
-   project on the way out (see the `VimLeavePre` autocmd in `plugin/mini.lua`), and
+   project on the way out (see the `VimLeavePre` autocmd in `plugin/mini/sessions.lua`), and
    the new one reopens its own session.
 
 A plain `:qa` (nothing picked) writes nothing, so you exit wherever you were.

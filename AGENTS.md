@@ -10,7 +10,7 @@ Read the code for structure. This section says where each kind of answer lives.
 - Each `plugin/` file opens with its upstream repo, or `-- Local plugin (no upstream repo)`, then a line on what it does, so `head -n 2 plugin/**/*.lua` lists the plugin set.
 - After `mise run deps`, `.tests/deps/<plugin>` holds each plugin's source and `doc/` at the revision `nvim-pack-lock.json` pins. Read a plugin's options there rather than recalling them.
 - Neovim's own reference is `$VIMRUNTIME/doc/*.txt`; read it before guessing at an API. `nvim --clean --headless --cmd 'lua io.write(vim.env.VIMRUNTIME)' --cmd 'qa!'` prints the path.
-- mini.nvim owns the picker, the file explorer (mini.files), sessions, the statusline, notifications, `vim.ui.input`, and `vim.ui.select`. snacks.nvim covers the rest, with its notifier, input, and `vim.ui.select` turned off; its own explorer stays on behind `<leader>fE`. Configure a feature in the plugin that owns it.
+- mini.nvim owns the picker, the file explorer (mini.files), sessions, the statusline, the statuscolumn, notifications, `vim.ui.input`, and `vim.ui.select`. snacks.nvim covers the rest, with its notifier, input, and `vim.ui.select` turned off; its own explorer stays on behind `<leader>fE`. Configure a feature in the plugin that owns it.
 - `lua/plugins/README.md` indexes the local plugins and links each one's directory.
 - `mise tasks` lists every task with its description.
 

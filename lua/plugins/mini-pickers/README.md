@@ -1,6 +1,6 @@
 # mini-pickers
 
-Customised entries for [mini.pick](https://github.com/nvim-mini/mini.pick)'s registry, wired up by `require("plugins.mini-pickers").setup()` in `plugin/mini.lua`.
+Customised entries for [mini.pick](https://github.com/nvim-mini/mini.pick)'s registry, wired up by `require("plugins.mini-pickers").setup()` in `plugin/mini/pick.lua`.
 
 The registry entries this replaces are shipped by mini.pick and mini.extra; only the parts that needed different behaviour live here.
 

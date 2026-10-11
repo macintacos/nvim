@@ -20,18 +20,18 @@ under its own history. [Ghostty](https://ghostty.org/) is the terminal;
 ## The shape of it
 
 **No plugin manager.** [`vim.pack`](https://neovim.io/doc/user/pack.html) ships with
-Neovim 0.12 and is enough. Each plugin gets a file under `plugin/` — or a family does,
-which is why `mini.lua` holds the whole mini set — and Neovim sources them itself after
-`init.lua`. Versions land in `nvim-pack-lock.json`. Loading is one of three tiers:
+Neovim 0.12 and is enough. Each plugin gets a file under `plugin/` — or a family gets a
+directory, which is why `plugin/mini/` holds the whole mini set — and Neovim sources them
+itself after `init.lua`. Versions land in `nvim-pack-lock.json`. Loading is one of three tiers:
 eager, deferred behind a `vim.schedule`, or lazy behind a stub command or keymap that
 `packadd`s the real thing on first use.
 
 **[mini.nvim](https://github.com/nvim-mini/mini.nvim) is the spine.** The picker, the file
-explorer, the start screen, sessions, the statusline, notifications and `vim.ui.input` are
-all mini — sixteen modules pinned in `plugin/mini.lua`, fifteen on `stable` and one
-tracking `main` until it tags. [snacks.nvim](https://github.com/folke/snacks.nvim) covers
-what mini doesn't: indent guides, scope, smooth scroll, the statuscolumn, the terminal,
-lazygit, zen mode, image rendering, and the big-file and quickfile guards. Its notifier,
+explorer, sessions, the statusline, the statuscolumn, notifications and `vim.ui.input` are
+all mini — sixteen modules, one file each under `plugin/mini/`, fourteen on `stable` and
+two tracking `main` until they tag. [snacks.nvim](https://github.com/folke/snacks.nvim)
+covers what mini doesn't: indent guides, scope, smooth scroll, the terminal, lazygit, zen
+mode, image rendering, and the big-file and quickfile guards. Its notifier,
 input and `vim.ui.select` are switched off, each with a comment at both ends naming the
 mini module that took the job.
 
@@ -44,7 +44,7 @@ a running editor. Without the palette file Pro's own variant loads; without Drac
 Neovim's default scheme does, under this config's own groups in the palette's colours when
 the palette file exists.
 
-**Local plugins are first-class.** Ten of them under `lua/plugins/`, each with specs
+**Local plugins are first-class.** Eleven of them under `lua/plugins/`, each with specs
 in `tests/`. They exist because nothing upstream did the thing: a project
 switcher that relaunches Neovim through the fish `nvim` wrapper so the shell ends up in
 the new directory too, an update checker that runs `git ls-remote` in libuv's thread pool
@@ -68,6 +68,7 @@ pins every tool that does any of it.
 | [`mini-pickers`](lua/plugins/mini-pickers/) | Replacement mini.pick registry entries: document symbols as a real tree, thinned workspace symbols, per-line blame, and an `rg` invocation whose flags are ours. |
 | [`pack-pr`](lua/plugins/pack-pr/) | `:PackPR` (`<leader>Pp`) — pick an open PR of one of your `github.com/<owner>/` plugins, install its branch headlessly, and restart into it; a reset entry per plugin goes back to the default branch. |
 | [`pack-tweaks`](lua/plugins/pack-tweaks/) | `<CR>` on a line in the `vim.pack` update buffer opens that commit or tag in the browser. |
+| [`pack-updates`](lua/plugins/pack-updates/) | A statusline count of plugins with upstream commits you haven't pulled, checked in the background with `git ls-remote` and cached for a day; `<leader>Pc` re-checks. |
 | [`projects`](lua/plugins/projects/) | `<leader>pp` — a [zoxide](https://github.com/ajeetdsouza/zoxide) picker that relaunches Neovim in the directory you choose, session and all. |
 | [`scratch`](lua/plugins/scratch/) | `<leader>wt` — a per-project scratch file at `.tmp/scratch.md`, created on first use. |
 | [`uv-scripts`](lua/plugins/uv-scripts/) | Filetype detection and a `ty` client pointed at the environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script. |
@@ -78,6 +79,7 @@ pins every tool that does any of it.
 mise run setup      # install the pinned tools, register the git hooks
 mise run preflight  # lint (formatting, linters, type check) + test
 mise run format     # stylua, rumdl, yamlfmt, taplo, pkl, shfmt, whitespace
+mise run lint       # formatting check, linters, type check; changes nothing
 mise run typecheck  # emmylua_check over the repo
 mise run test       # the plenary suite
 mise run coverage   # the suite under luacov, per-file coverage of lua/
