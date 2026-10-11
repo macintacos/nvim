@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "5ed8e9f6b68fb107ea75a5692811cb1234c378bb",
+      "rev": "d168c1c16337255d413cb6054fe4c1e23496c448",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -30,7 +30,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "93072feb0ade0d0e6ea81e2dfa870b3937f03acc",
+      "rev": "10c7dab5cc2afcc3a639b38c2ce2029594dec161",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
