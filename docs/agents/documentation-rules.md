@@ -10,7 +10,7 @@ digraph docs_router {
     "Which doc does the change affect?" [shape=diamond];
 
     "Changing documentation" -> "Which doc does the change affect?";
-    "Which doc does the change affect?" -> "Edit README.md" [label="the config's shape, the local plugins table, the mise task list"];
+    "Which doc does the change affect?" -> "Edit README.md" [label="the config's shape, the local plugins table"];
     "Which doc does the change affect?" -> "Edit lua/plugins/README.md" [label="the index of local plugins"];
     "Which doc does the change affect?" -> "Edit lua/plugins/*/README.md" [label="one local plugin's behavior, keymaps, and commands"];
     "Which doc does the change affect?" -> "Edit AGENTS.md" [label="orientation, rules for every change, routing to rule files"];
@@ -24,7 +24,7 @@ digraph docs_router {
 
 ## The doc landscape
 
-- **`README.md`** covers the config's shape for a person browsing the repo: the recording, how plugins load, what mini.nvim and snacks.nvim each own, the local plugins table, and the mise task list. Write in the first person, as the repo's owner, and hard-wrap prose at about 90 columns like the rest of the file. It changes when a local plugin is added, renamed, or removed (with `lua/plugins/README.md`), when a mise task is added or removed, and when a job moves between mini and snacks (with `AGENTS.md`).
+- **`README.md`** introduces the config to a person curious about the setup: the preview recording, how plugins load, what mini.nvim and snacks.nvim each own, and the local plugins table. Keep it minimal, and let the recording stand without a walkthrough. Write in the first person, as the repo's owner, and hard-wrap prose at about 90 columns like the rest of the file. It changes when a local plugin is added, renamed, or removed (with `lua/plugins/README.md`), and when a job moves between mini and snacks (with `AGENTS.md`).
 - **`lua/plugins/README.md`** indexes the local plugins for a person browsing `lua/plugins/`: one alphabetical bullet per plugin, linking its directory and giving its purpose in a sentence. Keep its plugins the same as the rows of `README.md`'s table, which changes with it.
 - **`lua/plugins/*/README.md`** documents one local plugin for a person using it: what it does, its keymaps and commands, and the design choices behind it. Edit the section the change affects and keep the file's existing headings. It changes with that plugin's behavior, keymaps, or commands.
 - **`AGENTS.md`** is the file every agent loads first: what the repo is, where answers live, the rules every change needs, and the routing digraph. Keep it to rules that apply to every change, plus the rules of any area that has no rule file yet. It changes when a rule file is added, renamed, or removed, which updates its `## Routing` edge.
