@@ -228,6 +228,33 @@ vim.iter({ "FlashYank", "FlashPaste", "LinkHover", "LinkHoverIcon" }):fold({}, f
 end)
 ]])
 
+-- Edits a file in `worktree`, then moves it to `trash` the way `wt remove` does
+-- (deleting it too when asked), and runs the quit-time autocmds with mini.sessions
+-- pointed at `sessions`, reporting the sessions they wrote and any error they raised.
+---@param worktree string
+---@param trash string
+---@param sessions string
+---@param delete boolean
+---@return string
+local function leave_probe(worktree, trash, sessions, delete)
+  return ([[
+vim.defer_fn(function()
+  MiniSessions.config.directory = %q
+  vim.fn.chdir(%q)
+  vim.cmd.edit("a.lua")
+  vim.fn.rename(%q, %q)
+  if %s then
+    vim.fn.delete(%q, "rf")
+  end
+  vim.v.errmsg = ""
+  local ok, err = pcall(vim.api.nvim_exec_autocmds, "VimLeavePre", {})
+  local report = { written = vim.fn.readdir(MiniSessions.config.directory), err = ok and vim.v.errmsg or tostring(err) }
+  vim.fn.writefile({ vim.json.encode({ value = report }) }, %%q)
+  vim.cmd("qa!")
+end, 1500)
+]]):format(sessions, worktree, worktree, trash, tostring(delete), trash)
+end
+
 describe("startup", function()
   ---@type string
   local dir
@@ -260,6 +287,38 @@ describe("startup", function()
     local seen = boot(dir, feedback_probe)
 
     assert.same({ FlashYank = true, FlashPaste = true, LinkHover = true, LinkHoverIcon = true }, seen.value)
+  end)
+
+  describe("after wt removes the worktree it was in", function()
+    -- Under the checkout rather than a temp dir, which mini.sessions skips anyway.
+    local probe = root .. "/.tests/session-probe"
+    local worktree = probe .. "/repo.feature"
+    local trash = probe .. "/repo/.git/wt/trash/feature"
+    ---@type string
+    local sessions
+
+    before_each(function()
+      sessions = dir .. "/sessions"
+      vim.fn.mkdir(sessions, "p")
+      vim.fn.mkdir(worktree, "p")
+      vim.fn.mkdir(vim.fs.dirname(trash), "p")
+    end)
+
+    after_each(function()
+      vim.fn.delete(probe, "rf")
+    end)
+
+    it("writes no session for its new place inside .git", function()
+      local seen = boot(dir, leave_probe(worktree, trash, sessions, false))
+
+      assert.same({ written = {}, err = "" }, seen.value)
+    end)
+
+    it("writes no session, and raises nothing, once it is deleted", function()
+      local seen = boot(dir, leave_probe(worktree, trash, sessions, true))
+
+      assert.same({ written = {}, err = "" }, seen.value)
+    end)
   end)
 
   it("paints its own and plugin highlights from the palette's roles", function()

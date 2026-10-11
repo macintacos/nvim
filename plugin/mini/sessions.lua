@@ -32,8 +32,9 @@ end
 local session_excluded_dirs = { "/private/var/folders", "/private/tmp" }
 
 -- Directories agents drop files into at any depth of any repo, so they are
--- matched by name rather than by prefix like the directories above.
-local session_excluded_names = { ".agent-drop", "__exec-plans__" }
+-- matched by name rather than by prefix like the directories above. `.git` is
+-- where `wt remove` parks a worktree, cwd and all, before deleting it.
+local session_excluded_names = { ".agent-drop", "__exec-plans__", ".git" }
 
 -- resolve() first because Neovim reports those paths as /var/folders/..., the
 -- unresolved symlink, so a prefix match on the real location would never hit.
@@ -106,8 +107,9 @@ local function session_write(opts)
   -- session_excluded() on the cwd, not just on buffers: a Neovim launched in an
   -- agent scratchpad is as throwaway as the files in it, and would otherwise
   -- leave a session behind for a directory that is gone tomorrow.
+  -- getcwd() is "" once the cwd has been deleted.
   local cwd = vim.fn.getcwd()
-  if session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
+  if cwd == "" or session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
     return
   end
   require("mini.sessions").write(session_name(), opts)
