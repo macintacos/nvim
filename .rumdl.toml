@@ -3,9 +3,9 @@
 # Reference: https://rumdl.dev
 [global]
 # Ported from the repo's previous markdownlint "style/relaxed" config: line length
-# (MD013) is OFF so docs aren't reflowed, alongside MD033 (inline HTML), MD034
-# (bare URLs), and MD041 (first line need not be an h1 — CLAUDE.md leads with prose).
-disable = ["MD013", "MD033", "MD034", "MD041"]
+# (MD013) is OFF so docs aren't reflowed, alongside MD033 (inline HTML) and MD034
+# (bare URLs).
+disable = ["MD013", "MD033", "MD034"]
 
 # Respect .gitignore when scanning directories.
 respect-gitignore = true
