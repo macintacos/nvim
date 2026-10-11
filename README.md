@@ -1,6 +1,6 @@
 # nvim
 
-![Two screenshots on a loop: Neovim's start screen, listing a resumable session, project actions and a plugin-update count; and the config editing itself, with a fuzzy file picker open over init.lua, the which-key leader spec, and the list of mini.nvim modules.](./assets/preview.gif)
+![A recording of the config navigating its own repo: the which-key leader menu, a fuzzy file picker opening plugin/which-key.lua, go-to-definition into a helper module, mini.files walking lua/plugins, an LSP symbol picker, a live grep, the changeset sidebar previewing this branch's changes, and a search over every keybinding.](./assets/preview.gif)
 
 This is where the work happens now. It used to run on lazy.nvim, and this README used to
 open by apologising for itself and sending you to VSCode for anything serious. Neither is
@@ -11,11 +11,23 @@ It's [a repo of its own](https://github.com/macintacos/nvim), pulled into
 under its own history. [Ghostty](https://ghostty.org/) is the terminal;
 [herdr](https://herdr.dev), the agent multiplexer it all runs inside.
 
-## What's in the screenshots
+## What's in the recording
 
-- **The config editing itself** — [mini.pick](https://github.com/nvim-mini/mini.pick) over
-  the project, the which-key spec that draws the leader menu, and the mini module list in
-  `plugin/mini.lua`.
+The config navigating its own repo, on a branch eight commits ahead of trunk:
+
+- `<leader>ff` finds `plugin/which-key.lua` in
+  [mini.pick](https://github.com/nvim-mini/mini.pick), and `gd` follows its `Cmd` helper
+  into `lua/helpers/mappings.lua`.
+- `<leader>fu` reveals that file in [mini.files](https://github.com/nvim-mini/mini.files)
+  and walks over to the gotoline plugin, where `<leader>ji` jumps to an LSP symbol.
+- `<leader>sp` greps for the changeset mapping, and `<leader>gp` opens
+  [changeset.nvim](https://github.com/macintacos/changeset.nvim)'s sidebar: `]h` previews
+  each changed row before `<CR>` opens one.
+- `<leader>bb` switches back to an open buffer, and `<leader><leader>` searches every
+  keybinding.
+
+[VHS](https://github.com/charmbracelet/vhs) records it from `assets/preview.tape`; run
+`vhs assets/preview.tape` from the repo root to record it again.
 
 ## The shape of it
 

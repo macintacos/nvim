@@ -30,6 +30,9 @@ typos                   = "latest" # Spell check (config in typos.toml)
 # Backs the pipx: backend above, and runs the PEP 723 hook scripts in ~/.claude.
 uv = "latest"
 
+# Records assets/preview.gif from assets/preview.tape.
+vhs = "latest"
+
 # (Re)register git hooks whenever tools are installed or updated.
 [hooks]
 postinstall = "hk install --mise"
