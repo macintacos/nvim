@@ -1,8 +1,5 @@
 local M = {}
 
----Fraction of the editor the float covers, per axis.
-local FLOAT_SCALE = 0.8
-
 ---Path to the current project's scratch file, creating `.tmp/` and the file
 ---itself if they don't exist yet.
 ---@return string path Absolute path to `<cwd>/.tmp/scratch.md`.
@@ -47,18 +44,7 @@ function M.float()
     return
   end
 
-  local width = math.floor(vim.o.columns * FLOAT_SCALE)
-  local height = math.floor(vim.o.lines * FLOAT_SCALE)
-  vim.api.nvim_open_win(buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    row = math.floor((vim.o.lines - height) / 2),
-    col = math.floor((vim.o.columns - width) / 2),
-    border = "rounded",
-    title = " .tmp/scratch.md ",
-    title_pos = "center",
-  })
+  require("helpers.windows").open_centered_float(buf, ".tmp/scratch.md")
 end
 
 return M

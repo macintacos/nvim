@@ -14,6 +14,27 @@ function M.close_all_floating_wins()
   end
 end
 
+---Fraction of the editor a centered float covers, per axis.
+local CENTERED_SCALE = 0.8
+
+---Open and focus a float on `buf`, centered and covering 80% of the editor.
+---@param buf integer
+---@param title string
+---@return integer win
+function M.open_centered_float(buf, title)
+  local width = math.floor(vim.o.columns * CENTERED_SCALE)
+  local height = math.floor(vim.o.lines * CENTERED_SCALE)
+  return vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = math.floor((vim.o.lines - height) / 2),
+    col = math.floor((vim.o.columns - width) / 2),
+    title = " " .. title .. " ",
+    title_pos = "center",
+  })
+end
+
 ---Scroll the LSP hover popup, if one is open for the current buffer.
 ---@param direction "down"|"up"
 ---@return boolean scrolled true if a hover popup was found and scrolled
