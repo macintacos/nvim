@@ -7,8 +7,8 @@ a [chezmoi](https://www.chezmoi.io/) external, so it keeps its own history. It r
 [Ghostty](https://ghostty.org/), inside the [herdr](https://herdr.dev) agent multiplexer.
 
 Nothing here is built for anyone else to install. There's no bootstrap, and parts of it
-assume my machine: a fish wrapper around `nvim`, the colour palette my dotfiles deploy,
-and Dracula Pro. Take whatever looks useful.
+assume my machine: a fish wrapper around `nvim`, and the palette and color scheme my
+dotfiles deploy. Take whatever looks useful.
 
 ## How it's put together
 
@@ -20,9 +20,8 @@ and Dracula Pro. Take whatever looks useful.
   the picker, file explorer, sessions, statusline, and notifications.
   [snacks.nvim](https://github.com/folke/snacks.nvim) covers the rest, such as indent
   guides, the terminal, and lazygit.
-- **The colours follow the terminal.** Dracula Pro switches between its dark and light
-  variants when the terminal does, even in a running editor. It's a paid theme, so my
-  dotfiles install it privately instead of this repo shipping it.
+- **The colors follow the terminal.** The color scheme switches between dark and light
+  when the terminal does, even in a running editor.
 - **It's tested and linted.** A [plenary](https://github.com/nvim-lua/plenary.nvim) spec
   suite, selene, stylua, and emmylua_check run on [hk](https://hk.jdx.dev/) git hooks.
   [mise](https://mise.jdx.dev/) pins every tool, and `mise tasks` lists the tasks.
