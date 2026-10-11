@@ -31,7 +31,7 @@ end
 ---written to $NVIM_CWD_FILE on VimLeavePre, then the shell wrapper cd's + reopens.
 ---`:confirm qall` so unsaved buffers prompt, exactly like a real `:qa`.
 ---@param dir string
-local function switch(dir)
+function M.switch(dir)
   vim.g.projects_switch_target = dir
   vim.cmd("confirm qall")
 end
@@ -55,7 +55,7 @@ function M.open()
     end,
   }, function(dir)
     if dir then
-      switch(dir)
+      M.switch(dir)
     end
   end)
 end

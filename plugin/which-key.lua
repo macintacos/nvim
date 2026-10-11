@@ -147,6 +147,14 @@ vim.schedule(function()
       { "<leader>gj", pick("changeset"), desc = "Jump to Change (Changeset)", icon = { icon = "󰙅", color = "orange" } },
       { "<leader>gP", Cmd("Changeset review"), desc = "PR Review Mode (gutter vs PR base)", icon = { icon = "󰓂", color = "orange" } },
       { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)", icon = { icon = "󰖟", color = "blue" } },
+      { "<leader>gw", group = "worktrees", icon = { icon = "󰘬", color = "orange" } },
+      { "<leader>gwt", function() require("plugins.worktrunk").pick() end, desc = "Worktree Picker", icon = { icon = "󰓡", color = "orange" } },
+      { "<leader>gw-", function() require("plugins.worktrunk").previous() end, desc = "Previous Worktree", icon = { icon = "󰋚", color = "orange" } },
+      { "<leader>gwm", function() require("plugins.worktrunk").default_branch() end, desc = "Default Branch Worktree", icon = { icon = "󰋜", color = "orange" } },
+      { "<leader>gwo", function() require("plugins.worktrunk.counterpart").split() end, desc = "Open File in Another Worktree", icon = { icon = "󰈢", color = "orange" } },
+      { "<leader>gwd", function() require("plugins.worktrunk.counterpart").diff() end, desc = "Diff File Against Another Worktree", icon = { icon = "󰢪", color = "orange" } },
+      { "<leader>gwx", function() require("plugins.worktrunk").remove() end, desc = "Remove This Worktree", icon = { icon = "󰆴", color = "red" } },
+      { "<leader>gwM", function() require("plugins.worktrunk").merge() end, desc = "Merge This Worktree", icon = { icon = "󰘭", color = "red" } },
 
       -- Help
       { "<leader>h", group = "help", icon = { icon = "󰋖", color = "purple" } },
