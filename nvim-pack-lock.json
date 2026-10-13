@@ -30,7 +30,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "5b9d379d075434c839893429063d47606b4f3ea9",
+      "rev": "d012243a8b2185458fabc35acaf6ef6c7595ac90",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
