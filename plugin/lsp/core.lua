@@ -154,6 +154,16 @@ vim.lsp.enable({
   "xonsh_language_server",
 })
 
+-- Folds a file's import block away when it opens, so the code is what shows
+-- first. Fires when a client attaches to a buffer; only a server reporting
+-- folding ranges, in a language with imports, takes over the window's folds.
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = vim.api.nvim_create_augroup("__personal_fold_imports", { clear = true }),
+  callback = function(ev)
+    require("config.folds").fold_imports(assert(vim.lsp.get_client_by_id(ev.data.client_id)), ev.buf)
+  end,
+})
+
 -- Mason
 require("mason").setup()
 -- setup() deep-merges this onto its defaults, but MasonLspconfigSettings declares ensure_installed required.

@@ -25,6 +25,29 @@ local MAX_WIDTH = 100
 -- line so both marks for one fold match.
 local COLLAPSED = ""
 
+-- Title of a closed import block, in place of its first import.
+local IMPORTS = "imports"
+
+-- Tree-sitter nodes that open an import block.
+local IMPORT_NODES = {
+  import_statement = true, -- Python, TypeScript, JavaScript
+  import_from_statement = true, -- Python
+  import_declaration = true, -- Go
+  use_declaration = true, -- Rust
+}
+
+-- Filetypes whose language servers report the import block as a fold of kind
+-- "imports". Elsewhere the window keeps its tree-sitter folds.
+local IMPORT_FILETYPES = {
+  go = true,
+  javascript = true,
+  javascriptreact = true,
+  python = true,
+  rust = true,
+  typescript = true,
+  typescriptreact = true,
+}
+
 ---Diagnostic severities worth surfacing, most severe first.
 ---@type { level: integer, icon: string }[]
 local SEVERITIES = {
@@ -116,21 +139,59 @@ local function text_width()
   return win.width - win.textoff
 end
 
+---Whether the fold opening at `col` of `row` in the current buffer is an import
+---block. Reads the tree the highlighter keeps parsed.
+---@param row integer 0-indexed
+---@param col integer
+---@return boolean
+local function opens_imports(row, col)
+  local node = vim.treesitter.get_node({ pos = { row, col } })
+  return node ~= nil and IMPORT_NODES[node:type()] == true
+end
+
 ---'foldtext' expression: a bar standing in for the closed fold.
 ---@return string
 function M.foldtext()
   local first, last = vim.v.foldstart, vim.v.foldend
+  local text = tostring(vim.fn.getline(first))
   -- Tabs expanded so the bar starts at the same column as the block it replaces.
-  local line = tostring(vim.fn.getline(first)):gsub("\t", (" "):rep(vim.bo.tabstop))
+  local line = text:gsub("\t", (" "):rep(vim.bo.tabstop))
   local indent = line:match("^%s*")
   local hidden = last - first
+  local title = opens_imports(first - 1, #text:match("^%s*")) and IMPORTS or vim.trim(line)
 
   return indent
     .. bar(
-      ("%s %s"):format(COLLAPSED, vim.trim(line)),
+      ("%s %s"):format(COLLAPSED, title),
       summary(hidden, diagnostic_counts(first, last), vim.api.nvim_buf_line_count(0)),
       math.min(text_width(), MAX_WIDTH) - #indent
     )
+end
+
+---Hand the folds of the window showing `buf` to its language servers and close
+---the import block, when `client` serves folding ranges for a language with
+---imports.
+---@param client vim.lsp.Client
+---@param buf integer
+function M.fold_imports(client, buf)
+  local win = vim.fn.bufwinid(buf)
+  if
+    win == -1
+    or not IMPORT_FILETYPES[vim.bo[buf].filetype]
+    or not client:supports_method("textDocument/foldingRange")
+  then
+    return
+  end
+  vim.wo[win][0].foldmethod = "expr"
+  vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
+  -- foldclose() does nothing until vim.lsp.foldexpr() has run, and that first
+  -- run only sets up the buffer's fold state on the next tick.
+  vim.api.nvim_win_call(win, function()
+    vim.fn.foldlevel(1)
+  end)
+  vim.schedule(function()
+    vim.lsp.foldclose("imports", win)
+  end)
 end
 
 M._bar = bar
