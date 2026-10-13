@@ -168,6 +168,52 @@ function M.foldtext()
     )
 end
 
+---`ranges` with each import block stretched over a lone `)` on the line after it.
+---gopls stops the block short of that bracket, which a closed fold would leave
+---hanging below it.
+---@param ranges lsp.FoldingRange[]
+---@param line fun(row: integer): string? Text of a 0-indexed row
+---@return lsp.FoldingRange[]
+local function with_closing_paren(ranges, line)
+  return vim.tbl_map(function(range)
+    if range.kind == "imports" and vim.trim(line(range.endLine + 1) or "") == ")" then
+      return vim.tbl_extend("force", range, { endLine = range.endLine + 1 })
+    end
+    return range
+  end, ranges)
+end
+
+-- Clients whose folding ranges already pass through with_closing_paren().
+---@type table<vim.lsp.Client, true?>
+local widened = setmetatable({}, { __mode = "k" })
+
+---Pass the folding ranges `client` answers with through with_closing_paren()
+---before Neovim folds by them.
+---@param client vim.lsp.Client
+local function widen_imports(client)
+  if widened[client] then
+    return
+  end
+  widened[client] = true
+  local request = client.request
+  -- Neovim requests folding ranges itself and keeps no hook on the reply, so
+  -- the reply is rewritten on its way back.
+  function client:request(method, params, handler, bufnr)
+    if method == "textDocument/foldingRange" and handler then
+      local reply = handler
+      handler = function(err, result, ctx, ...)
+        if result then
+          result = with_closing_paren(result, function(row)
+            return vim.api.nvim_buf_get_lines(ctx.bufnr, row, row + 1, false)[1]
+          end)
+        end
+        return reply(err, result, ctx, ...)
+      end
+    end
+    return request(self, method, params, handler, bufnr)
+  end
+end
+
 ---Hand the folds of the window showing `buf` to its language servers and close
 ---the import block, when `client` serves folding ranges for a language with
 ---imports.
@@ -182,6 +228,7 @@ function M.fold_imports(client, buf)
   then
     return
   end
+  widen_imports(client)
   vim.wo[win][0].foldmethod = "expr"
   vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
   -- foldclose() does nothing until vim.lsp.foldexpr() has run, and that first

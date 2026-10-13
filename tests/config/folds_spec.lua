@@ -152,6 +152,26 @@ describe("fold_imports", function()
     assert.equal(-1, vim.fn.foldclosed(4))
   end)
 
+  it("folds away the `)` closing an import block whose range stops short of it", function()
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+      "package main",
+      "",
+      "import (",
+      '\t"fmt"',
+      '\t"os"',
+      ")",
+    })
+    vim.bo[buf].filetype = "go"
+    local client = start_server(buf, { foldingRangeProvider = true }, {
+      { startLine = 2, endLine = 4, kind = "imports" },
+    })
+    require("config.folds").fold_imports(client, buf)
+    vim.wait(1000, function()
+      return vim.fn.foldclosed(3) ~= -1
+    end)
+    assert.same({ 3, 6 }, { vim.fn.foldclosed(3), vim.fn.foldclosedend(3) })
+  end)
+
   it("keeps the window's folds when the server serves no folding ranges", function()
     local client = start_server(buf, {}, {})
     require("config.folds").fold_imports(client, buf)
