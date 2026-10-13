@@ -86,10 +86,13 @@ local linters = new Mapping<String, Step> {
 
 // emmylua_check checks the whole workspace in one run, whichever files changed,
 // so it runs from `check` and `pre-push` rather than on every commit.
+// hk prints a passing step's stderr after the run, and emmylua_check and plenary
+// write a status line there, so both steps fold stderr into stdout. A failing
+// step still prints all its output.
 local typecheck = new Mapping<String, Step> {
   ["Lua(Types)        [[emmylua_check]]"] = new Step {
     glob = List("**/*.lua", ".emmyrc.json", "nvim-pack-lock.json")
-    check = "mise run -q typecheck"
+    check = "mise run -q typecheck 2>&1"
   }
 }
 
@@ -123,7 +126,7 @@ hooks {
     steps = new Mapping<String, Step> {
       ...typecheck
       ["Lua(Test)         [[plenary]]"] = new Step {
-        check = "mise run -q test"
+        check = "mise run -q test 2>&1"
       }
     }
   }
