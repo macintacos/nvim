@@ -30,7 +30,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "10c7dab5cc2afcc3a639b38c2ce2029594dec161",
+      "rev": "5b9d379d075434c839893429063d47606b4f3ea9",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
@@ -74,7 +74,7 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "851a051e2bd2caba97e23314c68d69f1b1cf5d19",
+      "rev": "aa6cc2d7addb288cfd79a05ac257695d5ff61deb",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -248,7 +248,7 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
     "obsidian.nvim": {
-      "rev": "ab794e1774c4cfd84f02b37720a92e38ea4c053d",
+      "rev": "922193e4fbf2c026ae49866044233bc56f769020",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
