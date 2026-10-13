@@ -91,7 +91,8 @@ local function ui_groups(p, background)
     Pmenu = { bg = float_bg },
     PmenuSbar = { bg = float_bg },
     ColorColumn = { bg = p.bg2 },
-    Folded = { fg = p.comment, bg = p.bg2 },
+    -- Comment's color tinted toward purple, so a closed fold doesn't read as a comment.
+    Folded = { fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35), bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
     TabLineFill = { bg = p.bg2 },
     PmenuThumb = { bg = p.bg4 },
