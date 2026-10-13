@@ -141,14 +141,15 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Enable line wrapping and spell checking for prose-oriented filetypes.
 -- Code files benefit from nowrap + no spell, but text, markdown, commit
 -- messages, and similar filetypes are easier to read and write with soft
--- wrapping and spell suggestions enabled.
+-- wrapping and spell suggestions enabled. `nofile` buffers get no spell: LSP
+-- hover and signature floats are markdown too, but hold generated docs.
 -- Fires: when a buffer's filetype matches any of the listed prose types.
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("wrap_spell"),
   pattern = { "text", "plaintex", "typst", "gitcommit", "markdown" },
-  callback = function()
+  callback = function(event)
     vim.opt_local.wrap = true
-    vim.opt_local.spell = true
+    vim.opt_local.spell = vim.bo[event.buf].buftype ~= "nofile"
   end,
 })
 
