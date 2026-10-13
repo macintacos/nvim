@@ -1,3 +1,7 @@
+vim.opt.rtp:prepend(require("support.deps").path("mini.pick"))
+require("mini.pick").setup()
+require("plugins.mini-pickers.preview").setup()
+
 local scratch = require("plugins.scratch")
 
 describe("scratch", function()
@@ -6,16 +10,12 @@ describe("scratch", function()
   local tmpdir
   ---@type string
   local dir
-  local select, input
-  ---Items the last picker offered, or nil when no picker opened.
-  ---@type string[]?
-  local offered
-  ---Index of the offered item the picker answers with; nil cancels it.
-  ---@type integer?
-  local pick
+  local input
   ---What the name prompt answers with; nil cancels it.
   ---@type string?
   local typed
+  ---Whether a picker opened.
+  local asked
 
   ---@param win integer
   ---@return boolean
@@ -33,6 +33,19 @@ describe("scratch", function()
       end
     end
     return n
+  end
+
+  ---The side preview float of the open picker, skipping the picker's own window
+  ---and the filename labels incline draws over floats.
+  ---@return integer?
+  local function preview_win()
+    local main = assert(MiniPick.get_picker_state()).windows.main
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      if win ~= main and is_float(win) and vim.bo[buf].filetype ~= "incline" then
+        return win
+      end
+    end
   end
 
   ---Write a scratch file and backdate its mtime.
@@ -60,6 +73,48 @@ describe("scratch", function()
     end))
   end
 
+  ---Call `start`, which may open the picker, and run `steps` against it.
+  ---
+  ---The picker blocks `start` until it stops, so each step runs from a timer
+  ---the picker's key loop fires while it waits for input. A step is keys to
+  ---type or a function to call. A picker still open after the last step, or
+  ---after a step fails, is stopped so the spec can't hang on it.
+  ---@param start fun()
+  ---@param steps (string|fun())[]
+  local function drive(start, steps)
+    local i, returned = 0, false
+    ---@type any
+    local err
+    local function step()
+      i = i + 1
+      local s = steps[i]
+      if returned then
+        return
+      elseif s == nil then
+        return MiniPick.stop()
+      end
+      local ok, e = pcall(function()
+        if type(s) == "string" then
+          vim.api.nvim_input(s)
+        else
+          s()
+        end
+      end)
+      if not ok then
+        err = e
+        return MiniPick.stop()
+      end
+      vim.defer_fn(step, 50)
+    end
+    vim.defer_fn(step, 50)
+    start()
+    returned = true
+    settle()
+    if err then
+      error(err, 0)
+    end
+  end
+
   before_each(function()
     cwd = vim.fn.getcwd()
     tmpdir = vim.fn.tempname()
@@ -67,41 +122,29 @@ describe("scratch", function()
     vim.cmd.cd(tmpdir)
     dir = vim.fs.joinpath(vim.fn.getcwd(), ".tmp", "scratch")
 
-    offered, pick, typed = nil, nil, nil
-    select, input = vim.ui.select, vim.ui.input
-    -- Answers the way mini.pick does: on_choice runs inside a win_call on the
-    -- window the picker opened from while the picker's own window is current,
-    -- then focus lands wherever on_choice left it.
-    vim.ui.select = function(items, _, on_choice)
-      offered = items
-      local target = vim.api.nvim_get_current_win()
-      local picker = vim.api.nvim_open_win(vim.api.nvim_create_buf(false, true), true, {
-        relative = "editor",
-        row = 0,
-        col = 0,
-        width = 1,
-        height = 1,
-      })
-      local landed = target
-      vim.api.nvim_win_call(target, function()
-        on_choice(pick and items[pick])
-        landed = vim.api.nvim_get_current_win()
-      end)
-      vim.api.nvim_set_current_win(landed)
-      vim.api.nvim_win_close(picker, true)
-    end
+    typed, asked = nil, false
+    input = vim.ui.input
     vim.ui.input = function(_, on_confirm)
       on_confirm(typed)
     end
+    vim.api.nvim_create_autocmd("User", {
+      group = vim.api.nvim_create_augroup("scratch_spec", { clear = true }),
+      pattern = "MiniPickStart",
+      callback = function()
+        asked = true
+      end,
+    })
   end)
 
   after_each(function()
-    vim.ui.select, vim.ui.input = select, input
+    vim.ui.input = input
+    vim.api.nvim_del_augroup_by_name("scratch_spec")
     for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
       if is_float(win) then
         vim.api.nvim_win_close(win, true)
       end
     end
+    vim.cmd("silent! only!")
     vim.cmd("silent! %bwipeout!")
     vim.cmd.cd(cwd)
     vim.fn.delete(tmpdir, "rf")
@@ -109,8 +152,8 @@ describe("scratch", function()
 
   describe("open", function()
     it("edits a new .tmp/scratch/scratch.md without asking when the project has none", function()
-      scratch.open()
-      assert.is_nil(offered)
+      drive(scratch.open, {})
+      assert.is_false(asked)
       assert.equal(vim.fs.joinpath(dir, "scratch.md"), vim.api.nvim_buf_get_name(0))
       assert.equal(1, vim.fn.filereadable(vim.fs.joinpath(dir, "scratch.md")))
     end)
@@ -119,46 +162,71 @@ describe("scratch", function()
       local old = write("old.md", 100)
       local new = write("new.md", 300)
       local mid = write("mid.md", 200)
-      scratch.open()
-      ---@cast offered -nil
-      assert.equal(4, #offered)
-      assert.same({ new, mid, old }, vim.list_slice(offered, 2))
+      ---@type scratch.Item[]
+      local items = {}
+      drive(scratch.open, {
+        function()
+          items = assert(MiniPick.get_picker_items())
+        end,
+      })
+      assert.equal(4, #items)
+      assert.is_nil(assert(items[1]).path)
+      assert.same(
+        { new, mid, old },
+        vim.tbl_map(function(item)
+          return item.path
+        end, vim.list_slice(items, 2))
+      )
     end)
 
-    it("edits the picked scratch file in the current window", function()
+    it("previews the scratch file under the cursor", function()
+      write("notes.md", 100, { "first line" })
+      local seen = {}
+      drive(scratch.open, {
+        function()
+          local win = assert(preview_win(), "no preview float")
+          seen.new = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, -1, false)
+        end,
+        "<C-n>",
+        function()
+          local win = assert(preview_win(), "no preview float")
+          seen.file = vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, 1, false)[1]
+        end,
+      })
+      assert.same({ "" }, seen.new)
+      assert.equal("first line", seen.file)
+    end)
+
+    it("edits the picked scratch file in the window it was opened from", function()
       write("a.md", 200)
       local b = write("b.md", 100)
+      vim.cmd("vsplit | wincmd l")
       local win = vim.api.nvim_get_current_win()
-      pick = 3
-      scratch.open()
-      settle()
+      drive(scratch.open, { "<C-n><C-n><CR>" })
       assert.equal(win, vim.api.nvim_get_current_win())
       assert.equal(b, vim.api.nvim_buf_get_name(0))
     end)
 
     it("creates a markdown scratch file with the typed name", function()
       write("scratch.md", 100)
-      pick, typed = 1, "api-notes"
-      scratch.open()
-      settle()
+      typed = "api-notes"
+      drive(scratch.open, { "<CR>" })
       assert.equal(vim.fs.joinpath(dir, "api-notes.md"), vim.api.nvim_buf_get_name(0))
       assert.equal(1, vim.fn.filereadable(vim.fs.joinpath(dir, "api-notes.md")))
     end)
 
     it("keeps the extension of a typed name that has one", function()
       write("scratch.md", 100)
-      pick, typed = 1, "notes.txt"
-      scratch.open()
-      settle()
+      typed = "notes.txt"
+      drive(scratch.open, { "<CR>" })
       assert.equal(vim.fs.joinpath(dir, "notes.txt"), vim.api.nvim_buf_get_name(0))
     end)
 
     it("opens an existing scratch file of the typed name without emptying it", function()
       write("scratch.md", 100)
       write("notes.md", 200, { "keep" })
-      pick, typed = 1, "notes"
-      scratch.open()
-      settle()
+      typed = "notes"
+      drive(scratch.open, { "<CR>" })
       assert.equal(vim.fs.joinpath(dir, "notes.md"), vim.api.nvim_buf_get_name(0))
       assert.same({ "keep" }, vim.fn.readfile(vim.fs.joinpath(dir, "notes.md")))
     end)
@@ -166,26 +234,22 @@ describe("scratch", function()
     it("numbers a new scratch file past the taken names when no name is typed", function()
       write("scratch.md", 100)
       write("scratch-2.md", 200)
-      pick, typed = 1, ""
-      scratch.open()
-      settle()
+      typed = ""
+      drive(scratch.open, { "<CR>" })
       assert.equal(vim.fs.joinpath(dir, "scratch-3.md"), vim.api.nvim_buf_get_name(0))
     end)
 
     it("leaves the window alone when the picker is cancelled", function()
       write("scratch.md", 100)
       local name = vim.api.nvim_buf_get_name(0)
-      scratch.open()
-      settle()
+      drive(scratch.open, { "<Esc>" })
       assert.equal(name, vim.api.nvim_buf_get_name(0))
     end)
 
     it("creates nothing when the name prompt is cancelled", function()
       write("scratch.md", 100)
       local name = vim.api.nvim_buf_get_name(0)
-      pick = 1
-      scratch.open()
-      settle()
+      drive(scratch.open, { "<CR>" })
       assert.equal(name, vim.api.nvim_buf_get_name(0))
       assert.equal(1, #vim.fn.readdir(dir))
     end)
@@ -193,7 +257,7 @@ describe("scratch", function()
 
   describe("float", function()
     it("shows a new .tmp/scratch/scratch.md in a float when the project has none", function()
-      scratch.float()
+      drive(scratch.float, {})
       assert.is_true(is_float(0))
       assert.equal(vim.fs.joinpath(dir, "scratch.md"), vim.api.nvim_buf_get_name(0))
     end)
@@ -201,9 +265,7 @@ describe("scratch", function()
     it("shows the picked scratch file in a float", function()
       write("a.md", 200)
       local b = write("b.md", 100)
-      pick = 3
-      scratch.float()
-      settle()
+      drive(scratch.float, { "<C-n><C-n><CR>" })
       assert.is_true(is_float(0))
       assert.equal(b, vim.api.nvim_buf_get_name(0))
     end)
@@ -212,29 +274,25 @@ describe("scratch", function()
       write("a.md", 100)
       vim.cmd("vsplit | wincmd l")
       local win = vim.api.nvim_get_current_win()
-      pick = 2
-      scratch.float()
-      settle()
+      drive(scratch.float, { "<C-n><CR>" })
       vim.cmd.close()
       assert.equal(win, vim.api.nvim_get_current_win())
     end)
 
     it("reuses the open float instead of stacking a second one", function()
-      scratch.float()
+      drive(scratch.float, {})
       local win = vim.api.nvim_get_current_win()
       assert.equal(1, float_count())
 
       -- Move focus out of the float, then re-invoke: we should land back in it.
       vim.api.nvim_set_current_win(vim.fn.win_getid(1))
-      pick = 2
-      scratch.float()
-      settle()
+      drive(scratch.float, { "<C-n><CR>" })
       assert.equal(1, float_count())
       assert.equal(win, vim.api.nvim_get_current_win())
     end)
 
     it("sizes the float to 80% of the editor", function()
-      scratch.float()
+      drive(scratch.float, {})
       local cfg = vim.api.nvim_win_get_config(0)
       assert.equal(math.floor(vim.o.columns * 0.8), cfg.width)
       assert.equal(math.floor(vim.o.lines * 0.8), cfg.height)

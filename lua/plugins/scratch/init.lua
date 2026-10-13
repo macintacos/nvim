@@ -1,26 +1,26 @@
 local M = {}
 
----Picker entry that creates a scratch file. Never collides with the absolute
----paths listed beside it.
-local NEW = "+ New scratch file"
+---@class scratch.Item
+---@field text string Name shown in the picker.
+---@field path? string Absolute path; nil only on the entry that creates a file.
 
 ---@return string dir Absolute path to `<cwd>/.tmp/scratch`.
 local function scratch_dir()
   return vim.fs.joinpath(vim.fn.getcwd(), ".tmp", "scratch")
 end
 
----Scratch files in `dir`, most recently modified first.
+---Scratch files in `dir` as picker items, most recently modified first.
 ---@param dir string
----@return string[] paths
+---@return scratch.Item[] items
 local function list(dir)
-  local paths = {}
+  local items = {}
   for name in vim.fs.dir(dir) do
-    paths[#paths + 1] = vim.fs.joinpath(dir, name)
+    items[#items + 1] = { text = name, path = vim.fs.joinpath(dir, name) }
   end
-  table.sort(paths, function(a, b)
-    return vim.fn.getftime(a) > vim.fn.getftime(b)
+  table.sort(items, function(a, b)
+    return vim.fn.getftime(a.path) > vim.fn.getftime(b.path)
   end)
-  return paths
+  return items
 end
 
 ---First of `scratch.md`, `scratch-2.md`, `scratch-3.md`, … not taken in `dir`.
@@ -60,34 +60,45 @@ end
 ---@param show fun(path: string)
 local function choose(show)
   local dir = scratch_dir()
-  local paths = list(dir)
-  if #paths == 0 then
+  local files = list(dir)
+  if #files == 0 then
     show(ensure(dir, ""))
     return
   end
 
-  table.insert(paths, 1, NEW)
-  vim.ui.select(paths, {
-    prompt = "Scratch",
-    format_item = function(item)
-      return item == NEW and item or vim.fs.basename(item)
-    end,
-  }, function(choice)
-    -- mini.pick is still open while this runs. Act once it has closed and focus
-    -- is back in the window it was opened from, so a float opened here returns
-    -- focus there when it closes.
-    vim.schedule(function()
-      if choice == NEW then
-        vim.ui.input({ prompt = "Scratch name: " }, function(name)
-          if name then
-            show(ensure(dir, name))
+  MiniPick.start({
+    source = {
+      name = "Scratch",
+      items = vim.list_extend({ { text = "+ New scratch file" } }, files),
+      show = function(buf_id, items, query)
+        MiniPick.default_show(buf_id, items, query, { show_icons = true })
+      end,
+      ---@param item scratch.Item
+      preview = function(buf_id, item)
+        if item.path then
+          MiniPick.default_preview(buf_id, item)
+        end
+      end,
+      ---@param item scratch.Item
+      choose = function(item)
+        -- The picker is still open while this runs. Act once it has closed and
+        -- focus is back in the window it was opened from, so a float opened
+        -- here returns focus there when it closes.
+        vim.schedule(function()
+          if item.path then
+            show(item.path)
+            return
           end
+          vim.ui.input({ prompt = "Scratch name: " }, function(name)
+            if name then
+              show(ensure(dir, name))
+            end
+          end)
         end)
-      elseif choice then
-        show(choice)
-      end
-    end)
-  end)
+      end,
+    },
+    window = require("plugins.mini-pickers.preview").window(),
+  })
 end
 
 ---Pick a scratch file and open it in the current window.

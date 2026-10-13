@@ -28,7 +28,7 @@ mini.pick draws its preview *in place of* the list. `preview.lua` hangs a second
 └───────────────────────┘└────────────────────────────────────────────┘
 ```
 
-A picker opts in with `window = preview.window()` — `files`, `grep_live`, and every `lsp` scope do; `vim.ui.select` and the rest keep the single window. Below `MIN_COLUMNS` (120) there is no room beside the list, so it takes the whole width and the preview stacks on top, each a fixed share of the editor's height:
+A picker opts in with `window = preview.window()` — `files`, `grep_live`, every `lsp` scope, and the [scratch](../scratch/) picker do; `vim.ui.select` and the rest keep the single window. Below `MIN_COLUMNS` (120) there is no room beside the list, so it takes the whole width and the preview stacks on top, each a fixed share of the editor's height:
 
 ```text
 ┌─ preview (40%) ───────────────┐
