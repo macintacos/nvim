@@ -155,7 +155,7 @@
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.notify": {
-      "rev": "bbb5fce69bd06dae63696833d4b0de3b226f8105",
+      "rev": "7bcaba0e3c12f8aaac05b435811157905c83366d",
       "src": "https://github.com/nvim-mini/mini.notify",
       "version": "'main'"
     },
@@ -211,6 +211,10 @@
       "rev": "40548e23f3b053defdc5daa99943e05132b99cc9",
       "src": "https://github.com/nacro90/numb.nvim"
     },
+    "nvim": {
+      "rev": "edefef779ab08ce1a4a404713e3012b0d202bd35",
+      "src": "ssh://git@github.com/catppuccin/nvim"
+    },
     "nvim-bqf": {
       "rev": "c282a62bec6c0621a1ef5132aa3f4c9fc4dcc2c7",
       "src": "https://github.com/kevinhwang91/nvim-bqf"
@@ -220,7 +224,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "c59fc922f718fa055f69f5f3bc888f23211571eb",
+      "rev": "ac062d0d01c019c0dbdb798968f3e5d8b35c3853",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-notify": {
@@ -247,8 +251,12 @@
       "rev": "48b9ebc4322c7dd9b8f99f38b2372901079bd67f",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
+    "nvim-web-devicons": {
+      "rev": "ec309a0eaff6ea967e58c275996155ab5c16938d",
+      "src": "ssh://git@github.com/nvim-tree/nvim-web-devicons"
+    },
     "obsidian.nvim": {
-      "rev": "922193e4fbf2c026ae49866044233bc56f769020",
+      "rev": "5887208eb7f70d984f1928b4c05d5ef7a212500c",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
