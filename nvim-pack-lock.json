@@ -155,9 +155,9 @@
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.notify": {
-      "rev": "821db7d464f7a9bb8666b4ba3be7d2ed637cfcfc",
+      "rev": "bbb5fce69bd06dae63696833d4b0de3b226f8105",
       "src": "https://github.com/nvim-mini/mini.notify",
-      "version": "'stable'"
+      "version": "'main'"
     },
     "mini.pick": {
       "rev": "8c1f75f8ddd8c9f75d07ed2ab5718d2c3cb65a66",
