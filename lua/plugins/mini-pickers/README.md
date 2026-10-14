@@ -15,7 +15,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
 | `which_key`       | New picker: every mapping which-key's popup can reach, keyed and grouped. `<leader><leader>` opens it. |
 
-The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `gr` opens the `references` one.
+The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `grr` opens the `references` one.
 
 ## The side preview
 

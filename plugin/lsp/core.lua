@@ -44,7 +44,7 @@ end
 map("Show Hover / Line Diagnostics", "n", "gh", function()
   require("helpers.hover").hover({ border = "rounded", max_width = 80, min_width = 40, anchor_bias = "above" })
 end, { silent = true })
-map("Goto References", "n", "gr", function()
+map("Goto References", "n", "grr", function()
   MiniPick.registry.lsp({ scope = "references" })
 end, { silent = true })
 map("Goto Implementation", "n", "gi", function()
