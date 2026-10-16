@@ -134,6 +134,8 @@ vim.lsp.config("mq", {
 vim.lsp.enable({
   "bashls",
   "emmylua_ls",
+  -- fish_lsp: binary comes from Homebrew (brew install fish-lsp), not Mason.
+  "fish_lsp",
   "gopls",
   "jsonls",
   "just",
