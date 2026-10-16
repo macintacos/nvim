@@ -134,4 +134,9 @@ function M.merge()
   end
 end
 
+---Follow Neovim out of any linked worktree removed from under it.
+function M.setup()
+  require("plugins.worktrunk.rescue").setup()
+end
+
 return M

@@ -44,4 +44,4 @@ README.
 | [`projects`](lua/plugins/projects/) | `<leader>pp` — a [zoxide](https://github.com/ajeetdsouza/zoxide) picker that relaunches Neovim in the directory you choose, session and all. |
 | [`scratch`](lua/plugins/scratch/) | `<leader>wt` — per-project scratch files under `.tmp/scratch/`, picked or named on open. |
 | [`uv-scripts`](lua/plugins/uv-scripts/) | Filetype detection and a `ty` client pointed at the environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script. |
-| [`worktrunk`](lua/plugins/worktrunk/) | `<leader>gw` — [worktrunk](https://worktrunk.dev) from a float: my shell's worktree picker, quick switches, remove and merge, relaunching Neovim in whichever worktree they land in; plus this file's copy from another worktree, split or diffed. |
+| [`worktrunk`](lua/plugins/worktrunk/) | `<leader>gw` — [worktrunk](https://worktrunk.dev) from a float: my shell's worktree picker, quick switches, remove and merge, relaunching Neovim in whichever worktree they land in; plus this file's copy from another worktree, split or diffed; and a worktree removed from under Neovim moves it into the primary one. |

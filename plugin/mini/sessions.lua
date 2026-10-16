@@ -107,9 +107,17 @@ local function session_write(opts)
   -- session_excluded() on the cwd, not just on buffers: a Neovim launched in an
   -- agent scratchpad is as throwaway as the files in it, and would otherwise
   -- leave a session behind for a directory that is gone tomorrow.
-  -- getcwd() is "" once the cwd has been deleted.
+  -- getcwd() is "" once the cwd has been deleted. A Neovim moved out of a
+  -- removed worktree still holds that worktree's layout, which would clobber the
+  -- session of the worktree it landed in.
   local cwd = vim.fn.getcwd()
-  if cwd == "" or session_suppressed(cwd) or session_excluded(cwd) or not session_has_content() then
+  if
+    cwd == ""
+    or require("plugins.worktrunk.rescue").rescued()
+    or session_suppressed(cwd)
+    or session_excluded(cwd)
+    or not session_has_content()
+  then
     return
   end
   require("mini.sessions").write(session_name(), opts)

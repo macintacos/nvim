@@ -19,6 +19,18 @@ does, so that worktree's session reopens and your shell ends up there when you q
 `<leader>gwx` and `<leader>gwM` refuse while any file has unsaved changes, because the
 worktree those changes belong to is about to be removed.
 
+## A worktree removed under Neovim
+
+When something else removes the linked worktree Neovim is in, such as an agent,
+`git worktree remove`, or `wt remove` in another pane, Neovim `:cd`s into the repository's
+primary worktree and says so. Without this, every picker, explorer, and terminal would
+error on a working directory that no longer exists. Buffers of the removed files stay
+open. From then on, Neovim writes no session, because its layout belongs to the removed
+worktree, not the one it landed in.
+
+A libuv file watcher on the working directory notices the removal. It runs only while the
+working directory is inside a linked worktree, and it follows every `:cd`.
+
 ## How it works
 
 Every `wt` command runs in a terminal float through an interactive `fish -i -c`. Only
@@ -32,7 +44,8 @@ If the relaunch's `:confirm qall` is cancelled, or fails, after `wt` has removed
 worktree Neovim was in, a warning says so. Save anything unsaved elsewhere, then quit.
 Any other failed relaunch, such as a save that errors, reports its error.
 `wt remove` parks the worktree under `.git/wt/trash/` before deleting it, so
-`plugin/mini/sessions.lua` writes no session for a cwd inside `.git` or one that's gone.
+`plugin/mini/sessions.lua` writes no session for a cwd inside `.git`, one that's gone, or
+one Neovim was moved to out of a removed worktree.
 
 The picker is `__wt_pick` from `~/.config/fish/user/worktrunk.fish` (managed by chezmoi),
 reused as it is. Neovim depends on its name, on its being loaded in interactive shells,
