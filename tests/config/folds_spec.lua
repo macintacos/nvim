@@ -172,6 +172,31 @@ describe("fold_imports", function()
     assert.same({ 3, 6 }, { vim.fn.foldclosed(3), vim.fn.foldclosedend(3) })
   end)
 
+  it("closes import blocks that only blank lines part as one fold", function()
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+      "import os",
+      "import sys",
+      "",
+      "from a import (",
+      "    b,",
+      ")",
+      "",
+      "def main():",
+      "    return os, sys, b",
+    })
+    local client = start_server(buf, { foldingRangeProvider = true }, {
+      { startLine = 0, endLine = 1, kind = "imports" },
+      { startLine = 3, endLine = 5, kind = "imports" },
+      { startLine = 7, endLine = 8 },
+    })
+    require("config.folds").fold_imports(client, buf)
+    vim.wait(1000, function()
+      return vim.fn.foldclosed(1) ~= -1
+    end)
+    assert.same({ 1, 6 }, { vim.fn.foldclosed(1), vim.fn.foldclosedend(1) })
+    assert.equal(-1, vim.fn.foldclosed(8))
+  end)
+
   it("keeps the window's folds when the server serves no folding ranges", function()
     local client = start_server(buf, {}, {})
     require("config.folds").fold_imports(client, buf)

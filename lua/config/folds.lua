@@ -183,12 +183,55 @@ local function with_closing_paren(ranges, line)
   end, ranges)
 end
 
--- Clients whose folding ranges already pass through with_closing_paren().
+---Whether every row from `first` to `last` is blank, which an empty span is.
+---@param first integer 0-indexed
+---@param last integer 0-indexed
+---@param line fun(row: integer): string? Text of a 0-indexed row
+---@return boolean
+local function blank(first, last, line)
+  for row = first, last do
+    if vim.trim(line(row) or "") ~= "" then
+      return false
+    end
+  end
+  return true
+end
+
+---`ranges` with import blocks that only blank lines part merged into one.
+---Servers report each group of imports as its own block, which would close as
+---a stack of separate folds.
+---@param ranges lsp.FoldingRange[]
+---@param line fun(row: integer): string? Text of a 0-indexed row
+---@return lsp.FoldingRange[]
+local function coalesce_imports(ranges, line)
+  local merged = vim.tbl_filter(function(range)
+    return range.kind ~= "imports"
+  end, ranges)
+  local imports = vim.tbl_filter(function(range)
+    return range.kind == "imports"
+  end, ranges)
+  table.sort(imports, function(a, b)
+    return a.startLine < b.startLine
+  end)
+  ---@type lsp.FoldingRange?
+  local block
+  for _, range in ipairs(imports) do
+    if block and blank(block.endLine + 1, range.startLine - 1, line) then
+      block.endLine = math.max(block.endLine, range.endLine)
+    else
+      block = vim.deepcopy(range)
+      merged[#merged + 1] = block
+    end
+  end
+  return merged
+end
+
+-- Clients whose folding ranges already pass through widen_imports().
 ---@type table<vim.lsp.Client, true?>
 local widened = setmetatable({}, { __mode = "k" })
 
 ---Pass the folding ranges `client` answers with through with_closing_paren()
----before Neovim folds by them.
+---and coalesce_imports() before Neovim folds by them.
 ---@param client vim.lsp.Client
 local function widen_imports(client)
   if widened[client] then
@@ -203,9 +246,10 @@ local function widen_imports(client)
       local reply = handler
       handler = function(err, result, ctx, ...)
         if result then
-          result = with_closing_paren(result, function(row)
+          local function line(row)
             return vim.api.nvim_buf_get_lines(ctx.bufnr, row, row + 1, false)[1]
-          end)
+          end
+          result = coalesce_imports(with_closing_paren(result, line), line)
         end
         return reply(err, result, ctx, ...)
       end
