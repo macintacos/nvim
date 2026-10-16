@@ -8,7 +8,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 
 | `:Pick …`         | What changes                                                                 |
 | ----------------- | ---------------------------------------------------------------------------- |
-| `files`           | Always `rg`, hidden files included, plus a list of ignored paths. `<Space>` toggles the preview instead of the global `<C-p>`. |
+| `files`           | Always `rg`, hidden files included, plus a list of ignored paths. `<Space>` toggles the preview instead of the global `<C-p>`. Matches the filename before the directories too, so `buzfoo` finds `foo/buz.ts`. |
 | `grep_live`       | Hits grouped under a virtual file header, with the line number right-aligned. |
 | `lsp document_symbol` | Rendered as the file's outline — a real tree, not a flat list.            |
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
@@ -64,6 +64,10 @@ Files an ignore file hides are a separate problem, and **`M.extra` in `files.lua
 Two consequences, both handled in `_postprocess`/`_command`: rg prefixes the paths it walks from `.` with `./` but returns the extras bare, so a file reachable both ways arrives twice under two spellings; and it errors on a path that does not exist, so extras missing from the project are dropped before the call rather than listed for every repo that has no `CLAUDE.md`.
 
 Nothing expands the entries — the spawn has no shell — so each is a plain relative path to a file or a directory, never a glob.
+
+mini.pick's matcher wants the query's characters in path order, so on its own `buzfoo` can never find `foo/buz.ts`. `files.lua` matches against the path with its filename repeated in front, `buz.ts\0foo/buz.ts`, so a query can name the filename first and the directories after it, and every in-order query still matches. A filename hit also starts earlier in that string, so it outranks an equally tight directory hit; a tight directory hit still beats a scattered filename one. A query starting with `^` matches the bare path instead, so `^lua/` still anchors to the start of the path.
+
+mini.pick highlights a row by re-running its in-order match on the path it shows, which finds nothing for a filename-first hit, so the picker's `show` highlights those itself.
 
 ## The live grep
 
