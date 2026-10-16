@@ -1,6 +1,9 @@
--- Custom blink.pairs rules for markdown emphasis, plus the symmetric-delimiter
--- parity predicate the default rules share. plugin/blink.lua wires both into
--- blink.pairs' mapping schema.
+-- Custom blink.pairs rules for markdown emphasis, the symmetric-delimiter
+-- parity predicate the default rules share, and the highlight on unmatched
+-- markdown delimiters. plugin/blink.lua wires the rules into blink.pairs'
+-- mapping schema and calls setup().
+
+local unmatched = require("plugins.blink-pairs.unmatched")
 
 local M = {}
 
@@ -30,28 +33,37 @@ end
 ---unmatched" lookup always answers nil — typing ` at the end of `foo would
 ---open a fresh pair instead of closing the span. Counting delimiters to the
 ---left gives the answer the parser can't: an odd count means the cursor sits
----inside an unclosed span, so the keypress closes it.
+---inside an unclosed span, so the keypress closes it. Markdown prose counts
+---across the whole paragraph, as the unmatched highlight does; everywhere
+---else counts the line.
 ---@param char string The delimiter, which is both the opening and closing text
 ---@return fun(ctx: blink.pairs.Context): boolean open Whether to insert a pair
 function M.balanced(char)
+  ---@param ctx blink.pairs.Context
   return function(ctx)
     -- A closer already sits under the cursor; let blink.pairs jump over it
     if ctx:is_after_cursor(char) then
       return true
     end
-    return even_parity(char, ctx:text_before_cursor():gsub("\\.", ""))
+    local open = unmatched.span_open(ctx.bufnr, ctx.cursor.row - 1, ctx.cursor.col, char)
+    if open == nil then
+      return even_parity(char, ctx:text_before_cursor():gsub("\\.", ""))
+    end
+    return not open
   end
 end
 
----`balanced` for markdown emphasis: delimiters inside `...` inline code spans
----are literal text, not emphasis, so they must not sway the parity.
-local function balanced_md(char)
+---Narrow a stock rule's `when` so `'` and `$` never pair in markdown, where
+---apostrophes and prices leave most of them unpaired.
+---@param char string The rule's delimiter
+---@param when? fun(ctx: blink.pairs.Context): boolean The rule's own `when`
+---@return (fun(ctx: blink.pairs.Context): boolean)?
+function M.when(char, when)
+  if char ~= "'" and char ~= "$" then
+    return when
+  end
   return function(ctx)
-    if ctx:is_after_cursor(char) then
-      return true
-    end
-    local before = ctx:text_before_cursor():gsub("`[^`]*`", ""):gsub("\\.", "")
-    return even_parity(char, before)
+    return not ctx.ts:is_language(md) and (when == nil or when(ctx))
   end
 end
 
@@ -66,7 +78,7 @@ M.md_rules = {
     enter = false,
     space = false,
     when = M.outside_code_span,
-    open_or_close = balanced_md("*"),
+    open_or_close = M.balanced("*"),
   },
   ["~"] = {
     "~",
@@ -74,7 +86,7 @@ M.md_rules = {
     enter = false,
     space = false,
     when = M.outside_code_span,
-    open_or_close = balanced_md("~"),
+    open_or_close = M.balanced("~"),
   },
   ["_"] = {
     "_",
@@ -87,7 +99,7 @@ M.md_rules = {
     when = function(ctx)
       return M.outside_code_span(ctx) and (ctx:is_after_cursor("_") or not ctx:text_before_cursor():match("%w$"))
     end,
-    open_or_close = balanced_md("_"),
+    open_or_close = M.balanced("_"),
   },
 }
 
@@ -116,32 +128,68 @@ local function md_shift(amount)
   return string.rep(non_undo .. "<Left>", -amount)
 end
 
----Wrap blink.pairs' ops.open_or_close_pair: markdown emphasis rules decide
----locally, because the engine's Rust-parser stage misreads intraword `_`
----inside code spans (e.g. `non_top100`) as an unterminated italic and closes
----instead of opening, overriding the parity verdict. Other rules pass through
----untouched.
+---Wrap blink.pairs' ops.open_or_close_pair: in markdown, the delimiters the
+---unmatched highlight tracks decide locally from the paragraph count. The
+---engine's Rust-parser stage would otherwise override it, as when it misreads
+---intraword `_` inside code spans (e.g. `non_top100`) as an unterminated
+---italic and closes instead of opening. Other rules pass through untouched.
 ---@param orig fun(ctx: blink.pairs.Context, key: string, rule: blink.pairs.Rule): string
 ---@return fun(ctx: blink.pairs.Context, key: string, rule: blink.pairs.Rule): string
 function M.wrap_open_or_close(orig)
-  local ours = {}
-  for _, rule in pairs(M.md_rules) do
-    ours[rule.open_or_close] = true
-  end
   return function(ctx, key, rule)
-    if not ours[rule.open_or_close] then
+    if not (unmatched.tracks(rule.opening) and ctx.ts:is_language(md)) then
       return orig(ctx, key, rule)
     end
-    if ctx.is_escaped then
+    if ctx.is_escaped or not rule.open_or_close(ctx) then
       return key
     end
     local pair = rule.opening
-    assert(pair == rule.closing, "md emphasis delimiters are symmetric")
+    assert(pair == rule.closing, "markdown delimiters are symmetric")
     if ctx:is_after_cursor(pair) then
       return md_shift(#pair)
     end
     return pair .. pair .. md_shift(-#pair)
   end
+end
+
+---Color the unmatched delimiters on rows `top` to `bot` of `buf`.
+---@param ns integer
+---@param buf integer
+---@param top integer 0-based
+---@param bot integer 0-based, exclusive
+local function highlight(ns, buf, top, bot)
+  vim.api.nvim_buf_clear_namespace(buf, ns, top, bot)
+  for _, pos in ipairs(unmatched.positions(buf, top, bot)) do
+    vim.api.nvim_buf_set_extmark(buf, ns, pos[1], pos[2], {
+      end_col = pos[2] + 1,
+      hl_group = "BlinkPairsUnmatched",
+      priority = vim.hl.priorities.user,
+    })
+  end
+end
+
+---Keep the unmatched delimiters of every markdown buffer highlighted, on the
+---rows its windows show.
+function M.setup()
+  local ns = vim.api.nvim_create_namespace("blink_pairs_unmatched")
+  ---@type table<integer, string>
+  local drawn = {}
+  -- Recolors a window's rows when it shows new ones (scroll, resize, fold) or
+  -- its buffer changes. Skips nofile buffers: LSP hover floats are markdown
+  -- too, but hold generated docs.
+  vim.api.nvim_set_decoration_provider(ns, {
+    on_win = function(_, win, buf, top, bot)
+      if vim.bo[buf].filetype ~= "markdown" or vim.bo[buf].buftype == "nofile" then
+        return false
+      end
+      local view = table.concat({ buf, vim.api.nvim_buf_get_changedtick(buf), top, bot }, ":")
+      if drawn[win] ~= view then
+        drawn[win] = view
+        highlight(ns, buf, top, bot + 1)
+      end
+      return false
+    end,
+  })
 end
 
 return M

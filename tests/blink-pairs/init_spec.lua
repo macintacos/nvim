@@ -1,20 +1,36 @@
+vim.opt.rtp:prepend(require("support.deps").path("blink.pairs"))
 local md_pairs = require("plugins.blink-pairs")
 
--- The rules under test read only the two slice/compare methods a Context
--- provides. blink.pairs builds Contexts through its Rust-backed parser path,
--- which these specs stay out of, so make_ctx mirrors those methods' semantics
--- verbatim from blink.pairs' context/init.lua. The cast covers the Context
--- members the rules never read.
----A Context positioned at 0-based column `col` on `line`.
----@param is_escaped? boolean
-local function make_ctx(line, col, is_escaped)
-  local ctx = { line = line, cursor = { row = 1, col = col }, is_escaped = is_escaped or false }
+-- blink.pairs builds Contexts through its Rust-backed parser path, which these
+-- specs stay out of, so make_ctx mirrors the slice/compare methods the rules
+-- read verbatim from blink.pairs' context/init.lua, over a real buffer so the
+-- markdown rules can parse it. `ts` is blink.pairs' own treesitter context. The
+-- cast covers the Context members the rules never read.
+---A Context on a scratch buffer of `text`, its cursor on the last line at
+---0-based column `col`.
+---@param text string|string[]
+---@param col integer
+---@param opts? { ft?: string, escaped?: boolean } `ft` defaults to markdown
+local function make_ctx(text, col, opts)
+  opts = opts or {}
+  local lines = type(text) == "table" and text or { text }
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].filetype = opts.ft or "markdown"
+  local ctx = {
+    bufnr = buf,
+    line = lines[#lines],
+    cursor = { row = #lines, col = col },
+    is_escaped = opts.escaped or false,
+  }
   function ctx:text_before_cursor(chars)
     return self.line:sub(chars and (self.cursor.col - chars + 1) or 1, self.cursor.col)
   end
-  function ctx:is_after_cursor(text)
-    return self.line:sub(self.cursor.col + 1, self.cursor.col + #text) == text
+  function ctx:is_after_cursor(text_)
+    return self.line:sub(self.cursor.col + 1, self.cursor.col + #text_) == text_
   end
+  ---@diagnostic disable-next-line: access-invisible -- the metatable blink.pairs' own Context.new() attaches
+  ctx.ts = setmetatable({ ctx = ctx }, require("blink.pairs.context.treesitter").__mt)
   return ctx --[[@as blink.pairs.Context]]
 end
 
@@ -36,6 +52,10 @@ describe("markdown emphasis pairing", function()
     assert.is_false(rules["_"].open_or_close(make_ctx(line, #line)))
   end)
 
+  it("closes a span opened on an earlier line of the paragraph", function()
+    assert.is_false(rules["_"].open_or_close(make_ctx({ "make _this", "emphasized " }, 11)))
+  end)
+
   it("shifts past a closer already under the cursor", function()
     assert.is_true(rules["_"].open_or_close(make_ctx("make _em_", 8)))
   end)
@@ -55,10 +75,30 @@ describe("markdown emphasis pairing", function()
 end)
 
 describe("symmetric-delimiter parity", function()
-  it("opens on an even count to the left and closes on an odd one", function()
+  it("opens on an even count to the left of the line and closes on an odd one", function()
     local backtick = md_pairs.balanced("`")
-    assert.is_true(backtick(make_ctx("a `x` tail ", #"a `x` tail ")))
-    assert.is_false(backtick(make_ctx("a `code span", #"a `code span")))
+    assert.is_true(backtick(make_ctx("a `x` tail ", #"a `x` tail ", { ft = "lua" })))
+    assert.is_false(backtick(make_ctx("a `code span", #"a `code span", { ft = "lua" })))
+  end)
+
+  it("skips quotes inside a markdown code span", function()
+    local line = 'see `a"b` and '
+    assert.is_true(md_pairs.balanced('"')(make_ctx(line, #line)))
+  end)
+end)
+
+describe("pairing in markdown", function()
+  it("never pairs ' or $", function()
+    for _, char in ipairs({ "'", "$" }) do
+      assert.is_false(assert(md_pairs.when(char, nil))(make_ctx("costs ", 6)))
+    end
+  end)
+
+  it("defers to the stock rule elsewhere", function()
+    local stock = function()
+      return true
+    end
+    assert.is_true(assert(md_pairs.when("'", stock))(make_ctx("x = ", 4, { ft = "lua" })))
   end)
 end)
 
@@ -69,6 +109,10 @@ describe("open_or_close override for markdown emphasis", function()
   -- Only the fields wrap_open_or_close reads are set; the cast covers the rest of blink.pairs.Rule.
   local function md_rule(char)
     return { opening = char, closing = char, open_or_close = md_pairs.md_rules[char].open_or_close } --[[@as blink.pairs.Rule]]
+  end
+
+  local function quote_rule()
+    return { opening = '"', closing = '"', open_or_close = md_pairs.balanced('"') } --[[@as blink.pairs.Rule]]
   end
 
   local wrapped = md_pairs.wrap_open_or_close(function(_ctx, key, _rule)
@@ -83,11 +127,20 @@ describe("open_or_close override for markdown emphasis", function()
     assert.equal("<C-g>U<Right>", wrapped(make_ctx("make _em_", 8), "_", md_rule("_")))
   end)
 
-  it("leaves escaped delimiters alone", function()
-    assert.equal("_", wrapped(make_ctx("a \\_ b ", 7, true), "_", md_rule("_")))
+  it("closes instead of pairing when the paragraph leaves a span open", function()
+    assert.equal("_", wrapped(make_ctx({ "make _this", "emphasized " }, 11), "_", md_rule("_")))
   end)
 
-  it("passes other rules through to the wrapped original", function()
+  it("pairs a quote in markdown prose from the paragraph count", function()
+    local line = 'see `a"b` and '
+    assert.equal('""<C-g>U<Left>', wrapped(make_ctx(line, #line), '"', quote_rule()))
+  end)
+
+  it("leaves escaped delimiters alone", function()
+    assert.equal("_", wrapped(make_ctx("a \\_ b ", 7, { escaped = true }), "_", md_rule("_")))
+  end)
+
+  it("passes rules outside markdown through to the wrapped original", function()
     local function other_rule()
       return {
         opening = "`",
@@ -97,6 +150,64 @@ describe("open_or_close override for markdown emphasis", function()
         end,
       } --[[@as blink.pairs.Rule]]
     end
-    assert.equal("ORIG:`", wrapped(make_ctx("a `x` ", 6), "`", other_rule()))
+    assert.equal("ORIG:`", wrapped(make_ctx("a `x` ", 6, { ft = "lua" }), "`", other_rule()))
+  end)
+end)
+
+describe("unmatched highlight", function()
+  before_each(md_pairs.setup)
+
+  ---Show a markdown buffer holding `lines` in the current window, drawn.
+  ---@param lines string[]
+  ---@return integer
+  local function shown(lines)
+    local buf = vim.api.nvim_create_buf(true, false)
+    vim.api.nvim_set_current_buf(buf)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.bo[buf].filetype = "markdown"
+    vim.cmd.redraw()
+    return buf
+  end
+
+  ---Every mark in `buf` colored as unmatched, as its row and column.
+  ---@param buf integer
+  ---@return [integer, integer][]
+  local function colored(buf)
+    local marks = vim.api.nvim_buf_get_extmarks(buf, -1, 0, -1, { details = true })
+    return vim.tbl_map(
+      function(mark)
+        return { mark[2], mark[3] }
+      end,
+      vim.tbl_filter(function(mark)
+        return assert(mark[4]).hl_group == "BlinkPairsUnmatched"
+      end, marks)
+    )
+  end
+
+  it("colors a markdown buffer's unmatched delimiters", function()
+    assert.same({ { 0, 17 } }, colored(shown({ 'He said "hi" and "bye' })))
+  end)
+
+  it("colors only the rows a window shows, following it as it scrolls", function()
+    local lines = {}
+    for i = 1, 300 do
+      lines[i] = i % 2 == 1 and 'a "b' or ""
+    end
+    local buf = shown(lines)
+    local function on_last_row(pos)
+      return pos[1] == 298
+    end
+    assert.same({ 0, 2 }, colored(buf)[1])
+    assert.is_false(vim.tbl_contains(colored(buf), on_last_row, { predicate = true }))
+    vim.cmd("normal! G")
+    vim.cmd.redraw()
+    assert.is_true(vim.tbl_contains(colored(buf), on_last_row, { predicate = true }))
+  end)
+
+  it("recolors when an edit on another line closes the span", function()
+    local buf = shown({ 'He said "hi', "there" })
+    vim.api.nvim_buf_set_lines(buf, 1, 2, false, { 'there"' })
+    vim.cmd.redraw()
+    assert.same({}, colored(buf))
   end)
 end)

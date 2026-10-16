@@ -109,8 +109,9 @@ local pairs_schema = require("blink.pairs.config.mappings")
 local blink_pairs = require("plugins.blink-pairs")
 
 -- Walk the default rule definitions and attach the parity predicate to every
--- single-character symmetric rule. Opening/closing are derived the same way
--- blink.pairs' own rule.rule_from_def() derives them.
+-- single-character symmetric rule, and keep `'` and `$` from pairing in
+-- markdown. Opening/closing are derived the same way blink.pairs' own
+-- rule.rule_from_def() derives them.
 for key, definitions in pairs(pairs_schema.pairs[1]) do
   if type(definitions) == "table" then
     ---@cast definitions blink.pairs.RuleDefinition[]
@@ -119,6 +120,7 @@ for key, definitions in pairs(pairs_schema.pairs[1]) do
       local opening = #def == 2 and def[1] or key
       if opening == closing and #opening == 1 then
         def.open_or_close = blink_pairs.balanced(opening)
+        def.when = blink_pairs.when(opening, def.when)
       end
     end
   end
@@ -149,11 +151,12 @@ require("blink.pairs").setup({
   debug = false,
 })
 
--- Markdown emphasis rules must bypass the engine's Rust-parser stage when
--- opening/closing (see plugins.blink-pairs); every other rule keeps the
+-- Markdown's symmetric delimiters must bypass the engine's Rust-parser stage
+-- when opening/closing (see plugins.blink-pairs); every other rule keeps the
 -- original handler.
 local ops = require("blink.pairs.mappings.ops")
 ops.open_or_close_pair = blink_pairs.wrap_open_or_close(ops.open_or_close_pair)
+blink_pairs.setup()
 
 -- agentcomplete.nvim must be called AFTER blink.cmp setup
 require("agentcomplete").setup({ context = { stacked = "above" } })
