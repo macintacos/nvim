@@ -19,7 +19,7 @@ The remote URL is resolved from the plugin's `Source:` line in the same section,
 
 ## Setup
 
-Wired up in `plugin/pack-tweaks.lua`. No configuration is required — `setup()` registers a single `FileType nvim-pack` autocmd that attaches each tweak's keymaps to the confirmation buffer.
+Wired up in `plugin/local/pack-tweaks.lua`. No configuration is required — `setup()` registers a single `FileType nvim-pack` autocmd that attaches each tweak's keymaps to the confirmation buffer.
 
 ## Tests
 

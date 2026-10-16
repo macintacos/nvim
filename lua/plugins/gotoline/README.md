@@ -34,7 +34,7 @@ The prompt grammar is `(<file-query>:)<line-number>`:
 
 ## Setup
 
-Wired up in `plugin/gotoline.lua`. No configuration is required — `setup()`
+Wired up in `plugin/local/gotoline.lua`. No configuration is required — `setup()`
 registers the `:GoToLine` user command and the `ColorScheme` autocmd that
 refreshes the helper-text highlight.
 

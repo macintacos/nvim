@@ -45,7 +45,7 @@ describe("pack-pr setup", function()
 
   it("binds <leader>Pp to :PackPR", function()
     local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h:h")
-    dofile(root .. "/plugin/pack-pr.lua")
+    dofile(root .. "/plugin/local/pack-pr.lua")
     assert.equal("<Cmd>PackPR<CR>", vim.fn.maparg("<leader>Pp", "n"))
   end)
 end)

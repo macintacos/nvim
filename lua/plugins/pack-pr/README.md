@@ -23,7 +23,7 @@ PRs from forks aren't supported: their branch is looked up on the plugin's `orig
 
 ## Discovery
 
-`:PackPR` manages every plugin that a `vim.pack.add` call declared this session, lazy-loaded ones included, whose source is under `https://github.com/<owner>/`. `plugin/pack-pr.lua` sets `owner`. Installing a plugin under that owner is enough to make its PRs appear; there is no list to edit.
+`:PackPR` manages every plugin that a `vim.pack.add` call declared this session, lazy-loaded ones included, whose source is under `https://github.com/<owner>/`. `plugin/local/pack-pr.lua` sets `owner`. Installing a plugin under that owner is enough to make its PRs appear; there is no list to edit.
 
 Discovery assumes the spec-file convention: the plugin `foo.nvim` is declared in `plugin/foo.lua` (the name without `.nvim`/`.vim`). A plugin declared elsewhere shows up in the picker, but selecting it reports that `plugin/<name>.lua` is missing, or that the file has no spec for the plugin's URL.
 

@@ -262,7 +262,7 @@ vim.schedule(function()
       ---@diagnostic disable-next-line: missing-parameter
       { "<leader>Tz", function() Snacks.zen() end, desc = "Zen Mode", icon = { icon = "󱅻", color = "yellow" } },
 
-      -- Project (<leader>pp is mapped in plugin/projects.lua; the entry below is
+      -- Project (<leader>pp is mapped in plugin/local/projects.lua; the entry below is
       -- description-only — no rhs, so no mapping is created — and exists to give
       -- it an icon alongside the rest of the group.)
       { "<leader>p", group = "project", icon = { icon = "󰉓", color = "green" } },
