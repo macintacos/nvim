@@ -58,6 +58,7 @@ opt.ignorecase = true -- Ignore case
 opt.inccommand = "split" -- Preview replacement commands with a split window
 opt.jumpoptions = "view"
 opt.laststatus = 3 -- global statusline
+opt.showtabline = 2 -- Tabline even with one tab
 opt.linebreak = true -- Wrap lines at convenient points
 opt.list = true -- Show some invisible characters (tabs...
 opt.mouse = "a" -- Enable mouse mode

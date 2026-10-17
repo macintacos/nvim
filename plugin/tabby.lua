@@ -1,11 +1,27 @@
 -- github.com/nanozuki/tabby.nvim
--- Tabline of tab pages, not buffers: each tab's number and the icon and name of the file
--- its focused window shows. tabby's tab_only layout, drawn flat so the current tab joins
--- the winbar below; vim.pack's update review stands out as a green pill.
-vim.pack.add(
-  { { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } },
-  { load = false }
-)
+-- Tabline of tab pages, not buffers: the tabs share the width equally, each centering
+-- its number, file icon and file name. The current tab joins the winbar below; vim.pack's
+-- update review stands out in green.
+vim.pack.add({ { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } })
+
+-- nf-md-numeric_1_box through _9_box, as herdr numbers its panes; 5's box breaks the
+-- codepoints' stride of 3.
+local NUMBER_BOXES = vim.tbl_map(vim.fn.nr2char, {
+  0xF03A4,
+  0xF03A7,
+  0xF03AA,
+  0xF03AD,
+  0xF03B1,
+  0xF03B3,
+  0xF03B6,
+  0xF03B9,
+  0xF03BC,
+})
+
+-- nf-fa-plug, the statusline's update count icon.
+local PLUG = vim.fn.nr2char(0xF1E6)
+
+---@alias tabby.Part { [1]: string, hl: TabbyHighlight? }
 
 ---@param win integer
 ---@return boolean
@@ -53,11 +69,11 @@ end
 ---the others.
 ---@param buf integer
 ---@param current boolean
----@return TabbyNode
+---@return tabby.Part
 local function file_icon(buf, current)
   local icon, icon_hl = MiniIcons.get("file", vim.api.nvim_buf_get_name(buf))
   if not current then
-    return icon
+    return { icon }
   end
   local fg = vim.api.nvim_get_hl(0, { name = icon_hl, link = false }).fg
   local bg = vim.api.nvim_get_hl(0, { name = "TabLineSel", link = false }).bg
@@ -76,43 +92,76 @@ local function has_unsaved(tabid)
   return false
 end
 
+---`text` cut to `width` cells, ending in "…" when cut.
+---@param text string
+---@param width integer
+---@return string
+local function shorten(text, width)
+  if vim.api.nvim_strwidth(text) <= width then
+    return text
+  end
+  local chars = vim.fn.strchars(text)
+  while chars > 0 and vim.api.nvim_strwidth(vim.fn.strcharpart(text, 0, chars)) >= width do
+    chars = chars - 1
+  end
+  return width > 0 and vim.fn.strcharpart(text, 0, chars) .. "…" or ""
+end
+
+---`prefix` and `name` spaced apart and centered in `width` cells, the name shortened to
+---leave a cell either side.
+---@param prefix tabby.Part[]
+---@param name tabby.Part
+---@param width integer
+---@param hl string
+---@return TabbyElement
+local function centered(prefix, name, width, hl)
+  local used = #prefix
+  for _, part in ipairs(prefix) do
+    used = used + vim.api.nvim_strwidth(part[1])
+  end
+  name[1] = shorten(name[1], width - used - 2)
+  used = used + vim.api.nvim_strwidth(name[1])
+  local left = math.max(math.floor((width - used) / 2), 0)
+  local node = { string.rep(" ", left), hl = hl }
+  for _, part in ipairs(prefix) do
+    vim.list_extend(node, { part, " " })
+  end
+  vim.list_extend(node, { name, string.rep(" ", math.max(width - used - left, 0)) })
+  return node
+end
+
 ---@param tab TabbyTab
 ---@return TabbyElement
 local function tab_label(tab)
   local tabid = tab.id --[[@as integer]]
   local current = tab.is_current()
   local buf = vim.api.nvim_win_get_buf(labeled_win(tabid))
-  local jump_key = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
-  if is_pack_review(buf) then
-    -- The statusline's update count shows the same plug.
-    return { " ", jump_key or tab.number(), "  ", tab.name(), " ", hl = current and "TabbyPackSel" or "TabbyPack" }
+  local pack = is_pack_review(buf)
+  local nr, count = tab.number(), vim.fn.tabpagenr("$")
+  -- Tab n of N spans columns ⌊W(n-1)/N⌋ to ⌊Wn/N⌋, which together fill W exactly.
+  local width = math.floor(vim.o.columns * nr / count) - math.floor(vim.o.columns * (nr - 1) / count)
+  local number = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
+    or { NUMBER_BOXES[nr] or tostring(nr), hl = current and not pack and "TabbyNumberSel" or nil }
+  if pack then
+    return centered({ number, { PLUG } }, { tab.name() }, width, current and "TabbyPackSel" or "TabbyPack")
   end
-  local number = jump_key or { tab.number(), hl = current and "TabbyNumberSel" or nil }
   local name_hl = has_unsaved(tabid) and (current and "TabbyUnsavedSel" or "TabbyUnsaved") or nil
-  return {
-    " ",
-    number,
-    " ",
-    file_icon(buf, current),
-    " ",
+  return centered(
+    { number, file_icon(buf, current) },
     { tab.name(), hl = name_hl },
-    " ",
-    hl = current and "TabLineSel" or "TabLine",
-  }
+    width,
+    current and "TabLineSel" or "TabLine"
+  )
 end
 
-vim.schedule(function()
-  vim.cmd.packadd("tabby.nvim")
-  -- The default rather than a line option, so <leader><tab>'s tab list names tabs alike.
-  require("tabby.feature.tab_name").set_default_option({
-    name_fallback = function(tabid)
-      return default_name(tabid --[[@as integer]])
-    end,
-  })
-  require("tabby").setup({
-    line = function(line)
-      -- The spacer switches back to the fill, or the last tab's colors run to the edge.
-      return { line.tabs().foreach(tab_label), line.spacer(), hl = "TabLineFill" }
-    end,
-  })
-end)
+-- The default rather than a line option, so <leader>t's tab list names tabs alike.
+require("tabby.feature.tab_name").set_default_option({
+  name_fallback = function(tabid)
+    return default_name(tabid --[[@as integer]])
+  end,
+})
+require("tabby").setup({
+  line = function(line)
+    return { line.tabs().foreach(tab_label), hl = "TabLineFill" }
+  end,
+})
