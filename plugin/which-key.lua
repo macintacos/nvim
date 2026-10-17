@@ -92,6 +92,16 @@ vim.schedule(function()
       { "ZR", desc = "Restart Neovim", icon = { icon = "󰜉", color = "red" } },
       { "ZQ", desc = "Quit Without Writing", icon = { icon = "󰅖", color = "red" } },
 
+      -- LSP — Neovim's default gr* maps (grr is remapped in plugin/lsp/core.lua),
+      -- named the same description-only way as ZR and ZQ above.
+      { "gr", group = "lsp", mode = { "n", "x" }, icon = { icon = "󰅩", color = "blue" } },
+      { "gra", desc = "Code Action", mode = { "n", "x" }, icon = { icon = "󰛨", color = "yellow" } },
+      { "gri", desc = "Goto Implementation", icon = { icon = "󰆧", color = "azure" } },
+      { "grn", desc = "Rename Symbol", icon = { icon = "󰑕", color = "orange" } },
+      { "grr", desc = "Goto References", icon = { icon = "󱎸", color = "blue" } },
+      { "grt", desc = "Goto Type Definition", icon = { icon = "󰰤", color = "azure" } },
+      { "grx", desc = "Run Code Lens", icon = { icon = "󰐍", color = "green" } },
+
       -- Buffers
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer", icon = { icon = "󰒭", color = "cyan" } },
