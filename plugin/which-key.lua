@@ -233,7 +233,7 @@ vim.schedule(function()
       { "<leader>jt", pick("treesitter"), desc = "Treesitter Nodes", icon = { icon = "󰒪", color = "yellow" } },
 
       -- Tabs (1-9 go to each open tab, named as the tabline names it)
-      { "<leader><tab>", group = "tabs", icon = { icon = "󰓩", color = "purple" },
+      { "<leader>t", group = "tabs", icon = { icon = "󰓩", color = "purple" },
         expand = function()
           local tab_name = require("tabby.feature.tab_name")
           -- Single keys only: a 10th tab's "10" would shadow the first's "1".
@@ -245,19 +245,19 @@ vim.schedule(function()
               desc = tab_name.get(tab), icon = { cat = "file", name = file } }
           end, tabs)
         end },
-      {"<leader><tab><tab>", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
-      {"<leader><tab>[", Cmd("tabprevious"), desc = "Previous Tab", icon = { icon = "󰅁", color = "purple" } },
-      {"<leader><tab>]", Cmd("tabnext"), desc = "Next Tab", icon = { icon = "󰅂", color = "purple" } },
-      { "<leader><tab>-", Cmd("tabnext #"), desc = "Last Accessed Tab", icon = { icon = "󰋚", color = "purple" } },
-      { "<leader><tab><lt>", Cmd("-tabmove"), desc = "Move Tab Left", icon = { icon = "󰁍", color = "purple" } },
-      { "<leader><tab>>", Cmd("+tabmove"), desc = "Move Tab Right", icon = { icon = "󰁔", color = "purple" } },
-      {"<leader><tab>d", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
-      {"<leader><tab>f", Cmd("tabfirst"), desc = "First Tab", icon = { icon = "󰘀", color = "purple" } },
-      {"<leader><tab>l", Cmd("tablast"), desc = "Last Tab", icon = { icon = "󰘁", color = "purple" } },
-      {"<leader><tab>n", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
-      {"<leader><tab>o", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
-      { "<leader><tab>D", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
-      { "<leader><tab>r",
+      {"<leader>t<tab>", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
+      {"<leader>t[", Cmd("tabprevious"), desc = "Previous Tab", icon = { icon = "󰅁", color = "purple" } },
+      {"<leader>t]", Cmd("tabnext"), desc = "Next Tab", icon = { icon = "󰅂", color = "purple" } },
+      { "<leader>t-", Cmd("tabnext #"), desc = "Last Accessed Tab", icon = { icon = "󰋚", color = "purple" } },
+      { "<leader>t<lt>", Cmd("-tabmove"), desc = "Move Tab Left", icon = { icon = "󰁍", color = "purple" } },
+      { "<leader>t>", Cmd("+tabmove"), desc = "Move Tab Right", icon = { icon = "󰁔", color = "purple" } },
+      {"<leader>td", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
+      {"<leader>tf", Cmd("tabfirst"), desc = "First Tab", icon = { icon = "󰘀", color = "purple" } },
+      {"<leader>tl", Cmd("tablast"), desc = "Last Tab", icon = { icon = "󰘁", color = "purple" } },
+      {"<leader>tn", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
+      {"<leader>to", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
+      { "<leader>tD", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
+      { "<leader>tr",
         function()
           -- An empty name hands the label back to the focused file.
           local tab_name = require("tabby.feature.tab_name")
@@ -268,10 +268,10 @@ vim.schedule(function()
           end)
         end,
         desc = "Rename Tab", icon = { icon = "󰑕", color = "orange" } },
-      { "<leader><tab>s", Cmd("tab split"), desc = "Open Buffer in New Tab", icon = { icon = "󰓪", color = "purple" } },
-      { "<leader><tab>t", "<C-w>T", desc = "Move Window to New Tab", icon = { icon = "󱂬", color = "purple" } },
-      { "<leader><tab>x", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
-      { "<leader><tab>w", Cmd("Tabby pick_window"), desc = "Pick Window (All Tabs)", icon = { icon = "󰖲", color = "purple" } },
+      { "<leader>ts", Cmd("tab split"), desc = "Open Buffer in New Tab", icon = { icon = "󰓪", color = "purple" } },
+      { "<leader>tt", "<C-w>T", desc = "Move Window to New Tab", icon = { icon = "󱂬", color = "purple" } },
+      { "<leader>tx", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
+      { "<leader>tw", Cmd("Tabby pick_window"), desc = "Pick Window (All Tabs)", icon = { icon = "󰖲", color = "purple" } },
 
       -- Toggles
       { "<leader>T", group = "ui/toggles", icon = { icon = "󰔡", color = "yellow" } },
