@@ -1,7 +1,7 @@
 -- github.com/nanozuki/tabby.nvim
 -- Tabline of tab pages, not buffers: each tab's number and the icon and name of the file
 -- its focused window shows. tabby's tab_only layout, drawn flat so the current tab joins
--- the winbar below.
+-- the winbar below; vim.pack's update review stands out as a green pill.
 vim.pack.add(
   { { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } },
   { load = false }
@@ -29,6 +29,24 @@ local function labeled_win(tabid)
   end
   -- Floats sit at the end of the window list.
   return vim.api.nvim_tabpage_list_wins(tabid)[1] --[[@as integer]]
+end
+
+---Whether the buffer is vim.pack's update review (`vim.pack.update()`'s confirmation).
+---@param buf integer
+---@return boolean
+local function is_pack_review(buf)
+  return vim.bo[buf].filetype == "nvim-pack"
+end
+
+---A tab's name until it is renamed: the file its labeled window shows.
+---@param tabid integer
+---@return string
+local function default_name(tabid)
+  local win = labeled_win(tabid)
+  if is_pack_review(vim.api.nvim_win_get_buf(win)) then
+    return "Plugin Updates"
+  end
+  return require("tabby.feature.win_name").get(win)
 end
 
 ---The buffer's file icon: in its own color on the current tab, muted with the label on
@@ -63,14 +81,19 @@ end
 local function tab_label(tab)
   local tabid = tab.id --[[@as integer]]
   local current = tab.is_current()
-  local number = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
-    or { tab.number(), hl = current and "TabbyNumberSel" or nil }
+  local buf = vim.api.nvim_win_get_buf(labeled_win(tabid))
+  local jump_key = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
+  if is_pack_review(buf) then
+    -- The statusline's update count shows the same plug.
+    return { " ", jump_key or tab.number(), "  ", tab.name(), " ", hl = current and "TabbyPackSel" or "TabbyPack" }
+  end
+  local number = jump_key or { tab.number(), hl = current and "TabbyNumberSel" or nil }
   local name_hl = has_unsaved(tabid) and (current and "TabbyUnsavedSel" or "TabbyUnsaved") or nil
   return {
     " ",
     number,
     " ",
-    file_icon(vim.api.nvim_win_get_buf(labeled_win(tabid)), current),
+    file_icon(buf, current),
     " ",
     { tab.name(), hl = name_hl },
     " ",
@@ -80,17 +103,16 @@ end
 
 vim.schedule(function()
   vim.cmd.packadd("tabby.nvim")
+  -- The default rather than a line option, so <leader><tab>'s tab list names tabs alike.
+  require("tabby.feature.tab_name").set_default_option({
+    name_fallback = function(tabid)
+      return default_name(tabid --[[@as integer]])
+    end,
+  })
   require("tabby").setup({
     line = function(line)
       -- The spacer switches back to the fill, or the last tab's colors run to the edge.
       return { line.tabs().foreach(tab_label), line.spacer(), hl = "TabLineFill" }
     end,
-    option = {
-      tab_name = {
-        name_fallback = function(tabid)
-          return require("tabby.feature.win_name").get(labeled_win(tabid --[[@as integer]]))
-        end,
-      },
-    },
   })
 end)
