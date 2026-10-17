@@ -42,9 +42,23 @@ vim.schedule(function()
     return 2
   end
 
-  -- Resize mode's keys hang off a key nobody types: under <leader>wr they would
-  -- make it a prefix as well as a mapping, which which-key settles by timing.
+  -- Resize and tab modes' keys hang off keys nobody types: under <leader>wr or
+  -- <leader>tm they would make it a prefix as well as a mapping, which
+  -- which-key settles by timing.
   local RESIZE = "<F35>"
+  local TAB_MODE = "<F34>"
+
+  -- Tab mode's steps. pcall: past the ends of the tab list Vim errors, with
+  -- nowhere to move and nothing left to close. The popup is a float, which stays
+  -- in the tab it opened in, so each step closes it for the loop to reopen here.
+  ---@param command string
+  ---@return fun()
+  local function tab_step(command)
+    return function()
+      pcall(vim.api.nvim_command, command)
+      require("which-key.view").hide()
+    end
+  end
 
   -- which-key feeds <Esc> 5s after Neovim loses focus, closing a popup left
   -- open while switching panes. Its setup runs deferred, so drop that autocmd
@@ -271,6 +285,20 @@ vim.schedule(function()
       { "<leader>ts", Cmd("tab split"), desc = "Open Buffer in New Tab", icon = { icon = "󰓪", color = "purple" } },
       { "<leader>tt", "<C-w>T", desc = "Move Window to New Tab", icon = { icon = "󱂬", color = "purple" } },
       { "<leader>tx", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
+      { "<leader>tm", function() require("which-key").show({ keys = TAB_MODE, loop = true, delay = 0 }) end, desc = "Tab Mode", icon = { icon = "󰑖", color = "purple" } },
+      { TAB_MODE, group = "tab mode",
+        expand = function()
+          -- wk.Spec's [1] and [2] fields type a single mapping, so a list of mappings needs the cast below.
+          return {
+            -- Resize mode's directions rather than <leader>t's [ ] < >: which-key
+            -- looks a typed < up as <lt> but files it as <, so it never matches here.
+            { "h", tab_step("tabprevious"), desc = "Previous Tab", icon = { icon = "󰅁", color = "purple" } },
+            { "l", tab_step("tabnext"), desc = "Next Tab", icon = { icon = "󰅂", color = "purple" } },
+            { "H", tab_step("-tabmove"), desc = "Move Tab Left", icon = { icon = "󰁍", color = "purple" } },
+            { "L", tab_step("+tabmove"), desc = "Move Tab Right", icon = { icon = "󰁔", color = "purple" } },
+            { "x", tab_step("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
+          } --[[@as wk.Spec]]
+        end },
       { "<leader>tw", Cmd("Tabby pick_window"), desc = "Pick Window (All Tabs)", icon = { icon = "󰖲", color = "purple" } },
 
       -- Toggles
