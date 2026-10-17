@@ -232,16 +232,46 @@ vim.schedule(function()
       { "<leader>jV", pick("lsp", { scope = "workspace_symbol", kinds = Kinds.VARIABLES, name = "LSP (workspace variables)" }), desc = "Variables in Workspace", icon = { icon = "󰫧", color = "yellow" } },
       { "<leader>jt", pick("treesitter"), desc = "Treesitter Nodes", icon = { icon = "󰒪", color = "yellow" } },
 
-      -- Tabs
-      { "<leader><tab>", group = "tabs", icon = { icon = "󰓩", color = "purple" } },
+      -- Tabs (1-9 go to each open tab, named as the tabline names it)
+      { "<leader><tab>", group = "tabs", icon = { icon = "󰓩", color = "purple" },
+        expand = function()
+          local tab_name = require("tabby.feature.tab_name")
+          -- Single keys only: a 10th tab's "10" would shadow the first's "1".
+          local tabs = vim.list_slice(vim.api.nvim_list_tabpages(), 1, 9)
+          return vim.tbl_map(function(tab)
+            local nr = vim.api.nvim_tabpage_get_number(tab)
+            local file = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(vim.api.nvim_tabpage_get_win(tab)))
+            return { tostring(nr), function() vim.cmd.tabnext(nr) end,
+              desc = tab_name.get(tab), icon = { cat = "file", name = file } }
+          end, tabs)
+        end },
       {"<leader><tab><tab>", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
       {"<leader><tab>[", Cmd("tabprevious"), desc = "Previous Tab", icon = { icon = "󰅁", color = "purple" } },
       {"<leader><tab>]", Cmd("tabnext"), desc = "Next Tab", icon = { icon = "󰅂", color = "purple" } },
+      { "<leader><tab>-", Cmd("tabnext #"), desc = "Last Accessed Tab", icon = { icon = "󰋚", color = "purple" } },
+      { "<leader><tab><lt>", Cmd("-tabmove"), desc = "Move Tab Left", icon = { icon = "󰁍", color = "purple" } },
+      { "<leader><tab>>", Cmd("+tabmove"), desc = "Move Tab Right", icon = { icon = "󰁔", color = "purple" } },
       {"<leader><tab>d", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
       {"<leader><tab>f", Cmd("tabfirst"), desc = "First Tab", icon = { icon = "󰘀", color = "purple" } },
       {"<leader><tab>l", Cmd("tablast"), desc = "Last Tab", icon = { icon = "󰘁", color = "purple" } },
       {"<leader><tab>n", Cmd("tabnew"), desc = "New Tab", icon = { icon = "󰝜", color = "purple" } },
       {"<leader><tab>o", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
+      { "<leader><tab>D", Cmd("tabonly"), desc = "Close Other Tabs", icon = { icon = "󰱝", color = "red" } },
+      { "<leader><tab>r",
+        function()
+          -- An empty name hands the label back to the focused file.
+          local tab_name = require("tabby.feature.tab_name")
+          vim.ui.input({ prompt = "Tab name: ", default = tab_name.get_raw(0) }, function(name)
+            if name then
+              tab_name.set(0, name)
+            end
+          end)
+        end,
+        desc = "Rename Tab", icon = { icon = "󰑕", color = "orange" } },
+      { "<leader><tab>s", Cmd("tab split"), desc = "Open Buffer in New Tab", icon = { icon = "󰓪", color = "purple" } },
+      { "<leader><tab>t", "<C-w>T", desc = "Move Window to New Tab", icon = { icon = "󱂬", color = "purple" } },
+      { "<leader><tab>x", Cmd("tabclose"), desc = "Close Tab", icon = { icon = "󰭌", color = "red" } },
+      { "<leader><tab>w", Cmd("Tabby pick_window"), desc = "Pick Window (All Tabs)", icon = { icon = "󰖲", color = "purple" } },
 
       -- Toggles
       { "<leader>T", group = "ui/toggles", icon = { icon = "󰔡", color = "yellow" } },
