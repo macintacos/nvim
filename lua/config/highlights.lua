@@ -223,10 +223,10 @@ local function plugin_groups(p)
     TabbyNumberSel = { fg = p.purple.base, bg = tab_sel_bg(p, p.cyan.base), bold = true },
     TabbyUnsaved = { fg = p.comment, bg = p.bg2, italic = true },
     TabbyUnsavedSel = { fg = p.fg2, bg = tab_sel_bg(p, p.cyan.base), bold = true, italic = true },
-    -- vim.pack's update review tab, in the statusline's update green; solid when
-    -- current, like the Mason header.
+    -- vim.pack's update review tab, in the statusline's update green; when current,
+    -- tinted green as other tabs are teal.
     TabbyPack = { fg = p.green.base, bg = p.bg2, bold = true },
-    TabbyPackSel = { fg = p.bg1, bg = p.green.base, bold = true },
+    TabbyPackSel = { fg = p.green.base, bg = tab_sel_bg(p, p.green.base), bold = true },
     BlinkPairsOrange = { fg = p.orange.base },
     BlinkPairsPurple = { fg = p.purple.base },
     BlinkPairsBlue = { fg = p.cyan.base },
