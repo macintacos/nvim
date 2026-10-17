@@ -47,11 +47,18 @@ function M.scroll_hover(direction)
   if not vim.api.nvim_win_is_valid(winid) then
     return false
   end
+  M.scroll_half_page(winid, direction)
+  return true
+end
+
+---Scroll `win` half a page without leaving the current window.
+---@param win integer
+---@param direction "down"|"up"
+function M.scroll_half_page(win, direction)
   local key = vim.api.nvim_replace_termcodes(direction == "down" and "<C-d>" or "<C-u>", true, false, true)
-  vim.api.nvim_win_call(winid, function()
+  vim.api.nvim_win_call(win, function()
     vim.cmd("normal! " .. key)
   end)
-  return true
 end
 
 local OPPOSITE = { h = "l", j = "k", k = "j", l = "h" }

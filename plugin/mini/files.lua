@@ -120,10 +120,10 @@ vim.api.nvim_create_autocmd("VimResized", {
   end,
 })
 
--- The directory a mini.files window is showing, or nil if it isn't one.
+-- The path a mini.files window is showing, or nil if it isn't one.
 ---@param win_id integer
 ---@return string?
-local function window_dir(win_id)
+local function window_path(win_id)
   local state = require("mini.files").get_explorer_state()
   for _, win in ipairs(state and state.windows or {}) do
     if win.win_id == win_id then
@@ -161,7 +161,7 @@ vim.api.nvim_create_autocmd("User", {
     end
 
     if config.border and config.border ~= "none" then
-      local dir = window_dir(win_id)
+      local dir = window_path(win_id)
       local n = (not show_ignored) and dir and hidden_counts[dir] or 0
       local footer = n > 0 and (" %d hidden "):format(n) or ""
       local current = type(config.footer) == "table" and config.footer[1][1] or ""
@@ -173,6 +173,21 @@ vim.api.nvim_create_autocmd("User", {
 
     if changed then
       vim.api.nvim_win_set_config(win_id, config)
+    end
+  end,
+})
+
+-- Show a file preview from its top each time the explorer redraws it. mini.files
+-- saves every window's cursor before a redraw, so a preview scrolled with J/K
+-- would otherwise come back scrolled when the cursor returns to that file.
+vim.api.nvim_create_autocmd("User", {
+  group = augroup,
+  pattern = "MiniFilesWindowUpdate",
+  ---@param args { data: { win_id: integer } }
+  callback = function(args)
+    local path = window_path(args.data.win_id)
+    if path and vim.fn.filereadable(path) == 1 then
+      vim.api.nvim_win_set_cursor(args.data.win_id, { 1, 0 })
     end
   end,
 })
@@ -326,6 +341,37 @@ vim.api.nvim_create_autocmd("User", {
         local branch = vim.list_slice(state.branch, 1, state.depth_focus)
         files.set_branch(branch, { depth_focus = state.depth_focus })
       end
+    end, { buffer = buf })
+
+    -- J / K: scroll the preview (the column right of the focused one) half a
+    -- page. mini.files reads only the first 'lines' lines of a file into its
+    -- preview, so the rest of the file loads on the first scroll.
+    ---@param direction "down"|"up"
+    local function scroll_preview(direction)
+      local state = files.get_explorer_state()
+      local wins = state and state.windows or {}
+      local cur = vim.api.nvim_get_current_win()
+      for i, win in ipairs(wins) do
+        local preview = wins[i + 1]
+        if win.win_id == cur and preview then
+          local preview_buf = vim.api.nvim_win_get_buf(preview.win_id)
+          local truncated = vim.api.nvim_buf_line_count(preview_buf) == vim.o.lines
+          if truncated and vim.fn.filereadable(preview.path) == 1 then
+            -- A NUL past mini.files' binary sniff reads back as "\n", which set_lines rejects
+            local lines = vim.split(table.concat(vim.fn.readfile(preview.path), "\n"), "\n")
+            vim.api.nvim_buf_set_lines(preview_buf, 0, -1, false, lines)
+          end
+          require("helpers.windows").scroll_half_page(preview.win_id, direction)
+          return
+        end
+      end
+    end
+
+    map("Scroll preview down", "n", "J", function()
+      scroll_preview("down")
+    end, { buffer = buf })
+    map("Scroll preview up", "n", "K", function()
+      scroll_preview("up")
     end, { buffer = buf })
 
     -- yp / yP: yank the path of the entry under the cursor to the system
