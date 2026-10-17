@@ -56,6 +56,14 @@ local function set_changeset_diff_hl(p)
   vim.api.nvim_set_hl(0, "ChangesetDiffDeleteText", { bg = p.diff.delete_text })
 end
 
+---The current tab's background: the tabline's, tinted with `hue` to pick it out.
+---@param p palette.Roles
+---@param hue string
+---@return string
+local function tab_sel_bg(p, hue)
+  return require("helpers.palette").blend(p.bg2, hue, 0.14)
+end
+
 -- Neovim's own groups, where Dracula Pro leaves Neovim's default colours in place
 -- or the palette's role table names a different role than Pro does.
 ---@param p palette.Roles
@@ -94,8 +102,7 @@ local function ui_groups(p, background)
     -- Comment's color tinted toward purple, so a closed fold doesn't read as a comment.
     Folded = { fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35), bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
-    -- WinBar's colors, so the current tab reads as joined to the winbar below it.
-    TabLineSel = { fg = p.fg2, bg = p.bg0, bold = true },
+    TabLineSel = { fg = p.fg2, bg = tab_sel_bg(p, p.cyan.base), bold = true },
     TabLineFill = { bg = p.bg2 },
     PmenuThumb = { bg = p.bg4 },
     StatusLine = { bg = p.bg0, bold = true },
@@ -213,9 +220,9 @@ local function plugin_groups(p)
     FlashLabel = { fg = p.bg1, bg = p.pink.base, bold = true },
     -- The current tab's number in normal mode's purple; italic names mark a tab
     -- with unsaved changes, as incline's labels mark a modified buffer.
-    TabbyNumberSel = { fg = p.purple.base, bg = p.bg0, bold = true },
+    TabbyNumberSel = { fg = p.purple.base, bg = tab_sel_bg(p, p.cyan.base), bold = true },
     TabbyUnsaved = { fg = p.comment, bg = p.bg2, italic = true },
-    TabbyUnsavedSel = { fg = p.fg2, bg = p.bg0, bold = true, italic = true },
+    TabbyUnsavedSel = { fg = p.fg2, bg = tab_sel_bg(p, p.cyan.base), bold = true, italic = true },
     -- vim.pack's update review tab, in the statusline's update green; solid when
     -- current, like the Mason header.
     TabbyPack = { fg = p.green.base, bg = p.bg2, bold = true },
