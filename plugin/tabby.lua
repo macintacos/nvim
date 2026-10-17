@@ -71,12 +71,17 @@ local function special(buf)
   end
 end
 
----A tab's name until it is renamed: the file its labeled window shows.
+---A tab's name until it is renamed: the file its labeled window shows, or "Changeset"
+---for changeset.nvim's sidebar, whose buffer has no file name.
 ---@param tabid integer
 ---@return string
 local function default_name(tabid)
   local win = labeled_win(tabid)
-  local look = special(vim.api.nvim_win_get_buf(win))
+  local buf = vim.api.nvim_win_get_buf(win)
+  if vim.bo[buf].filetype == "changeset" then
+    return "Changeset"
+  end
+  local look = special(buf)
   return look and look.name or require("tabby.feature.win_name").get(win)
 end
 
