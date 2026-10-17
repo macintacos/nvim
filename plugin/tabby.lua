@@ -82,7 +82,8 @@ vim.schedule(function()
   vim.cmd.packadd("tabby.nvim")
   require("tabby").setup({
     line = function(line)
-      return { line.tabs().foreach(tab_label), hl = "TabLineFill" }
+      -- The spacer switches back to the fill, or the last tab's colors run to the edge.
+      return { line.tabs().foreach(tab_label), line.spacer(), hl = "TabLineFill" }
     end,
     option = {
       tab_name = {
