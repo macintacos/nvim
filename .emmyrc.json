@@ -42,6 +42,7 @@
       ".tests/deps/quicker.nvim",
       ".tests/deps/smear-cursor.nvim",
       ".tests/deps/snacks.nvim",
+      ".tests/deps/tabby.nvim",
       ".tests/deps/venv-selector.nvim",
       ".tests/deps/vim-illuminate",
       ".tests/deps/vim-matchup",

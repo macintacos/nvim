@@ -303,6 +303,11 @@
       "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
       "src": "https://github.com/folke/snacks.nvim"
     },
+    "tabby.nvim": {
+      "rev": "3c130e1fcb598ce39a9c292847e32d7c3987cf11",
+      "src": "https://github.com/nanozuki/tabby.nvim",
+      "version": "2.0.0 - 3.0.0"
+    },
     "tint.nvim": {
       "rev": "586e87f00c8b0f5e857cefe10839e41f3e8c6d01",
       "src": "ssh://git@github.com/levouh/tint.nvim"

@@ -41,6 +41,7 @@ local plugins = {
   "quicker.nvim",
   "smear-cursor.nvim",
   "snacks.nvim",
+  "tabby.nvim",
   "venv-selector.nvim",
   "vim-illuminate",
   "vim-matchup",

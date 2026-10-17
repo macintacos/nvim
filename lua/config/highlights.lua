@@ -94,6 +94,8 @@ local function ui_groups(p, background)
     -- Comment's color tinted toward purple, so a closed fold doesn't read as a comment.
     Folded = { fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35), bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
+    -- WinBar's colors, so the current tab reads as joined to the winbar below it.
+    TabLineSel = { fg = p.fg2, bg = p.bg0, bold = true },
     TabLineFill = { bg = p.bg2 },
     PmenuThumb = { bg = p.bg4 },
     StatusLine = { bg = p.bg0, bold = true },
@@ -209,6 +211,11 @@ local function plugin_groups(p)
     WhichKeyIconAzure = { fg = p.cyan.base },
     WhichKeyIconYellow = { fg = p.yellow.base },
     FlashLabel = { fg = p.bg1, bg = p.pink.base, bold = true },
+    -- The current tab's number in normal mode's purple; italic names mark a tab
+    -- with unsaved changes, as incline's labels mark a modified buffer.
+    TabbyNumberSel = { fg = p.purple.base, bg = p.bg0, bold = true },
+    TabbyUnsaved = { fg = p.comment, bg = p.bg2, italic = true },
+    TabbyUnsavedSel = { fg = p.fg2, bg = p.bg0, bold = true, italic = true },
     BlinkPairsOrange = { fg = p.orange.base },
     BlinkPairsPurple = { fg = p.purple.base },
     BlinkPairsBlue = { fg = p.cyan.base },
