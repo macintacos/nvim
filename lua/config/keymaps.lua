@@ -31,6 +31,15 @@ map("Decrease Window Height", "n", "<A-s>", Cmd("resize -2"))
 map("Decrease Window Width", "n", "<A-a>", Cmd("vertical resize -2"))
 map("Increase Window Width", "n", "<A-d>", Cmd("vertical resize +2"))
 
+-- Go to a tab by the number its tabline box shows; past the last tab, stay put.
+for nr = 1, 9 do
+  map("Go to Tab " .. nr, "n", "<A-" .. nr .. ">", function()
+    if nr <= vim.fn.tabpagenr("$") then
+      vim.cmd.tabnext(nr)
+    end
+  end)
+end
+
 -- Move Lines (scrolls LSP hover popup first, if one is open).
 -- The destination is clamped into the buffer: `:move` aborts with E16 on an
 -- address past either end, which is where a move at the top or bottom points.
