@@ -15,7 +15,8 @@ nothing.
 
 | Key                            | Action                                        |
 | ------------------------------ | --------------------------------------------- |
-| `<leader>wt`, `<leader>ft`, `<leader>ps` | Pick a scratch file and open it in the current window |
+| `<leader>ft`, `<leader>ps`     | Pick a scratch file and open it in the current window |
+| `<leader>wt`                   | Pick one and open it in a new tab             |
 | `<leader>wT`, `<leader>pS`     | Pick one and open it in a float covering 80% of the editor |
 
 All keymaps live in [`plugin/which-key.lua`](../../../plugin/which-key.lua).
@@ -25,10 +26,14 @@ All keymaps live in [`plugin/which-key.lua`](../../../plugin/which-key.lua).
 ```lua
 require("plugins.scratch").open()  -- edit in the current window
 require("plugins.scratch").float() -- edit in a centered float
+require("plugins.scratch").tab()   -- edit in a new tab
+require("plugins.scratch").is_scratch(path) -- whether path is under a .tmp/scratch/
 ```
 
 The float is an ordinary window over a real file buffer, so `:w` saves and `:q`
-(or `<C-w>q`) closes it. Picking a file a float already shows focuses that float.
+(or `<C-w>q`) closes it. Picking a file a float already shows focuses that float, and
+picking one a window shows for a new tab goes to that window. The tabline names a tab
+showing a scratch file `Scratch`, or `Scratch: <name>`, in yellow.
 
 ## Notes
 

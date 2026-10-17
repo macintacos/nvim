@@ -142,4 +142,27 @@ function M.float()
   choose(show_float)
 end
 
+---Show `path` in a new tab, or go to a window already showing it in any tab.
+---@param path string
+local function show_tab(path)
+  local win = vim.fn.win_findbuf(vim.fn.bufadd(path))[1]
+  if win then
+    vim.api.nvim_set_current_win(win)
+  else
+    vim.cmd.tabedit(vim.fn.fnameescape(path))
+  end
+end
+
+---Pick a scratch file and open it in a new tab.
+function M.tab()
+  choose(show_tab)
+end
+
+---Whether `path` is a scratch file of any project, not just the current one.
+---@param path string
+---@return boolean
+function M.is_scratch(path)
+  return path:find("/.tmp/scratch/", 1, true) ~= nil
+end
+
 return M

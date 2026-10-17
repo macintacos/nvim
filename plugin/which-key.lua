@@ -395,7 +395,7 @@ vim.schedule(function()
           vim.cmd.only()
         end,
         desc = "Delete Other Windows", icon = { icon = "󰖯", color = "red" } },
-      { "<leader>wt", function() require("plugins.scratch").open() end, desc = "Scratch Buffer", icon = { icon = "󱞁", color = "blue" } },
+      { "<leader>wt", function() require("plugins.scratch").tab() end, desc = "Scratch Buffer (Tab)", icon = { icon = "󱞁", color = "blue" } },
       { "<leader>wT", function() require("plugins.scratch").float() end, desc = "Scratch Buffer (Float)", icon = { icon = "󱂬", color = "blue" } },
       -- snacks' zen overload requires opts, but zen() applies its defaults for nil.
       ---@diagnostic disable-next-line: missing-parameter

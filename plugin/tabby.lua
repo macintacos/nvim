@@ -1,7 +1,7 @@
 -- github.com/nanozuki/tabby.nvim
 -- Tabline of tab pages, not buffers: the tabs share the width equally, each centering
--- its number, file icon and file name. The current tab joins the winbar below; vim.pack's
--- update review stands out in green.
+-- its number, file icon and file name. vim.pack's update review and scratch files stand
+-- out in colors of their own.
 vim.pack.add({ { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } })
 
 -- nf-md-numeric_1_box through _9_box, as herdr numbers its panes; 5's box breaks the
@@ -20,6 +20,8 @@ local NUMBER_BOXES = vim.tbl_map(vim.fn.nr2char, {
 
 -- nf-fa-plug, the statusline's update count icon.
 local PLUG = vim.fn.nr2char(0xF1E6)
+-- The scratch keymaps' icon.
+local SCRATCH = vim.fn.nr2char(0xF1781)
 
 ---@alias tabby.Part { [1]: string, hl: TabbyHighlight? }
 
@@ -47,11 +49,26 @@ local function labeled_win(tabid)
   return vim.api.nvim_tabpage_list_wins(tabid)[1] --[[@as integer]]
 end
 
----Whether the buffer is vim.pack's update review (`vim.pack.update()`'s confirmation).
+---@class tabby.Special
+---@field name string
+---@field icon string
+---@field hl string
+---@field hl_sel string The highlight while the tab is current.
+
+---How a tab showing `buf` stands out: as vim.pack's update review (`vim.pack.update()`'s
+---confirmation), as a scratch file, or not at all.
 ---@param buf integer
----@return boolean
-local function is_pack_review(buf)
-  return vim.bo[buf].filetype == "nvim-pack"
+---@return tabby.Special?
+local function special(buf)
+  if vim.bo[buf].filetype == "nvim-pack" then
+    return { name = "Plugin Updates", icon = PLUG, hl = "TabbyPack", hl_sel = "TabbyPackSel" }
+  end
+  local path = vim.api.nvim_buf_get_name(buf)
+  if require("plugins.scratch").is_scratch(path) then
+    local stem = vim.fn.fnamemodify(path, ":t:r")
+    local name = stem == "scratch" and "Scratch" or "Scratch: " .. stem
+    return { name = name, icon = SCRATCH, hl = "TabbyScratch", hl_sel = "TabbyScratchSel" }
+  end
 end
 
 ---A tab's name until it is renamed: the file its labeled window shows.
@@ -59,10 +76,8 @@ end
 ---@return string
 local function default_name(tabid)
   local win = labeled_win(tabid)
-  if is_pack_review(vim.api.nvim_win_get_buf(win)) then
-    return "Plugin Updates"
-  end
-  return require("tabby.feature.win_name").get(win)
+  local look = special(vim.api.nvim_win_get_buf(win))
+  return look and look.name or require("tabby.feature.win_name").get(win)
 end
 
 ---The buffer's file icon: in its own color on the current tab, muted with the label on
@@ -136,14 +151,14 @@ local function tab_label(tab)
   local tabid = tab.id --[[@as integer]]
   local current = tab.is_current()
   local buf = vim.api.nvim_win_get_buf(labeled_win(tabid))
-  local pack = is_pack_review(buf)
+  local look = special(buf)
   local nr, count = tab.number(), vim.fn.tabpagenr("$")
   -- Tab n of N spans columns ⌊W(n-1)/N⌋ to ⌊Wn/N⌋, which together fill W exactly.
   local width = math.floor(vim.o.columns * nr / count) - math.floor(vim.o.columns * (nr - 1) / count)
   local number = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
-    or { NUMBER_BOXES[nr] or tostring(nr), hl = current and not pack and "TabbyNumberSel" or nil }
-  if pack then
-    return centered({ number, { PLUG } }, { tab.name() }, width, current and "TabbyPackSel" or "TabbyPack")
+    or { NUMBER_BOXES[nr] or tostring(nr), hl = current and not look and "TabbyNumberSel" or nil }
+  if look then
+    return centered({ number, { look.icon } }, { tab.name() }, width, current and look.hl_sel or look.hl)
   end
   local name_hl = has_unsaved(tabid) and (current and "TabbyUnsavedSel" or "TabbyUnsaved") or nil
   return centered(

@@ -176,8 +176,11 @@ end
 
 -- Plugins Pro doesn't cover, or covers through groups this file recolours.
 ---@param p palette.Roles
+---@param background "dark"|"light"
 ---@return table<string, vim.api.keyset.highlight>
-local function plugin_groups(p)
+local function plugin_groups(p, background)
+  -- Alucard's yellow role is an orchid; light mode takes a gold dark enough to read.
+  local yellow = background == "light" and "#715c0a" or p.yellow.base
   return {
     -- Pro links the signs to the diff groups, which carry line backgrounds here.
     GitSignsAdd = { fg = p.green.base },
@@ -227,6 +230,9 @@ local function plugin_groups(p)
     -- tinted green as other tabs are teal.
     TabbyPack = { fg = p.green.base, bg = p.bg2, bold = true },
     TabbyPackSel = { fg = p.green.base, bg = tab_sel_bg(p, p.green.base), bold = true },
+    -- A scratch file's tab, the same way in a sticky note's yellow.
+    TabbyScratch = { fg = yellow, bg = p.bg2, bold = true },
+    TabbyScratchSel = { fg = yellow, bg = tab_sel_bg(p, yellow), bold = true },
     BlinkPairsOrange = { fg = p.orange.base },
     BlinkPairsPurple = { fg = p.purple.base },
     BlinkPairsBlue = { fg = p.cyan.base },
@@ -267,7 +273,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     set_groups(ui_groups(p, vim.o.background))
     set_groups(markdown_groups(p))
     set_groups(syntax_groups(p, vim.o.background))
-    set_groups(plugin_groups(p))
+    set_groups(plugin_groups(p, vim.o.background))
     set_flash_hl(p)
     set_picker_match_hl(p)
     set_link_hover_hl(p)

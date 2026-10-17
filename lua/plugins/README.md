@@ -13,6 +13,6 @@ This directory contains locally-defined Neovim plugins that live inside this con
 - [`pack-tweaks`](pack-tweaks/) — tweaks to Neovim's built-in `vim.pack` plugin manager, each wired through `setup()`.
 - [`pack-updates`](pack-updates/) — shows in the statusline how many installed `vim.pack` plugins have upstream commits you haven't pulled, checked in the background with `git ls-remote` and cached for 24 hours; `<leader>Pc` re-checks on demand.
 - [`projects`](projects/) — `<leader>pp` picks a project from [zoxide](https://github.com/ajeetdsouza/zoxide) and relaunches Neovim there, so the shell ends up in the new directory too.
-- [`scratch`](scratch/) — `<leader>wt` picks or names a per-project scratch file under `.tmp/scratch/`; `<leader>wT` opens the pick in an 80% float.
+- [`scratch`](scratch/) — `<leader>wt` picks or names a per-project scratch file under `.tmp/scratch/` and opens it in a new tab; `<leader>wT` opens the pick in an 80% float.
 - [`uv-scripts`](uv-scripts/) — filetype detection and a `ty` client pointed at the per-script environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script.
 - [`worktrunk`](worktrunk/) — [worktrunk](https://worktrunk.dev) commands under `<leader>gw`: the fish worktree picker in a float, quick switches, remove and merge, and opening or diffing the current file's copy in another worktree; anything that moves the shell to another worktree relaunches Neovim there, and a worktree removed from under Neovim moves it into the primary one.
