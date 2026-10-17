@@ -127,6 +127,50 @@ Sleep 600ms
 Enter
 Sleep 1.5s
 
+# <leader>tn: a new tab for the README; the tabs share the tabline evenly
+Space
+Sleep 500ms
+Type "t"
+Sleep 900ms
+Type "n"
+Sleep 1s
+Space
+Sleep 500ms
+Type "f"
+Sleep 600ms
+Type "f"
+Sleep 400ms
+Type "readme"
+Sleep 800ms
+Enter
+Sleep 1.5s
+
+# <leader>wt: a scratch file in a tab of its own
+Space
+Sleep 500ms
+Type "w"
+Sleep 700ms
+Type "t"
+Sleep 1.5s
+Type "i# Preview notes"
+Escape
+Sleep 1.5s
+
+# <leader>t: the tabs by number; 1 goes back to the first
+Space
+Sleep 500ms
+Type "t"
+Sleep 2.5s
+Type "1"
+Sleep 1.5s
+
+# Alt+<digit>: straight to a tab by its number. vhs's Alt+ takes no digit, so each
+# types a raw ESC (invisible here) just ahead of it: the bytes the Alt chord sends.
+Type@1ms "3"
+Sleep 1.2s
+Type@1ms "2"
+Sleep 1.5s
+
 # <leader><leader>: search every keybinding
 Space
 Sleep 600ms
