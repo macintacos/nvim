@@ -1,6 +1,6 @@
----Shared render primitives for the symbol pickers.
+---Shared render primitives for the pickers.
 ---
----Both pickers annotate rows with the same vocabulary — a kind label in the
+---Both symbol pickers annotate rows with the same vocabulary — a kind label in the
 ---symbol's own hue, and dim context text — so the namespace they draw into and
 ---the highlight groups they draw with live here.
 
@@ -89,6 +89,73 @@ function M.reserve_trail_row(win, needed)
       vim.fn.winrestview({ topfill = want })
     end
   end)
+end
+
+---Byte range of `path` to hide behind a one-cell ellipsis so it fits `width`
+---cells. The range is centered in the directories, so the filename stays whole;
+---a filename too long for that loses its start instead.
+---@param path string
+---@param width integer
+---@return [integer, integer]? range `{ from, to }`, nil when the path fits.
+local function middle_cut(path, width)
+  local hide = vim.api.nvim_strwidth(path) - width + 1
+  if hide <= 1 then
+    return nil
+  end
+  local dirs = vim.api.nvim_strwidth(path:match("^(.*)/") or "")
+  local lead = math.max(math.floor((dirs - hide) / 2), 0)
+
+  local kept, hidden, from, byte = 0, 0, 1, 1
+  for char in path:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+    local cells = vim.api.nvim_strwidth(char)
+    if hidden == 0 and kept + cells <= lead then
+      kept, from = kept + cells, byte + #char
+    else
+      hidden = hidden + cells
+      if hidden >= hide then
+        return { from, byte + #char - 1 }
+      end
+    end
+    byte = byte + #char
+  end
+  return { from, #path }
+end
+
+---`source.show` for pickers whose items are paths: icons in front, and the
+---middle of a path too long for the list concealed so its filename shows.
+---
+---Concealing rather than shortening the text keeps mini.pick's match
+---highlights on the characters they belong to.
+---@param buf_id integer
+---@param items (string|{ text: string })[]
+---@param query string[]
+function M.show_paths(buf_id, items, query)
+  MiniPick.default_show(buf_id, items, query, { show_icons = true })
+  vim.api.nvim_buf_clear_namespace(buf_id, M.ns, 0, -1)
+
+  local win = vim.fn.bufwinid(buf_id)
+  if win == -1 then
+    return
+  end
+  vim.wo[win].conceallevel = 2
+  -- The picker's cursor sits on the current item, which would otherwise show
+  -- its path uncut.
+  vim.wo[win].concealcursor = "nvic"
+  local width = vim.api.nvim_win_get_width(win)
+
+  local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+  for i, item in ipairs(items) do
+    local path = (type(item) == "table" and item.text or item) --[[@as string]]
+    local line = assert(lines[i], "default_show writes a line per item")
+    local offset = #line - #path -- the icon in front of the path
+    local range = middle_cut(path, width - vim.api.nvim_strwidth(line:sub(1, offset)))
+    if range then
+      vim.api.nvim_buf_set_extmark(buf_id, M.ns, i - 1, offset + range[1] - 1, {
+        end_col = offset + range[2],
+        conceal = "…",
+      })
+    end
+  end
 end
 
 -- Label colours are derived from the active theme's icon and Comment groups,

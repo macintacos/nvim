@@ -137,8 +137,7 @@ end
 ---@param items string[]
 ---@param query string[]
 local function show(buf_id, items, query)
-  MiniPick.default_show(buf_id, items, query, { show_icons = true })
-  vim.api.nvim_buf_clear_namespace(buf_id, render.ns, 0, -1)
+  render.show_paths(buf_id, items, query)
 
   local chars = query[1] == "*" and vim.list_slice(query, 2) or query
   if #chars == 0 then

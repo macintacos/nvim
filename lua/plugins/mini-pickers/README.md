@@ -69,6 +69,16 @@ mini.pick's matcher wants the query's characters in path order, so on its own `b
 
 mini.pick highlights a row by re-running its in-order match on the path it shows, which finds nothing for a filename-first hit, so the picker's `show` highlights those itself.
 
+## Long paths
+
+`files`, `buffers`, and `oldfiles` draw their rows through `render.show_paths`. A path too wide for the list has the middle of its directories concealed behind `…`, so the filename stays whole:
+
+```text
+󰘦 managed/priva…/Packages/User/Preferences.sublime-settings
+```
+
+A filename too long to fit beside any directory keeps its end instead. Concealing the text rather than shortening it leaves mini.pick's match highlights on the characters they mark; a match inside the hidden span is hidden with it.
+
 ## The live grep
 
 `MiniPick.default_show` draws an rg hit as `path│lnum│col│text`, which repeats the path on every row of a file and starts the matched text three columns in:
@@ -137,7 +147,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |
 | `locations.lua` | `show`/`match` for references, definitions, and the other location lists. |
 | `kinds.lua`     | Which symbol kinds count as outline entries, per filetype.               |
-| `render.lua`    | The extmark namespace and the lazily-built highlight groups.             |
+| `render.lua`    | The extmark namespace, the lazily-built highlight groups, and `show_paths`. |
 | `preview.lua`   | The side preview float and the list/preview split, beside or stacked.    |
 | `git.lua`       | `git_blame_line`.                                                        |
 

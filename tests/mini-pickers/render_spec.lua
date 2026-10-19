@@ -1,3 +1,6 @@
+vim.opt.rtp:prepend(require("support.deps").path("mini.pick"))
+require("mini.pick").setup()
+
 local render = require("plugins.mini-pickers.render")
 
 ---A float holding `lines`, with a `virt_lines_above` mark on its first line.
@@ -67,6 +70,55 @@ describe("mini-pickers.render", function()
       assert.has_no_error(function()
         render.reserve_trail_row(win, true)
       end)
+    end)
+  end)
+
+  describe("show_paths", function()
+    ---What a list `width` cells wide shows for `path`, its icon column left off.
+    ---@param path string
+    ---@param width integer
+    ---@return string
+    local function shown(path, width)
+      local buf = vim.api.nvim_create_buf(false, true)
+      local win = vim.api.nvim_open_win(buf, false, {
+        relative = "editor",
+        row = 1,
+        col = 1,
+        width = width,
+        height = 1,
+        style = "minimal",
+      })
+      render.show_paths(buf, { path }, {})
+
+      local line = assert(vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1])
+      if vim.wo[win].conceallevel > 0 then
+        for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(buf, render.ns, 0, -1, { details = true })) do
+          local details = assert(mark[4])
+          if details.conceal then
+            line = line:sub(1, mark[3]) .. details.conceal .. line:sub(assert(details.end_col) + 1)
+          end
+        end
+      end
+      vim.api.nvim_win_close(win, true)
+      vim.api.nvim_buf_delete(buf, { force = true })
+      -- mini.pick pads a path with no file behind it with a blank icon.
+      return line:sub(3)
+    end
+
+    it("shows a path that fits as it is", function()
+      assert.equal("lua/init.lua", shown("lua/init.lua", 20))
+    end)
+
+    it("cuts the middle of the directories so the filename stays whole", function()
+      assert.equal("aaa…ccc/name.lua", shown("aaaa/bbbb/cccc/name.lua", 18))
+    end)
+
+    it("keeps the end of a filename too long to fit beside any directory", function()
+      assert.equal("…gname.lua", shown("dir/averyverylongname.lua", 12))
+    end)
+
+    it("measures the path in display cells, not bytes", function()
+      assert.equal("ññ…ñññ/x.lua", shown("ñññññ/ñññññ/x.lua", 14))
     end)
   end)
 end)

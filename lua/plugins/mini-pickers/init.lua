@@ -15,7 +15,16 @@ function M.setup()
   end
 
   MiniPick.registry.buffers = function(local_opts)
-    return MiniPick.builtin.buffers(local_opts, { window = require("plugins.mini-pickers.preview").window() })
+    return MiniPick.builtin.buffers(local_opts, {
+      source = { show = require("plugins.mini-pickers.render").show_paths },
+      window = require("plugins.mini-pickers.preview").window(),
+    })
+  end
+
+  MiniPick.registry.oldfiles = function(local_opts)
+    return MiniExtra.pickers.oldfiles(local_opts, {
+      source = { show = require("plugins.mini-pickers.render").show_paths },
+    })
   end
 
   MiniPick.registry.grep_live = function(local_opts)
