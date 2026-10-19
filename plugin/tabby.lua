@@ -1,5 +1,5 @@
 -- github.com/nanozuki/tabby.nvim
--- Tabline of tab pages, not buffers: rounded tabs of a fixed width, centered together,
+-- Tabline of tab pages, not buffers: rounded tabs sized to their names, centered together,
 -- each showing its number, file icon and file name. vim.pack's update review and scratch
 -- files stand out in colors of their own.
 vim.pack.add({ { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } })
@@ -25,8 +25,8 @@ local SCRATCH = vim.fn.nr2char(0xF1781)
 -- nf-ple-left_half_circle_thick and _right_: a tab's rounded ends.
 local LEFT_CAP, RIGHT_CAP = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
 
--- Each tab's width in cells, its rounded ends included.
-local TAB_WIDTH = 25
+-- Bounds on a tab's width in cells, its rounded ends included.
+local MIN_TAB_WIDTH, MAX_TAB_WIDTH = 25, 70
 
 ---@alias tabby.Part { [1]: string, hl: TabbyHighlight? }
 
@@ -132,23 +132,36 @@ local function shorten(text, width)
   return width > 0 and vim.fn.strcharpart(text, 0, chars) .. "…" or ""
 end
 
----`prefix` and `name` spaced apart and centered in `width` cells, the name shortened to
----leave a cell either side.
+---What a tab shows, before it is fitted to a width.
+---@class tabby.Label
+---@field prefix tabby.Part[]
+---@field name tabby.Part
+---@field hl string
+
+---Cells `prefix` takes, a space after each part included.
 ---@param prefix tabby.Part[]
----@param name tabby.Part
----@param width integer
----@param hl string
----@return TabbyElement
-local function centered(prefix, name, width, hl)
+---@return integer
+local function prefix_width(prefix)
   local used = #prefix
   for _, part in ipairs(prefix) do
     used = used + vim.api.nvim_strwidth(part[1])
   end
+  return used
+end
+
+---`label`'s prefix and name spaced apart and centered in `width` cells, the name shortened
+---to leave a cell either side.
+---@param label tabby.Label
+---@param width integer
+---@return TabbyElement
+local function centered(label, width)
+  local name = label.name
+  local used = prefix_width(label.prefix)
   name[1] = shorten(name[1], width - used - 2)
   used = used + vim.api.nvim_strwidth(name[1])
   local left = math.max(math.floor((width - used) / 2), 0)
-  local node = { string.rep(" ", left), hl = hl }
-  for _, part in ipairs(prefix) do
+  local node = { string.rep(" ", left), hl = label.hl }
+  for _, part in ipairs(label.prefix) do
     vim.list_extend(node, { part, " " })
   end
   vim.list_extend(node, { name, string.rep(" ", math.max(width - used - left, 0)) })
@@ -156,27 +169,51 @@ local function centered(prefix, name, width, hl)
 end
 
 ---@param tab TabbyTab
----@return TabbyElement
+---@return tabby.Label
 local function tab_label(tab)
   local tabid = tab.id --[[@as integer]]
   local current = tab.is_current()
   local buf = vim.api.nvim_win_get_buf(labeled_win(tabid))
   local look = special(buf)
-  local nr, count = tab.number(), vim.fn.tabpagenr("$")
-  -- Narrower than TAB_WIDTH only once the tabs and a cell between each outgrow the line.
-  local width = math.min(TAB_WIDTH, math.floor((vim.o.columns + 1) / count) - 1) - 2
+  local nr = tab.number()
   local number = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
     or { NUMBER_BOXES[nr] or tostring(nr), hl = current and not look and "TabbyNumberSel" or nil }
   if look then
-    return centered({ number, { look.icon } }, { tab.name() }, width, current and look.hl_sel or look.hl)
+    return { prefix = { number, { look.icon } }, name = { tab.name() }, hl = current and look.hl_sel or look.hl }
   end
   local name_hl = has_unsaved(tabid) and (current and "TabbyUnsavedSel" or "TabbyUnsaved") or nil
-  return centered(
-    { number, file_icon(buf, current) },
-    { tab.name(), hl = name_hl },
-    width,
-    current and "TabLineSel" or "TabLine"
-  )
+  return {
+    prefix = { number, file_icon(buf, current) },
+    name = { tab.name(), hl = name_hl },
+    hl = current and "TabLineSel" or "TabLine",
+  }
+end
+
+---Cells a tab needs to show `label` whole, with a cell either side and its rounded ends,
+---kept within MIN_TAB_WIDTH and MAX_TAB_WIDTH.
+---@param label tabby.Label
+---@return integer
+local function tab_width(label)
+  local whole = prefix_width(label.prefix) + vim.api.nvim_strwidth(label.name[1]) + 4
+  return math.max(MIN_TAB_WIDTH, math.min(whole, MAX_TAB_WIDTH))
+end
+
+---The widest a tab may be for tabs of `widths` to fit in `room` cells: tabs narrower than
+---that keep their width, and the rest share what those leave.
+---@param widths integer[]
+---@param room integer
+---@return integer
+local function width_cap(widths, room)
+  local sorted = vim.list_slice(widths)
+  table.sort(sorted)
+  for i, width in ipairs(sorted) do
+    local share = math.floor(room / (#sorted - i + 1))
+    if width > share then
+      return share
+    end
+    room = room - width
+  end
+  return sorted[#sorted]
 end
 
 ---`label` between rounded ends in its background, so the tab reads as a pill.
@@ -191,6 +228,20 @@ local function pill(line, label)
   return { line.sep(LEFT_CAP, hl, "TabLineFill"), label, line.sep(RIGHT_CAP, hl, "TabLineFill") }
 end
 
+---Every tab as a pill sized to its label, with a cell between each.
+---@param line TabbyLine
+---@return TabbyNode
+local function pills(line)
+  local tabs = line.tabs()
+  local labels = vim.tbl_map(tab_label, tabs.tabs)
+  local widths = vim.tbl_map(tab_width, labels)
+  local cap = width_cap(widths, vim.o.columns - (#widths - 1))
+  return tabs.foreach(function(_, i)
+    i = i --[[@as integer]]
+    return pill(line, centered(labels[i], math.min(widths[i], cap) - 2))
+  end, { margin = " " })
+end
+
 -- The default rather than a line option, so <leader>t's tab list names tabs alike.
 require("tabby.feature.tab_name").set_default_option({
   name_fallback = function(tabid)
@@ -199,9 +250,6 @@ require("tabby.feature.tab_name").set_default_option({
 })
 require("tabby").setup({
   line = function(line)
-    local tabs = line.tabs().foreach(function(tab)
-      return pill(line, tab_label(tab))
-    end, { margin = " " })
-    return { line.spacer(), tabs, line.spacer(), hl = "TabLineFill" }
+    return { line.spacer(), pills(line), line.spacer(), hl = "TabLineFill" }
   end,
 })

@@ -302,6 +302,23 @@ describe("startup", function()
     assert.is_true(vim.api.nvim_strwidth(tabs) > 59 - 3)
   end)
 
+  it("grows a tab to fit its name, up to 70 cells", function()
+    local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
+    local forty, ninety = ("a"):rep(36) .. ".lua", ("b"):rep(86) .. ".lua"
+    local args = { "-c", "set columns=200", "-c", "tabnew " .. forty, "-c", "tabnew " .. ninety }
+    local seen = boot(dir, reporting(tabline), args)
+
+    -- probe.lua's tab stays 25; the 40-cell name's takes 48 with its icons, padding and ends.
+    assert.equal(25 + 1 + 48 + 1 + 70, vim.api.nvim_strwidth(vim.trim(seen.value)))
+  end)
+
+  it("cuts only a tab too long for the room the shorter tabs leave", function()
+    local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
+    local seen = boot(dir, reporting(tabline), { "-c", "tabnew " .. ("b"):rep(86) .. ".lua" })
+
+    assert.equal(25 + 1 + 54, vim.api.nvim_strwidth(vim.trim(seen.value)))
+  end)
+
   it("drops a tab's rounded ends when its colors have no background", function()
     local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
     local seen = boot(dir, reporting(tabline), { "-c", "colorscheme default" })
