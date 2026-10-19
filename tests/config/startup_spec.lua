@@ -134,7 +134,7 @@ vim.defer_fn(function()
     { "ColorColumn", "bg", "bg2" },
     { "Folded", "bg", "bg2" },
     { "TabLine", "bg", "bg2" },
-    { "TabLineFill", "bg", "bg2" },
+    { "TabLineFill", "bg", "bg1" },
     { "PmenuThumb", "bg", "bg4" },
     { "RenderMarkdownDash", "fg", "comment" },
     { "Added", "fg", "green.base" },
@@ -281,6 +281,33 @@ describe("startup", function()
     local seen = boot(dir, reporting("vim.g.colors_name"), { "-c", "colorscheme default" })
 
     assert.equal("default", seen.value)
+  end)
+
+  it("centers its tabs, each 25 cells wide with a cell between", function()
+    local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
+    local seen = boot(dir, reporting(tabline), { "-c", "tabnew" })
+
+    local left, tabs, right = seen.value:match("^( *)(.-)( *)$")
+    assert.equal(25 + 1 + 25, vim.api.nvim_strwidth(tabs))
+    assert.is_true(math.abs(#left - #right) <= 1)
+  end)
+
+  it("shrinks its tabs to fill a line too narrow for them", function()
+    local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
+    local seen = boot(dir, reporting(tabline), { "-c", "set columns=59", "-c", "tabnew", "-c", "tabnew" })
+
+    local tabs = vim.trim(seen.value)
+    assert.is_false(vim.startswith(tabs, "<"))
+    assert.is_true(vim.api.nvim_strwidth(tabs) <= 59)
+    assert.is_true(vim.api.nvim_strwidth(tabs) > 59 - 3)
+  end)
+
+  it("drops a tab's rounded ends when its colors have no background", function()
+    local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
+    local seen = boot(dir, reporting(tabline), { "-c", "colorscheme default" })
+
+    assert.is_nil(seen.value:find(vim.fn.nr2char(0xE0B6), 1, true))
+    assert.is_nil(seen.value:find(vim.fn.nr2char(0xE0B4), 1, true))
   end)
 
   it("flashes yanks and pastes and tints a hovered link without a palette file", function()

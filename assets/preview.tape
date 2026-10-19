@@ -127,7 +127,7 @@ Sleep 600ms
 Enter
 Sleep 1.5s
 
-# <leader>tn: a new tab for the README; the tabs share the tabline evenly
+# <leader>tn: a new tab for the README; the tabs sit centered in the tabline
 Space
 Sleep 500ms
 Type "t"

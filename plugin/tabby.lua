@@ -1,7 +1,7 @@
 -- github.com/nanozuki/tabby.nvim
--- Tabline of tab pages, not buffers: the tabs share the width equally, each centering
--- its number, file icon and file name. vim.pack's update review and scratch files stand
--- out in colors of their own.
+-- Tabline of tab pages, not buffers: rounded tabs of a fixed width, centered together,
+-- each showing its number, file icon and file name. vim.pack's update review and scratch
+-- files stand out in colors of their own.
 vim.pack.add({ { src = "https://github.com/nanozuki/tabby.nvim", version = vim.version.range("2.x") } })
 
 -- nf-md-numeric_1_box through _9_box, as herdr numbers its panes; 5's box breaks the
@@ -22,6 +22,11 @@ local NUMBER_BOXES = vim.tbl_map(vim.fn.nr2char, {
 local PLUG = vim.fn.nr2char(0xF1E6)
 -- The scratch keymaps' icon.
 local SCRATCH = vim.fn.nr2char(0xF1781)
+-- nf-ple-left_half_circle_thick and _right_: a tab's rounded ends.
+local LEFT_CAP, RIGHT_CAP = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
+
+-- Each tab's width in cells, its rounded ends included.
+local TAB_WIDTH = 25
 
 ---@alias tabby.Part { [1]: string, hl: TabbyHighlight? }
 
@@ -158,8 +163,8 @@ local function tab_label(tab)
   local buf = vim.api.nvim_win_get_buf(labeled_win(tabid))
   local look = special(buf)
   local nr, count = tab.number(), vim.fn.tabpagenr("$")
-  -- Tab n of N spans columns ⌊W(n-1)/N⌋ to ⌊Wn/N⌋, which together fill W exactly.
-  local width = math.floor(vim.o.columns * nr / count) - math.floor(vim.o.columns * (nr - 1) / count)
+  -- Narrower than TAB_WIDTH only once the tabs and a cell between each outgrow the line.
+  local width = math.min(TAB_WIDTH, math.floor((vim.o.columns + 1) / count) - 1) - 2
   local number = tab.in_jump_mode() and { tab.jump_key(), hl = "FlashLabel" }
     or { NUMBER_BOXES[nr] or tostring(nr), hl = current and not look and "TabbyNumberSel" or nil }
   if look then
@@ -174,6 +179,18 @@ local function tab_label(tab)
   )
 end
 
+---`label` between rounded ends in its background, so the tab reads as a pill.
+---@param line TabbyLine
+---@param label TabbyElement
+---@return TabbyElement
+local function pill(line, label)
+  local hl = label.hl --[[@as string]]
+  if not vim.api.nvim_get_hl(0, { name = hl, link = false }).bg then
+    return label
+  end
+  return { line.sep(LEFT_CAP, hl, "TabLineFill"), label, line.sep(RIGHT_CAP, hl, "TabLineFill") }
+end
+
 -- The default rather than a line option, so <leader>t's tab list names tabs alike.
 require("tabby.feature.tab_name").set_default_option({
   name_fallback = function(tabid)
@@ -182,6 +199,9 @@ require("tabby.feature.tab_name").set_default_option({
 })
 require("tabby").setup({
   line = function(line)
-    return { line.tabs().foreach(tab_label), hl = "TabLineFill" }
+    local tabs = line.tabs().foreach(function(tab)
+      return pill(line, tab_label(tab))
+    end, { margin = " " })
+    return { line.spacer(), tabs, line.spacer(), hl = "TabLineFill" }
   end,
 })

@@ -103,7 +103,8 @@ local function ui_groups(p, background)
     Folded = { fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35), bg = p.bg2 },
     TabLine = { fg = p.comment, bg = p.bg2 },
     TabLineSel = { fg = p.fg2, bg = tab_sel_bg(p, p.cyan.base), bold = true },
-    TabLineFill = { bg = p.bg2 },
+    -- The editor's background, so each tab stands out as a pill.
+    TabLineFill = { bg = p.bg1 },
     PmenuThumb = { bg = p.bg4 },
     StatusLine = { bg = p.bg0, bold = true },
     StatusLineTerm = { bg = p.bg0, bold = true },
