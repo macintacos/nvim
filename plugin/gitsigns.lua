@@ -6,5 +6,6 @@ require("gitsigns").setup({
   -- Neovim's default 'diffopt', which gitsigns otherwise follows, has linematch:40,
   -- which splits a hunk into pairs of similar lines, so changeset's unified diff
   -- interleaved removed and added lines.
-  diff_opts = { linematch = 0 },
+  -- The ignores match changeset's sidebar, which leaves out whitespace-only changes.
+  diff_opts = { linematch = 0, ignore_whitespace = true, ignore_blank_lines = true },
 })
