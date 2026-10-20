@@ -5,7 +5,7 @@
       "src": "https://github.com/mong8se/actually.nvim"
     },
     "agentcomplete.nvim": {
-      "rev": "d168c1c16337255d413cb6054fe4c1e23496c448",
+      "rev": "09cffe7445ad28f8cfc530f506be2afe7cb7661d",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
     "auto-session": {
@@ -30,7 +30,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "c45a1998f580a982357381fa70dc175ed6697f1c",
+      "rev": "263c277ec19dffc0a44b38a8548a245f2250de87",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
@@ -66,7 +66,7 @@
       "src": "https://github.com/Bekaboo/dropbar.nvim"
     },
     "fff.nvim": {
-      "rev": "8154eec7bdd9ccfa2ec5e3ea2b77df60734bf448",
+      "rev": "7353971198321b5330824c29eb4e49635c072245",
       "src": "ssh://git@github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
@@ -78,7 +78,7 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
-      "rev": "11595bf747edc270bce2069d1020502ad4ae56cf",
+      "rev": "bbde8ef5ae46ceee2c3bd8b21fc048c5f8ffbfc0",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "helpview.nvim": {
@@ -155,7 +155,7 @@
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.notify": {
-      "rev": "7bcaba0e3c12f8aaac05b435811157905c83366d",
+      "rev": "04dae72c012de9db45c4250645170f78f826731e",
       "src": "https://github.com/nvim-mini/mini.notify",
       "version": "'main'"
     },
@@ -224,7 +224,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "45a3a444b710511c39abca3b60bb6e23a21e3de5",
+      "rev": "77b7432d4770d23b277d37923e5a08a442d8bb07",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-notify": {
@@ -236,7 +236,7 @@
       "src": "https://github.com/chrisgrieser/nvim-recorder"
     },
     "nvim-scrollbar": {
-      "rev": "f8e87b96cd6362ef8579be456afee3b38fd7e2a8",
+      "rev": "00fe857e7cd97ee5e556de643ee920b003a96b03",
       "src": "ssh://git@github.com/petertriho/nvim-scrollbar"
     },
     "nvim-surround": {
@@ -244,7 +244,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "ca581c3436fc2b236847f5b739ebc263739e5ca6",
+      "rev": "29212d826054bb2948fa9d3a99eca9bf6a050eb2",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -256,11 +256,11 @@
       "src": "ssh://git@github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
-      "rev": "e6e0e1ec16676461b31518817fcd6ea3d2558521",
+      "rev": "4eec5b1319e15154002931ce4eaf4d8e2952c519",
       "src": "https://github.com/obsidian-nvim/obsidian.nvim"
     },
     "otter.nvim": {
-      "rev": "0b38ccef44a805e8b378f5f6ce38aad0642c9366",
+      "rev": "6f05811621460eca983bf2cd877e63c59a40720e",
       "src": "https://github.com/jmbuhr/otter.nvim"
     },
     "peeper-picker.nvim": {
@@ -284,7 +284,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "a968f5133b8b24f481de12f08cd79420d1ace559",
+      "rev": "1cf5e3886a3f69f7fefe04f6f6672891d023b02c",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
