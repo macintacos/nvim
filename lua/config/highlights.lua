@@ -200,6 +200,9 @@ local function plugin_groups(p, background)
     MiniPickMatchCurrent = { bg = p.sel0 },
     MiniPickPromptPrefix = { fg = p.green.base },
     MiniPickHeader = { fg = p.comment },
+    -- The tab picker's rows, marked as the tabline marks its tabs.
+    MiniPickTabCurrent = { fg = p.purple.base, bold = true },
+    MiniPickTabUnsaved = { italic = true },
     MiniIndentscopeSymbol = { fg = p.purple.base },
     -- Pro pills visual mode in yellow; here it's pink, like modes.nvim's visual cursor.
     MiniStatuslineModeVisual = { fg = p.bg1, bg = p.pink.base },
@@ -231,9 +234,11 @@ local function plugin_groups(p, background)
     -- tinted green as other tabs are teal.
     TabbyPack = { fg = p.green.base, bg = p.bg2, bold = true },
     TabbyPackSel = { fg = p.green.base, bg = tab_sel_bg(p, p.green.base), bold = true },
+    MiniPickTabPack = { fg = p.green.base, bold = true },
     -- A scratch file's tab, the same way in a sticky note's yellow.
     TabbyScratch = { fg = yellow, bg = p.bg2, bold = true },
     TabbyScratchSel = { fg = yellow, bg = tab_sel_bg(p, yellow), bold = true },
+    MiniPickTabScratch = { fg = yellow, bold = true },
     BlinkPairsOrange = { fg = p.orange.base },
     BlinkPairsPurple = { fg = p.purple.base },
     BlinkPairsBlue = { fg = p.cyan.base },

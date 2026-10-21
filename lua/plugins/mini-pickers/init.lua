@@ -57,6 +57,10 @@ function M.setup()
   MiniPick.registry.which_key = function()
     return require("plugins.mini-pickers.whichkey").pick()
   end
+
+  MiniPick.registry.tabs = function()
+    return require("plugins.mini-pickers.tabs").pick()
+  end
 end
 
 return M
