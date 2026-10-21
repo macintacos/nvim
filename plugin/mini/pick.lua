@@ -6,12 +6,14 @@ vim.pack.add({ { src = "https://github.com/nvim-mini/mini.pick", version = "stab
 ---Re-type `key` into the picker, so a second key runs the action bound to the
 ---first. mini.pick binds one key per action, so an alias has to be a custom
 ---action; the picker reads chars through `getcharstr()`, which feedkeys feeds.
+---The key goes in ahead of any already typed, or `<Tab><CR>` arriving together
+---would choose before it moves.
 ---@param key string Key whose action to run, e.g. "<C-n>".
 ---@return fun()
 local function alias(key)
   local keys = vim.keycode(key)
   return function()
-    vim.api.nvim_feedkeys(keys, "t", false)
+    vim.api.nvim_feedkeys(keys, "it", false)
   end
 end
 

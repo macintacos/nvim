@@ -255,6 +255,17 @@ end, 1500)
 ]]):format(sessions, worktree, worktree, trash, tostring(delete), trash)
 end
 
+-- Types <Tab> and <CR> into a picker over a, b and c in one input, and reports the
+-- item the picker returns.
+local tab_enter_probe = [[
+vim.defer_fn(function()
+  vim.defer_fn(function() vim.api.nvim_input("<Tab><CR>") end, 100)
+  local chosen = MiniPick.start({ source = { items = { "a", "b", "c" }, choose = function() end } })
+  vim.fn.writefile({ vim.json.encode({ value = chosen }) }, %q)
+  vim.cmd("qa!")
+end, 1500)
+]]
+
 describe("startup", function()
   ---@type string
   local dir
@@ -325,6 +336,10 @@ describe("startup", function()
 
     assert.is_nil(seen.value:find(vim.fn.nr2char(0xE0B6), 1, true))
     assert.is_nil(seen.value:find(vim.fn.nr2char(0xE0B4), 1, true))
+  end)
+
+  it("moves a picker's selection with <Tab> before a <CR> typed with it", function()
+    assert.equal("b", boot(dir, tab_enter_probe).value)
   end)
 
   it("flashes yanks and pastes and tints a hovered link without a palette file", function()
