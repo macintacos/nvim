@@ -18,4 +18,18 @@ describe("cursorline", function()
     vim.cmd("redraw!")
     assert.equal(0, vim.fn.screenattr(2, 1))
   end)
+
+  -- Needs a fresh Neovim, splitting in its first command: any earlier command
+  -- draws the screen, and only a split before that first draw shows the bug.
+  it("skips a window drawn mid-split, before its cursor has a line", function()
+    local root = vim.fn.fnamemodify(assert(debug.getinfo(1, "S")).source:sub(2), ":p:h:h:h")
+    local split = [[lua require("config.cursorline")
+      vim.o.cursorline = true
+      vim.api.nvim_create_autocmd("WinLeave", { command = "redraw" })
+      vim.cmd.split()]]
+    local cmd = { vim.v.progpath, "-u", "NONE", "-i", "NONE", "--headless", "--cmd", "set rtp^=" .. root }
+    vim.list_extend(cmd, { "-c", split, "-c", "qa!" })
+    local result = vim.system(cmd, { text = true }):wait(10000)
+    assert.equal("", result.stderr)
+  end)
 end)

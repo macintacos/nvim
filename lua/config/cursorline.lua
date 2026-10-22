@@ -18,10 +18,11 @@ end
 -- and each window showing it has its own cursor line.
 vim.api.nvim_set_decoration_provider(ns, {
   on_win = function(_, win, buf)
-    if not paints_line(win) then
+    local row = vim.api.nvim_win_get_cursor(win)[1] - 1
+    -- A window drawn mid-split, before the first screen draw, has cursor line 0.
+    if row < 0 or not paints_line(win) then
       return false
     end
-    local row = vim.api.nvim_win_get_cursor(win)[1] - 1
     vim.api.nvim_buf_set_extmark(buf, ns, row, 0, {
       end_row = row + 1,
       hl_group = "CursorLine",
