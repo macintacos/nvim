@@ -1,6 +1,6 @@
-amends "package://github.com/jdx/hk/releases/download/v1.55.0/hk@1.55.0#/Config.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Config.pkl"
 
-import "package://github.com/jdx/hk/releases/download/v1.55.0/hk@1.55.0#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Builtins.pkl"
 
 // Keep the amends/import version in lockstep with the `hk` version in mise.toml.
 //   mise run format -> the `fix` hook   -> `formatters` (write mode)
@@ -16,7 +16,12 @@ local formatters = new Mapping<String, Step> {
 
   // rumdl owns Markdown — one binary, two builtins. This one is `rumdl fmt`;
   // the linters mapping below runs `rumdl check`. Config: .rumdl.toml.
-  ["Markdown(Format)  [[builtins.rumdl_format]]"] = Builtins.rumdl_format
+  // rumdl's --diff hunk headers don't match their bodies, so hk can't apply the
+  // patch; both rumdl steps skip check_diff and run the fixer directly.
+  ["Markdown(Format)  [[builtins.rumdl_format]]"] = (Builtins.rumdl_format) {
+    check = "rumdl fmt --check {{ files }}"
+    check_diff = null
+  }
 
   ["YAML(Format)      [[builtins.yamlfmt]]"] = Builtins.yamlfmt
   ["TOML(Format)      [[builtins.taplo_format]]"] = Builtins.taplo_format
@@ -34,15 +39,13 @@ local formatters = new Mapping<String, Step> {
 local linters = new Mapping<String, Step> {
   // Two selene steps mirror the old task: root selene.toml (excludes tests/*)
   // for source, tests/selene.toml (busted std) for specs.
-  // The builtin selects Lua via `types`, so only the narrowing is ours. LintTests
-  // overrides `check_diff`, not `check`: that is the command the builtin defines,
-  // and overriding `check` would leave specs linted with the root config.
+  // The builtin selects Lua via `types`, so only the narrowing is ours.
   ["Lua(Lint)         [[builtins.selene]]"] = (Builtins.selene) {
     exclude = List("tests/**/*.lua")
   }
   ["Lua(LintTests)    [[builtins.selene]]"] = (Builtins.selene) {
     glob = List("tests/**/*.lua")
-    check_diff = "selene --config tests/selene.toml {{ files }}"
+    check = "selene --config tests/selene.toml {{ files }}"
   }
 
   // As with shfmt, the builtin's shebang-based `types` selector already reaches
@@ -50,7 +53,10 @@ local linters = new Mapping<String, Step> {
   ["Shell(Lint)       [[builtins.shellcheck]]"] = Builtins.shellcheck
 
   // Same rumdl binary, read-only: `rumdl check` reports violations (exit 1).
-  ["Markdown(Lint)    [[builtins.rumdl]]"] = Builtins.rumdl
+  ["Markdown(Lint)    [[builtins.rumdl]]"] = (Builtins.rumdl) {
+    check_diff = null
+    check_after_diff = false
+  }
 
   ["TOML(Lint)        [[builtins.taplo]]"] = Builtins.taplo
 
