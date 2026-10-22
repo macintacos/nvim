@@ -10,11 +10,18 @@ vim.pack.add({
 local map = require("helpers.mappings").map
 local jump_then_reveal = require("helpers.windows").jump_then_reveal
 
--- If the cursor is on a URL, open it in the browser; otherwise go to definition
+-- If the cursor is on a URL, open it in the browser; on a cyclopts lazy command's
+-- import path, go to what it names; otherwise go to definition
 map("Goto Definition / Open URL", "n", "gd", function()
   local url = require("helpers.links").url(tostring(vim.fn.expand("<cWORD>")))
   if url then
-    vim.ui.open(url)
+    return vim.ui.open(url)
+  end
+  local lazy_command = require("helpers.cyclopts").under_cursor()
+  if lazy_command then
+    jump_then_reveal(function()
+      vim.lsp.util.show_document(lazy_command, "utf-8")
+    end)
   else
     jump_then_reveal(vim.lsp.buf.definition)
   end
