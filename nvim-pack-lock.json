@@ -74,11 +74,11 @@
       "src": "https://github.com/folke/flash.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "fd780920613e541cbdfac41bf711583ed49f9249",
+      "rev": "683137003522aebd6948358334164a6ba2ca7cd5",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
-      "rev": "bbde8ef5ae46ceee2c3bd8b21fc048c5f8ffbfc0",
+      "rev": "91b7e58b6ffc6ddad5acb7a7c1df21257724449e",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "helpview.nvim": {
@@ -94,7 +94,7 @@
       "src": "https://github.com/folke/lazydev.nvim"
     },
     "mason-lspconfig.nvim": {
-      "rev": "27b98a54bc04d2e8649d2e701c89aec0d02c11a4",
+      "rev": "c4ef013d41f6db041b283eef55a63e579d76763f",
       "src": "https://github.com/mason-org/mason-lspconfig.nvim"
     },
     "mason-tool-installer.nvim": {
@@ -284,7 +284,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "4e01e114ad24e2f5ee91962e3a751b0c70a7447a",
+      "rev": "2a330e0a66b232f1c75a54d0f73a8fd15a88a39e",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
