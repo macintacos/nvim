@@ -10,13 +10,8 @@ vim.pack.add({
 local map = require("helpers.mappings").map
 local jump_then_reveal = require("helpers.windows").jump_then_reveal
 
--- If the cursor is on a URL, open it in the browser; on a cyclopts lazy command's
--- import path, go to what it names; otherwise go to definition
-map("Goto Definition / Open URL", "n", "gd", function()
-  local url = require("helpers.links").url(tostring(vim.fn.expand("<cWORD>")))
-  if url then
-    return vim.ui.open(url)
-  end
+-- On a cyclopts lazy command's import path, go to what it names; otherwise go to definition
+local function goto_definition()
   local lazy_command = require("helpers.cyclopts").under_cursor()
   if lazy_command then
     jump_then_reveal(function()
@@ -25,10 +20,20 @@ map("Goto Definition / Open URL", "n", "gd", function()
   else
     jump_then_reveal(vim.lsp.buf.definition)
   end
+end
+
+-- If the cursor is on a URL, open it in the browser; otherwise go to definition
+map("Goto Definition / Open URL", "n", "gd", function()
+  local url = require("helpers.links").url(tostring(vim.fn.expand("<cWORD>")))
+  if url then
+    vim.ui.open(url)
+  else
+    goto_definition()
+  end
 end, { silent = true })
 map("Goto Definition in Split", "n", "gD", function()
   vim.cmd("vsplit")
-  jump_then_reveal(vim.lsp.buf.definition)
+  goto_definition()
 end, { silent = true })
 -- open_floating_preview has no native min_width. Teach it one: when a caller
 -- sets opts.min_width, floor the computed width there (still capped by max_width
