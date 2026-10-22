@@ -17,3 +17,5 @@ require("changeset").setup({
 vim.keymap.set("n", "<leader>gp", "<Plug>(changeset-toggle)", { desc = "Changeset (changed files & symbols)" })
 vim.keymap.set("n", "]h", "<Plug>(changeset-preview-next)", { desc = "Next changeset row" })
 vim.keymap.set("n", "[h", "<Plug>(changeset-preview-prev)", { desc = "Previous changeset row" })
+vim.keymap.set("n", "]c", "<Plug>(changeset-comment-next)", { desc = "Next review comment" })
+vim.keymap.set("n", "[c", "<Plug>(changeset-comment-prev)", { desc = "Previous review comment" })

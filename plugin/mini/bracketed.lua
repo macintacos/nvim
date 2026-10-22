@@ -4,4 +4,5 @@
 -- Docs: https://github.com/nvim-mini/mini.bracketed/blob/main/doc/mini-bracketed.txt
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.bracketed", version = "stable" } })
 
-require("mini.bracketed").setup()
+-- `]c`/`[c` walk changeset's review comments (plugin/changeset.lua).
+require("mini.bracketed").setup({ comment = { suffix = "" } })
