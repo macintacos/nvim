@@ -68,15 +68,15 @@ digraph rules_router {
     "What does the change touch?" [shape=diamond];
 
     "Changing the repo" -> "What does the change touch?";
-    "What does the change touch?" -> "Load docs/agents/plugins-rules.md" [label="plugin/: adding, configuring, or lazy-loading a third-party plugin"];
-    "What does the change touch?" -> "Load docs/agents/local-plugins-rules.md" [label="lua/plugins/: building or changing a local plugin"];
-    "What does the change touch?" -> "Load docs/agents/testing-rules.md" [label="tests/: writing or running specs"];
-    "What does the change touch?" -> "Load docs/agents/tooling-rules.md" [label="type check, linters, formatters, git hooks, mise tasks"];
-    "What does the change touch?" -> "Load docs/agents/documentation-rules.md" [label="any doc: which one to update, and how"];
+    "What does the change touch?" -> "Load docs/agents/rules/plugins.md" [label="plugin/: adding, configuring, or lazy-loading a third-party plugin"];
+    "What does the change touch?" -> "Load docs/agents/rules/local-plugins.md" [label="lua/plugins/: building or changing a local plugin"];
+    "What does the change touch?" -> "Load docs/agents/rules/testing.md" [label="tests/: writing or running specs"];
+    "What does the change touch?" -> "Load docs/agents/rules/tooling.md" [label="type check, linters, formatters, git hooks, mise tasks"];
+    "What does the change touch?" -> "Load docs/agents/rules/documentation.md" [label="any doc: which one to update, and how"];
     "What does the change touch?" -> "Load design/README.md" [label="the editor's UI: colors, highlight groups, chrome, floats, notify messages"];
 }
 ```
 
 ## Keeping docs current
 
-When your change makes a doc wrong or incomplete, update that doc in the same change. `docs/agents/documentation-rules.md` says which doc covers what and how to edit each one. A new rule goes in this file until its area needs a rule file of its own. Add that file's edge to `## Routing` in the same change.
+When your change makes a doc wrong or incomplete, update that doc in the same change. `docs/agents/rules/documentation.md` says which doc covers what and how to edit each one. A new rule goes in this file until its area needs a rule file of its own. Add that file's edge to `## Routing` in the same change.

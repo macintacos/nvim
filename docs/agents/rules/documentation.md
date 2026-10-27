@@ -14,11 +14,11 @@ digraph docs_router {
     "Which doc does the change affect?" -> "Edit lua/plugins/README.md" [label="the index of local plugins"];
     "Which doc does the change affect?" -> "Edit lua/plugins/*/README.md" [label="one local plugin's behavior, keymaps, and commands"];
     "Which doc does the change affect?" -> "Edit AGENTS.md" [label="orientation, rules for every change, routing to rule files"];
-    "Which doc does the change affect?" -> "Edit docs/agents/plugins-rules.md" [label="plugin/ conventions: headers, specs, load tiers, builds"];
-    "Which doc does the change affect?" -> "Edit docs/agents/local-plugins-rules.md" [label="local plugin layout, wiring, and documentation"];
-    "Which doc does the change affect?" -> "Edit docs/agents/testing-rules.md" [label="spec layout, running, isolation, fixtures"];
-    "Which doc does the change affect?" -> "Edit docs/agents/tooling-rules.md" [label="mise, hk, the type check, selene"];
-    "Which doc does the change affect?" -> "Edit docs/agents/documentation-rules.md" [label="adding, removing, or renaming a doc"];
+    "Which doc does the change affect?" -> "Edit docs/agents/rules/plugins.md" [label="plugin/ conventions: headers, specs, load tiers, builds"];
+    "Which doc does the change affect?" -> "Edit docs/agents/rules/local-plugins.md" [label="local plugin layout, wiring, and documentation"];
+    "Which doc does the change affect?" -> "Edit docs/agents/rules/testing.md" [label="spec layout, running, isolation, fixtures"];
+    "Which doc does the change affect?" -> "Edit docs/agents/rules/tooling.md" [label="mise, hk, the type check, selene"];
+    "Which doc does the change affect?" -> "Edit docs/agents/rules/documentation.md" [label="adding, removing, or renaming a doc"];
     "Which doc does the change affect?" -> "Edit design/*.md" [label="the UI's design direction: who it's for, color roles, patterns, exceptions, decisions"];
 }
 ```
@@ -29,9 +29,9 @@ digraph docs_router {
 - **`lua/plugins/README.md`** indexes the local plugins for a person browsing `lua/plugins/`: one alphabetical bullet per plugin, linking its directory and giving its purpose in a sentence. Keep its plugins the same as the rows of `README.md`'s table, which changes with it.
 - **`lua/plugins/*/README.md`** documents one local plugin for a person using it: what it does, its keymaps and commands, and the design choices behind it. Edit the section the change affects and keep the file's existing headings. It changes with that plugin's behavior, keymaps, or commands.
 - **`AGENTS.md`** is the file every agent loads first: what the repo is, where answers live, the rules every change needs, and the routing digraph. Keep it to rules that apply to every change, plus the rules of any area that has no rule file yet. It changes when a rule file is added, renamed, or removed, which updates its `## Routing` edge.
-- **`docs/agents/*-rules.md`** each hold one area's rules, which agents load through `AGENTS.md`'s routing when a change touches that area. State each rule as an instruction, and point to a file in the repo that follows it. A rule file changes when its area's conventions change.
+- **`docs/agents/rules/*.md`** each hold one area's rules, which agents load through `AGENTS.md`'s routing when a change touches that area. State each rule as an instruction, and point to a file in the repo that follows it. A rule file changes when its area's conventions change.
 - **`design/`** holds the design direction for the editor's UI. Agents load it through `AGENTS.md`'s routing before a UI change, and the user-level `/taste` skill reads it from the repo root as the repo's standing brief, so it stays there rather than moving into `docs/`. `design/README.md` routes to its files and says which one each kind of change updates. It changes when a change adds a UI pattern, departs from one, or settles a design question.
-- **`docs/agents/documentation-rules.md`**, this file, maps every doc to what it covers. Each doc gets one box in the digraph and one bullet here.
+- **`docs/agents/rules/documentation.md`**, this file, maps every doc to what it covers. Each doc gets one box in the digraph and one bullet here.
 
 ## Adding a doc
 
@@ -39,6 +39,6 @@ A new doc goes beside what it describes:
 
 - A new local plugin's `README.md` goes in its directory, `lua/plugins/<name>/`.
 - A new design file goes in `design/`, with an edge in `design/README.md`'s `## Routing`. This file's `design/*.md` box already covers it.
-- A rule for an area starts in `AGENTS.md`. Once the area has rules that changes elsewhere do not need, they move to `docs/agents/<area>-rules.md`, with an edge in `AGENTS.md`'s `## Routing`.
+- A rule for an area starts in `AGENTS.md`. Once the area has rules that changes elsewhere do not need, they move to `docs/agents/rules/<area>.md`, with an edge in `AGENTS.md`'s `## Routing`.
 
 Adding, removing, or renaming a doc updates this file's digraph and landscape in the same change.
