@@ -8,4 +8,7 @@ require("gitsigns").setup({
   -- interleaved removed and added lines.
   -- The ignores match changeset's sidebar, which leaves out whitespace-only changes.
   diff_opts = { linematch = 0, ignore_whitespace = true, ignore_blank_lines = true },
+  -- A dashed bar for changed lines, so they differ from added ones by shape, not just color.
+  signs = { change = { text = "╏" } },
+  signs_staged = { change = { text = "╏" } },
 })

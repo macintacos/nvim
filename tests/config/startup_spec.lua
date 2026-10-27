@@ -294,6 +294,17 @@ describe("startup", function()
     assert.equal("default", seen.value)
   end)
 
+  it("marks added and changed lines with different git signs, staged or not", function()
+    local signs = [[vim.tbl_map(function(signs)
+      return { signs.add.text, signs.change.text }
+    end, { require("gitsigns.config").config.signs, require("gitsigns.config").config.signs_staged })]]
+    local seen = boot(dir, reporting(signs))
+
+    for _, pair in ipairs(seen.value) do
+      assert.are_not.equal(pair[1], pair[2])
+    end
+  end)
+
   it("centers its tabs, each 25 cells wide with a cell between", function()
     local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
     local seen = boot(dir, reporting(tabline), { "-c", "tabnew" })
