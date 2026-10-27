@@ -73,6 +73,7 @@ digraph rules_router {
     "What does the change touch?" -> "Load docs/agents/testing-rules.md" [label="tests/: writing or running specs"];
     "What does the change touch?" -> "Load docs/agents/tooling-rules.md" [label="type check, linters, formatters, git hooks, mise tasks"];
     "What does the change touch?" -> "Load docs/agents/documentation-rules.md" [label="any doc: which one to update, and how"];
+    "What does the change touch?" -> "Load design/README.md" [label="the editor's UI: colors, highlight groups, chrome, floats, notify messages"];
 }
 ```
 
