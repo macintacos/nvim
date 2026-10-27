@@ -147,9 +147,9 @@ end
 local function syntax_groups(p, background)
   return {
     -- Alucard's yellow role is an orchid that crowds its pink keywords and purple
-    -- constants, so its strings take a teal halfway between green and cyan, at 4:1
+    -- constants, so its strings take a teal halfway between green and cyan, at 4.6:1
     -- on bg1.
-    String = { fg = background == "light" and "#108881" or p.yellow.base },
+    String = { fg = background == "light" and "#007d77" or p.yellow.base },
     Character = { link = "String" },
     ["@string.regexp"] = { fg = p.red.base },
     ["@string.regex"] = { link = "@string.regexp" },
