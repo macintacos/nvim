@@ -63,3 +63,14 @@ require("mini.statusline").setup({
     end,
   },
 })
+
+-- Redraws the statusline when gitsigns reports a new branch or diff count. It
+-- updates those from a git watcher, so a branch switched outside a keypress,
+-- such as from the branch picker or lazygit, would otherwise show stale until
+-- the next one. Fires on gitsigns' `User GitSignsUpdate`.
+vim.api.nvim_create_autocmd("User", {
+  group = vim.api.nvim_create_augroup("StatuslineGitsigns", { clear = true }),
+  pattern = "GitSignsUpdate",
+  desc = "Redraw the statusline when gitsigns' status changes",
+  command = "redrawstatus",
+})
