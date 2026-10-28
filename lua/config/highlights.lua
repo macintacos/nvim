@@ -203,6 +203,8 @@ local function plugin_groups(p, background)
     -- The tab picker's rows, marked as the tabline marks its tabs.
     MiniPickTabCurrent = { fg = p.purple.base, bold = true },
     MiniPickTabUnsaved = { italic = true },
+    -- The branch picker's current branch, marked as the tab picker marks the current tab.
+    MiniPickBranchCurrent = { fg = p.purple.base, bold = true },
     MiniIndentscopeSymbol = { fg = p.purple.base },
     -- Pro pills visual mode in yellow; here it's pink, like modes.nvim's visual cursor.
     MiniStatuslineModeVisual = { fg = p.bg1, bg = p.pink.base },

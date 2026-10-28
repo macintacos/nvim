@@ -158,7 +158,8 @@ vim.schedule(function()
       { "<leader>g", group = "git", icon = { cat = "filetype", name = "git" } },
       { "<leader>gs", function() Snacks.lazygit.open() end, desc = "Open Lazygit", icon = { icon = "󰊢", color = "orange" } },
       { "<leader>gl", pick("git_commits"), desc = "Git Log", icon = { icon = "󰜘", color = "orange" } },
-      { "<leader>gb", pick("git_blame_line"), desc = "Git Blame Line", icon = { icon = "󰭖", color = "orange" } },
+      { "<leader>gb", function() require("plugins.branches").pick() end, desc = "Branches", icon = { icon = "󰘬", color = "orange" } },
+      { "<leader>gB", pick("git_blame_line"), desc = "Git Blame Line", icon = { icon = "󰭖", color = "orange" } },
       { "<leader>gf",
         function()
           -- `:Pick` would expand `%` itself; doing it here keeps the whole
@@ -170,7 +171,7 @@ vim.schedule(function()
       { "<leader>gH", pick("git_hunks", { scope = "unstaged" }), desc = "Git Hunks (unstaged)", icon = { icon = "󰕚", color = "orange" } },
       { "<leader>gj", pick("changeset"), desc = "Jump to Change (Changeset)", icon = { icon = "󰙅", color = "orange" } },
       { "<leader>gP", Cmd("Changeset review"), desc = "PR Review Mode (gutter vs PR base)", icon = { icon = "󰓂", color = "orange" } },
-      { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse (open)", icon = { icon = "󰖟", color = "blue" } },
+      { "<leader>gG", function() Snacks.gitbrowse() end, desc = "Git Browse (open)", icon = { icon = "󰖟", color = "blue" } },
       { "<leader>gw", group = "worktrees", icon = { icon = "󰘬", color = "orange" } },
       { "<leader>gwt", function() require("plugins.worktrunk").pick() end, desc = "Worktree Picker", icon = { icon = "󰓡", color = "orange" } },
       { "<leader>gw-", function() require("plugins.worktrunk").previous() end, desc = "Previous Worktree", icon = { icon = "󰋚", color = "orange" } },

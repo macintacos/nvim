@@ -42,7 +42,7 @@ Outside the mode colors above, use a hue only for the meanings below, and add a 
 | cyan | Matched characters in every picker and in completion, keys in data files, links and URLs |
 | green | Prompt prefixes, success, added lines, the plugin-update count |
 | pink | Jump labels |
-| purple | The current tab's number, the indent scope line, the paste flash |
+| purple | The current tab's number, the current branch's icon in the branch picker, the indent scope line, the paste flash |
 | red | Errors, removed lines, and unmatched brackets |
 | orange | Changed lines |
 | yellow | The cursor line number in normal mode, and scratch files |
