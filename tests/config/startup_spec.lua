@@ -294,6 +294,13 @@ describe("startup", function()
     assert.equal("default", seen.value)
   end)
 
+  it("keeps files unmodifiable under -M, but not the buffers plugins draw in", function()
+    local probe = "{ file = vim.bo.modifiable, scratch = vim.bo[vim.api.nvim_create_buf(false, true)].modifiable }"
+    local seen = boot(dir, reporting(probe), { "-M" })
+
+    assert.same({ file = false, scratch = true }, seen.value)
+  end)
+
   it("marks added and changed lines with different git signs, staged or not", function()
     local signs = [[vim.tbl_map(function(signs)
       return { signs.add.text, signs.change.text }

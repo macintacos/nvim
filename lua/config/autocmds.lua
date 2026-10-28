@@ -64,6 +64,22 @@ vim.api.nvim_create_autocmd({ "VimResized" }, {
   end,
 })
 
+-- Under `nvim -M`, keep only file buffers unmodifiable.
+-- -M clears the global 'modifiable', which every new buffer copies, so the
+-- scratch buffers plugins draw in (picker lists, previews) can't be written and
+-- mini.pick's outline errors on its empty lines. 'write' stays off either way.
+-- Fires: when a file is read, or a buffer starts for one not yet on disk.
+local started_modifiable = vim.go.modifiable --[[@as boolean]]
+if not started_modifiable then
+  vim.go.modifiable = true
+  vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+    group = augroup("readonly_files"),
+    callback = function(event)
+      vim.bo[event.buf].modifiable = false
+    end,
+  })
+end
+
 -- Restore the cursor to the last edited position when reopening a file.
 -- Neovim stores the previous cursor location in the '" mark. This reads that
 -- mark and jumps to it, so you pick up where you left off. A per-buffer flag
