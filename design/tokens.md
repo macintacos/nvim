@@ -36,4 +36,4 @@ When the palette has no key for a tint, mix one with `helpers.palette.blend(a, b
 
 ## Without a palette file
 
-Without a palette file, the scheme loads Pro's own Van Helsing or Alucard and the recolors in `highlights.lua` don't apply. The yank, paste, and link-hover groups fall back to scheme groups so that feedback still shows.
+Without a palette file, the scheme loads Pro's own Van Helsing or Alucard and the recolors in `highlights.lua` don't apply. The yank, paste, and link-hover groups and the grep keybar's labels fall back to scheme groups so that they still show.

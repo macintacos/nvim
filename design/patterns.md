@@ -14,6 +14,8 @@ Each window's filename floats bottom-right in an incline label (`plugin/incline.
 
 Every float takes a rounded border (`'winborder'` in `lua/config/options.lua`). Borders are `bg4`. The float itself is `bg0` in dark mode and `bg1` in light mode, so it never sits brighter than the editor.
 
+A picker's keys show as a keybar on the right of the side preview's bottom border, such as `⌥x exclude  ⌥o only` for the live grep. Keys take the border text's color and labels the dimmer `MiniPickKeybarLabel`. State that differs from the defaults goes in the list's footer rather than in a row of its own, so the keybar and the state cost no rows.
+
 ## Mode colors
 
 Each mode has one color. The statusline's mode section shows it, and `plugin/modes.lua` paints it on the cursor, the cursor line's tint, and the line number. The cursor's smear trail (`plugin/smear-cursor.lua`) follows the cursor's color.

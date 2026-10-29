@@ -23,14 +23,16 @@ local function set_picker_match_hl(p)
   vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = p.bg1, bg = p.cyan.base, bold = true })
 end
 
--- Without a palette file the feedback groups borrow the scheme's, so yanks, pastes
--- and hovered links still show; the palette's colours replace them.
+-- Without a palette file the feedback groups and the grep keybar's labels borrow
+-- the scheme's, so yanks, pastes, hovered links and the keybar still show; the
+-- palette's colours replace them.
 local function set_feedback_fallback_hl()
   for group, scheme_group in pairs({
     FlashYank = "IncSearch",
     FlashPaste = "Visual",
     LinkHover = "Visual",
     LinkHoverIcon = "Visual",
+    MiniPickKeybarLabel = "Comment",
   }) do
     vim.api.nvim_set_hl(0, group, { link = scheme_group, default = true })
   end
@@ -200,6 +202,8 @@ local function plugin_groups(p, background)
     MiniPickMatchCurrent = { bg = p.sel0 },
     MiniPickPromptPrefix = { fg = p.green.base },
     MiniPickHeader = { fg = p.comment },
+    -- The live grep's keybar: keys in the border text's color, labels dimmer.
+    MiniPickKeybarLabel = { fg = p.comment },
     -- The tab picker's rows, marked as the tabline marks its tabs.
     MiniPickTabCurrent = { fg = p.purple.base, bold = true },
     MiniPickTabUnsaved = { italic = true },

@@ -228,8 +228,8 @@ vim.schedule(function()
       { "<leader>sp", pick("grep_live"), desc = "Grep Project", icon = { icon = "󰍉", color = "green" } },
       { "<leader>sP",
         function()
-          -- grep_live always starts empty, and MiniPickStart fires once the picker
-          -- is up — the first moment its query can be seeded with <cword>.
+          -- MiniPickStart fires once the picker is up — the first moment its query
+          -- can be seeded with <cword>, which wins over the grep's saved query.
           local word = vim.fn.expand("<cword>")
           if word ~= "" then
             vim.api.nvim_create_autocmd("User", {

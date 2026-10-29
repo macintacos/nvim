@@ -9,7 +9,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `:Pick …`         | What changes                                                                 |
 | ----------------- | ---------------------------------------------------------------------------- |
 | `files`           | Always `rg`, hidden files included, plus a list of ignored paths. `<Space>` toggles the preview instead of the global `<C-p>`. Matches the filename before the directories too, so `buzfoo` finds `foo/buz.ts`. |
-| `grep_live`       | Hits grouped under a virtual file header, with the line number right-aligned. |
+| `grep_live`       | Hits grouped under a virtual file header, with the line number right-aligned. Files ranked so tests and lockfiles sink, with path filters, a sort cycle, and the last query kept per session. |
 | `lsp document_symbol` | Rendered as the file's outline — a real tree, not a flat list.            |
 | `lsp workspace_symbol` | Rows stripped of their doubled `[Kind]` and path prefixes.              |
 | `git_blame_line`  | New picker: commits that touched the line under the cursor.                   |
@@ -90,7 +90,7 @@ A filename too long to fit beside any directory keeps its end instead. Concealin
  lua/plugins/mini-pickers/outline.lua│33│3│  MiniPick.default_show(buf_i…
 ```
 
-`grep.lua` keeps the items — they are the raw rg strings mini.pick parses for choosing and previewing — and changes only the drawing:
+`grep/init.lua` keeps the items — they are the raw rg strings mini.pick parses for choosing and previewing — and changes only the drawing:
 
 ```text
 󰢱 lua/plugins/mini-pickers/render.lua
@@ -102,9 +102,37 @@ A filename too long to fit beside any directory keeps its end instead. Concealin
 
 The header is the same `virt_lines_above` mark the outline's breadcrumb uses, with the same `render.reserve_trail_row` fix for the first row, and leading indentation is stripped from the text so a deeply nested match does not start off the right edge.
 
-The preview marks the whole match. rg reports only where a hit starts, so `grep.lua` re-runs the query as a Vim very-magic regex from that column to find where it ends; characters only Vim treats as operators (`<>=@%&~`) are escaped first. A pattern Vim cannot compile or match there — inline flags, lookarounds — keeps mini.pick's one-character mark.
+The preview marks the whole match. rg reports only where a hit starts, so `grep/init.lua` re-runs the query as a Vim very-magic regex from that column to find where it ends; characters only Vim treats as operators (`<>=@%&~`) are escaped first. A pattern Vim cannot compile or match there — inline flags, lookarounds — keeps mini.pick's one-character mark.
 
-One header covers a whole file because `grep_live` sets its items with `do_match = false` and rg walks a file at a time — hits arrive already grouped, so a run of equal paths is a run of hits in one file. Nothing re-sorts them; a query change re-runs rg rather than reordering what is on screen.
+### Ranking
+
+The picker runs rg itself, modeled on mini.pick's `grep_live`: every query change kills the previous rg and starts a new one, and items are set with `do_match = false`. mini.pick buffers rg's whole output before setting items, so `grep/rank.lua` can rank all of it at no cost to streaming.
+
+Ranking demotes the files you are probably not looking for. It moves whole files, keeping each file's hits in rg's order, so one header still covers a whole file. Files sort by tier, then by the sort mode, then by path:
+
+- **Tier 1:** implementation and config.
+- **Tier 2:** tests, such as `tests/`, `*_spec.*`, and `test_*.py`.
+- **Tier 3:** lockfiles, build output, and local dependencies, such as `go.sum`, `dist/`, and `.venv/`.
+
+The patterns sit in `M.TIERS` at the top of `grep/rank.lua`. Add to them there; there is no user config.
+
+### Keys and saved state
+
+| Key     | Does                                                                                   |
+| ------- | -------------------------------------------------------------------------------------- |
+| `<M-x>` | Excludes a path. The input starts on the current hit's directory; trim it or type any file or directory. |
+| `<M-o>` | Searches only a path, with the same input.                                             |
+| `<M-f>` | Lists the filters; choosing one removes it and reopens the grep on the same query.     |
+| `<M-t>` | Cycles the sort: path, nearest to the file you opened from, most hits, recently used.  |
+| `<M-u>` | Also searches paths rg ignores (`--no-ignore`, still skipping `.git`).                 |
+| `<M-r>` | Resets filters, sort, ignored, and the regex method.                                   |
+| `<C-e>` | Switches between regex and plain, as in mini.pick.                                     |
+
+Filters, sort, ignored, method, and the last query are saved JSON-encoded in `vim.g.GrepLiveState` (`grep/state.lua`). The name is uppercase, so `:mksession` saves it and the state lasts as long as the project's session. Filters are stored relative to Neovim's cwd and rebased onto the picker's cwd, so the scoped `pick_in` grep keeps the filters inside its directory. Excludes become anchored `!` globs. Includes become path arguments after the pattern rather than globs, since a positive `--glob` overrides `.gitignore` beneath it; a scoped grep's own glob still narrows them.
+
+Saved state shows on the borders. The list footer, which mini.pick builds from the source name, lists only what differs from the defaults, such as `−docs/ +lua/ nearest first`. mini.pick draws that footer in one highlight group, so the `−` and `+` signs carry the meaning without color. The keybar sits on the right of the preview's bottom border.
+
+The picker reopens on the last query, drawn selected: the next printable key or a terminal paste replaces it, `<BS>` or `<C-w>` clears it, and `<Left>` or `<Right>` keep it for editing. mini.pick's prompt has no selection, so `grep/init.lua` emulates one with a `MiniPickPrompt:Visual` entry in the list window's `'winhighlight'`, a `vim.on_key` listener that ignores keys a plugin feeds, and a `vim.paste` wrapper.
 
 ## The outline
 
@@ -142,7 +170,10 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | --------------- | ------------------------------------------------------------------------ |
 | `init.lua`      | `setup()` — registry entries and the `lsp` scope dispatch.               |
 | `files.lua`     | The `rg` invocation and `M.extra`, the ignored paths added back to it.   |
-| `grep.lua`      | The live grep's item parsing and its file-header renderer.               |
+| `grep/init.lua` | The live grep picker: its rg runs, keys, selected query, and file-header renderer. |
+| `grep/rank.lua` | The tier patterns and the sort modes that order the grep's files.       |
+| `grep/state.lua` | The grep's saved state, its rg globs and command, and its footer label. |
+| `grep/selection.lua` | What each key does to the grep's selected query.                    |
 | `symbols.lua`   | Flattening a document-symbol tree into items carrying `guides`/`crumb`.  |
 | `outline.lua`   | The document-symbol picker and its two-mode renderer.                    |
 | `workspace.lua` | Workspace symbol `show`/`match`.                                         |
