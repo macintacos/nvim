@@ -16,26 +16,12 @@ local function side_floats()
   end, vim.api.nvim_list_wins())
 end
 
----Start a picker and run `steps` against it in turn, then stop it.
----
----`MiniPick.start` blocks until the picker stops, so each step is a timer the
----picker's key loop runs while it waits for input — spaced out so the previous
----step's keys have been handled by the time the next one looks.
 ---@param opts table Options for `MiniPick.start`.
 ---@param steps fun()[]
 local function drive(opts, steps)
-  local i = 0
-  local function step()
-    i = i + 1
-    if steps[i] then
-      steps[i]()
-      vim.defer_fn(step, 50)
-    else
-      MiniPick.stop()
-    end
-  end
-  vim.defer_fn(step, 50)
-  MiniPick.start(opts)
+  require("support.pick").drive(function()
+    MiniPick.start(opts)
+  end, steps)
 end
 
 ---Write a file of numbered lines, e.g. "a1", "a2", …
@@ -96,6 +82,17 @@ describe("mini-pickers.preview", function()
       assert.equal(117, config.width)
       assert.equal("SW", config.anchor)
     end)
+
+    it("carries a footer on the right of its bottom border when given one", function()
+      local list = { anchor = "SW", row = 40, col = 0, width = 80, height = 24, border = "single", zindex = 251 }
+      local footer = { { "k", "MiniPickBorderText" } }
+      local config = preview._float_config(list, { beside = 116 }, footer)
+      assert.same(footer, config.footer)
+      assert.equal("right", config.footer_pos)
+      local bare = preview._float_config(list, { beside = 116 })
+      assert.is_nil(bare.footer)
+      assert.is_nil(bare.footer_pos)
+    end)
   end)
 
   describe("in a running picker", function()
@@ -149,6 +146,21 @@ describe("mini-pickers.preview", function()
       })
 
       assert.equal(120, line)
+    end)
+
+    it("draws the footer it was opened with on the preview's bottom border", function()
+      local footer
+      drive({
+        source = { items = { numbered_file(dir, "e", 1) } },
+        window = preview.window({ footer = { { "keys", "Comment" } } }),
+      }, {
+        function()
+          local win = side_floats()[1]
+          footer = win and vim.api.nvim_win_get_config(win).footer
+        end,
+      })
+
+      assert.same({ { "keys", "Comment" } }, footer)
     end)
 
     it("leaves pickers that did not opt in alone", function()

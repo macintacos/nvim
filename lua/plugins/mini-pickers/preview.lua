@@ -58,8 +58,9 @@ end
 ---Float config for the preview, placed against the list window per `layout`.
 ---@param list mini-pickers.preview.Placement The list window's current config.
 ---@param layout { beside?: integer, above?: integer }
+---@param footer? [string, string][] Chunks for the right of the bottom border.
 ---@return vim.api.keyset.win_config
-function M._float_config(list, layout)
+function M._float_config(list, layout, footer)
   local config = {
     relative = "editor",
     anchor = list.anchor,
@@ -68,6 +69,9 @@ function M._float_config(list, layout)
     zindex = list.zindex,
     style = "minimal",
     focusable = false,
+    footer = footer,
+    -- Neovim rejects a `footer_pos` without a footer.
+    footer_pos = footer and "right" or nil,
   }
   if layout.beside then
     config.row, config.col = list.row, list.col + list.width + 2
@@ -95,9 +99,10 @@ local function window_config()
 end
 
 ---Picker `window` option that opts into the side preview.
+---@param opts? { footer?: [string, string][] } `footer` goes on the preview's bottom border.
 ---@return table
-function M.window()
-  return { config = window_config }
+function M.window(opts)
+  return { config = window_config, preview_footer = opts and opts.footer }
 end
 
 ---A fresh buffer for one preview; wiped as soon as the next replaces it.
@@ -111,7 +116,8 @@ end
 ---Keep a side preview in step with the active picker until it stops.
 ---@param preview fun(buf_id: integer, item: any) The picker's `source.preview`.
 ---@param main integer The picker's list window.
-local function attach(preview, main)
+---@param footer? [string, string][]
+local function attach(preview, main, footer)
   local ns = vim.api.nvim_create_namespace("mini_pick_side_preview")
   local group = vim.api.nvim_create_augroup("MiniPickers.PreviewSession", { clear = true })
   ---@type integer?
@@ -147,7 +153,7 @@ local function attach(preview, main)
       return
     end
     local main_config = vim.api.nvim_win_get_config(main) --[[@as mini-pickers.preview.Placement]]
-    local config = M._float_config(main_config, layout)
+    local config = M._float_config(main_config, layout, footer)
     if win and vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_set_config(win, config)
     else
@@ -196,7 +202,7 @@ function M.setup()
     callback = function()
       local opts, state = MiniPick.get_picker_opts(), MiniPick.get_picker_state()
       if opts and state and opts.window.config == window_config then
-        attach(opts.source.preview, state.windows.main)
+        attach(opts.source.preview, state.windows.main, opts.window.preview_footer)
       end
     end,
   })
