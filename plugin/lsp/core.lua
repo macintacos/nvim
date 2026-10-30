@@ -136,6 +136,10 @@ vim.filetype.add({ extension = { mq = "mq" } })
 -- deployed ~/.config/zed/... path.
 vim.filetype.add({ pattern = { [".*/zed/.*%.json"] = "jsonc" } })
 
+-- lspconfig's default omits svelte, but the server reads any buffer's text, so
+-- var(--x) in a <style> block resolves too.
+vim.lsp.config("css_variables", { filetypes = { "css", "scss", "less", "svelte" } })
+
 -- mq-lsp is a standalone stdio server (cargo install mq-lsp); not on Mason.
 vim.lsp.config("mq", {
   cmd = { "mq-lsp" },
@@ -145,6 +149,7 @@ vim.lsp.config("mq", {
 
 vim.lsp.enable({
   "bashls",
+  "css_variables",
   "emmylua_ls",
   -- fish_lsp: binary comes from Homebrew (brew install fish-lsp), not Mason.
   "fish_lsp",
@@ -186,6 +191,7 @@ require("mason-lspconfig").setup({ automatic_enable = false })
 require("mason-tool-installer").setup({
   ensure_installed = {
     "bash-language-server",
+    "css-variables-language-server",
     "emmylua_ls",
     "json-lsp",
     "just-lsp",

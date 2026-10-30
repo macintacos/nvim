@@ -27,6 +27,9 @@ require("blink.cmp").setup({
       ghostty = { "omni", "path", "buffer" },
     },
     providers = {
+      -- css-variables-language-server answers every request with every variable, even in a component's <script>.
+      ---@diagnostic disable-next-line: missing-fields
+      lsp = { transform_items = require("helpers.css_variables").transform_items },
       lazydev = {
         name = "LazyDev",
         module = "lazydev.integrations.blink",
