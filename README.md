@@ -28,7 +28,7 @@ dotfiles deploy. Take whatever looks useful.
 
 ## Local plugins
 
-Thirteen plugins I wrote because nothing upstream did the job. Each directory has its own
+Fourteen plugins I wrote because nothing upstream did the job. Each directory has its own
 README.
 
 | Plugin | What it does |
@@ -44,5 +44,6 @@ README.
 | [`pack-updates`](lua/plugins/pack-updates/) | A statusline count of plugins with upstream commits you haven't pulled, checked in the background with `git ls-remote` and cached for a day; `<leader>Pc` re-checks. |
 | [`projects`](lua/plugins/projects/) | `<leader>pp` — a [zoxide](https://github.com/ajeetdsouza/zoxide) picker that relaunches Neovim in the directory you choose, session and all. |
 | [`scratch`](lua/plugins/scratch/) | `<leader>wt` — per-project scratch files under `.tmp/scratch/`, picked or named on open. |
+| [`svelte-css`](lua/plugins/svelte-css/) | Hover, `gd`, and `grr` for a Svelte project's own CSS classes, scoped the way Svelte scopes component styles, from an LSP server running inside Neovim. |
 | [`uv-scripts`](lua/plugins/uv-scripts/) | Filetype detection and a `ty` client pointed at the environment [uv](https://docs.astral.sh/uv/guides/scripts/) builds for a PEP 723 single-file script. |
 | [`worktrunk`](lua/plugins/worktrunk/) | `<leader>gw` — [worktrunk](https://worktrunk.dev) from a float: my shell's worktree picker, quick switches, remove and merge, relaunching Neovim in whichever worktree they land in; plus this file's copy from another worktree, split or diffed; and a worktree removed from under Neovim moves it into the primary one. |
