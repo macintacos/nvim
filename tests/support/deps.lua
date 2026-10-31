@@ -36,7 +36,6 @@ local plugins = {
   "nvim-recorder",
   "nvim-treesitter",
   "otter.nvim",
-  "peeper-picker.nvim",
   "plenary.nvim",
   "quicker.nvim",
   "smear-cursor.nvim",

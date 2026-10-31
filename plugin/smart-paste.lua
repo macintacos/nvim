@@ -8,9 +8,6 @@ vim.pack.add({ "https://github.com/nemanjamalesija/smart-paste.nvim" }, { load =
 vim.schedule(function()
   vim.cmd.packadd("smart-paste.nvim")
 
-  -- gp/gP are intentionally omitted from the default key set: peeper-picker owns
-  -- gpp/gph and <Nop>s bare gp, so mapping gp/gP here would shadow those and add
-  -- a timeoutlen delay before gpp/gph resolve.
   require("smart-paste").setup({ keys = { "p", "P", "]p", "[p" } })
 
   -- Flash the pasted region blue so it's clear what landed where. smart-paste

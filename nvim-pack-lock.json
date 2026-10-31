@@ -263,10 +263,6 @@
       "rev": "6f05811621460eca983bf2cd877e63c59a40720e",
       "src": "https://github.com/jmbuhr/otter.nvim"
     },
-    "peeper-picker.nvim": {
-      "rev": "1f9459b3e7fe0ec5ab5324e6888f7e32e9ff3514",
-      "src": "https://github.com/parwest/peeper-picker.nvim"
-    },
     "pkl-neovim": {
       "rev": "20bfa7232262f36da45470170e7a954e487f4ac6",
       "src": "https://github.com/apple/pkl-neovim"

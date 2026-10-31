@@ -157,9 +157,6 @@ vim.schedule(function()
       { "gh", icon = { icon = "󰯗", color = "blue" } },
       { "gf", icon = { icon = "󱠾", color = "purple" } },
       { "gl", icon = { icon = "󰉻", color = "blue" } },
-      { "gp", desc = "No-op (shadowed by gpp/gph)", icon = { icon = "󰺯", color = "azure" } },
-      { "gpp", icon = { icon = "󰺯", color = "azure" } },
-      { "gph", icon = { icon = "󰋚", color = "azure" } },
       { "gx", mode = { "n", "x" }, icon = { icon = "󰏌", color = "blue" } },
       { "gS", mode = "x", icon = { icon = "󰅲", color = "orange" } },
 

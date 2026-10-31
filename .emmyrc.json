@@ -34,7 +34,6 @@
       ".tests/deps/nvim-recorder",
       ".tests/deps/nvim-treesitter",
       ".tests/deps/otter.nvim",
-      ".tests/deps/peeper-picker.nvim",
       {
         "path": ".tests/deps/plenary.nvim",
         "ignoreGlobs": ["lua/luassert/**", "lua/plenary/_meta/_luassert.lua", "lua/plenary/busted.lua"]
