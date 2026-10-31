@@ -6,4 +6,6 @@ vim.pack.add({ "https://github.com/chrisgrieser/nvim-recorder" })
 require("recorder").setup({
   ---@diagnostic disable-next-line: missing-fields
   mapping = { startStopRecording = "@" },
+  -- Its icons go into each keymap's desc; plugin/which-key.lua gives them real ones.
+  useNerdfontIcons = false,
 })
