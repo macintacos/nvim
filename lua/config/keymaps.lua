@@ -77,6 +77,8 @@ map("Undo break-point at ,", "i", ",", ",<c-g>u")
 map("Undo break-point at .", "i", ".", ".<c-g>u")
 map("Undo break-point at ;", "i", ";", ";<c-g>u")
 
+map("Delete Word Backward", { "i", "c" }, "<M-BS>", "<C-w>")
+
 -- Save, no matter what
 map("Save File", { "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>")
 
