@@ -115,12 +115,12 @@ Sleep 1.1s
 Enter
 Sleep 2.5s
 
-# <leader>bb: back to an open buffer
+# <leader>bB: back to an open buffer
 Space
 Sleep 500ms
 Type "b"
 Sleep 600ms
-Type "b"
+Type "B"
 Sleep 800ms
 Type "which"
 Sleep 600ms

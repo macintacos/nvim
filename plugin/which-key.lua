@@ -83,6 +83,7 @@ vim.schedule(function()
         desc = "Buffer Local Keymaps (which-key)", icon = { icon = "󰌌", color = "cyan" } },
       { "<leader>/", pick("grep_live"), desc = "Grep Project", icon = { icon = "󰍉", color = "green" } },
       { "<leader>:", pick("history", { scope = ":" }), desc = "Command History", icon = { icon = "󰞷", color = "azure" } },
+      { "<leader>;", function() require("dropbar.api").pick() end, desc = "Pick Breadcrumb", icon = { icon = "󰙅", color = "azure" } },
       { "<leader><leader>", pick("which_key"), desc = "Search All Keybindings", icon = { icon = "󰌌", color = "green" } },
 
       -- Z — ZZ is mapped in config/keymaps.lua; ZR and ZQ are built-ins, so
@@ -309,7 +310,8 @@ vim.schedule(function()
       { "<leader>b", group = "buffers", icon = { icon = "󰈔", color = "cyan" } },
       { "<leader>bn", Cmd("bnext"), desc = "Next Buffer", icon = { icon = "󰒭", color = "cyan" } },
       { "<leader>bp", Cmd("bprevious"), desc = "Prev Buffer", icon = { icon = "󰒮", color = "cyan" } },
-      { "<leader>bb", pick("buffers"), desc = "Show Open Buffers", icon = { icon = "󰪷", color = "cyan" } },
+      { "<leader>bb", function() require("dropbar.api").select_next_context() end, desc = "Breadcrumb Menu", icon = { icon = "󰙅", color = "azure" } },
+      { "<leader>bB", pick("buffers"), desc = "Show Open Buffers", icon = { icon = "󰪷", color = "cyan" } },
       { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer", icon = { icon = "󰅖", color = "red" } },
       { "<leader>bD", function() Snacks.bufdelete.other() end, desc = "Delete Other Buffers", icon = { icon = "󰱝", color = "red" } },
       { "<leader>by", Cmd("%y"), desc = "Copy Buffer Text", icon = { icon = "󰅍", color = "yellow" } },
