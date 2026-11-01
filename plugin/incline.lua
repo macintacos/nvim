@@ -7,6 +7,8 @@ require("incline").setup({
     padding = 0,
     margin = { horizontal = 0, vertical = 2 },
     placement = { vertical = "bottom", horizontal = "right" },
+    -- Under every float, the breadcrumb preview's 40 included.
+    zindex = 30,
   },
   ignore = {
     floating_wins = false,

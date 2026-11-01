@@ -305,6 +305,28 @@ vim.defer_fn(function()
 end, 1500)
 ]]
 
+-- Opens the winbar's last segment over a/b/c.lua and reports the first line of each
+-- float titled c.lua, then how many of those outlive <Esc>.
+local dropbar_preview_probe = [[
+vim.defer_fn(function()
+  local function opened()
+    return vim.tbl_filter(function(win)
+      local title = vim.api.nvim_win_get_config(win).title
+      return title ~= nil and vim.trim(title[1][1]) == "c.lua"
+    end, vim.api.nvim_list_wins())
+  end
+  vim.api.nvim_eval_statusline(vim.wo.winbar, { winid = 0, use_winbar = true })
+  vim.fn.maparg(" bb", "n", false, true).callback()
+  local shown = vim.tbl_map(function(win)
+    return vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(win), 0, 1, false)[1]
+  end, opened())
+  vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "mx", false)
+  vim.wait(500, function() return #opened() == 0 end)
+  vim.fn.writefile({ vim.json.encode({ value = { shown = shown, left = #opened() } }) }, %q)
+  vim.cmd("qa!")
+end, 1500)
+]]
+
 describe("startup", function()
   ---@type string
   local dir
@@ -418,6 +440,12 @@ describe("startup", function()
       local seen = boot(dir, dropbar_winbar_probe, { "-c", "edit a/b/c.lua" })
 
       assert.matches("a.*b.*c%.lua", seen.value)
+    end)
+
+    it("preview the file under the cursor in a float that closes with them", function()
+      local seen = boot(dir, dropbar_preview_probe, { "-c", "edit a/b/c.lua" })
+
+      assert.same({ shown = { "-- c" }, left = 0 }, seen.value)
     end)
   end)
 

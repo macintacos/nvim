@@ -49,11 +49,101 @@ local function leave()
   end
 end
 
+---@type integer?
+local preview_win
+
+---The first `height` lines of the file at `path`, or a directory's entries.
+---@param path string
+---@param height integer
+---@return string[]
+local function preview_lines(path, height)
+  if vim.fn.isdirectory(path) == 1 then
+    return vim.fn.readdir(path)
+  end
+  local ok, lines = pcall(vim.fn.readfile, path, "", height)
+  if not ok then
+    return { "Unreadable file" }
+  end
+  -- readfile() turns NUL bytes into newlines inside a line.
+  if table.concat(lines):find("\n", 1, true) then
+    return { "Binary file" }
+  end
+  return lines
+end
+
+---Highlight `buf` as the file at `path`, without the FileType autocmds that would attach LSP.
+---@param buf integer
+---@param path string
+local function preview_highlight(buf, path)
+  local ft = vim.filetype.match({ filename = path })
+  local lang = ft and vim.treesitter.language.get_lang(ft)
+  if not (lang and pcall(vim.treesitter.start, buf, lang)) then
+    vim.bo[buf].syntax = ft or ""
+  end
+end
+
+---Show the file or directory at `path` in a float filling the editor's bottom-right quarter.
+---@param path string
+local function show_preview(path)
+  local config = {
+    relative = "editor",
+    anchor = "SE",
+    -- Above the statusline and the command line.
+    row = vim.o.lines - vim.o.cmdheight - 1,
+    col = vim.o.columns,
+    width = math.floor(vim.o.columns / 2),
+    height = math.floor(vim.o.lines / 2),
+    style = "minimal",
+    focusable = false,
+    -- Under the menus, which take the default 50.
+    zindex = 40,
+    title = " " .. vim.fs.basename(path) .. " ",
+  }
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[buf].bufhidden = "wipe"
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, preview_lines(path, config.height))
+  preview_highlight(buf, path)
+  if preview_win and vim.api.nvim_win_is_valid(preview_win) then
+    vim.api.nvim_win_set_buf(preview_win, buf)
+    vim.api.nvim_win_set_config(preview_win, config)
+  else
+    preview_win = vim.api.nvim_open_win(buf, false, vim.tbl_extend("force", config, { noautocmd = true }))
+  end
+end
+
+-- Closes the preview float once the last breadcrumb menu closes. When a submenu closes
+-- into its parent instead, it previews the parent's row under the cursor, which the
+-- float would otherwise leave showing the submenu's last row.
+vim.api.nvim_create_autocmd("WinClosed", {
+  group = vim.api.nvim_create_augroup("dropbar_preview", { clear = true }),
+  callback = vim.schedule_wrap(function()
+    -- Until a menu opens, dropbar has no menu registry for get_current() to read.
+    if not (preview_win and vim.api.nvim_win_is_valid(preview_win)) then
+      return
+    end
+    local menu = utils.menu.get_current()
+    if menu then
+      menu:preview_symbol_at(vim.api.nvim_win_get_cursor(0), true)
+    else
+      vim.api.nvim_win_close(preview_win, true)
+      preview_win = nil
+    end
+  end),
+})
+
 -- dropbar_configs_t declares every key required, but setup() deep-merges this onto its defaults.
 ---@diagnostic disable-next-line: missing-fields, param-type-mismatch
 require("dropbar").setup({
-  -- A file preview swaps a scratch buffer into the window, whose winbar is the empty global one.
-  sources = { path = { preview = false } },
+  sources = {
+    path = {
+      -- Declines dropbar's own preview, which swaps a scratch buffer into the window
+      -- and blanks its winbar, after drawing the file in our float instead.
+      preview = function(path)
+        show_preview(path)
+        return false
+      end,
+    },
+  },
   menu = {
     keymaps = {
       h = step_out,
