@@ -292,6 +292,19 @@ vim.defer_fn(function()
 end, 1500)
 ]]
 
+-- Opens the winbar's last segment over a/b/c.lua and reports the winbar the file's
+-- window renders while that menu is open.
+local dropbar_winbar_probe = [[
+vim.defer_fn(function()
+  local win = vim.api.nvim_get_current_win()
+  vim.api.nvim_eval_statusline(vim.wo.winbar, { winid = win, use_winbar = true })
+  vim.fn.maparg(" bb", "n", false, true).callback()
+  local winbar = vim.api.nvim_eval_statusline(vim.wo[win].winbar, { winid = win, use_winbar = true }).str
+  vim.fn.writefile({ vim.json.encode({ value = winbar }) }, %q)
+  vim.cmd("qa!")
+end, 1500)
+]]
+
 describe("startup", function()
   ---@type string
   local dir
@@ -386,15 +399,26 @@ describe("startup", function()
     assert.equal("b", boot(dir, tab_enter_probe).value)
   end)
 
-  it("walks the breadcrumb menus like a bar: l descends, h steps out, <Esc> leaves", function()
-    vim.fn.mkdir(dir .. "/a/b", "p")
-    -- Only a comment, so no code symbol follows the file in the winbar.
-    vim.fn.writefile({ "-- c" }, dir .. "/a/b/c.lua")
-    local seen = boot(dir, dropbar_probe, { "-c", "edit a/b/c.lua" })
+  describe("breadcrumb menus over a/b/c.lua", function()
+    before_each(function()
+      vim.fn.mkdir(dir .. "/a/b", "p")
+      -- Only a comment, so no code symbol follows the file in the winbar.
+      vim.fn.writefile({ "-- c" }, dir .. "/a/b/c.lua")
+    end)
 
-    -- l opens nothing on a file; h swaps to the segment before, settling on the first,
-    -- and closes a submenu before stepping out; <Esc> shuts every level at once.
-    assert.same({ "0:c.lua", "0:c.lua", "0:b", "0:a", "0:a", "1:b", "0:a", "1:b", "editor" }, seen.value)
+    it("walk like a bar: l descends, h steps out, <Esc> leaves", function()
+      local seen = boot(dir, dropbar_probe, { "-c", "edit a/b/c.lua" })
+
+      -- l opens nothing on a file; h swaps to the segment before, settling on the first,
+      -- and closes a submenu before stepping out; <Esc> shuts every level at once.
+      assert.same({ "0:c.lua", "0:c.lua", "0:b", "0:a", "0:a", "1:b", "0:a", "1:b", "editor" }, seen.value)
+    end)
+
+    it("leave the winbar showing while a file's menu is open", function()
+      local seen = boot(dir, dropbar_winbar_probe, { "-c", "edit a/b/c.lua" })
+
+      assert.matches("a.*b.*c%.lua", seen.value)
+    end)
   end)
 
   it("flashes yanks and pastes and tints a hovered link without a palette file", function()

@@ -52,6 +52,8 @@ end
 -- dropbar_configs_t declares every key required, but setup() deep-merges this onto its defaults.
 ---@diagnostic disable-next-line: missing-fields, param-type-mismatch
 require("dropbar").setup({
+  -- A file preview swaps a scratch buffer into the window, whose winbar is the empty global one.
+  sources = { path = { preview = false } },
   menu = {
     keymaps = {
       h = step_out,
