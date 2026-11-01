@@ -13,5 +13,8 @@ set -euo pipefail
 # A single file goes through PlenaryBustedDirectory too — it shells out to `find`,
 # which takes one. :PlenaryBustedFile accepts no options, so the nvim it spawns
 # gets no -u and tests stdpath("config") rather than this checkout.
+#
+# startup_spec boots the whole config once per test, which outruns plenary's default
+# 50s per file while the other spec files run beside it.
 nvim --headless -u tests/minimal_init.lua \
-	-c "PlenaryBustedDirectory ${1:-tests/} {minimal_init = 'tests/minimal_init.lua'}"
+	-c "PlenaryBustedDirectory ${1:-tests/} {minimal_init = 'tests/minimal_init.lua', timeout = 120000}"
