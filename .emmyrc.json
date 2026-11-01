@@ -16,6 +16,7 @@
       ".tests/deps/blink.pairs",
       ".tests/deps/chezmoi.nvim",
       ".tests/deps/dial.nvim",
+      ".tests/deps/dropbar.nvim",
       ".tests/deps/incline.nvim",
       ".tests/deps/mason-lspconfig.nvim",
       ".tests/deps/mason-tool-installer.nvim",

@@ -18,6 +18,7 @@ local plugins = {
   "blink.pairs",
   "chezmoi.nvim",
   "dial.nvim",
+  "dropbar.nvim",
   "incline.nvim",
   "mason-lspconfig.nvim",
   "mason-tool-installer.nvim",

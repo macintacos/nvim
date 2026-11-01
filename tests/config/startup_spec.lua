@@ -266,6 +266,32 @@ vim.defer_fn(function()
 end, 1500)
 ]]
 
+-- Opens the winbar's last segment over a/b/c.lua, then reports after each key the
+-- open menu's depth and the row its cursor is on, or "editor" once every menu is shut.
+local dropbar_probe = [[
+vim.defer_fn(function()
+  local function where()
+    local menu = require("dropbar.utils").menu.get_current()
+    if not menu then
+      return next(_G.dropbar.menus) and "a menu left open" or "editor"
+    end
+    local depth = 0
+    for _ in function(_, m) return m.prev_menu end, nil, menu do depth = depth + 1 end
+    local row = vim.api.nvim_win_get_cursor(menu.win)[1]
+    return depth .. ":" .. vim.trim(menu.entries[row].components[2].name)
+  end
+  vim.api.nvim_eval_statusline(vim.wo.winbar, { winid = 0, use_winbar = true })
+  vim.fn.maparg(" bb", "n", false, true).callback()
+  local seen = { where() }
+  for _, key in ipairs({ "l", "h", "h", "h", "l", "h", "l", "<Esc>" }) do
+    vim.api.nvim_feedkeys(vim.keycode(key), "mx", false)
+    table.insert(seen, where())
+  end
+  vim.fn.writefile({ vim.json.encode({ value = seen }) }, %q)
+  vim.cmd("qa!")
+end, 1500)
+]]
+
 describe("startup", function()
   ---@type string
   local dir
@@ -358,6 +384,17 @@ describe("startup", function()
 
   it("moves a picker's selection with <Tab> before a <CR> typed with it", function()
     assert.equal("b", boot(dir, tab_enter_probe).value)
+  end)
+
+  it("walks the breadcrumb menus like a bar: l descends, h steps out, <Esc> leaves", function()
+    vim.fn.mkdir(dir .. "/a/b", "p")
+    -- Only a comment, so no code symbol follows the file in the winbar.
+    vim.fn.writefile({ "-- c" }, dir .. "/a/b/c.lua")
+    local seen = boot(dir, dropbar_probe, { "-c", "edit a/b/c.lua" })
+
+    -- l opens nothing on a file; h swaps to the segment before, settling on the first,
+    -- and closes a submenu before stepping out; <Esc> shuts every level at once.
+    assert.same({ "0:c.lua", "0:c.lua", "0:b", "0:a", "0:a", "1:b", "0:a", "1:b", "editor" }, seen.value)
   end)
 
   it("flashes yanks and pastes and tints a hovered link without a palette file", function()
