@@ -111,8 +111,25 @@ function M.sync(pins, dir)
   return errors
 end
 
----Sync every dependency to its pin, raising if any failed.
+---Block until this process holds the exclusive lock on the file at `path`. The OS
+---releases it when the process exits, so a killed holder never leaves it stuck.
+---@param path string
+---@return integer fd Close it to release the lock sooner.
+function M.lock(path)
+  -- LuaJIT's ffi: libuv has no file locks, and nvim always runs on LuaJIT here.
+  local ffi = require("ffi")
+  ffi.cdef("int flock(int fd, int operation);")
+  local fd = assert(vim.uv.fs_open(path, "w", 420))
+  local LOCK_EX = 2
+  assert(ffi.C.flock(fd, LOCK_EX) == 0, "flock failed")
+  return fd
+end
+
+---Sync every dependency to its pin, raising if any failed. Holds a lock throughout,
+---since the hooks run the type check and the tests in parallel and both sync first.
 function M.install()
+  vim.fn.mkdir(M.dir, "p")
+  M.lock(M.dir .. ".lock")
   local lock = vim.json.decode(table.concat(vim.fn.readfile(root .. "/nvim-pack-lock.json"), "\n")).plugins
   local pins = vim.deepcopy(libraries)
   for _, name in ipairs(plugins) do

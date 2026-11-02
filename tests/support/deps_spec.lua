@@ -1,49 +1,36 @@
 local deps = require("support.deps")
-local support = require("support.git")
 
-describe("support.deps.sync", function()
-  ---@type string
-  local tmp
-  ---@type string
-  local upstream
+describe("support.deps.lock", function()
   ---@type string
   local dir
 
   before_each(function()
-    tmp = vim.fn.tempname()
-    upstream = tmp .. "/upstream"
-    dir = tmp .. "/deps"
-    vim.fn.mkdir(upstream, "p")
-    support.init_repo("main", upstream)
+    dir = vim.fn.tempname()
+    vim.fn.mkdir(dir, "p")
   end)
 
   after_each(function()
-    vim.fn.delete(tmp, "rf")
+    vim.fn.delete(dir, "rf")
   end)
 
-  it("checks a dependency out at its pinned revision", function()
-    local pinned = support.git({ "rev-parse", "HEAD" }, upstream)
-    vim.fn.writefile({ "newer" }, upstream .. "/file")
-    support.commit("newer", upstream)
+  it("holds a second process off until the first lets go", function()
+    local path = dir .. "/lock"
+    local fd = deps.lock(path)
+    local script = dir .. "/take.lua"
+    local file = vim.fn.fnamemodify(assert(package.searchpath("support.deps", package.path)), ":p")
+    vim.fn.writefile({ ("dofile(%q).lock(%q)"):format(file, path) }, script)
+    local code
+    vim.system({ vim.v.progpath, "-l", script }, {}, function(result)
+      code = result.code
+    end)
 
-    assert.same({}, deps.sync({ plugin = { src = upstream, rev = pinned } }, dir))
-    assert.equal(pinned, support.git({ "rev-parse", "HEAD" }, dir .. "/plugin"))
-  end)
-
-  it("moves a checked-out dependency to a changed pin", function()
-    local old = support.git({ "rev-parse", "HEAD" }, upstream)
-    deps.sync({ plugin = { src = upstream, rev = old } }, dir)
-    vim.fn.writefile({ "newer" }, upstream .. "/file")
-    local new = support.commit("newer", upstream)
-
-    assert.same({}, deps.sync({ plugin = { src = upstream, rev = new } }, dir))
-    assert.equal(new, support.git({ "rev-parse", "HEAD" }, dir .. "/plugin"))
-  end)
-
-  it("reports a pin its source cannot supply", function()
-    local errors = deps.sync({ plugin = { src = upstream, rev = string.rep("0", 40) } }, dir)
-
-    assert.equal(1, #errors)
-    assert.truthy(assert(errors[1]):find("^plugin: "))
+    assert.is_false(vim.wait(1000, function()
+      return code ~= nil
+    end))
+    vim.uv.fs_close(fd)
+    assert.is_true(vim.wait(10000, function()
+      return code ~= nil
+    end))
+    assert.equal(0, code)
   end)
 end)
