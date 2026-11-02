@@ -12,7 +12,7 @@ Each window's filename floats bottom-right in an incline label (`plugin/incline.
 
 ## Floats
 
-Every float takes a rounded border (`'winborder'` in `lua/config/options.lua`). Borders are `bg4`. The float itself is `bg0` in dark mode and `bg1` in light mode, so it never sits brighter than the editor.
+Every float takes a rounded border (`'winborder'` in `lua/config/options.lua`). Borders are `bg4`. The float itself is `bg0` in dark mode and `bg1` in light mode, so it never sits brighter than the editor. Lazygit's float is the exception: it takes a blank column on its left and right instead of a border, since lazygit draws its own panel borders (`plugin/snacks.lua`).
 
 The winbar's breadcrumb menus preview the file or folder under the cursor in a fixed float over the editor's bottom-right quarter (`plugin/dropbar.lua`), stacked under the menus. Incline's filename labels sit under every float.
 

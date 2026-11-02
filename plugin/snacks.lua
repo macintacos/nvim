@@ -11,7 +11,7 @@ require("snacks").setup({
   -- vim.ui.input is handled by mini.input (see plugin/mini/input.lua)
   input = { enabled = false },
   image = { enabled = true },
-  lazygit = { enabled = true },
+  lazygit = { enabled = true, win = { border = "hpad" } },
   -- vim.notify is handled by mini.notify (see plugin/mini/notify.lua)
   notifier = { enabled = false },
   picker = {
