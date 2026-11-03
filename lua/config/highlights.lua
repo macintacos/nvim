@@ -39,8 +39,7 @@ local function set_feedback_fallback_hl()
 end
 
 -- Ctrl-hover over a link or path (helpers.links). sel0, the selection colour:
--- syntax colours stay legible on it, where bg4 drops accents below 4.5. The underline matches herdr's own ctrl-hover one,
--- which blinks as Neovim redraws; this keeps it steady underneath.
+-- syntax colours stay legible on it, where bg4 drops accents below 4.5.
 ---@param p palette.Roles
 local function set_link_hover_hl(p)
   vim.api.nvim_set_hl(0, "LinkHover", { bg = p.sel0, underline = true })

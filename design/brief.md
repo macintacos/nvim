@@ -8,7 +8,7 @@ The editor is in the taste skill's Operate mode, the mode for a tool someone wor
 
 ## Where it runs
 
-It runs in Ghostty inside herdr, set in Berkeley Mono at 16pt, with Nerd Font glyphs available.
+It runs in Rex, set in Berkeley Mono at 16pt, with Nerd Font glyphs available.
 
 The color scheme follows the terminal's appearance, even in a running editor: Dracula Pro's Van Helsing when the terminal is dark, Alucard when it is light. Design every change for both.
 

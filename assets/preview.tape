@@ -21,7 +21,7 @@ Set TypingSpeed 80ms
 Set Theme { "name": "Van Helsing", "black": "#22212c", "red": "#ff9580", "green": "#8aff80", "yellow": "#ffff80", "blue": "#9580ff", "magenta": "#ff80bf", "cyan": "#80ffea", "white": "#f8f8f2", "brightBlack": "#708ca9", "brightRed": "#ffaa99", "brightGreen": "#a2ff99", "brightYellow": "#ffff99", "brightBlue": "#aa99ff", "brightMagenta": "#ff99cc", "brightCyan": "#99ffee", "brightWhite": "#ffffff", "background": "#0b0d0f", "foreground": "#f8f8f2", "selection": "#34404b", "cursor": "#f8f8f2" }
 
 Hide
-Type 'unset ${!HERDR_*} TERM_PROGRAM TERM_PROGRAM_VERSION TERMINFO GHOSTTY_RESOURCES_DIR; export COLORTERM=truecolor' Enter
+Type 'unset ${!REX_*} TERM_PROGRAM TERM_PROGRAM_VERSION TERMINFO GHOSTTY_RESOURCES_DIR; export COLORTERM=truecolor' Enter
 # The clone's mise.toml would otherwise stop the shell on mise's trust prompt.
 Type 'export MISE_IGNORED_CONFIG_PATHS=/private/tmp/nvim-preview' Enter
 # pwd -P: a symlinked cwd (/tmp is /private/tmp) makes LSP-opened buffers show absolute paths.
