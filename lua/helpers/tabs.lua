@@ -1,6 +1,6 @@
 local M = {}
 
--- nf-md-numeric_1_box through _9_box, as herdr numbers its panes; 5's box breaks the
+-- nf-md-numeric_1_box through _9_box, as Rex numbers its tabs; 5's box breaks the
 -- codepoints' stride of 3.
 local NUMBER_BOXES = vim.tbl_map(vim.fn.nr2char, {
   0xF03A4,

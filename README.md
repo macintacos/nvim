@@ -4,7 +4,7 @@
 
 My Neovim 0.12 config. [My dotfiles](https://github.com/macintacos/dotfiles) pull it in as
 a [chezmoi](https://www.chezmoi.io/) external, so it keeps its own history. It runs in
-[Ghostty](https://ghostty.org/), inside the [herdr](https://herdr.dev) agent multiplexer.
+[Rex](https://www.superlogical.com/rex/docs), a terminal with its own agent multiplexer.
 
 Nothing here is built for anyone else to install. There's no bootstrap, and parts of it
 assume my machine: a fish wrapper around `nvim`, and the palette and color scheme my

@@ -176,7 +176,7 @@ M._scope = scope
 -- Uppercase so `:mksession` saves it with the project's session.
 local STATE_VAR = "GrepLiveState"
 
--- Herdr takes ⌥a ⌥d ⌥s ⌥w for pane resizing, so they never reach the picker.
+-- Rex takes ⌥a ⌥d ⌥s ⌥w for pane resizing, so they never reach the picker.
 local KEYBAR = {
   { "⌥x", "exclude" },
   { "⌥o", "only" },

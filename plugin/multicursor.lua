@@ -32,8 +32,8 @@ map("Add Cursor to All Matches", { "n", "x" }, "gA", function() mc.matchAllAddCu
 map("Insert at Start of Each Line", "x", "I", mc.insertVisual)
 map("Append at End of Each Line", "x", "A", mc.appendVisual)
 
--- herdr opens visible http(s) URLs on ctrl-click itself and passes every
--- other ctrl-click through, so this sees paths and the URLs it missed.
+-- Rex opens links on cmd-click and passes every ctrl-click through, so this opens
+-- URLs and paths itself.
 map("Open link under mouse, or add cursor", "n", "<C-leftmouse>", function()
   local hit = require("helpers.links").at_mouse()
   if hit then
