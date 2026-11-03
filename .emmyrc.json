@@ -40,7 +40,6 @@
         "ignoreGlobs": ["lua/luassert/**", "lua/plenary/_meta/_luassert.lua", "lua/plenary/busted.lua"]
       },
       ".tests/deps/quicker.nvim",
-      ".tests/deps/smear-cursor.nvim",
       ".tests/deps/snacks.nvim",
       ".tests/deps/tabby.nvim",
       ".tests/deps/venv-selector.nvim",

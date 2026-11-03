@@ -20,7 +20,7 @@ A picker's keys show as a keybar on the right of the side preview's bottom borde
 
 ## Mode colors
 
-Each mode has one color. The statusline's mode section shows it, and `plugin/modes.lua` paints it on the cursor, the cursor line's tint, and the line number. The cursor's smear trail (`plugin/smear-cursor.lua`) follows the cursor's color.
+Each mode has one color. The statusline's mode section shows it, and `plugin/modes.lua` paints it on the cursor, the cursor line's tint, and the line number.
 
 | Mode | Color | Shows on |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Style carries meaning that color alone doesn't:
 
 A yank flashes the yanked region green, and a paste flashes the pasted region purple, so you see both where the text is and which operation ran (`lua/config/highlights.lua`).
 
-The only motion is the cursor's smear trail, tuned short so it settles fast. `vim.g.snacks_animate = false` in `plugin/snacks.lua` turns off every snacks animation, scrolling included.
+Nothing animates: `vim.g.snacks_animate = false` in `plugin/snacks.lua` turns off every snacks animation, scrolling included.
 
 Background work shows a braille spinner while it runs, then states its result. The plugin-update check shows the spinner in the statusline, then the count of plugins with updates (`lua/plugins/pack-updates/`).
 

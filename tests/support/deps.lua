@@ -39,7 +39,6 @@ local plugins = {
   "otter.nvim",
   "plenary.nvim",
   "quicker.nvim",
-  "smear-cursor.nvim",
   "snacks.nvim",
   "tabby.nvim",
   "venv-selector.nvim",
