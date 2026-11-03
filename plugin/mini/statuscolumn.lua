@@ -49,6 +49,12 @@ statuscolumn.setup({
   }),
 })
 
+-- mini queues a callback from every redraw of every window to see whether an
+-- 'auto' sign or fold column changed width. multicursor redraws its signs on every
+-- SafeState while it has cursors, so the two keep each other redrawing at a full
+-- core. Both columns are fixed in lua/config/options.lua, so there is nothing to track.
+vim.api.nvim_set_decoration_provider(vim.api.nvim_create_namespace("MiniStatuscolumnTrack"), {})
+
 -- Keeps 'numberwidth' at what the column's number field needs, so Neovim's
 -- measure of the column is its real width (see helpers.statuscolumn.numberwidth).
 -- Fires on a buffer entering a window, which takes that buffer's width, and on
