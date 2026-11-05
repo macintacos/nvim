@@ -8,18 +8,10 @@
       "rev": "7b023a7d664c1bbcfd6c3beffa1c87b2f60532b8",
       "src": "https://github.com/macintacos/agentcomplete.nvim"
     },
-    "auto-session": {
-      "rev": "02a5588f677970a9bc784115c62bef9e5855499b",
-      "src": "ssh://git@github.com/rmagatti/auto-session"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/Saghen/blink.cmp",
       "version": "1.0.0 - 2.0.0"
-    },
-    "blink.download": {
-      "rev": "fd9a48ebbe6ec30d5dfcc5b42c243941ccdca1aa",
-      "src": "ssh://git@github.com/Saghen/blink.download"
     },
     "blink.lib": {
       "rev": "f55df8a6e0a7acccf45ef0ffbb4ce46110fcf7d0",
@@ -36,10 +28,6 @@
     "chezmoi.nvim": {
       "rev": "4167bbec76f693f481a5243f1be521ff0ccf1a6d",
       "src": "https://github.com/xvzc/chezmoi.nvim"
-    },
-    "codediff.nvim": {
-      "rev": "09d9ebef2cc5a5c04db7a349cd6c61bdf84ecc8e",
-      "src": "ssh://git@github.com/esmuellert/codediff.nvim"
     },
     "conform.nvim": {
       "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
@@ -64,10 +52,6 @@
     "dropbar.nvim": {
       "rev": "f7c6fa21e2a7c32576e7a1791774a3736987f467",
       "src": "https://github.com/Bekaboo/dropbar.nvim"
-    },
-    "fff.nvim": {
-      "rev": "90d6f9b468996869d805710c63441d9d2ecfa62b",
-      "src": "ssh://git@github.com/dmtrKovalenko/fff.nvim"
     },
     "flash.nvim": {
       "rev": "5f0f270fdc7c5b0c21d903ee85b9cb06f2ac636a",
@@ -195,25 +179,9 @@
       "rev": "c574bfc1f7e63dfea3e64b8453c9f7c660127238",
       "src": "https://github.com/jake-stewart/multicursor.nvim"
     },
-    "noice.nvim": {
-      "rev": "7bfd942445fb63089b59f97ca487d605e715f155",
-      "src": "ssh://git@github.com/folke/noice.nvim"
-    },
-    "nordic.nvim": {
-      "rev": "9fb62116b891184049c50ca6ffb0d3bc100a1a6e",
-      "src": "ssh://git@github.com/AlexvZyl/nordic.nvim"
-    },
-    "nui.nvim": {
-      "rev": "10fc361835c856ba4233ef5ea135b919bf3dce97",
-      "src": "ssh://git@github.com/MunifTanjim/nui.nvim"
-    },
     "numb.nvim": {
       "rev": "40548e23f3b053defdc5daa99943e05132b99cc9",
       "src": "https://github.com/nacro90/numb.nvim"
-    },
-    "nvim": {
-      "rev": "edefef779ab08ce1a4a404713e3012b0d202bd35",
-      "src": "ssh://git@github.com/catppuccin/nvim"
     },
     "nvim-bqf": {
       "rev": "c282a62bec6c0621a1ef5132aa3f4c9fc4dcc2c7",
@@ -227,17 +195,9 @@
       "rev": "cc404d425c7752f56b8eaa269107be44d888ea51",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
-    "nvim-notify": {
-      "rev": "8701bece920b38ea289b457f902e2ad184131a5d",
-      "src": "ssh://git@github.com/rcarriga/nvim-notify"
-    },
     "nvim-recorder": {
       "rev": "bbde095eef8d0beab4f0b0e242825305832d8c30",
       "src": "https://github.com/chrisgrieser/nvim-recorder"
-    },
-    "nvim-scrollbar": {
-      "rev": "00fe857e7cd97ee5e556de643ee920b003a96b03",
-      "src": "ssh://git@github.com/petertriho/nvim-scrollbar"
     },
     "nvim-surround": {
       "rev": "8b47db616ef658b8fc27e61db2896aa2f40134de",
@@ -250,10 +210,6 @@
     "nvim-treesitter-context": {
       "rev": "48b9ebc4322c7dd9b8f99f38b2372901079bd67f",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
-    },
-    "nvim-web-devicons": {
-      "rev": "0dc0cfb0c6858041174a53c7aa4adaf65e994b3c",
-      "src": "ssh://git@github.com/nvim-tree/nvim-web-devicons"
     },
     "obsidian.nvim": {
       "rev": "15af492b64f4677959fe95008f1d5b782fe1f86a",
@@ -299,14 +255,6 @@
       "rev": "3c130e1fcb598ce39a9c292847e32d7c3987cf11",
       "src": "https://github.com/nanozuki/tabby.nvim",
       "version": "2.0.0 - 3.0.0"
-    },
-    "tint.nvim": {
-      "rev": "586e87f00c8b0f5e857cefe10839e41f3e8c6d01",
-      "src": "ssh://git@github.com/levouh/tint.nvim"
-    },
-    "tiny-glimmer.nvim": {
-      "rev": "b35d4f7b0eaedb75ff99fa694f4d1ea2ce8ce6c8",
-      "src": "ssh://git@github.com/rachartier/tiny-glimmer.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
       "rev": "46ae9b3c8f3039e96ff4497d190ad0aee091f30d",
@@ -359,10 +307,6 @@
     "which-key.nvim": {
       "rev": "3aab2147e74890957785941f0c1ad87d0a44c15a",
       "src": "https://github.com/folke/which-key.nvim"
-    },
-    "wrapping.nvim": {
-      "rev": "0e25723cef7cd49f4e267e33ba4afbb2e5b63fff",
-      "src": "ssh://git@github.com/andrewferrier/wrapping.nvim"
     }
   }
 }
