@@ -24,6 +24,24 @@ vim.schedule(function()
     end
   end
 
+  -- Inside Rex, toggle its lazygit float, as `ctrl+b g` does; elsewhere, open
+  -- lazygit in a Snacks float.
+  local function lazygit()
+    if vim.env.REX_BIN_DIR == nil then
+      Snacks.lazygit.open()
+      return
+    end
+    vim.system(
+      { vim.env.REX_BIN_DIR .. "/rex", "do", "lazygit" },
+      {},
+      vim.schedule_wrap(function(result)
+        if result.code ~= 0 then
+          vim.notify("rex do lazygit: " .. result.stderr, vim.log.levels.ERROR)
+        end
+      end)
+    )
+  end
+
   -- which-key's default sort pins buffer-local mappings first and splits groups
   -- from plain mappings, which buries `<Space>` and scatters keys that belong
   -- side by side (`p` and `P`). Order by what the key *is* instead; view.lua
@@ -361,7 +379,7 @@ vim.schedule(function()
 
       -- Git
       { "<leader>g", group = "git", icon = { cat = "filetype", name = "git" } },
-      { "<leader>gs", function() Snacks.lazygit.open() end, desc = "Open Lazygit", icon = { icon = "󰊢", color = "orange" } },
+      { "<leader>gs", lazygit, desc = "Open Lazygit", icon = { icon = "󰊢", color = "orange" } },
       { "<leader>gl", pick("git_commits"), desc = "Git Log", icon = { icon = "󰜘", color = "orange" } },
       { "<leader>gb", function() require("plugins.branches").pick() end, desc = "Branches", icon = { icon = "󰘬", color = "orange" } },
       { "<leader>gB", pick("git_blame_line"), desc = "Git Blame Line", icon = { icon = "󰭖", color = "orange" } },
