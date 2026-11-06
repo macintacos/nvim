@@ -22,7 +22,7 @@
       "src": "https://github.com/Saghen/blink.pairs"
     },
     "changeset.nvim": {
-      "rev": "9f7e692a44a7189313ad07d629bb00318a4d1141",
+      "rev": "068d2e9583189fabdbcd7fc92d8bf260a9966770",
       "src": "https://github.com/macintacos/changeset.nvim"
     },
     "chezmoi.nvim": {
@@ -135,11 +135,11 @@
       "version": "'stable'"
     },
     "mini.input": {
-      "rev": "7bca39b69f08ce1620cca77b2b79ea45868ea50c",
+      "rev": "9c7aeea23407108d474276819ba217bcfd4c54b3",
       "src": "https://github.com/nvim-mini/mini.input"
     },
     "mini.notify": {
-      "rev": "04dae72c012de9db45c4250645170f78f826731e",
+      "rev": "0882aa3a919f34bb60db14817ddee9f596c79454",
       "src": "https://github.com/nvim-mini/mini.notify",
       "version": "'main'"
     },
@@ -192,7 +192,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "cc404d425c7752f56b8eaa269107be44d888ea51",
+      "rev": "d5c7e7bcc15bccc01bf1601a03473e10de2f0f7e",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-recorder": {
@@ -204,7 +204,7 @@
       "src": "https://github.com/kylechui/nvim-surround"
     },
     "nvim-treesitter": {
-      "rev": "610734c5d3e59761d5f79318d120633374537fa5",
+      "rev": "915f2bd3d4e2a33704bfc476b5137e9befa82f3d",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -236,7 +236,7 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "rustaceanvim": {
-      "rev": "9c5c1aa055b33aa17d4f113724b1e5c4f1f77a1e",
+      "rev": "3532a307451beceb090f0f19e2659558d5fa20fa",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
     "scrollEOF.nvim": {
