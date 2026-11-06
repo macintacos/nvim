@@ -58,25 +58,26 @@ The file watcher debounces ~500ms behind writes. Don't re-query codegraph immedi
 
 ## Routing
 
-Read this digraph as a checklist, not a single path: load every file whose edge matches your change before you edit that area.
+Walk the `router` fence from `@changing-the`: take every exit whose label matches your change, and load each file those exits lead to before you edit that area.
 
-```graphviz
-digraph rules_router {
-    node [shape=box];
-
-    "Changing the repo" [shape=doublecircle];
-    "What does the change touch?" [shape=diamond];
-
-    "Changing the repo" -> "What does the change touch?";
-    "What does the change touch?" -> "Load docs/agents/rules/plugins.md" [label="plugin/: adding, configuring, or lazy-loading a third-party plugin"];
-    "What does the change touch?" -> "Load docs/agents/rules/local-plugins.md" [label="lua/plugins/: building or changing a local plugin"];
-    "What does the change touch?" -> "Load docs/agents/rules/testing.md" [label="tests/: writing or running specs"];
-    "What does the change touch?" -> "Load docs/agents/rules/tooling.md" [label="type check, linters, formatters, git hooks, mise tasks"];
-    "What does the change touch?" -> "Load docs/agents/rules/documentation.md" [label="any doc: which one to update, and how"];
-    "What does the change touch?" -> "Load design/README.md" [label="the editor's UI: colors, highlight groups, chrome, floats, notify messages"];
-}
+```router
+@changing-the: Changing the repo
+  > what-does
+what-does: What does the change touch?
+  plugin/: adding, configuring, or lazy-loading a third-party plugin > plugins
+  lua/plugins/: building or changing a local plugin > local-plugins
+  tests/: writing or running specs > testing
+  type check, linters, formatters, git hooks, mise tasks > tooling
+  any doc: which one to update, and how > documentation
+  the editor's UI: colors, highlight groups, chrome, floats, notify messages > readme
+plugins!: Load docs/agents/rules/plugins.md
+local-plugins!: Load docs/agents/rules/local-plugins.md
+testing!: Load docs/agents/rules/testing.md
+tooling!: Load docs/agents/rules/tooling.md
+documentation!: Load docs/agents/rules/documentation.md
+readme!: Load design/README.md
 ```
 
 ## Keeping docs current
 
-When your change makes a doc wrong or incomplete, update that doc in the same change. `docs/agents/rules/documentation.md` says which doc covers what and how to edit each one. A new rule goes in this file until its area needs a rule file of its own. Add that file's edge to `## Routing` in the same change.
+When your change makes a doc wrong or incomplete, update that doc in the same change. `docs/agents/rules/documentation.md` says which doc covers what and how to edit each one. A new rule goes in this file until its area needs a rule file of its own. Add an exit and a stop for that file to `## Routing` in the same change.
