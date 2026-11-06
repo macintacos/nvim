@@ -266,6 +266,29 @@ vim.defer_fn(function()
 end, 1500)
 ]]
 
+---A collector that edits note.md, types `inputs` 100ms apart so work a mapping
+---schedules lands before the next input, and reports the buffer's lines.
+---@param inputs string[]
+---@return string
+local function typing(inputs)
+  return ([[
+vim.defer_fn(function()
+  vim.cmd.edit("note.md")
+  local inputs = %s
+  local function step(i)
+    if i > #inputs then
+      vim.fn.writefile({ vim.json.encode({ value = vim.api.nvim_buf_get_lines(0, 0, -1, false) }) }, %%q)
+      vim.cmd("qa!")
+      return
+    end
+    vim.api.nvim_input(inputs[i])
+    vim.defer_fn(function() step(i + 1) end, 100)
+  end
+  step(1)
+end, 1500)
+]]):format(vim.inspect(inputs))
+end
+
 -- Opens the winbar's last segment over a/b/c.lua, then reports after each key the
 -- open menu's depth and the row its cursor is on, or "editor" once every menu is shut.
 local dropbar_probe = [[
@@ -419,6 +442,18 @@ describe("startup", function()
 
   it("moves a picker's selection with <Tab> before a <CR> typed with it", function()
     assert.equal("b", boot(dir, tab_enter_probe).value)
+  end)
+
+  it("opens an empty line between a markdown code fence's backticks on <CR>", function()
+    local seen = boot(dir, typing({ "i```", "<CR>", "lua<Esc>" }))
+
+    assert.same({ "```", "lua", "```" }, seen.value)
+  end)
+
+  it("continues a markdown list item on <CR>", function()
+    local seen = boot(dir, typing({ "i- a", "<CR>", "b<Esc>" }))
+
+    assert.same({ "- a", "- b" }, seen.value)
   end)
 
   describe("breadcrumb menus over a/b/c.lua", function()

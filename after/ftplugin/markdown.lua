@@ -31,3 +31,13 @@ end, { buffer = true, desc = "Indent list item or jump to next table cell" })
 vim.keymap.set("i", "<S-Tab>", function()
   indent_list_item(-1)
 end, { buffer = true, desc = "Dedent list item or jump to previous table cell" })
+
+-- Off a list item or table row, <CR> runs the global <CR> so blink.pairs opens a line
+-- inside a pair such as a code fence; mkdnflow's insert-mode MkdnEnter types a bare <CR>.
+require("helpers.mappings").map("Continue list item or table row", "i", "<CR>", function()
+  if require("mkdnflow.wrappers").newListItemOrNextTableRow() then
+    local fallback = require("blink.cmp.keymap.fallback")
+    local global = assert(fallback.get_non_blink_global_mapping_for_key("i", "<CR>"))
+    vim.api.nvim_feedkeys(assert(fallback.run_non_blink_keymap(global, "<CR>")), "n", false)
+  end
+end, { buffer = true })
