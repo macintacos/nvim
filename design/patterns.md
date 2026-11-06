@@ -6,7 +6,7 @@ These are the ways the config already shows things. Before you add a UI element,
 
 The statusline is global and sits on `bg0` (`plugin/mini/statusline.lua`). Only its mode sections and the green plugin-update count carry color.
 
-The tabline shows tab pages, not buffers, as rounded pills sized to their names (`plugin/tabby.lua`). The current tab is tinted cyan and shows its number in purple. vim.pack's update review tab is green, and the tab of a scratch file (`lua/plugins/scratch/`) is yellow.
+The tabline shows tab pages, not buffers, as rounded pills sized to their names (`plugin/tabby.lua`), and only once there are two or more tabs. The current tab is tinted cyan and shows its number in purple. vim.pack's update review tab is green, and the tab of a scratch file (`lua/plugins/scratch/`) is yellow.
 
 Each window's filename floats bottom-right in an incline label (`plugin/incline.lua`): the file's icon on its own color, then the name in bold. The statuscolumn draws the fold, sign, and number columns and ends in a `▏` separator (`plugin/mini/statuscolumn.lua`).
 
