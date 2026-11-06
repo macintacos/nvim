@@ -4,6 +4,7 @@
 vim.pack.add({ { src = "https://github.com/nvim-mini/mini.files", version = "stable" } })
 
 local map = require("helpers.mappings").map
+local Paths = require("helpers.paths")
 
 -- Half the screen width, used for the preview pane
 local function preview_width()
@@ -375,7 +376,7 @@ vim.api.nvim_create_autocmd("User", {
     end, { buffer = buf })
 
     -- yp / yP: yank the path of the entry under the cursor to the system
-    -- clipboard. yp gives a path relative to cwd, yP gives the absolute
+    -- clipboard. yp gives a path relative to the repo root, yP the absolute
     -- path. In visual mode, copies one path per selected line, newline-
     -- separated. Visual mode reads the live selection via line("v") /
     -- line(".") rather than '< / '> (those reflect the *previous*
@@ -418,7 +419,7 @@ vim.api.nvim_create_autocmd("User", {
       { "n", "x" },
       "yp",
       copy_paths(function(p)
-        return vim.fn.fnamemodify(p, ":.")
+        return vim.fs.relpath(Paths.root(p), p) or p
       end),
       { buffer = buf }
     )

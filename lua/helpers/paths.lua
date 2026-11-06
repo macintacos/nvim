@@ -7,7 +7,7 @@
 local M = {}
 
 ---Project root for `buf` — git root via `vim.fs.root`, falling back to cwd.
----@param buf integer Buffer handle (0 for current).
+---@param buf integer|string Buffer handle (0 for current) or a file path.
 ---@return string root Absolute, normalized path.
 function M.root(buf)
   local git = vim.fs.root(buf, { ".git" })
