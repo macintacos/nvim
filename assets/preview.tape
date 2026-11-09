@@ -26,7 +26,7 @@ Type 'unset ${!REX_*} TERM_PROGRAM TERM_PROGRAM_VERSION TERMINFO GHOSTTY_RESOURC
 Type 'export MISE_IGNORED_CONFIG_PATHS=/private/tmp/nvim-preview' Enter
 # pwd -P: a symlinked cwd (/tmp is /private/tmp) makes LSP-opened buffers show absolute paths.
 Type 'R=$PWD D=/tmp/nvim-preview; rm -rf $D && git clone -q "$R" $D/nvim && cd $D/nvim && cd "$(pwd -P)" && ln -s "$R/.tests" .tests' Enter
-Type 'git switch -qc agents-md && git branch -qf trunk HEAD~8 && git update-ref refs/remotes/origin/trunk HEAD~8' Enter
+Type 'git switch -qc agents-md && git branch -qf main HEAD~8 && git update-ref refs/remotes/origin/main HEAD~8' Enter
 Type 'clear && nvim -i NONE init.lua' Enter
 Wait+Screen@30s /vim\.loader\.enable/
 # emmylua_ls indexes the workspace before its progress notification clears.
