@@ -4,7 +4,7 @@ These are the ways the config already shows things. Before you add a UI element,
 
 ## Chrome
 
-The statusline is global and sits on `bg0` (`plugin/mini/statusline.lua`). Only its mode sections and the green plugin-update count carry color.
+The statusline is global and sits on `bg0` (`plugin/mini/statusline.lua`). Only its mode sections and the green plugin-update count carry color. The file's path sits centered in it, written from the repo root when the file is in a repo.
 
 The tabline shows tab pages, not buffers, as rounded pills sized to their names (`plugin/tabby.lua`), and only once there are two or more tabs. The current tab is tinted cyan and shows its number in purple. vim.pack's update review tab is green, and the tab of a scratch file (`lua/plugins/scratch/`) is yellow.
 

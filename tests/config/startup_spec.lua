@@ -406,6 +406,15 @@ describe("startup", function()
     assert.is_true(math.abs(#left - #right) <= 1)
   end)
 
+  it("centers a file's path from its repo root in the statusline", function()
+    vim.fn.mkdir(dir .. "/.git")
+    local seen = boot(dir, reporting("vim.api.nvim_eval_statusline(vim.o.statusline, {}).str"))
+
+    assert.is_nil(seen.value:find(vim.fs.basename(dir), 1, true))
+    local left, right = seen.value:match("^(.*) probe%.lua (.*)$")
+    assert.is_true(math.abs(vim.api.nvim_strwidth(left) - vim.api.nvim_strwidth(right)) <= 1)
+  end)
+
   it("shrinks its tabs to fill a line too narrow for them", function()
     local tabline = "vim.api.nvim_eval_statusline(vim.o.tabline, { use_tabline = true }).str"
     local seen = boot(dir, reporting(tabline), { "-c", "set columns=59", "-c", "tabnew", "-c", "tabnew" })

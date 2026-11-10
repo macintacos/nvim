@@ -38,6 +38,33 @@ local function section_pack_updates(args)
   return ""
 end
 
+---The current file's path from its repo root, or mini's own filename section outside a repo.
+---@param args { trunc_width: integer }
+---@return string
+local function section_filename(args)
+  local root = vim.bo.buftype == "" and vim.fs.root(0, ".git")
+  local name = vim.fs.normalize(vim.api.nvim_buf_get_name(0))
+  if not root or not vim.startswith(name, root .. "/") then
+    return MiniStatusline.section_filename(args)
+  end
+  return name:sub(#root + 2):gsub("%%", "%%%%") .. "%m%r"
+end
+
+---One statusline of `left`, `middle`, and `right`, with `middle` centered in `columns`
+---cells, or hard against `left` when `left` reaches past where it would start.
+---@param left string
+---@param middle string
+---@param right string
+---@param columns integer
+---@return string
+local function centered(left, middle, right, columns)
+  local function width(item)
+    return vim.api.nvim_eval_statusline(item, {}).width
+  end
+  local pad = math.floor((columns - width(middle)) / 2) - width(left)
+  return left .. (" "):rep(math.max(pad, 0)) .. middle .. "%=" .. right
+end
+
 require("mini.statusline").setup({
   content = {
     active = function()
@@ -46,20 +73,22 @@ require("mini.statusline").setup({
       local diff = MiniStatusline.section_diff({ trunc_width = 75 })
       local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
       local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
-      local filename = MiniStatusline.section_filename({ trunc_width = 140 })
+      local filename = section_filename({ trunc_width = 140 })
       local location = MiniStatusline.section_location({ trunc_width = 75 })
       local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
       local updates = section_pack_updates({ trunc_width = 75 })
 
-      return MiniStatusline.combine_groups({
+      local left = MiniStatusline.combine_groups({
         { hl = mode_hl, strings = { mode } },
         { hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
-        "%<",
-        { hl = "MiniStatuslineFilename", strings = { filename } },
-        "%=",
+        { hl = "MiniStatuslineFilename" },
+      })
+      local middle = MiniStatusline.combine_groups({ "%<", { strings = { filename } } })
+      local right = MiniStatusline.combine_groups({
         { hl = "MiniStatuslinePackUpdates", strings = { updates } },
         { hl = mode_hl, strings = { search, location } },
       })
+      return centered(left, middle, right, vim.o.columns)
     end,
   },
 })
