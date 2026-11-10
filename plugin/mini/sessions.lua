@@ -125,6 +125,19 @@ end
 
 local session_augroup = vim.api.nvim_create_augroup("mini_sessions_autosave", { clear = true })
 
+local read_stdin = false
+
+-- Records that startup read stdin, for the VimEnter restore below to skip.
+-- 'modified' can't tell: a MANPAGER of `nvim +Man!` clears it before VimEnter.
+-- Fires: once, at startup, after stdin is read into the buffer.
+vim.api.nvim_create_autocmd("StdinReadPost", {
+  group = session_augroup,
+  once = true,
+  callback = function()
+    read_stdin = true
+  end,
+})
+
 -- Fires: VimLeavePre, late enough to capture the final layout but while windows
 -- still exist for :mksession.
 vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -136,13 +149,13 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 
 -- Restores the cwd's session when Neovim starts bare, or opens the cwd's README
 -- when there is no session. Fires: once, at VimEnter; skipped when files are
--- given or stdin was read (which marks the buffer modified).
+-- given or stdin was read.
 vim.api.nvim_create_autocmd("VimEnter", {
   group = session_augroup,
   nested = true,
   once = true,
   callback = function()
-    if vim.fn.argc() > 0 or vim.bo.modified then
+    if vim.fn.argc() > 0 or read_stdin then
       return
     end
     local name = session_name()

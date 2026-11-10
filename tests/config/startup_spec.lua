@@ -34,8 +34,9 @@ end
 ---@param dir string Scratch directory, also the booted Neovim's cwd.
 ---@param probe? string Collector to run instead of the default; `%q` is the report path.
 ---@param args? string[] Startup arguments, run before the collector.
+---@param stdin? string Text piped in and read as the buffer, in place of the Lua file.
 ---@return table report
-local function boot(dir, probe, args)
+local function boot(dir, probe, args, stdin)
   local report = dir .. "/report.json"
   vim.fn.writefile(vim.split((probe or collector):format(report), "\n"), dir .. "/collect.lua")
   local config = vim.fn.stdpath("config")
@@ -64,9 +65,9 @@ local function boot(dir, probe, args)
     root .. "/init.lua",
   }
   vim.list_extend(cmd, args or {})
-  vim.list_extend(cmd, { "-c", "luafile " .. dir .. "/collect.lua", dir .. "/probe.lua" })
+  vim.list_extend(cmd, { "-c", "luafile " .. dir .. "/collect.lua", stdin and "-" or dir .. "/probe.lua" })
 
-  local result = vim.system(cmd, { cwd = dir, env = env, clear_env = true, text = true }):wait(30000)
+  local result = vim.system(cmd, { cwd = dir, env = env, clear_env = true, text = true, stdin = stdin }):wait(30000)
   assert.equal(0, result.code, result.stderr)
 
   local seen = vim.json.decode(table.concat(vim.fn.readfile(report), "\n"))
@@ -520,6 +521,13 @@ describe("startup", function()
 
       assert.same({ written = {}, err = "" }, seen.value)
     end)
+  end)
+
+  it("shows a page piped to `nvim +Man!`, not the cwd's README", function()
+    vim.fn.writefile({ "# readme" }, dir .. "/README.md")
+    local seen = boot(dir, reporting("vim.bo.filetype"), { "+Man!" }, "AWS()\n\nNAME\n  aws -\n")
+
+    assert.equal("man", seen.value)
   end)
 
   it("paints its own and plugin highlights from the palette's roles", function()
