@@ -20,6 +20,7 @@ local ELLIPSIS = "…"
 
 -- Text column the bar stops at, however wide the window.
 local MAX_WIDTH = 100
+M.MAX_WIDTH = MAX_WIDTH
 
 -- The chevron 'fillchars' foldclose puts in the gutter (U+F460), repeated on the
 -- line so both marks for one fold match.
@@ -134,7 +135,7 @@ end
 ---Columns the window gives to buffer text, once 'foldcolumn', 'signcolumn' and
 ---the number column have taken theirs.
 ---@return integer
-local function text_width()
+function M.text_width()
   local win = assert(vim.fn.getwininfo(vim.api.nvim_get_current_win())[1], "current window has no getwininfo entry")
   return win.width - win.textoff
 end
@@ -164,7 +165,7 @@ function M.foldtext()
     .. bar(
       ("%s %s"):format(COLLAPSED, title),
       summary(hidden, diagnostic_counts(first, last), vim.api.nvim_buf_line_count(0)),
-      math.min(text_width(), MAX_WIDTH) - #indent
+      math.min(M.text_width(), MAX_WIDTH) - #indent
     )
 end
 
@@ -226,18 +227,21 @@ local function coalesce_imports(ranges, line)
   return merged
 end
 
--- Clients whose folding ranges already pass through widen_imports().
----@type table<vim.lsp.Client, true?>
-local widened = setmetatable({}, { __mode = "k" })
+-- The rewrites each client's folding ranges already pass through.
+---@type table<vim.lsp.Client, table<function, true?>?>
+local rewritten = setmetatable({}, { __mode = "k" })
 
----Pass the folding ranges `client` answers with through with_closing_paren()
----and coalesce_imports() before Neovim folds by them.
+---Pass the folding ranges `client` answers with through `rewrite` before Neovim
+---folds by them. Asking twice with the same `rewrite` applies it once.
 ---@param client vim.lsp.Client
-local function widen_imports(client)
-  if widened[client] then
+---@param rewrite fun(ranges: lsp.FoldingRange[], buf: integer): lsp.FoldingRange[]
+function M.rewrite_ranges(client, rewrite)
+  local applied = rewritten[client] or {}
+  rewritten[client] = applied
+  if applied[rewrite] then
     return
   end
-  widened[client] = true
+  applied[rewrite] = true
   local request = client.request
   -- Neovim requests folding ranges itself and keeps no hook on the reply, so
   -- the reply is rewritten on its way back.
@@ -245,17 +249,23 @@ local function widen_imports(client)
     if method == "textDocument/foldingRange" and handler then
       local reply = handler
       handler = function(err, result, ctx, ...)
-        if result then
-          local function line(row)
-            return vim.api.nvim_buf_get_lines(ctx.bufnr, row, row + 1, false)[1]
-          end
-          result = coalesce_imports(with_closing_paren(result, line), line)
-        end
-        return reply(err, result, ctx, ...)
+        return reply(err, result and rewrite(result, ctx.bufnr), ctx, ...)
       end
     end
     return request(self, method, params, handler, bufnr)
   end
+end
+
+---`ranges` of `buf` with each import block reaching its closing bracket, and
+---neighboring blocks merged.
+---@param ranges lsp.FoldingRange[]
+---@param buf integer
+---@return lsp.FoldingRange[]
+local function widen_imports(ranges, buf)
+  local function line(row)
+    return vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
+  end
+  return coalesce_imports(with_closing_paren(ranges, line), line)
 end
 
 ---Hand the folds of the window showing `buf` to its language servers and close
@@ -272,7 +282,7 @@ function M.fold_imports(client, buf)
   then
     return
   end
-  widen_imports(client)
+  M.rewrite_ranges(client, widen_imports)
   vim.wo[win][0].foldmethod = "expr"
   vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
   -- foldclose() does nothing until vim.lsp.foldexpr() has run, and that first

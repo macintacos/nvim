@@ -72,6 +72,8 @@ Background work shows a braille spinner while it runs, then states its result. T
 
 A closed fold draws as a braille bar that carries the fold's summary and its size, joined by ` · `, such as `1 line · 7.7%` (`lua/config/folds.lua`). The bar matches mkdnflow's folds, so a folded function and a folded Markdown heading look alike. Its text is the comment color blended 35% toward purple, so a fold doesn't read as a comment.
 
+A Go construct short enough to read as one line of Go is the exception (`lua/plugins/go-folds/`). Closed, it draws as that line, such as `if err != nil { return err }`, in the code's own colors on the editor's background, with no band and no bar. Two marks say it is a fold: the closed-fold chevron in the gutter, and the same chevron after the code, in the bar's text color. The cursor line's band covers it like any line of code. Errors and warnings on its hidden lines show as counts after the chevron, each with its sign's glyph and diagnostic color, where the bar puts them in its summary.
+
 ## Messages
 
 A local plugin's message starts with the plugin's name and a colon, then says what went wrong or what to do next, as in `worktrunk: save or discard your unsaved changes first`. Give an error the fix when one exists.

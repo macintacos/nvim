@@ -2,6 +2,12 @@
 
 Each entry records one design decision: what was decided, why, and what it ruled out. Add new entries at the top.
 
+## 2026-11-10: A Go construct folded onto one line takes no band
+
+A Go construct folded onto one line draws on the editor's background, marked only by the gutter's chevron and a second chevron after the code. A Go file can hold dozens of these folds, one per `if err != nil`, so the `bg2` band every other closed fold takes would stripe the file and pull attention from the code. The band was the alternative. It is what GoLand draws behind a folded region, and it keeps `bg2` meaning "closed fold" everywhere, but it reads louder than the code it holds.
+
+The chevron takes the fold bar's text color, which holds at least 4.5:1 on `bg1` and on the cursor line in both themes.
+
 ## 2026-10-29: The live grep puts its state and keys on the borders
 
 The live grep's filters, sort, and ignored toggle show in the list's footer, and its keys show as a keybar on the preview's bottom border. Three variants were mocked up. A put everything on the borders, B added a state row above the results, and C added a filter panel under the preview. A keeps the UI quiet and costs no rows. B spent a row whenever any state was set, and C shortened the preview.

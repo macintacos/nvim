@@ -23,9 +23,9 @@ local function set_picker_match_hl(p)
   vim.api.nvim_set_hl(0, "MiniPickPreviewRegion", { fg = p.bg1, bg = p.cyan.base, bold = true })
 end
 
--- Without a palette file the feedback groups and the grep keybar's labels borrow
--- the scheme's, so yanks, pastes, hovered links and the keybar still show; the
--- palette's colours replace them.
+-- Without a palette file the feedback groups, the grep keybar's labels and the
+-- folded-line cue borrow the scheme's, so yanks, pastes, hovered links, the
+-- keybar and the cue still show; the palette's colours replace them.
 local function set_feedback_fallback_hl()
   for group, scheme_group in pairs({
     FlashYank = "IncSearch",
@@ -33,6 +33,7 @@ local function set_feedback_fallback_hl()
     LinkHover = "Visual",
     LinkHoverIcon = "Visual",
     MiniPickKeybarLabel = "Comment",
+    GoFoldsCue = "Comment",
   }) do
     vim.api.nvim_set_hl(0, group, { link = scheme_group, default = true })
   end
@@ -73,6 +74,8 @@ end
 local function ui_groups(p, background)
   -- Alucard's bg0 is white, which would raise floats and menus above the editor.
   local float_bg = background == "light" and p.bg1 or p.bg0
+  -- Comment's color tinted toward purple, so a closed fold doesn't read as a comment.
+  local fold_fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35)
   return {
     DiagnosticOk = { fg = p.green.base },
     DiagnosticUnderlineOk = { sp = p.green.base, underline = true },
@@ -100,8 +103,9 @@ local function ui_groups(p, background)
     Pmenu = { bg = float_bg },
     PmenuSbar = { bg = float_bg },
     ColorColumn = { bg = p.bg2 },
-    -- Comment's color tinted toward purple, so a closed fold doesn't read as a comment.
-    Folded = { fg = require("helpers.palette").blend(p.comment, p.purple.base, 0.35), bg = p.bg2 },
+    Folded = { fg = fold_fg, bg = p.bg2 },
+    -- The chevron ending a Go construct folded onto one line, which sits on no band.
+    GoFoldsCue = { fg = fold_fg },
     TabLine = { fg = p.comment, bg = p.bg2 },
     TabLineSel = { fg = p.fg2, bg = tab_sel_bg(p, p.cyan.base), bold = true },
     -- The editor's background, so each tab stands out as a pill.

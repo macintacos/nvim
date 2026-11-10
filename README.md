@@ -37,6 +37,7 @@ README.
 | [`blink-pairs`](lua/plugins/blink-pairs/) | blink.pairs rules for Markdown emphasis that stay out of inline code spans, the parity check that decides when a symmetric delimiter opens a new pair, and a highlight on Markdown delimiters left without a partner. |
 | [`branches`](lua/plugins/branches/) | `<leader>gb` — a centered picker over the repo's branches, local above remote, that switches to one, moves to the worktree holding it, or creates one off HEAD. |
 | [`ftchooser`](lua/plugins/ftchooser/) | `<leader>fl` picks a buffer's filetype from human names; the choice is remembered per file across restarts. |
+| [`go-folds`](lua/plugins/go-folds/) | Go's short `if` blocks, one-`return` functions, and one-statement case clauses open folded onto one line that still reads as code. |
 | [`gotoline`](lua/plugins/gotoline/) | `:GoToLine` — one floating prompt that fuzzy-finds a project file, previews it, then jumps to a line in it. |
 | [`mini-pickers`](lua/plugins/mini-pickers/) | Replacement mini.pick registry entries: document symbols as a real tree, thinned workspace symbols, per-line blame, and an `rg` invocation whose flags are ours. |
 | [`pack-pr`](lua/plugins/pack-pr/) | `:PackPR` (`<leader>Pp`) — pick an open PR of one of your `github.com/<owner>/` plugins, install its branch headlessly, and restart into it; a reset entry per plugin goes back to the default branch. |
