@@ -321,6 +321,7 @@ vim.schedule(function()
       { "gri", desc = "Goto Implementation", icon = { icon = "󰆧", color = "azure" } },
       { "grn", desc = "Rename Symbol", icon = { icon = "󰑕", color = "orange" } },
       { "grr", desc = "Goto References", icon = { icon = "󱎸", color = "blue" } },
+      { "grR", desc = "Goto References in Split", icon = { icon = "󰤻", color = "blue" } },
       { "grt", desc = "Goto Type Definition", icon = { icon = "󰰤", color = "azure" } },
       { "grx", desc = "Run Code Lens", icon = { icon = "󰐍", color = "green" } },
 

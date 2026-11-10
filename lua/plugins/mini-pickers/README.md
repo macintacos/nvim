@@ -16,7 +16,7 @@ The registry entries this replaces are shipped by mini.pick and mini.extra; only
 | `which_key`       | New picker: every mapping which-key's popup can reach, keyed and grouped. `<leader><leader>` opens it. |
 | `tabs`            | New picker: the open tabs, numbered and named as the tabline shows them, plus a last row that opens a new tab. It hangs centered just under the tabline and starts on the current tab. `<leader>tt` opens it. |
 
-The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `grr` opens the `references` one.
+The other `lsp` scopes (`references`, `definition`, …) are location lists with no symbol structure to recover. `locations.lua` only thins their rows to the path, with the `line:col` right-aligned — the side preview shows the line itself, so the query matches paths alone. `grr` opens the `references` one, and `grR` opens it with `<CR>` and `<C-v>` swapped, so the chosen reference lands in a vertical split.
 
 ## The side preview
 

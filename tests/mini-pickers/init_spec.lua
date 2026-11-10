@@ -47,6 +47,14 @@ describe("mini-pickers registry", function()
     assert.equal("explicit", assert(captured).local_opts.symbol_query)
   end)
 
+  it("hands a location picker the caller's picker opts over its own", function()
+    MiniPick.registry.lsp({ scope = "references" }, { mappings = { choose = "<C-v>" } })
+
+    local opts = assert(captured).opts
+    assert.equal("<C-v>", opts.mappings.choose)
+    assert.is_function(opts.source.show)
+  end)
+
   it("leaves workspace_symbol_live unseeded; its query is typed in the picker", function()
     MiniPick.registry.lsp({ scope = "workspace_symbol_live" })
 

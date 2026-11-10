@@ -66,11 +66,10 @@ M._match = match
 
 ---Open a location picker.
 ---@param local_opts table Passed through to `MiniExtra.pickers.lsp`.
-function M.pick(local_opts)
-  return MiniExtra.pickers.lsp(local_opts, {
-    source = { show = show, match = match },
-    window = preview.window(),
-  })
+---@param opts? table Picker options, merged over this picker's own.
+function M.pick(local_opts, opts)
+  local defaults = { source = { show = show, match = match }, window = preview.window() }
+  return MiniExtra.pickers.lsp(local_opts, vim.tbl_deep_extend("force", defaults, opts or {}))
 end
 
 return M

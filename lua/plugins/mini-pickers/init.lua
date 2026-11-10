@@ -31,7 +31,7 @@ function M.setup()
     return require("plugins.mini-pickers.grep").pick(local_opts)
   end
 
-  MiniPick.registry.lsp = function(local_opts)
+  MiniPick.registry.lsp = function(local_opts, opts)
     local_opts = local_opts or {}
     local scope = tostring(local_opts.scope or "")
     if scope == "document_symbol" then
@@ -45,7 +45,7 @@ function M.setup()
       local_opts.symbol_query = vim.fn.expand("<cword>")
     end
     if not scope:find("symbol") then
-      return require("plugins.mini-pickers.locations").pick(local_opts)
+      return require("plugins.mini-pickers.locations").pick(local_opts, opts)
     end
     return require("plugins.mini-pickers.workspace").pick(local_opts, scope)
   end
