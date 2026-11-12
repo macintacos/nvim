@@ -69,7 +69,7 @@ local function choose(show)
   MiniPick.start({
     source = {
       name = "Scratch",
-      items = vim.list_extend({ { text = "+ New scratch file" } }, files),
+      items = vim.list_extend(files, { { text = "+ New scratch file" } }),
       show = function(buf_id, items, query)
         MiniPick.default_show(buf_id, items, query, { show_icons = true })
       end,

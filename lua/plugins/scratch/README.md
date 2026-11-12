@@ -1,9 +1,9 @@
 # scratch
 
 Per-project scratch files in `<cwd>/.tmp/scratch/`. The first open creates
-`scratch.md` without asking. Once one exists, opening shows a picker: `+ New scratch
-file` on top, then every file in the directory, most recently modified first. The file
-under the cursor previews beside the list, or above it in a narrow editor — the
+`scratch.md` without asking. Once one exists, opening shows a picker: every file in the
+directory, most recently modified first, then `+ New scratch file`. The file under the
+cursor previews beside the list, or above it in a narrow editor — the
 [mini-pickers](../mini-pickers/) side preview.
 
 New asks for a name. `api-notes` becomes `api-notes.md`, a name with its own extension
