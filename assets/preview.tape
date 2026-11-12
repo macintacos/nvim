@@ -127,12 +127,12 @@ Sleep 600ms
 Enter
 Sleep 1.5s
 
-# <leader>tn: a new tab for the README; the tabs sit centered in the tabline
+# <leader>tN: a new tab for the README; the tabs sit centered in the tabline
 Space
 Sleep 500ms
 Type "t"
 Sleep 900ms
-Type "n"
+Type "N"
 Sleep 1s
 Space
 Sleep 500ms
