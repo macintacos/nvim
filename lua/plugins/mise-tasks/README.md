@@ -24,9 +24,12 @@ reaches the task as two arguments, `--name` and `a b`.
 ## The Rex pane
 
 The task runs in a new floating pane that covers the middle 80% of the Rex window and
-takes focus. The pane's label is the command it runs, such as `mise run test`. The pane
-stays open after the task exits, so you can read its output. Close it the way you close
-any Rex pane.
+takes focus. The pane's label is the command it runs, such as `mise run test`.
+
+When the task exits, the pane keeps its output on screen and says how it ended: `Done`,
+or `Exited <status>` for a failure. Press Enter to close the pane, and focus goes back to
+Neovim. Ctrl-C stops the task and leaves the pane open on `Exited 130`; Ctrl-C at the
+prompt closes it.
 
 ## Limitations
 

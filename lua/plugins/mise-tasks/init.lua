@@ -34,15 +34,25 @@ local KEYBAR = {
 ---@field description string
 ---@field text string What mini.pick draws and matches: the name, which show() places the description after.
 
----@class mise-tasks.Placement : vim.api.keyset.win_config
----@field row integer
----@field col integer
----@field width integer
----@field height integer
-
 ---@class mise-tasks.Layout
----@field list mise-tasks.Placement
----@field preview mise-tasks.Placement
+---@field list mini-pickers.preview.Placement
+---@field preview mini-pickers.preview.Placement
+
+-- `trap :`, not `trap ''`: a caught signal resets to default in the child, so Ctrl-C
+-- still stops the task while this script lives on to report it. Lifted before the
+-- prompt so Ctrl-C there still closes the pane.
+local HOLD_OPEN = [[
+trap : INT
+"$@"
+status=$?
+trap - INT
+if [ "$status" -eq 0 ]; then
+  printf '\n\033[32m✓\033[0m Done. Press Enter to close this pane.'
+else
+  printf '\n\033[31m✗\033[0m Exited %s. Press Enter to close this pane.' "$status"
+fi
+read -r _
+exit "$status"]]
 
 ---The program the Rex pane runs. Typed arguments go through `sh`, so they quote
 ---as they would at a prompt; the task name stays out of the script.
@@ -54,6 +64,13 @@ function M._command(name, args)
     return { "mise", "run", name }
   end
   return { "sh", "-c", 'exec mise run "$1" ' .. vim.trim(args), "mise-tasks", name }
+end
+
+---Wrap `command` so its pane stays open on the output until Enter.
+---@param command string[]
+---@return string[]
+function M._hold_open(command)
+  return vim.list_extend({ "sh", "-c", HOLD_OPEN, "mise-tasks" }, command)
 end
 
 ---The column descriptions start at: the widest name, capped at NAME_MAX.
@@ -145,8 +162,8 @@ local function open_rex_pane(label, command, cwd)
       block = {
         flavor = "com.superlogical.terminal.shell",
         label = label,
-        -- Stays open once the task ends, so its output can be read.
-        options = { command = command, cwd = cwd, exit = { on_completion = false } },
+        -- Rex closes the pane once HOLD_OPEN exits on Enter, then refocuses Neovim.
+        options = { command = M._hold_open(command), cwd = cwd, exit = { on_completion = true } },
       },
     },
   })
@@ -171,7 +188,7 @@ end
 ---Ask for the task's arguments in a float with the picker's width and column, then
 ---run it with them. Calls MiniInput directly because vim.ui.input can't place the float.
 ---@param name string
----@param picker mise-tasks.Placement
+---@param picker mini-pickers.preview.Placement
 local function run_with_args(name, picker)
   local args = MiniInput.get({
     prompt = "mise run " .. name,
@@ -234,7 +251,6 @@ local function info()
       end, vim.split(vim.trim(out or err or ""), "\n"))
     end
     local lines = cache[task.name]
-    vim.api.nvim_buf_clear_namespace(buf, NS, 0, -1)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     -- Dim each `Field:` label so the values read first.
     for i, line in ipairs(lines) do
@@ -246,69 +262,23 @@ local function info()
   end
 end
 
----Keep a preview float under the list on the current task until the picker stops.
----@param config vim.api.keyset.win_config
----@param preview fun(buf: integer, task: mise-tasks.Task)
-local function attach(config, preview)
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].bufhidden = "wipe"
-  local win = vim.api.nvim_open_win(
-    buf,
-    false,
-    vim.tbl_extend("force", config, {
-      style = "minimal",
-      focusable = false,
-      zindex = vim.api.nvim_win_get_config(assert(MiniPick.get_picker_state()).windows.main).zindex,
+---The INFO float's config: beneath the list, as wide as it, `preview.height` tall.
+---@param preview mini-pickers.preview.Placement
+---@return mini-pickers.preview.FloatConfig
+local function info_float(preview)
+  return function(picker)
+    return {
+      relative = "editor",
+      anchor = "NW",
+      row = picker.row + picker.height + BORDER,
+      col = picker.col,
+      width = picker.width,
+      height = preview.height,
       title = { { " INFO ", "MiniPickBorderText" } },
       footer = KEYBAR,
       footer_pos = "right",
-      noautocmd = true,
-    })
-  )
-  local group = vim.api.nvim_create_augroup("MiseTasks.Preview", { clear = true })
-  local shown_task
-
-  local function render()
-    local matches = MiniPick.is_picker_active() and MiniPick.get_picker_matches()
-    local task = matches and matches.current
-    if task == shown_task or not vim.api.nvim_win_is_valid(win) then
-      return
-    end
-    shown_task = task
-    if task then
-      preview(buf, task)
-    else
-      vim.api.nvim_buf_clear_namespace(buf, NS, 0, -1)
-      vim.api.nvim_buf_set_lines(buf, 0, -1, false, {})
-    end
-    -- mini.pick waits in getcharstr, which doesn't repaint on its own.
-    vim.cmd.redraw()
+    }
   end
-
-  -- mini.pick emits no event when the current row moves, but every move is a
-  -- key it reads. Scheduled so the picker has handled the key first.
-  vim.on_key(function()
-    vim.schedule(render)
-  end, NS)
-
-  -- A query change resets the current row without a move key.
-  vim.api.nvim_create_autocmd("User", { group = group, pattern = "MiniPickMatch", callback = render })
-
-  -- Close the preview with the picker it belongs to.
-  vim.api.nvim_create_autocmd("User", {
-    group = group,
-    pattern = "MiniPickStop",
-    once = true,
-    callback = function()
-      vim.on_key(nil, NS)
-      vim.api.nvim_del_augroup_by_id(group)
-      if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_win_close(win, true)
-      end
-    end,
-  })
-
-  render()
 end
 
 ---Pick one of the project's mise tasks and run it in a floating Rex pane.
@@ -340,9 +310,9 @@ function M.pick()
     pattern = "MiniPickStart",
     once = true,
     callback = function()
-      local started = MiniPick.get_picker_opts()
-      if started and started.source.show == rows then
-        attach(layout.preview, info())
+      local opts, state = MiniPick.get_picker_opts(), MiniPick.get_picker_state()
+      if opts and state and opts.source.show == rows then
+        require("plugins.mini-pickers.preview").attach(info(), state.windows.main, info_float(layout.preview))
       end
     end,
   })

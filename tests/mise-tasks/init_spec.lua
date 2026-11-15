@@ -44,6 +44,71 @@ describe("mise-tasks._command", function()
   end)
 end)
 
+describe("mise-tasks._hold_open", function()
+  ---@type string
+  local bin
+
+  before_each(function()
+    bin = vim.fn.tempname()
+    vim.fn.mkdir(bin, "p")
+  end)
+
+  after_each(function()
+    vim.fn.delete(bin, "rf")
+  end)
+
+  ---Run `command` with the stub bin first on PATH, pressing Enter at its prompt.
+  ---@param command string[]
+  ---@param opts? vim.SystemOpts
+  ---@return integer code
+  ---@return string stdout
+  local function run(command, opts)
+    local defaults = { env = { PATH = bin .. ":" .. vim.env.PATH }, stdin = "\n", text = true }
+    local out = vim.system(command, vim.tbl_extend("force", defaults, opts or {})):wait()
+    return out.code, out.stdout or ""
+  end
+
+  it("waits for Enter before exiting with the command's status", function()
+    local stdout = {}
+    local proc = vim.system(mise_tasks._hold_open({ "sh", "-c", "exit 3" }), {
+      stdin = true,
+      stdout = function(_, data)
+        stdout[#stdout + 1] = data
+      end,
+    })
+    assert.is_true(vim.wait(2000, function()
+      return table.concat(stdout):find("Exited 3%. Press Enter to close this pane%.") ~= nil
+    end))
+    assert.is_false(vim.wait(100, function()
+      return proc:is_closing()
+    end))
+
+    proc:write("\n")
+    assert.are.equal(3, proc:wait().code)
+  end)
+
+  it("reports a clean exit as done", function()
+    local code, stdout = run(mise_tasks._hold_open({ "true" }))
+    assert.are.equal(0, code)
+    assert.matches("Done%. Press Enter to close this pane%.", stdout)
+  end)
+
+  it("reports a typo in the typed arguments as the task's failure", function()
+    script(bin .. "/mise", 'printf "%s|" "$@"')
+    local code, stdout = run(mise_tasks._hold_open(mise_tasks._command("test", '--msg "foo')))
+    assert.are.equal(2, code)
+    assert.matches("Exited 2%.", stdout)
+  end)
+
+  it("outlives a Ctrl-C that stops the task", function()
+    -- `detach` gives the run its own process group, so `kill -INT 0` stands in for Ctrl-C.
+    script(bin .. "/mise", "kill -INT 0\nsleep 1")
+    local code, stdout = run(mise_tasks._hold_open(mise_tasks._command("test", nil)), { detach = true })
+    assert.are.equal(130, code)
+    assert.matches("Exited 130%.", stdout)
+  end)
+end)
+
 describe("mise-tasks._layout", function()
   local items = {
     task("test", "Run the specs"),
@@ -161,7 +226,7 @@ describe("mise-tasks.pick", function()
     assert.is_false(vim.api.nvim_win_is_valid(win))
   end)
 
-  it("runs the chosen task in a Rex pane that stays open", function()
+  it("runs the chosen task in a Rex pane that closes when its command exits", function()
     require("support.pick").drive(mise_tasks.pick, {
       function()
         started()
@@ -173,9 +238,9 @@ describe("mise-tasks.pick", function()
       return vim.fn.filereadable(path) == 1 and vim.fn.getfsize(path) > 0
     end))
     local options = vim.json.decode(table.concat(vim.fn.readfile(path), "\n")).layout.block.options
-    assert.are.same({ "mise", "run", "build" }, options.command)
+    assert.are.same(mise_tasks._hold_open(mise_tasks._command("build", nil)), options.command)
     assert.are.equal(vim.fn.getcwd(), options.cwd)
-    assert.is_false(options.exit.on_completion)
+    assert.is_true(options.exit.on_completion)
   end)
 
   it("leaves the next picker alone when its own didn't start", function()

@@ -70,6 +70,8 @@ Nothing animates: `vim.g.snacks_animate = false` in `plugin/snacks.lua` turns of
 
 Background work shows a braille spinner while it runs, then states its result. The plugin-update check shows the spinner in the statusline, then the count of plugins with updates (`lua/plugins/pack-updates/`).
 
+A task run in a Rex pane ends by stating its result, a green `✓ Done.` or a red `✗ Exited N.`, then waits for Enter before the pane closes (`lua/plugins/mise-tasks/`).
+
 ## Folds
 
 A closed fold draws as a braille bar that carries the fold's summary and its size, joined by ` · `, such as `1 line · 7.7%` (`lua/config/folds.lua`). The bar matches mkdnflow's folds, so a folded function and a folded Markdown heading look alike. Its text is the comment color blended 35% toward purple, so a fold doesn't read as a comment.

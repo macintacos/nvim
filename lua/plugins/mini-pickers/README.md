@@ -44,6 +44,8 @@ The float is filled by the picker's own `source.preview`, which is what makes lo
 
 mini.pick fires no event when the current item moves, so the float re-renders after every key the picker reads (`vim.on_key`), on `MiniPickMatch` for async items and query changes, and re-fits itself on `VimResized`, switching between the two layouts as the editor crosses `MIN_COLUMNS`.
 
+A picker that places its preview itself calls `preview.attach(fill, list_win, float_config)` from its own `MiniPickStart` hook. It gets the same re-rendering and teardown, and `float_config` builds the float from the list window's config, or returns nil to close it while there's no room. `attach` sets the float's border and z-index to the list's and keeps it from taking focus. The [mise-tasks](../mise-tasks/) picker hangs its INFO float under the list this way.
+
 ## The files picker
 
 `MiniPick.builtin.files` picks a tool at runtime — `rg`, then `fd`, then `git`, then a Lua walk — and hardcodes the arguments it calls it with. `files.lua` spells the `rg` call out instead, so the flags are ours:
@@ -180,7 +182,7 @@ Screen-level behaviour like this is invisible to the headless test suite, which 
 | `locations.lua` | `show`/`match` for references, definitions, and the other location lists. |
 | `kinds.lua`     | Which symbol kinds count as outline entries, per filetype.               |
 | `render.lua`    | The extmark namespace, the lazily-built highlight groups, and `show_paths`. |
-| `preview.lua`   | The side preview float and the list/preview split, beside or stacked.    |
+| `preview.lua`   | The side preview float, the list/preview split, and `attach`, which keeps any picker's preview float on its current item. |
 | `git.lua`       | `git_blame_line`.                                                        |
 
 Submodules are required on first use, so opening `:Pick files` never loads the LSP or git code.

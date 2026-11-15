@@ -8,7 +8,8 @@
 ---
 ---Pickers opt in by passing `window = preview.window()` to `MiniPick.start`,
 ---which also narrows the list to leave room. Below `MIN_COLUMNS` the list takes
----the whole width and the preview stacks above it instead.
+---the whole width and the preview stacks above it instead. A picker that places
+---its own preview float calls `attach` directly.
 
 local windows = require("helpers.windows")
 
@@ -55,6 +56,9 @@ end
 ---@field width integer
 ---@field height integer
 
+---A preview float's config against the list's current one; nil while there's no room for it.
+---@alias mini-pickers.preview.FloatConfig fun(list: mini-pickers.preview.Placement): vim.api.keyset.win_config?
+
 ---Float config for the preview, placed against the list window per `layout`.
 ---@param list mini-pickers.preview.Placement The list window's current config.
 ---@param layout { beside?: integer, above?: integer }
@@ -64,11 +68,7 @@ function M._float_config(list, layout, footer)
   local config = {
     relative = "editor",
     anchor = list.anchor,
-    border = list.border,
     title = { { " PREVIEW ", "MiniPickBorderText" } },
-    zindex = list.zindex,
-    style = "minimal",
-    focusable = false,
     footer = footer,
     -- Neovim rejects a `footer_pos` without a footer.
     footer_pos = footer and "right" or nil,
@@ -113,11 +113,12 @@ local function scratch()
   return buf
 end
 
----Keep a side preview in step with the active picker until it stops.
----@param preview fun(buf_id: integer, item: any) The picker's `source.preview`.
----@param main integer The picker's list window.
----@param footer? [string, string][]
-local function attach(preview, main, footer)
+---Keep a preview float in step with the active picker's current item until it stops.
+---The float takes the list's border and z-index, and never takes focus.
+---@param fill fun(buf_id: integer, item: any) Fills a fresh buffer for one item.
+---@param list_win integer The picker's list window.
+---@param float_config mini-pickers.preview.FloatConfig The float's geometry, title, and footer.
+function M.attach(fill, list_win, float_config)
   local ns = vim.api.nvim_create_namespace("mini_pick_side_preview")
   local group = vim.api.nvim_create_augroup("MiniPickers.PreviewSession", { clear = true })
   ---@type integer?
@@ -134,7 +135,7 @@ local function attach(preview, main, footer)
     local buf = scratch()
     vim.api.nvim_win_set_buf(win, buf)
     if item ~= nil then
-      preview(buf, item)
+      fill(buf, item)
       vim.api.nvim_win_call(win, windows.reveal_cursor)
     end
     -- mini.pick has already redrawn for this key and is blocked in getcharstr,
@@ -144,16 +145,21 @@ local function attach(preview, main, footer)
 
   -- Opens, moves, or closes the float to fit the current editor size.
   local function place()
-    local layout = current_layout()
-    if not ((layout.beside or layout.above) and vim.api.nvim_win_is_valid(main)) then
+    local list = vim.api.nvim_win_is_valid(list_win) and vim.api.nvim_win_get_config(list_win) --[[@as mini-pickers.preview.Placement]]
+    local config = list and float_config(list)
+    if not config then
       if win and vim.api.nvim_win_is_valid(win) then
         vim.api.nvim_win_close(win, true)
       end
       win = nil
       return
     end
-    local main_config = vim.api.nvim_win_get_config(main) --[[@as mini-pickers.preview.Placement]]
-    local config = M._float_config(main_config, layout, footer)
+    -- At the picker's z-level, and unfocusable so mini.pick's getcharstr loop keeps the keys.
+    config = vim.tbl_extend(
+      "force",
+      config,
+      { border = list.border, zindex = list.zindex, style = "minimal", focusable = false }
+    )
     if win and vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_set_config(win, config)
     else
@@ -192,6 +198,16 @@ local function attach(preview, main, footer)
   place()
 end
 
+---The side preview's config against the list: beside it, above it, or nil when neither fits.
+---@param footer? [string, string][]
+---@return mini-pickers.preview.FloatConfig
+local function side_float(footer)
+  return function(list)
+    local layout = current_layout()
+    return (layout.beside or layout.above) and M._float_config(list, layout, footer) or nil
+  end
+end
+
 ---Attach a side preview to every picker started with `window = M.window()`.
 function M.setup()
   -- Opt-in check on every picker start: `get_picker_opts` copies the options,
@@ -202,7 +218,7 @@ function M.setup()
     callback = function()
       local opts, state = MiniPick.get_picker_opts(), MiniPick.get_picker_state()
       if opts and state and opts.window.config == window_config then
-        attach(opts.source.preview, state.windows.main, opts.window.preview_footer)
+        M.attach(opts.source.preview, state.windows.main, side_float(opts.window.preview_footer))
       end
     end,
   })
