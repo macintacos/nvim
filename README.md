@@ -28,7 +28,7 @@ dotfiles deploy. Take whatever looks useful.
 
 ## Local plugins
 
-Fourteen plugins I wrote because nothing upstream did the job. Each directory has its own
+Sixteen plugins I wrote because nothing upstream did the job. Each directory has its own
 README.
 
 | Plugin | What it does |
@@ -40,6 +40,7 @@ README.
 | [`go-folds`](lua/plugins/go-folds/) | Go's short `if` blocks, one-`return` functions, and one-statement case clauses open folded onto one line that still reads as code. |
 | [`gotoline`](lua/plugins/gotoline/) | `:GoToLine` — one floating prompt that fuzzy-finds a project file, previews it, then jumps to a line in it. |
 | [`mini-pickers`](lua/plugins/mini-pickers/) | Replacement mini.pick registry entries: document symbols as a real tree, thinned workspace symbols, per-line blame, and an `rg` invocation whose flags are ours. |
+| [`mise-tasks`](lua/plugins/mise-tasks/) | `<leader>pt` — a centered picker over the project's [mise](https://mise.jdx.dev) tasks, with each task's info beneath, that runs the chosen one in a floating Rex pane, with arguments on `<S-CR>`. |
 | [`pack-pr`](lua/plugins/pack-pr/) | `:PackPR` (`<leader>Pp`) — pick an open PR of one of your `github.com/<owner>/` plugins, install its branch headlessly, and restart into it; a reset entry per plugin goes back to the default branch. |
 | [`pack-tweaks`](lua/plugins/pack-tweaks/) | `<CR>` on a line in the `vim.pack` update buffer opens that commit or tag in the browser. |
 | [`pack-updates`](lua/plugins/pack-updates/) | A statusline count of plugins with upstream commits you haven't pulled, checked in the background with `git ls-remote` and cached for a day; `<leader>Pc` re-checks. |

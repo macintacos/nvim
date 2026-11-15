@@ -10,7 +10,7 @@ These rules cover building or changing a plugin under `lua/plugins/<name>/`. `lu
 
 ## Wiring
 
-`plugin/local/<name>.lua` loads the plugin under a `-- Local plugin (no upstream repo)` header and a sentence on what it does, then calls `require("plugins.<name>").setup({ … })`. A local plugin that only extends a third-party plugin is wired from that plugin's own file instead, as `plugin/blink.lua` wires `blink-omni` and `blink-pairs`.
+`plugin/local/<name>.lua` loads the plugin under a `-- Local plugin (no upstream repo)` header and a sentence on what it does, then calls `require("plugins.<name>").setup({ … })`. A local plugin that only extends a third-party plugin is wired from that plugin's own file instead, as `plugin/blink.lua` wires `blink-omni` and `blink-pairs`. A plugin with no options and nothing to register at startup skips `setup()`: its file maps the key and requires the plugin inside the callback, as `plugin/local/mise-tasks.lua` does.
 
 ## Testability
 

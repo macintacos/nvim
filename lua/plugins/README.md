@@ -11,6 +11,7 @@ This directory contains locally-defined Neovim plugins that live inside this con
 - [`go-folds`](go-folds/) — draws Go's short `if` blocks, one-`return` functions, and one-statement case clauses folded onto one line when a file opens, as closed folds that show their code instead of the fold bar.
 - [`gotoline`](gotoline/) — exposes a `:GoToLine` command that opens a centered floating popup for jumping to a line in a project file.
 - [`mini-pickers`](mini-pickers/) — customised [mini.pick](https://github.com/nvim-mini/mini.pick) registry entries: a tree-rendered LSP document-symbol outline, thinned workspace symbol pickers, and a per-line git blame picker.
+- [`mise-tasks`](mise-tasks/) — `<leader>pt` opens a centered picker over the project's [mise](https://mise.jdx.dev) tasks, with `mise tasks info` beneath, and runs the chosen task in a floating Rex pane; `<S-CR>` asks for arguments first.
 - [`pack-pr`](pack-pr/) — `:PackPR` (`<leader>Pp`) picks an open PR of one of your installed `vim.pack` plugins (`github.com/<owner>/*`), installs its branch, and restarts Neovim into it for live smoke-testing.
 - [`pack-tweaks`](pack-tweaks/) — tweaks to Neovim's built-in `vim.pack` plugin manager, each wired through `setup()`.
 - [`pack-updates`](pack-updates/) — shows in the statusline how many installed `vim.pack` plugins have upstream commits you haven't pulled, checked in the background with `git ls-remote` and cached for 24 hours; `<leader>Pc` re-checks on demand.
