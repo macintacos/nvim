@@ -103,6 +103,11 @@ vim.defer_fn(function()
     { "WinSeparator", "fg", "bg4" },
     { "FloatBorder", "fg", "bg4" },
     { "StatusLine", "bg", "bg0" },
+    { "MiniStatuslineFilename", "bg", "bg0" },
+    { "MiniStatuslinePill", "fg", "fg1" },
+    { "MiniStatuslinePill", "bg", "bg2" },
+    { "MiniStatuslinePillCap", "fg", "bg2" },
+    { "MiniStatuslinePillCap", "bg", "bg0" },
     { "Search", "bg", "sel1" },
     { "DiffAdd", "bg", "diff.add" },
     { "DiffText", "bg", "diff.text" },
@@ -406,12 +411,14 @@ describe("startup", function()
     assert.is_true(math.abs(#left - #right) <= 1)
   end)
 
-  it("centers a file's path from its repo root in the statusline", function()
+  it("centers a file's path from its repo root in the statusline, on a rounded pill", function()
     vim.fn.mkdir(dir .. "/.git")
+    require("support.palette").write(dir)
     local seen = boot(dir, reporting("vim.api.nvim_eval_statusline(vim.o.statusline, {}).str"))
 
     assert.is_nil(seen.value:find(vim.fs.basename(dir), 1, true))
-    local left, right = seen.value:match("^(.*) probe%.lua (.*)$")
+    local left_cap, right_cap = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
+    local left, right = seen.value:match("^(.*)" .. left_cap .. " probe%.lua " .. right_cap .. "(.*)$")
     assert.is_true(math.abs(vim.api.nvim_strwidth(left) - vim.api.nvim_strwidth(right)) <= 1)
   end)
 

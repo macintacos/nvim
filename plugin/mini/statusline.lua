@@ -5,6 +5,9 @@ vim.pack.add({ { src = "https://github.com/nvim-mini/mini.statusline", version =
 
 local pack_updates = require("plugins.pack-updates")
 
+-- nf-ple-left_half_circle_thick and _right_: the filename pill's rounded ends.
+local LEFT_CAP, RIGHT_CAP = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
+
 -- Override default section backgrounds so the line sits just off the terminal
 -- background and only the mode sections carry color. The mode sections are the
 -- colorscheme's.
@@ -15,6 +18,9 @@ local function set_statusline_highlights()
   end
   vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = p.bg0 })
   vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = p.bg0 })
+  vim.api.nvim_set_hl(0, "MiniStatuslineFilename", { bg = p.bg0 })
+  vim.api.nvim_set_hl(0, "MiniStatuslinePill", { fg = p.fg1, bg = p.bg2, bold = true })
+  vim.api.nvim_set_hl(0, "MiniStatuslinePillCap", { fg = p.bg2, bg = p.bg0 })
   vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green.base, bg = p.bg0 })
 end
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statusline_highlights })
@@ -50,6 +56,17 @@ local function section_filename(args)
   return name:sub(#root + 2):gsub("%%", "%%%%") .. "%m%r"
 end
 
+---`text` on a pill with rounded ends, or padded plainly when no palette colors the pill.
+---@param text string
+---@return string
+local function pill(text)
+  if not vim.api.nvim_get_hl(0, { name = "MiniStatuslinePill" }).bg then
+    return " " .. text .. " "
+  end
+  local cap = "%#MiniStatuslinePillCap#"
+  return cap .. LEFT_CAP .. "%#MiniStatuslinePill# " .. text .. " " .. cap .. RIGHT_CAP .. "%#MiniStatuslineFilename#"
+end
+
 ---One statusline of `left`, `middle`, and `right`, with `middle` centered in `columns`
 ---cells, or hard against `left` when `left` reaches past where it would start.
 ---@param left string
@@ -83,7 +100,7 @@ require("mini.statusline").setup({
         { hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
         { hl = "MiniStatuslineFilename" },
       })
-      local middle = MiniStatusline.combine_groups({ "%<", { strings = { filename } } })
+      local middle = "%<" .. pill(filename)
       local right = MiniStatusline.combine_groups({
         { hl = "MiniStatuslinePackUpdates", strings = { updates } },
         { hl = mode_hl, strings = { search, location } },
