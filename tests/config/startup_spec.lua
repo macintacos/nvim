@@ -108,6 +108,7 @@ vim.defer_fn(function()
     { "MiniStatuslinePill", "bg", "bg2" },
     { "MiniStatuslinePillCap", "fg", "bg2" },
     { "MiniStatuslinePillCap", "bg", "bg0" },
+    { "MiniStatuslinePillIconAzure", "bg", "bg2" },
     { "Search", "bg", "sel1" },
     { "DiffAdd", "bg", "diff.add" },
     { "DiffText", "bg", "diff.text" },
@@ -411,14 +412,19 @@ describe("startup", function()
     assert.is_true(math.abs(#left - #right) <= 1)
   end)
 
-  it("centers a file's path from its repo root in the statusline, on a rounded pill", function()
+  it("centers a file's icon and path from its repo root in the statusline, on a rounded pill", function()
     vim.fn.mkdir(dir .. "/.git")
     require("support.palette").write(dir)
-    local seen = boot(dir, reporting("vim.api.nvim_eval_statusline(vim.o.statusline, {}).str"))
+    local line = "vim.api.nvim_eval_statusline(vim.o.statusline, {}).str"
+    local icon = "(MiniIcons.get('file', vim.api.nvim_buf_get_name(0)))"
+    ---@type { line: string, icon: string }
+    local seen = boot(dir, reporting(("{ line = %s, icon = %s }"):format(line, icon))).value
 
-    assert.is_nil(seen.value:find(vim.fs.basename(dir), 1, true))
+    assert.is_nil(seen.line:find(vim.fs.basename(dir), 1, true))
     local left_cap, right_cap = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
-    local left, right = seen.value:match("^(.*)" .. left_cap .. " probe%.lua " .. right_cap .. "(.*)$")
+    local pill = left_cap .. " " .. seen.icon .. " probe%.lua " .. right_cap
+    local left, right = seen.line:match("^(.*)" .. pill .. "(.*)$")
+    assert(left and right, seen.line)
     assert.is_true(math.abs(vim.api.nvim_strwidth(left) - vim.api.nvim_strwidth(right)) <= 1)
   end)
 

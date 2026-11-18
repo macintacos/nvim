@@ -18,7 +18,7 @@ Pick a color by its role. The field annotations on `palette.Roles` in `lua/helpe
 | --- | --- |
 | `bg0` | Dark mode: floats, popups, and the status and title bars. Light mode: white, so floats use `bg1` instead. |
 | `bg1` | The editor background. |
-| `bg2` | The color column, closed folds drawn as a bar, inactive tabs, and the pill behind the statusline's file path. |
+| `bg2` | The color column, closed folds drawn as a bar, inactive tabs, and the pill behind the statusline's file icon and path. |
 | `bg3` | The cursor line. |
 | `bg4` | Borders, dividers, and non-text characters. |
 | `fg1` | Body text. |

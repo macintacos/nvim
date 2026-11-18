@@ -8,6 +8,9 @@ local pack_updates = require("plugins.pack-updates")
 -- nf-ple-left_half_circle_thick and _right_: the filename pill's rounded ends.
 local LEFT_CAP, RIGHT_CAP = vim.fn.nr2char(0xE0B6), vim.fn.nr2char(0xE0B4)
 
+-- The colors of mini.icons' only icon groups, `MiniIcons<color>`.
+local ICON_COLORS = { "Azure", "Blue", "Cyan", "Green", "Grey", "Orange", "Purple", "Red", "Yellow" }
+
 -- Override default section backgrounds so the line sits just off the terminal
 -- background and only the mode sections carry color. The mode sections are the
 -- colorscheme's.
@@ -21,6 +24,10 @@ local function set_statusline_highlights()
   vim.api.nvim_set_hl(0, "MiniStatuslineFilename", { bg = p.bg0 })
   vim.api.nvim_set_hl(0, "MiniStatuslinePill", { fg = p.fg1, bg = p.bg2, bold = true })
   vim.api.nvim_set_hl(0, "MiniStatuslinePillCap", { fg = p.bg2, bg = p.bg0 })
+  for _, color in ipairs(ICON_COLORS) do
+    local fg = vim.api.nvim_get_hl(0, { name = "MiniIcons" .. color, link = false }).fg
+    vim.api.nvim_set_hl(0, "MiniStatuslinePillIcon" .. color, { fg = fg, bg = p.bg2 })
+  end
   vim.api.nvim_set_hl(0, "MiniStatuslinePackUpdates", { fg = p.green.base, bg = p.bg0 })
 end
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_statusline_highlights })
@@ -56,15 +63,24 @@ local function section_filename(args)
   return name:sub(#root + 2):gsub("%%", "%%%%") .. "%m%r"
 end
 
----`text` on a pill with rounded ends, or padded plainly when no palette colors the pill.
+---`icon` in its own color, then `text`, on a pill with rounded ends, or both padded plainly
+---when no palette colors the pill.
 ---@param text string
+---@param icon string
+---@param icon_hl string One of mini.icons' `MiniIcons<color>` groups.
 ---@return string
-local function pill(text)
+local function pill(text, icon, icon_hl)
   if not vim.api.nvim_get_hl(0, { name = "MiniStatuslinePill" }).bg then
-    return " " .. text .. " "
+    return " " .. icon .. " " .. text .. " "
   end
-  local cap = "%#MiniStatuslinePillCap#"
-  return cap .. LEFT_CAP .. "%#MiniStatuslinePill# " .. text .. " " .. cap .. RIGHT_CAP .. "%#MiniStatuslineFilename#"
+  local icon_group = "MiniStatuslinePillIcon" .. icon_hl:sub(#"MiniIcons" + 1)
+  return table.concat({
+    "%#MiniStatuslinePillCap#" .. LEFT_CAP,
+    "%#" .. icon_group .. "# " .. icon,
+    "%#MiniStatuslinePill# " .. text .. " ",
+    "%#MiniStatuslinePillCap#" .. RIGHT_CAP,
+    "%#MiniStatuslineFilename#",
+  })
 end
 
 ---One statusline of `left`, `middle`, and `right`, with `middle` centered in `columns`
@@ -91,6 +107,7 @@ require("mini.statusline").setup({
       local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
       local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
       local filename = section_filename({ trunc_width = 140 })
+      local icon, icon_hl = MiniIcons.get("file", vim.api.nvim_buf_get_name(0))
       local location = MiniStatusline.section_location({ trunc_width = 75 })
       local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
       local updates = section_pack_updates({ trunc_width = 75 })
@@ -100,7 +117,7 @@ require("mini.statusline").setup({
         { hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
         { hl = "MiniStatuslineFilename" },
       })
-      local middle = "%<" .. pill(filename)
+      local middle = "%<" .. pill(filename, icon, icon_hl)
       local right = MiniStatusline.combine_groups({
         { hl = "MiniStatuslinePackUpdates", strings = { updates } },
         { hl = mode_hl, strings = { search, location } },
